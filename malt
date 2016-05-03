@@ -41,7 +41,7 @@ $app->command('serve', function ($output) {
 
     Malt\LaunchDaemon::restart();
 
-    $output->writeln('<info>What a rush...</info>');
+    $output->writeln('<info>This directory has been added to your serve paths!</info>');
 });
 
 /**
@@ -75,7 +75,7 @@ $app->command('restart', function ($output) {
 
     Malt\LaunchDaemon::restart();
 
-    $output->writeln('<info>Respect the reset...</info>');
+    $output->writeln('<info>Malt services have been restarted.</info>');
 });
 
 /**
@@ -86,7 +86,7 @@ $app->command('stop', function ($output) {
 
     Malt\LaunchDaemon::stop();
 
-    $output->writeln('<info>The hard reset... Love it.</info>');
+    $output->writeln('<info>Malt services have been stopped.</info>');
 });
 
 /**
