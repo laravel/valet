@@ -1,6 +1,6 @@
 {
     "name": "laravel/malt",
-    "description": "A more enjoyable PHP local development experience for Mac.",
+    "description": "A more enjoyable local development experience for Mac.",
     "keywords": ["laravel"],
     "license": "MIT",
     "authors": [
