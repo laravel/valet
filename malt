@@ -14,7 +14,7 @@ use Silly\Application;
 /**
  * Create the application.
  */
-$app = new Application('Laravel Malt', 'v1.0.0');
+$app = new Application('Laravel Malt', 'v0.1.2');
 
 /**
  * Allow Malt to be run more conveniently by allowing the Node proxy to run password-less sudo.
