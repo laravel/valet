@@ -3,14 +3,6 @@
 use Symfony\Component\Process\Process;
 
 /**
- * Die and dump a variable's value.
- */
-function dd($value)
-{
-    die(var_dump($value));
-}
-
-/**
  * Simple global function to run commands.
  */
 function quietly($command)
