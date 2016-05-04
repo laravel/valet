@@ -2,6 +2,14 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+if [ ! -f "$DIR/valet.php" ]
+then
+    OLDPWD=$PWD
+    cd ../laravel/valet
+    DIR=$(pwd)
+    cd $OLDPWD
+fi
+
 if [ $1 = "share" ]
 then
     bash $DIR/share-fetch-url.sh &
