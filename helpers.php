@@ -11,6 +11,31 @@ function quietly($command)
 }
 
 /**
+ * Retry the given function N times.
+ *
+ * @param  int  $retries
+ * @param  callable  $retries
+ * @param  int  $sleep
+ * @return mixed
+ */
+function retry($retries, $fn, $sleep = 0)
+{
+    beginning:
+    try {
+        return $fn();
+    } catch (Exception $e) {
+        if (!$retries) {
+            throw $e;
+        }
+        $retries--;
+        if ($sleep > 0) {
+            usleep($sleep * 1000);
+        }
+        goto beginning;
+    }
+}
+
+/**
  * Check the system's compatibility with Valet.
  *
  * @return bool
