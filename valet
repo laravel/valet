@@ -15,7 +15,7 @@ then
     sudo php $DIR/valet.php $@
 elif [[ $1 = "share" ]]
 then
-    bash $DIR/share-fetch-url.sh &
+    bash $DIR/fetch-share-url.sh &
     $DIR/bin/ngrok http -host-header=rewrite ${PWD##*/}.dev:80
 else
     php $DIR/valet.php $@

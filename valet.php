@@ -107,7 +107,7 @@ $app->command('prune', function ($output) {
 /**
  * Echo the currently tunneled URL.
  */
-$app->command('share-fetch-url', function ($output) {
+$app->command('fetch-share-url', function ($output) {
     retry(20, function () use ($output) {
         $response = Httpful\Request::get('http://127.0.0.1:4040/api/tunnels')->send();
 
