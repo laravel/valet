@@ -52,7 +52,7 @@ $app->command('forget', function ($output) {
 });
 
 /**
- * Add the current working directory to the paths configuration.
+ * Register a symbolic link with Valet.
  */
 $app->command('link [name]', function ($name, $output) {
     $name = $name ?: basename(getcwd());
@@ -83,7 +83,7 @@ $app->command('unlink [name]', function ($name, $output) {
 });
 
 /**
- * Add the current working directory to the paths configuration.
+ * Stream all of the logs for all sites.
  */
 $app->command('logs', function ($output) {
     $files = Valet\Site::logs();
@@ -139,7 +139,18 @@ $app->command('fetch-share-url', function ($output) {
 });
 
 /**
- * Add the current working directory to the paths configuration.
+ * Start the daemon services.
+ */
+$app->command('start', function ($output) {
+    should_be_sudo();
+
+    Valet\LaunchDaemon::restart();
+
+    $output->writeln('<info>Valet services have been started.</info>');
+});
+
+/**
+ * Restart the daemon services.
  */
 $app->command('restart', function ($output) {
     should_be_sudo();
@@ -150,7 +161,7 @@ $app->command('restart', function ($output) {
 });
 
 /**
- * Add the current working directory to the paths configuration.
+ * Stop the daemon services.
  */
 $app->command('stop', function ($output) {
     should_be_sudo();
@@ -161,7 +172,7 @@ $app->command('stop', function ($output) {
 });
 
 /**
- * Add the current working directory to the paths configuration.
+ * Uninstall Valet entirely.
  */
 $app->command('uninstall', function ($output) {
     should_be_sudo();
