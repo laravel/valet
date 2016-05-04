@@ -36,10 +36,10 @@ $app->command('install', function ($output) {
 /**
  * Add the current working directory to the paths configuration.
  */
-$app->command('serve', function ($output) {
+$app->command('park', function ($output) {
     Valet\Configuration::addPath(getcwd());
 
-    $output->writeln("<info>This directory has been added to Valet's served paths.</info>");
+    $output->writeln("<info>This directory has been added to Valet's paths.</info>");
 });
 
 /**
