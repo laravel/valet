@@ -10,6 +10,7 @@ if (file_exists(__DIR__.'/vendor/autoload.php')) {
 should_be_compatible();
 
 use Silly\Application;
+use Symfony\Component\Process\Process;
 
 /**
  * Create the application.
@@ -64,6 +65,19 @@ $app->command('logs', function ($output) {
         passthru('tail -f '.implode(' ', $files));
     } else {
         $output->writeln('No log files were found.');
+    }
+});
+
+/**
+ * Add the current working directory to the paths configuration.
+ */
+$app->command('paths', function ($output) {
+    $paths = Valet\Configuration::read()['paths'];
+
+    if (count($paths) > 0) {
+        $output->writeln(json_encode($paths, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    } else {
+        $output->writeln('No paths have been registered.');
     }
 });
 
