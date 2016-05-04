@@ -61,7 +61,15 @@ class Site
             foreach (scandir($path) as $directory) {
                 $logPath = $path.'/'.$directory.'/storage/logs/laravel.log';
 
-                if (! in_array($directory, ['.', '..']) && file_exists($logPath)) {
+                if (in_array($directory, ['.', '..'])) {
+                    continue;
+                }
+
+                if (file_exists($logPath)) {
+                    $files[] = $logPath;
+                } elseif (is_dir(dirname($logPath))) {
+                    touch($logPath);
+
                     $files[] = $logPath;
                 }
             }
