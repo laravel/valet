@@ -69,7 +69,7 @@ $app->command('logs', function ($output) {
 });
 
 /**
- * Add the current working directory to the paths configuration.
+ * Display all of the registered paths.
  */
 $app->command('paths', function ($output) {
     $paths = Valet\Configuration::read()['paths'];
@@ -79,6 +79,25 @@ $app->command('paths', function ($output) {
     } else {
         $output->writeln('No paths have been registered.');
     }
+});
+
+/**
+ * Prune any non-existent paths.
+ */
+$app->command('prune', function ($output) {
+    $config = Valet\Configuration::read();
+
+    foreach ($config['paths'] as $key => $path) {
+        if (! is_dir($path)) {
+            unset($config['paths'][$key]);
+
+            $output->writeln('<comment>Pruning:</comment> '.$path);
+        }
+    }
+
+    $config['paths'] = array_values($config['paths']);
+
+    Valet\Configuration::write($config);
 });
 
 /**
