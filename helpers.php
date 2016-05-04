@@ -48,12 +48,6 @@ function should_be_compatible()
         exit(1);
     }
 
-    if (exec('which php') != '/usr/local/bin/php') {
-        echo "Valet requires PHP to be installed at [/usr/local/bin/php].";
-
-        exit(1);
-    }
-
     if (PHP_MAJOR_VERSION < 7) {
         echo "Valet requires PHP 7.0 or later.";
 
