@@ -66,7 +66,7 @@ class Configuration
         file_put_contents(static::path(), json_encode($config, JSON_PRETTY_PRINT).PHP_EOL);
 
         if ($chown) {
-            chown(static::path(), $_SERVER['SUDO_USER']);
+            chown(static::path(), $_SERVER['SUDO_USER'] ?? $_SERVER['USER']);
         }
     }
 }

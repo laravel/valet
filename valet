@@ -36,13 +36,34 @@ $app->command('install', function ($output) {
  * Add the current working directory to the paths configuration.
  */
 $app->command('serve', function ($output) {
-    should_be_sudo();
-
     Valet\Configuration::addPath(getcwd());
 
-    Valet\LaunchDaemon::restart();
-
     $output->writeln('<info>This directory has been added to your serve paths!</info>');
+});
+
+/**
+ * Add the current working directory to the paths configuration.
+ */
+$app->command('link name', function ($name, $output) {
+    $linkPath = Valet\Site::link($name);
+
+    $output->writeln('<info>A ['.$name.'] symbolic link has been created in ['.$linkPath.'].</info>');
+});
+
+/**
+ * Display all of the registered symbolic links.
+ */
+$app->command('links', function () {
+    passthru('ls -la '.$_SERVER['HOME'].'/.valet/Sites');
+});
+
+/**
+ * Unlink a link from the Valet links directory.
+ */
+$app->command('unlink name', function ($name, $output) {
+    Valet\Site::unlink($name);
+
+    $output->writeln('<info>The ['.$name.'] symbolic link has been removed.</info>');
 });
 
 /**
