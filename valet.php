@@ -14,7 +14,7 @@ use Silly\Application;
 /**
  * Create the application.
  */
-$app = new Application('Laravel Valet', 'v0.1.7');
+$app = new Application('Laravel Valet', 'v0.1.8');
 
 /**
  * Allow Valet to be run more conveniently by allowing the Node proxy to run password-less sudo.
