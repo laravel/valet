@@ -29,7 +29,7 @@ class LaunchDaemon
     }
 
     /**
-     * Restart the launch daemon.
+     * Stop the launch daemon.
      *
      * @return void
      */

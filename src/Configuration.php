@@ -46,6 +46,26 @@ class Configuration
     }
 
     /**
+     * Prune all non-existent paths from the configuration.
+     *
+     * @return void
+     */
+    public static function prune()
+    {
+        $config = static::read();
+
+        foreach ($config['paths'] as $key => $path) {
+            if (! is_dir($path)) {
+                unset($config['paths'][$key]);
+            }
+        }
+
+        $config['paths'] = array_values($config['paths']);
+
+        static::write($config);
+    }
+
+    /**
      * Read the configuration file as JSON.
      *
      * @return array

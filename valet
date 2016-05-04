@@ -10,7 +10,6 @@ if (file_exists(__DIR__.'/vendor/autoload.php')) {
 should_be_compatible();
 
 use Silly\Application;
-use Symfony\Component\Process\Process;
 
 /**
  * Create the application.
@@ -40,7 +39,7 @@ $app->command('install', function ($output) {
 $app->command('serve', function ($output) {
     Valet\Configuration::addPath(getcwd());
 
-    $output->writeln('<info>This directory has been added to your serve paths!</info>');
+    $output->writeln("<info>This directory has been added to Valet's served paths.</info>");
 });
 
 /**
@@ -63,31 +62,23 @@ $app->command('links', function () {
  * Unlink a link from the Valet links directory.
  */
 $app->command('unlink name', function ($name, $output) {
-    Valet\Site::unlink($name);
-
-    $output->writeln('<info>The ['.$name.'] symbolic link has been removed.</info>');
+    if (Valet\Site::unlink($name)) {
+        $output->writeln('<info>The ['.$name.'] symbolic link has been removed.</info>');
+    } else {
+        $output->writeln('<fg=red>A symbolic link with this name does not exist.</>');
+    }
 });
 
 /**
  * Add the current working directory to the paths configuration.
  */
 $app->command('logs', function ($output) {
-    $paths = Valet\Configuration::read()['paths'];
-
-    $files = [];
-
-    foreach ($paths as $path) {
-        foreach (scandir($path) as $directory) {
-            if (! in_array($directory, ['.', '..']) && file_exists($logPath = $path.'/'.$directory.'/storage/logs/laravel.log')) {
-                $files[] = $logPath;
-            }
-        }
-    }
+    $files = Valet\Site::logs();
 
     if (count($files) > 0) {
         passthru('tail -f '.implode(' ', $files));
     } else {
-        $output->writeln('No log files were found.');
+        $output->writeln('<fg=red>No log files were found.</>');
     }
 });
 
@@ -108,19 +99,9 @@ $app->command('paths', function ($output) {
  * Prune any non-existent paths.
  */
 $app->command('prune', function ($output) {
-    $config = Valet\Configuration::read();
+    Valet\Configuration::prune();
 
-    foreach ($config['paths'] as $key => $path) {
-        if (! is_dir($path)) {
-            unset($config['paths'][$key]);
-
-            $output->writeln('<comment>Pruning:</comment> '.$path);
-        }
-    }
-
-    $config['paths'] = array_values($config['paths']);
-
-    Valet\Configuration::write($config);
+    $output->writeln('<info>All missing paths have been pruned.</info>');
 });
 
 /**

@@ -37,6 +37,36 @@ class Site
      */
     public static function unlink($name)
     {
-        @unlink($_SERVER['HOME'].'/.valet/Sites/'.$name);
+        if (! file_exists($path = $_SERVER['HOME'].'/.valet/Sites/'.$name)) {
+            return false;
+        }
+
+        @unlink($path);
+
+        return true;
+    }
+
+    /**
+     * Get all of the log files for all sites.
+     *
+     * @return array
+     */
+    public static function logs()
+    {
+        $paths = Configuration::read()['paths'];
+
+        $files = [];
+
+        foreach ($paths as $path) {
+            foreach (scandir($path) as $directory) {
+                $logPath = $path.'/'.$directory.'/storage/logs/laravel.log';
+
+                if (! in_array($directory, ['.', '..']) && file_exists($logPath)) {
+                    $files[] = $logPath;
+                }
+            }
+        }
+
+        return $files;
     }
 }
