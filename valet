@@ -10,7 +10,10 @@ then
     cd $OLDPWD
 fi
 
-if [ $1 = "share" ]
+if [ $1 = "install" ]
+then
+    sudo php $DIR/valet.php $@
+elif [ $1 = "share" ]
 then
     bash $DIR/share-fetch-url.sh &
     $DIR/bin/ngrok http -host-header=rewrite ${PWD##*/}.dev:80
