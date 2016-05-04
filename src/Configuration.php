@@ -17,7 +17,9 @@ class Configuration
             chown($directory, $_SERVER['SUDO_USER']);
         }
 
-        static::write(['domain' => 'dev', 'paths' => []], true);
+        static::write(['domain' => 'dev', 'paths' => []]);
+
+        chown(static::path(), $_SERVER['SUDO_USER']);
     }
 
     /**
@@ -32,7 +34,7 @@ class Configuration
 
         $config['paths'] = array_unique(array_merge($config['paths'], [$path]));
 
-        static::write($config, true);
+        static::write($config);
     }
 
     /**
@@ -81,12 +83,8 @@ class Configuration
      * @param  array  $config
      * @return void
      */
-    public static function write(array $config, $chown = false)
+    public static function write(array $config)
     {
         file_put_contents(static::path(), json_encode($config, JSON_PRETTY_PRINT).PHP_EOL);
-
-        if ($chown) {
-            chown(static::path(), $_SERVER['SUDO_USER'] ?? $_SERVER['USER']);
-        }
     }
 }
