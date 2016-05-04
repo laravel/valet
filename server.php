@@ -20,6 +20,29 @@ $site = basename(
 );
 
 /**
+ * Find the fully qualified path to the site.
+ */
+foreach ($GLOBALS['VALET']['paths'] as $path) {
+    if (is_dir($path.'/'.$site)) {
+        define('VALET_SITE_PATH', $path.'/'.$site);
+        break;
+    }
+}
+
+if (! defined('VALET_SITE_PATH')) {
+    return require __DIR__.'/404.html';
+}
+
+/**
+ * Check if the site is a Statamic site.
+ */
+if (is_dir(VALET_SITE_PATH.'/statamic')) {
+    require __DIR__.'/statamic-server.php';
+
+    exit;
+}
+
+/**
  * Determine if the given URI is a static file.
  *
  * @param  string  $site
@@ -32,10 +55,8 @@ function is_static_file($site, $uri)
         return false;
     }
 
-    foreach ($GLOBALS['VALET']['paths'] as $path) {
-        if (file_exists($path.'/'.$site.'/public'.$uri)) {
-            return true;
-        }
+    if (file_exists(VALET_SITE_PATH.'/public'.$uri)) {
+        return true;
     }
 }
 
@@ -52,12 +73,10 @@ function serve_file($site, $uri)
 
     header('Content-Type: '.$mimes[pathinfo($uri)['extension']]);
 
-    foreach ($GLOBALS['VALET']['paths'] as $path) {
-        if (file_exists($path.'/'.$site.'/public'.$uri)) {
-            readfile($path.'/'.$site.'/public'.$uri);
+    if (file_exists(VALET_SITE_PATH.'/public'.$uri)) {
+        readfile(VALET_SITE_PATH.'/public'.$uri);
 
-            return;
-        }
+        return;
     }
 }
 
@@ -66,12 +85,10 @@ function serve_file($site, $uri)
  */
 function dispatch($site)
 {
-    foreach ($GLOBALS['VALET']['paths'] as $path) {
-        if (file_exists($indexPath = $path.'/'.$site.'/public/index.php')) {
-            posix_setuid(fileowner($indexPath));
+    if (file_exists($indexPath = VALET_SITE_PATH.'/public/index.php')) {
+        posix_setuid(fileowner($indexPath));
 
-            return require_once $indexPath;
-        }
+        return require_once $indexPath;
     }
 
     http_response_code(404);
