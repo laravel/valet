@@ -48,15 +48,18 @@ class DnsMasq
      */
     protected static function download($output)
     {
-        $output->writeln('<info>DnsMasq is not installed, installing it now via Brew...</info> 🍻'.PHP_EOL);
+        $output->writeln('<info>DnsMasq is not installed, installing it now via Brew...</info> 🍻');
 
         $process = new Process('sudo -u '.$_SERVER['SUDO_USER'].' brew install dnsmasq');
 
-        $process->run(function ($type, $line) use ($output) {
-            $output->write($line);
+        $processOutput = '';
+        $process->run(function ($type, $line) use (&$processOutput) {
+            $processOutput .= $line;
         });
 
         if ($process->getExitCode() > 0) {
+            $output->write($processOutput);
+
             throw new Exception('We were unable to install DnsMasq.');
         }
 
