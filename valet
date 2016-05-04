@@ -5,15 +5,15 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 if [ ! -f "$DIR/valet.php" ]
 then
     OLDPWD=$PWD
-    cd ../laravel/valet
+    cd $DIR/../laravel/valet
     DIR=$(pwd)
     cd $OLDPWD
 fi
 
-if [ $1 = "install" ]
+if [[ $1 = "install" ]]
 then
     sudo php $DIR/valet.php $@
-elif [ $1 = "share" ]
+elif [[ $1 = "share" ]]
 then
     bash $DIR/share-fetch-url.sh &
     $DIR/bin/ngrok http -host-header=rewrite ${PWD##*/}.dev:80
