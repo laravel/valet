@@ -11,9 +11,13 @@ class LaunchDaemon
      */
     public static function install()
     {
-        file_put_contents('/Library/LaunchDaemons/com.laravel.valetServer.plist', str_replace(
+        $contents = str_replace(
             'SERVER_PATH', realpath(__DIR__.'/../server.php'), file_get_contents(__DIR__.'/../stubs/daemon.plist')
-        ));
+        );
+
+        $contents = str_replace('PHP_PATH', exec('which php'), $contents);
+
+        file_put_contents('/Library/LaunchDaemons/com.laravel.valetServer.plist', $contents);
     }
 
     /**

@@ -6,7 +6,7 @@
     <string>com.laravel.valetServer</string>
     <key>ProgramArguments</key>
     <array>
-        <string>/usr/local/bin/php</string>
+        <string>PHP_PATH</string>
         <string>-S</string>
         <string>127.0.0.1:80</string>
         <string>SERVER_PATH</string>
