@@ -45,7 +45,7 @@ $app->command('park', function ($output) {
 /**
  * Remove the current working directory to the paths configuration.
  */
-$app->command('recall', function ($output) {
+$app->command('forget', function ($output) {
     Valet\Configuration::removePath(getcwd());
 
     $output->writeln("<info>This directory has been removed from Valet's paths.</info>");
