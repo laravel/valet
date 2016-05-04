@@ -1,0 +1,106 @@
+#!/usr/bin/env php
+<?php
+
+if (file_exists(__DIR__.'/vendor/autoload.php')) {
+    require __DIR__.'/vendor/autoload.php';
+} else {
+    require __DIR__.'/../../autoload.php';
+}
+
+should_be_compatible();
+
+use Silly\Application;
+
+/**
+ * Create the application.
+ */
+$app = new Application('Laravel Valet', 'v0.1.4');
+
+/**
+ * Allow Valet to be run more conveniently by allowing the Node proxy to run password-less sudo.
+ */
+$app->command('install', function ($output) {
+    should_be_sudo();
+
+    Valet\LaunchDaemon::install();
+
+    Valet\Configuration::install();
+
+    Valet\DnsMasq::install($output);
+
+    $output->writeln(PHP_EOL.'<info>Valet installed successfully!</info>');
+});
+
+/**
+ * Add the current working directory to the paths configuration.
+ */
+$app->command('serve', function ($output) {
+    should_be_sudo();
+
+    Valet\Configuration::addPath(getcwd());
+
+    Valet\LaunchDaemon::restart();
+
+    $output->writeln('<info>This directory has been added to your serve paths!</info>');
+});
+
+/**
+ * Add the current working directory to the paths configuration.
+ */
+$app->command('logs', function ($output) {
+    $paths = Valet\Configuration::read()['paths'];
+
+    $files = [];
+
+    foreach ($paths as $path) {
+        foreach (scandir($path) as $directory) {
+            if (! in_array($directory, ['.', '..']) && file_exists($logPath = $path.'/'.$directory.'/storage/logs/laravel.log')) {
+                $files[] = $logPath;
+            }
+        }
+    }
+
+    if (count($files) > 0) {
+        passthru('tail -f '.implode(' ', $files));
+    } else {
+        $output->writeln('No log files were found.');
+    }
+});
+
+/**
+ * Add the current working directory to the paths configuration.
+ */
+$app->command('restart', function ($output) {
+    should_be_sudo();
+
+    Valet\LaunchDaemon::restart();
+
+    $output->writeln('<info>Valet services have been restarted.</info>');
+});
+
+/**
+ * Add the current working directory to the paths configuration.
+ */
+$app->command('stop', function ($output) {
+    should_be_sudo();
+
+    Valet\LaunchDaemon::stop();
+
+    $output->writeln('<info>Valet services have been stopped.</info>');
+});
+
+/**
+ * Add the current working directory to the paths configuration.
+ */
+$app->command('uninstall', function ($output) {
+    should_be_sudo();
+
+    Valet\LaunchDaemon::uninstall();
+
+    $output->writeln('<info>Valet has been uninstalled.</info>');
+});
+
+/**
+ * Run the application.
+ */
+$app->run();
