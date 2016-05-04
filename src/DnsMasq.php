@@ -92,6 +92,10 @@ class DnsMasq
      */
     protected static function createResolver()
     {
+        if (! is_dir('/etc/resolver')) {
+            mkdir('/etc/resolver', 0755);
+        }
+
         file_put_contents('/etc/resolver/dev', 'nameserver 127.0.0.1'.PHP_EOL);
     }
 }
