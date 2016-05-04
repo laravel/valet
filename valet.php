@@ -45,7 +45,9 @@ $app->command('serve', function ($output) {
 /**
  * Add the current working directory to the paths configuration.
  */
-$app->command('link name', function ($name, $output) {
+$app->command('link [name]', function ($name, $output) {
+    $name = $name ?: basename(getcwd());
+
     $linkPath = Valet\Site::link($name);
 
     $output->writeln('<info>A ['.$name.'] symbolic link has been created in ['.$linkPath.'].</info>');
@@ -61,7 +63,9 @@ $app->command('links', function () {
 /**
  * Unlink a link from the Valet links directory.
  */
-$app->command('unlink name', function ($name, $output) {
+$app->command('unlink [name]', function ($name, $output) {
+    $name = $name ?: basename(getcwd());
+
     if (Valet\Site::unlink($name)) {
         $output->writeln('<info>The ['.$name.'] symbolic link has been removed.</info>');
     } else {
