@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.laravel.maltServer</string>
+    <string>com.laravel.valetServer</string>
     <key>ProgramArguments</key>
     <array>
         <string>/usr/local/bin/php</string>
@@ -14,6 +14,6 @@
     <key>RunAtLoad</key>
     <true/>
     <key>StandardErrorPath</key>
-    <string>/tmp/com.laravel.maltServer.err</string>
+    <string>/tmp/com.laravel.valetServer.err</string>
 </dict>
 </plist>

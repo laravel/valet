@@ -1,5 +1,5 @@
 {
-    "name": "laravel/malt",
+    "name": "laravel/valet",
     "description": "A more enjoyable local development experience for Mac.",
     "keywords": ["laravel"],
     "license": "MIT",
@@ -18,7 +18,7 @@
             "helpers.php"
         ],
         "psr-4": {
-            "Malt\\": "src/"
+            "Valet\\": "src/"
         }
     },
     "require": {
@@ -26,6 +26,6 @@
         "symfony/process": "~2.7|~3.0"
     },
     "bin": [
-        "malt"
+        "valet"
     ]
 }

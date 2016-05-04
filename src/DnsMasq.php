@@ -1,6 +1,6 @@
 <?php
 
-namespace Malt;
+namespace Valet;
 
 use Exception;
 use Symfony\Component\Process\Process;
@@ -70,7 +70,7 @@ class DnsMasq
      */
     protected static function createCustomConfigurationFile()
     {
-        $dnsMasqConfigPath = '/Users/'.$_SERVER['SUDO_USER'].'/.malt/dnsmasq.conf';
+        $dnsMasqConfigPath = '/Users/'.$_SERVER['SUDO_USER'].'/.valet/dnsmasq.conf';
 
         copy('/usr/local/opt/dnsmasq/dnsmasq.conf.example', '/usr/local/etc/dnsmasq.conf');
 

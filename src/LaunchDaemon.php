@@ -1,6 +1,6 @@
 <?php
 
-namespace Malt;
+namespace Valet;
 
 class LaunchDaemon
 {
@@ -11,7 +11,7 @@ class LaunchDaemon
      */
     public static function install()
     {
-        file_put_contents('/Library/LaunchDaemons/com.laravel.maltServer.plist', str_replace(
+        file_put_contents('/Library/LaunchDaemons/com.laravel.valetServer.plist', str_replace(
             'SERVER_PATH', realpath(__DIR__.'/../server.php'), file_get_contents(__DIR__.'/../stubs/daemon.plist')
         ));
     }
@@ -23,9 +23,9 @@ class LaunchDaemon
      */
     public static function restart()
     {
-        quietly('launchctl unload /Library/LaunchDaemons/com.laravel.maltServer.plist > /dev/null');
+        quietly('launchctl unload /Library/LaunchDaemons/com.laravel.valetServer.plist > /dev/null');
 
-        exec('launchctl load /Library/LaunchDaemons/com.laravel.maltServer.plist');
+        exec('launchctl load /Library/LaunchDaemons/com.laravel.valetServer.plist');
     }
 
     /**
@@ -35,7 +35,7 @@ class LaunchDaemon
      */
     public static function stop()
     {
-        quietly('launchctl unload /Library/LaunchDaemons/com.laravel.maltServer.plist > /dev/null');
+        quietly('launchctl unload /Library/LaunchDaemons/com.laravel.valetServer.plist > /dev/null');
     }
 
     /**
@@ -47,6 +47,6 @@ class LaunchDaemon
     {
         static::stop();
 
-        unlink('/Library/LaunchDaemons/com.laravel.maltServer.plist');
+        unlink('/Library/LaunchDaemons/com.laravel.valetServer.plist');
     }
 }

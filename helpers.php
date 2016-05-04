@@ -11,32 +11,32 @@ function quietly($command)
 }
 
 /**
- * Check the system's compatibility with Malt.
+ * Check the system's compatibility with Valet.
  *
  * @return bool
  */
 function should_be_compatible()
 {
     if (PHP_OS != 'Darwin') {
-        echo 'Malt only supports the Mac operating system.'.PHP_EOL;
+        echo 'Valet only supports the Mac operating system.'.PHP_EOL;
 
         exit(1);
     }
 
     if (exec('which php') != '/usr/local/bin/php') {
-        echo "Malt requires PHP to be installed at [/usr/local/bin/php].";
+        echo "Valet requires PHP to be installed at [/usr/local/bin/php].";
 
         exit(1);
     }
 
     if (PHP_MAJOR_VERSION < 7) {
-        echo "Malt requires PHP 7.0 or later.";
+        echo "Valet requires PHP 7.0 or later.";
 
         exit(1);
     }
 
     if (exec('which brew') != '/usr/local/bin/brew') {
-        echo 'Malt requires Brew to be installed on your Mac.';
+        echo 'Valet requires Brew to be installed on your Mac.';
 
         exit(1);
     }

@@ -1,17 +1,17 @@
 <?php
 
-namespace Malt;
+namespace Valet;
 
 class Configuration
 {
     /**
-     * Install the Malt configuration file.
+     * Install the Valet configuration file.
      *
      * @return void
      */
     public static function install()
     {
-        if (! is_dir($directory = $_SERVER['HOME'].'/.malt')) {
+        if (! is_dir($directory = $_SERVER['HOME'].'/.valet')) {
             mkdir($directory, 0755);
 
             chown($directory, $_SERVER['SUDO_USER']);
@@ -42,7 +42,7 @@ class Configuration
      */
     public static function path()
     {
-        return $_SERVER['HOME'].'/.malt/config.json';
+        return $_SERVER['HOME'].'/.valet/config.json';
     }
 
     /**

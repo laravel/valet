@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Load the Malt configuration.
+ * Load the Valet configuration.
  */
-$GLOBALS['MALT'] = json_decode(
-    file_get_contents('/Users/'.posix_getpwuid(fileowner(__FILE__))['name'].'/.malt/config.json'), true
+$GLOBALS['VALET'] = json_decode(
+    file_get_contents('/Users/'.posix_getpwuid(fileowner(__FILE__))['name'].'/.valet/config.json'), true
 );
 
 /**
@@ -16,7 +16,7 @@ $uri = urldecode(
 
 $site = basename(
     $_SERVER['HTTP_HOST'],
-    '.'.$GLOBALS['MALT']['domain'] ?? 'dev'
+    '.'.$GLOBALS['VALET']['domain'] ?? 'dev'
 );
 
 /**
@@ -32,7 +32,7 @@ function is_static_file($site, $uri)
         return false;
     }
 
-    foreach ($GLOBALS['MALT']['paths'] as $path) {
+    foreach ($GLOBALS['VALET']['paths'] as $path) {
         if (file_exists($path.'/'.$site.'/public'.$uri)) {
             return true;
         }
@@ -52,7 +52,7 @@ function serve_file($site, $uri)
 
     header('Content-Type: '.$mimes[pathinfo($uri)['extension']]);
 
-    foreach ($GLOBALS['MALT']['paths'] as $path) {
+    foreach ($GLOBALS['VALET']['paths'] as $path) {
         if (file_exists($path.'/'.$site.'/public'.$uri)) {
             readfile($path.'/'.$site.'/public'.$uri);
 
@@ -66,7 +66,7 @@ function serve_file($site, $uri)
  */
 function dispatch($site)
 {
-    foreach ($GLOBALS['MALT']['paths'] as $path) {
+    foreach ($GLOBALS['VALET']['paths'] as $path) {
         if (file_exists($indexPath = $path.'/'.$site.'/public/index.php')) {
             posix_setuid(fileowner($indexPath));
 
