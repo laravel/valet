@@ -111,13 +111,17 @@ $app->command('share-fetch-url', function ($output) {
     retry(20, function () use ($output) {
         $response = Httpful\Request::get('http://127.0.0.1:4040/api/tunnels')->send();
 
-        if (isset($response->body->tunnels[0])) {
-            $index = $response->body->tunnels[0]->proto == 'http' ? 0 : 1;
+        $body = $response->body;
 
-            $output->write($response->body->tunnels[$index]->public_url);
-        } else {
-            throw new Exception("Tunnel not established.");
+        if (isset($body->tunnels) && count($body->tunnels) > 0) {
+            foreach ($body->tunnels as $tunnel) {
+                if ($tunnel->proto == 'http') {
+                    return $output->write($tunnel->public_url);
+                }
+            }
         }
+
+        throw new Exception("Tunnel not established.");
     }, 250);
 });
 
