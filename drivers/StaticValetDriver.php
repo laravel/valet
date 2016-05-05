@@ -12,7 +12,7 @@ class StaticValetDriver extends ValetDriver
      */
     public function serves($sitePath, $siteName, $uri)
     {
-        return file_exists($sitePath.'/index.html');
+        return $this->isStaticFile($sitePath, $siteName, $uri) !== false;
     }
 
     /**

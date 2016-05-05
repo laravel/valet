@@ -65,6 +65,7 @@ require_once __DIR__.'/drivers/ValetDriver.php';
 require_once __DIR__.'/drivers/StatamicValetDriver.php';
 require_once __DIR__.'/drivers/LaravelValetDriver.php';
 require_once __DIR__.'/drivers/StaticValetDriver.php';
+require_once __DIR__.'/drivers/JigsawValetDriver.php';
 
 $valetDriver = ValetDriver::assign($valetSitePath, $siteName, $uri);
 
@@ -75,6 +76,8 @@ if (! $valetDriver) {
 /**
  * Dispatch the request.
  */
+$uri = $valetDriver->mutateUri($uri);
+
 if ($uri !== '/' && $staticFilePath = $valetDriver->isStaticFile($valetSitePath, $siteName, $uri)) {
     return $valetDriver->serveStaticFile($staticFilePath, $valetSitePath, $siteName, $uri);
 }

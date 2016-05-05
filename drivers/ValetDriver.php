@@ -44,14 +44,15 @@ abstract class ValetDriver
     {
         $drivers = static::driversIn(VALET_HOME_PATH.'/Drivers');
 
-        $drivers[] = 'StatamicValetDriver';
         $drivers[] = 'LaravelValetDriver';
+        $drivers[] = 'StatamicValetDriver';
+        $drivers[] = 'JigsawValetDriver';
         $drivers[] = 'StaticValetDriver';
 
         foreach ($drivers as $driver) {
             $driver = new $driver;
 
-            if ($driver->serves($sitePath, $siteName, $uri)) {
+            if ($driver->serves($sitePath, $siteName, $driver->mutateUri($uri))) {
                 return $driver;
             }
         }
@@ -80,6 +81,17 @@ abstract class ValetDriver
         }
 
         return $drivers;
+    }
+
+    /**
+     * Mutate the incoming URI.
+     *
+     * @param  string  $uri
+     * @return string
+     */
+    public function mutateUri($uri)
+    {
+        return $uri;
     }
 
     /**
