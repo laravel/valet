@@ -84,7 +84,6 @@ Command  | Description
 ------------- | -------------
 `valet forget` | Run this command from a "parked" directory to remove it from the parked directory list.
 `valet paths` | View all of your "parked" paths.
-`valet prune` | Remove paths that no longer exist from your "parked" paths.
 `valet restart` | Restart the Valet daemon.
 `valet start` | Start the Valet daemon.
 `valet stop` | Stop the Valet daemon.
