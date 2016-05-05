@@ -23,7 +23,7 @@ In other words, a blazing fast Laravel development environment that uses roughly
 <a name="installation"></a>
 ### Installation
 
-Valet requires the Mac operating system and [Homebrew](http://brew.sh/). Before installation, you should make sure that no other programs such as Apache or Nginx are binding to your local machine's port 80.
+**Valet requires the Mac operating system and [Homebrew](http://brew.sh/). Before installation, you should make sure that no other programs such as Apache or Nginx are binding to your local machine's port 80.**
 
 1. Install or update [Homebrew](http://brew.sh/) to the latest version.
 2. Make sure `brew services` is available by running `brew services list` and making sure you get valid output. If it is not available, [add it](https://github.com/Homebrew/homebrew-services).
