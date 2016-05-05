@@ -75,7 +75,7 @@ To stop sharing your site, simply hit `Control + C` to cancel the process.
 <a name="viewing-logs"></a>
 ## Viewing Logs
 
-If you would like to stream all of the logs for all of your sites to your terminal, run the `valet logs` command. New log entries will display in your terminal as they occur. Squash those bugs!
+If you would like to stream all of the logs for all of your sites to your terminal, run the `valet logs` command. New log entries will display in your terminal as they occur. This is a great way to stay on top of all of your log files without ever having to leave your terminal.
 
 <a name="other-useful-commands"></a>
 ## Other Useful Commands
