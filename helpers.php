@@ -55,7 +55,7 @@ function should_be_compatible()
         exit(1);
     }
 
-    if (exec(Compatibility::get('WHICH_INSTALLER')) != Compatibility::get('WHICH_INSTALLER')) {
+    if (exec(Compatibility::get('WHICH_INSTALLER')) != Compatibility::get('WHICH_INSTALLER_PATH')) {
         echo Compatibility::get('WHICH_INSTALLER_ERROR');
 
         exit(1);
