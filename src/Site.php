@@ -37,13 +37,27 @@ class Site
      */
     public static function unlink($name)
     {
-        if (! file_exists($path = $_SERVER['HOME'].'/.valet/Sites/'.$name)) {
-            return false;
-        }
-
-        @unlink($path);
+        quietly('rm '.$_SERVER['HOME'].'/.valet/Sites/'.$name);
 
         return true;
+    }
+
+    /**
+     * Remove all broken symbolic links.
+     *
+     * @return void
+     */
+    public static function pruneLinks()
+    {
+        foreach (scandir($_SERVER['HOME'].'/.valet/Sites') as $file) {
+            if (in_array($file, ['.', '..'])) {
+                continue;
+            }
+
+            if (is_link($linkPath = $_SERVER['HOME'].'/.valet/Sites/'.$file) && ! file_exists($linkPath)) {
+                quietly('rm '.$linkPath);
+            }
+        }
     }
 
     /**

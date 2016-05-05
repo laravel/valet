@@ -17,6 +17,12 @@ use Silly\Application;
 $app = new Application('Laravel Valet', 'v1.0.0');
 
 /**
+ * Prune missing directories on every command.
+ */
+Valet\Configuration::prune();
+Valet\Site::pruneLinks();
+
+/**
  * Allow Valet to be run more conveniently by allowing the Node proxy to run password-less sudo.
  */
 $app->command('install', function ($output) {

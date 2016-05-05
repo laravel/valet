@@ -15,8 +15,19 @@ then
     sudo php $DIR/valet.php $@
 elif [[ $1 = "share" ]]
 then
+    HOST=${PWD##*/}
+
+    for linkname in ~/.valet/Sites/*; do
+        RESOLVED_LINK=$(readlink $linkname)
+
+        if [[ $RESOLVED_LINK = $PWD ]]
+        then
+            HOST=${linkname##*/}
+        fi
+    done
+
     bash $DIR/fetch-share-url.sh &
-    $DIR/bin/ngrok http -host-header=rewrite ${PWD##*/}.dev:80
+    $DIR/bin/ngrok http -host-header=rewrite $HOST.dev:80
 else
     php $DIR/valet.php $@
 fi
