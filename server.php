@@ -3,11 +3,13 @@
 /**
  * Define the user's "~/.valet" path.
  */
+require_once (file_exists(__DIR__.'/vendor/autoload.php')) ? __DIR__.'/vendor/autoload.php' : __DIR__.'/../../autoload.php';
 
+$valetHomePath = sprintf(
+    \Valet\Compatibility::get('VALET_HOME_PATH'),
+    posix_getpwuid(fileowner(__FILE__))['name']
+);
 
-require_once __DIR__.'/src/Compatibility.php';
-
-$valetHomePath = sprintf(\Valet\Compatibility::get('VALET_HOME_PATH'), posix_getpwuid(fileowner(__FILE__)));
 define('VALET_HOME_PATH', $valetHomePath);
 
 /**
