@@ -50,6 +50,7 @@ abstract class ValetDriver
         $drivers[] = 'WordPressValetDriver';
         $drivers[] = 'CraftValetDriver';
         $drivers[] = 'StaticValetDriver';
+        $drivers[] = 'SymfonyValetDriver';
 
         foreach ($drivers as $driver) {
             $driver = new $driver;
