@@ -18,12 +18,12 @@ No Vagrant, No Apache, No Nginx, No `/etc/hosts` file. You can even share your s
 
 Laravel Valet configures your Mac to always run PHP's built-in web server in the background when your machine starts. Then, using DnsMasq, Valet proxies all requests on the `*.dev` domain to point to sites installed on your local machine.
 
-In other words, a blazing fast PHP development environment that uses roughly 7mb of RAM. No Apache, No Nginx, No `/etc/hosts` file.
+In other words, a blazing fast Laravel development environment that uses roughly 7mb of RAM. No Apache, No Nginx, No `/etc/hosts` file.
 
 <a name="installation"></a>
 ### Installation
 
-Valet requires the Mac operating system and [Homebrew](http://brew.sh/).
+Valet requires the Mac operating system and [Homebrew](http://brew.sh/). Before installation, you should make sure that no other programs such as Apache or Nginx are binding to your local machine's port 80.
 
 1. Install or update [Homebrew](http://brew.sh/) to the latest version.
 2. Make sure `brew services` is available by running `brew services list` and making sure you get valid output. If it is not available, [add it](https://github.com/Homebrew/homebrew-services).
