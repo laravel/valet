@@ -42,8 +42,9 @@ function retry($retries, $fn, $sleep = 0)
  */
 function should_be_compatible()
 {
-    if (PHP_OS != 'Darwin') {
-        echo 'Valet only supports the Mac operating system.'.PHP_EOL;
+    if (PHP_OS != 'Linux') {
+        var_dump(PHP_OS);
+        echo 'Valet only supports the Linux operating system.'.PHP_EOL;
 
         exit(1);
     }
@@ -54,8 +55,8 @@ function should_be_compatible()
         exit(1);
     }
 
-    if (exec('which brew') != '/usr/local/bin/brew') {
-        echo 'Valet requires Brew to be installed on your Mac.';
+    if (exec('which apt-get') != '/usr/bin/apt-get') {
+        echo 'Valet requires apt-get to be installed on your Linux.';
 
         exit(1);
     }
