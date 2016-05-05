@@ -71,3 +71,6 @@ If you would like to stream all of the logs for all of your sites to your termin
 
 <a name="other-useful-commands"></a>
 ### Other Useful Commands
+
+- `valet forget` (Run this command from a "parked" directory to remove it from the parked directory list)
+- Something else
