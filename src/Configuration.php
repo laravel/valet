@@ -17,6 +17,12 @@ class Configuration
             chown($directory, $_SERVER['SUDO_USER']);
         }
 
+        if (! is_dir($driversDirectory = $_SERVER['HOME'].'/.valet/Drivers')) {
+            mkdir($driversDirectory, 0755);
+
+            chown($driversDirectory, $_SERVER['SUDO_USER']);
+        }
+
         if (! file_exists(static::path())) {
             static::write(['domain' => 'dev', 'paths' => []]);
         }

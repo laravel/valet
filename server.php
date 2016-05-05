@@ -1,102 +1,82 @@
 <?php
 
 /**
+ * Define the user's "~/.valet" path.
+ */
+define('VALET_HOME_PATH', '/Users/'.posix_getpwuid(fileowner(__FILE__))['name'].'/.valet');
+
+/**
+ * Show the Valet 404 "Not Found" page.
+ */
+function show_valet_404()
+{
+    http_response_code(404);
+    require __DIR__.'/404.html';
+    exit;
+}
+
+/**
  * Load the Valet configuration.
  */
-$GLOBALS['VALET'] = json_decode(
-    file_get_contents('/Users/'.posix_getpwuid(fileowner(__FILE__))['name'].'/.valet/config.json'), true
+$valetConfig = json_decode(
+    file_get_contents(VALET_HOME_PATH.'/config.json'), true
 );
 
 /**
- * Parse the URI and host for the incoming request.
+ * Parse the URI and site / host for the incoming request.
  */
 $uri = urldecode(
     parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)
 );
 
-$site = basename(
+$siteName = basename(
     $_SERVER['HTTP_HOST'],
-    '.'.$GLOBALS['VALET']['domain']
+    '.'.$valetConfig['domain']
 );
 
 /**
- * Find the fully qualified path to the site.
+ * Determine the fully qualified path to the site.
  */
-foreach ($GLOBALS['VALET']['paths'] as $path) {
-    if (is_dir($path.'/'.$site)) {
-        define('VALET_SITE_PATH', $path.'/'.$site);
+$valetSitePath = null;
+
+foreach ($valetConfig['paths'] as $path) {
+    if (is_dir($path.'/'.$siteName)) {
+        $valetSitePath = $path.'/'.$siteName;
+
         break;
     }
 }
 
-if (! defined('VALET_SITE_PATH')) {
-    return require __DIR__.'/404.html';
+if (is_null($valetSitePath)) {
+    show_valet_404();
 }
 
 /**
- * Check if the site is a Statamic site.
+ * Find the appropriate Valet driver for the request.
  */
-if (is_dir(VALET_SITE_PATH.'/statamic')) {
-    require __DIR__.'/servers/statamic.php';
+$valetDriver = null;
 
-    exit;
+require_once __DIR__.'/drivers/ValetDriver.php';
+require_once __DIR__.'/drivers/StatamicValetDriver.php';
+require_once __DIR__.'/drivers/LaravelValetDriver.php';
+
+$valetDriver = ValetDriver::assign($valetSitePath, $siteName, $uri);
+
+if (! $valetDriver) {
+    show_valet_404();
 }
 
 /**
- * Determine if the given URI is a static file.
- *
- * @param  string  $site
- * @param  string  $uri
- * @return bool
+ * Dispatch the request.
  */
-function is_static_file($site, $uri)
-{
-    if ($uri === '/') {
-        return false;
-    }
-
-    if (file_exists(VALET_SITE_PATH.'/public'.$uri)) {
-        return true;
-    }
+if ($uri !== '/' && $staticFilePath = $valetDriver->isStaticFile($valetSitePath, $siteName, $uri)) {
+    return $valetDriver->serveStaticFile($staticFilePath, $valetSitePath, $siteName, $uri);
 }
 
-/**
- * Serve a static file by URI.
- *
- * @param  string  $site
- * @param  string  $uri
- * @return void
- */
-function serve_file($site, $uri)
-{
-    $mimes = require(__DIR__.'/mimes.php');
+$frontControllerPath = $valetDriver->frontControllerPath(
+    $valetSitePath, $siteName, $uri
+);
 
-    header('Content-Type: '.$mimes[pathinfo($uri)['extension']]);
+posix_setuid(fileowner($frontControllerPath));
 
-    if (file_exists(VALET_SITE_PATH.'/public'.$uri)) {
-        readfile(VALET_SITE_PATH.'/public'.$uri);
-
-        return;
-    }
-}
-
-/**
- * Dispatch to the given site's Laravel installation.
- */
-function dispatch($site)
-{
-    if (file_exists($indexPath = VALET_SITE_PATH.'/public/index.php')) {
-        posix_setuid(fileowner($indexPath));
-
-        return require_once $indexPath;
-    }
-
-    http_response_code(404);
-
-    require __DIR__.'/404.html';
-}
-
-/**
- * Serve the request.
- */
-is_static_file($site, $uri) ? serve_file($site, $uri) : dispatch($site);
+require $frontControllerPath;
