@@ -17,7 +17,9 @@ class Configuration
             chown($directory, $_SERVER['SUDO_USER']);
         }
 
-        static::write(['domain' => 'dev', 'paths' => []]);
+        if (! file_exists(static::path())) {
+            static::write(['domain' => 'dev', 'paths' => []]);
+        }
 
         chown(static::path(), $_SERVER['SUDO_USER']);
     }
