@@ -31,6 +31,8 @@ Valet requires the Mac operating system and [Homebrew](http://brew.sh/).
 
 Once Valet is installed, try pinging any `*.dev` domain on your terminal using a command such as `ping foobar.dev`. If Valet is installed correctly you should see this domain responding on `127.0.0.1`.
 
+Valet will automatically start its daemon each time your machine boots. There is no need to run `valet start` or `valet install` ever again once the initial Valet installation is complete.
+
 <a name="serving-sites"></a>
 ### Serving Sites
 
