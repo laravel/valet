@@ -36,6 +36,8 @@ Once Valet is installed, try pinging any `*.dev` domain on your terminal using a
 
 Valet will automatically start its daemon each time your machine boots. There is no need to run `valet start` or `valet install` ever again once the initial Valet installation is complete.
 
+#### Database
+
 If you need a database, try MariaDB by running `brew install mariadb` on your command line. You can connect to the database at `127.0.0.1` using the `root` username and an empty string for the password.
 
 <a name="serving-sites"></a>
