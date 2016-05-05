@@ -26,7 +26,7 @@ Valet requires the Mac operating system and [Homebrew](http://brew.sh/).
 1. Install or update [Homebrew](http://brew.sh/) to the latest version.
 2. Make sure `brew services` is available by running `brew services list` and making sure you get valid output. If it is not available, [add it](https://github.com/Homebrew/homebrew-services).
 3. Install PHP 7.0 via Homebrew via `brew install php70`.
-4. Install Valet `composer global require laravel/valet`.
+4. Install Valet with Composer via `composer global require laravel/valet`.
 5. Run the `valet install` command. This will configure and install Valet, DnsMasq, and register Valet's daemon to launch when your system starts.
 
 Once Valet is installed, try pinging any `*.dev` domain on your terminal using a command such as `ping foobar.dev`. If Valet is installed correctly you should see this domain responding on `127.0.0.1`.
