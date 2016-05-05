@@ -7,6 +7,7 @@
     - [The "Link" Command](#the-link-command)
 - [Sharing Sites](#sharing-sites)
 - [Viewing Logs](#viewing-logs)
+- [Custom Valet Drivers](#custom-valet-drivers)
 - [Other Useful Commands](#other-useful-commands)
 
 <a name="what-is-it"></a>
@@ -76,6 +77,76 @@ To stop sharing your site, hit `Control + C` to cancel the process.
 ## Viewing Logs
 
 If you would like to stream all of the logs for all of your sites to your terminal, run the `valet logs` command. New log entries will display in your terminal as they occur. This is a great way to stay on top of all of your log files without ever having to leave your terminal.
+
+<a name="custom-valet-drivers"></a>
+## Custom Valet Drivers
+
+Out of the box, Valet supports Laravel, Lumen, and Statamic. However, you can write your own Valet "driver" to serve PHP applications running on another framework or CMS. When you install Valet, a `~/.valet/Drivers` directory is created which contains a `SampleValetDriver.php` file. This file contains a sample driver implementation to demonstrate how to write a custom driver. Writing a driver only requires you to implement three methods: `serves`, `isStaticFile`, and `frontControllerPath`.
+
+All three methods receive the `$sitePath`, `$siteName`, and `$uri` as their arguments. The `$sitePath` is the fully qualified path to the site being served on your machine, such as `/Users/Lisa/Sites/my-project`. The `$siteName` is the "host" portion of the domain, which is simply the site name, such as `my-project`. The `$uri` is the incoming request URI such as `/foo/bar`.
+
+Once you have completed your custom Valet driver, place it in the `~/.valet/Drivers` directory using the `FrameworkValetDriver.php` naming convention. For example, if you are writing a custom valet driver for WordPress, your file name should be `WordPressValetDriver.php`.
+
+Let's take at a sample implementation of each method your custom Valet driver should implement.
+
+#### The `serves` Method
+
+The `serves` method should return `true` if your driver should handle the incoming request. Otherwise, the method should return `false`. So, within this method you should attempt to determine if the given `$sitePath` contains a project of the type you are trying to serve.
+
+For example, let's pretend we are writing a `WordPressValetDriver`. Our serve method might look something like this:
+
+    /**
+     * Determine if the driver serves the request.
+     *
+     * @param  string  $sitePath
+     * @param  string  $siteName
+     * @param  string  $uri
+     * @return void
+     */
+    public function serves($sitePath, $siteName, $uri)
+    {
+        return is_dir($sitePath.'/wp-admin');
+    }
+
+#### The `isStaticFile` Method
+
+The `isStaticFile` should determine if the incoming request is for a file that is "static", such as an image or a stylesheet. If the file is static, the method should return the fully qualified path to the static file on disk. If the incoming request is not for a static file, the method should return `false`:
+
+    /**
+     * Determine if the incoming request is for a static file.
+     *
+     * @param  string  $sitePath
+     * @param  string  $siteName
+     * @param  string  $uri
+     * @return string|false
+     */
+    public function isStaticFile($sitePath, $siteName, $uri)
+    {
+        if (file_exists($staticFilePath = $sitePath.'/public/'.$uri)) {
+            return $staticFilePath;
+        }
+
+        return false;
+    }
+
+> **Note:** The `isStaticFile` method will only be called if the `serves` method returns `true` for the incoming request and the request URI is not `/`.
+
+#### The `frontControllerPath` Method
+
+The `frontControllerPath` method should return the fully qualified path to your application's "front controller", which is typically your "index.php" file or equivalent:
+
+    /**
+     * Get the fully resolved path to the application's front controller.
+     *
+     * @param  string  $sitePath
+     * @param  string  $siteName
+     * @param  string  $uri
+     * @return string
+     */
+    public function frontControllerPath($sitePath, $siteName, $uri)
+    {
+        return $sitePath.'/public/index.php';
+    }
 
 <a name="other-useful-commands"></a>
 ## Other Useful Commands
