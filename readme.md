@@ -11,6 +11,7 @@ No Vagrant, No Apache, No Nginx, No `/etc/hosts` file. You can even share your s
     - [The "Link" Command](#the-link-command)
 - [Sharing Sites](#sharing-sites)
 - [Viewing Logs](#viewing-logs)
+- [Supported Frameworks](#supported-frameworks)
 - [Other Useful Commands](#other-useful-commands)
 
 <a name="what-is-it"></a>
@@ -72,6 +73,11 @@ To stop sharing your site, simply hit `Control + C` to cancel the process.
 ### Viewing Logs
 
 If you would like to stream all of the logs for all of your sites to your terminal, run the `valet logs` command. New log entries will display in your terminal as they occur. Squash those bugs!
+
+<a name="supported-frameworks"></a>
+### Supported Frameworks
+
+Valet supports [Laravel](https://laravel.com), [Lumen](https://lumen.laravel.com), and [Statamic](https://statamic.com/).
 
 <a name="other-useful-commands"></a>
 ### Other Useful Commands
