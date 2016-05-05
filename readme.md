@@ -4,13 +4,19 @@ Laravel development environment for Mac minimalists.
 
 No Vagrant, No Apache, No Nginx, No `/etc/hosts` file. You can even stream all of your logs and share your sites publicly using local tunnels. Yeah, we like it too.
 
+- [What Is It?](#what-is-it)
+- [Installation](#installation)
+- [Serving Sites](#serving-sites)
+    - [The "Park" Command](#the-park-command)
+    - [The "Link" Command](#the-link-command)
+
+<a name="what-is-it"></a>
 ### What Is It?
 
 Laravel Valet configures your Mac to always run PHP's built-in web server in the background when your machine starts. Then, using DnsMasq, Valet proxies all requests on the `*.dev` domain to point to sites installed on your local machine. In other words, a blazing fast PHP development environment that uses roughly 7mb of RAM. No Apache, No Nginx, No `/etc/hosts` file.
 
-### Getting Started
-
-#### Installation
+<a name="installation"></a>
+### Installation
 
 Valet requires the Mac operating system and [Homebrew](http://brew.sh/).
 
@@ -22,10 +28,12 @@ Valet requires the Mac operating system and [Homebrew](http://brew.sh/).
 
 Once Valet is installed, try pinging any `*.dev` domain on your terminal using a command such as `ping foobar.dev`. If Valet is installed correctly you should see this domain responding on `127.0.0.1`.
 
-#### Serving Sites
+<a name="serving-sites"></a>
+### Serving Sites
 
 Once Valet is installed, you're ready to start serving sites. Valet provides two commands to help you serve your Laravel sites: `park` and `link`.
 
+<a name="the-park-command"></a>
 **The `park` Command**
 
 - Create a new directory on your Mac such `mkdir ~/Sites`. Next, `cd ~/Sites` and run `valet park`. This command will register your current working directory as a path that Valet should search for sites.
@@ -34,6 +42,7 @@ Once Valet is installed, you're ready to start serving sites. Valet provides two
 
 **It's just that simple.** Now, any Laravel project you create within your "parked" directory will automatically be served using the `http://folder-name.dev` convention.
 
+<a name="the-link-command"></a>
 **The `link` Command**
 
 The `link` command may also be used to serve your Laravel sites. This command is useful if you just want to serve a single site in a directory and not the entire directory.
