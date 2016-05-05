@@ -1,6 +1,7 @@
 # Laravel Valet
 
 - [Introduction](#introduction)
+    - [Valet Or Homestead](#valet-or-homestead)
 - [Installation](#installation)
 - [Serving Sites](#serving-sites)
     - [The "Park" Command](#the-park-command)
@@ -19,7 +20,16 @@ Laravel Valet configures your Mac to always run PHP's built-in web server in the
 
 In other words, a blazing fast Laravel development environment that uses roughly 7mb of RAM. Valet isn't a complete replacement for Vagrant or Homestead, but provides a great alternative if you want flexible basics, prefer extreme speed, or are working on a machine with a limited amount of RAM.
 
-Valet supports [Laravel](https://laravel.com), [Lumen](https://lumen.laravel.com), and [Statamic](https://statamic.com/).
+Out of the box, Valet supports [Laravel](https://laravel.com), [Lumen](https://lumen.laravel.com), and [Statamic](https://statamic.com/). However, you may extend Valet with your own [custom drivers](#custom-valet-drivers).
+
+<a name="valet-or-homestead"></a>
+### Valet Or Homestead
+
+As you may know, Laravel offers [Homestead](#homestead), another local Laravel development environment. Homestead and Valet differ in regards to their intended audience and their approach to local development. Homestead offers an entire Ubuntu virtual machine with automated Nginx configuration. Homestead is a wonderful choice if you want a fully virtualized Linux development environment or are on Windows / Linux.
+
+Valet only supports Mac, and requires you to install PHP and a database server directly onto your local machine. This is easily achieved by using [Homebrew](http://brew.sh/) with commands like `brew install php70` and `brew install mariadb`. Valet provides a blazing fast local development environment with minimal resource consumption, so it's great for developers who only require PHP / MySQL and do not need a fully virtualized development environment.
+
+Both Valet and Homestead are great choices for configuring your Laravel development environment. Which one you choose will depend on your personal taste and your team's needs.
 
 <a name="installation"></a>
 ## Installation
@@ -83,7 +93,7 @@ If you would like to stream all of the logs for all of your sites to your termin
 
 Out of the box, Valet supports Laravel, Lumen, and Statamic. However, you can write your own Valet "driver" to serve PHP applications running on another framework or CMS. When you install Valet, a `~/.valet/Drivers` directory is created which contains a `SampleValetDriver.php` file. This file contains a sample driver implementation to demonstrate how to write a custom driver. Writing a driver only requires you to implement three methods: `serves`, `isStaticFile`, and `frontControllerPath`.
 
-All three methods receive the `$sitePath`, `$siteName`, and `$uri` as their arguments. The `$sitePath` is the fully qualified path to the site being served on your machine, such as `/Users/Lisa/Sites/my-project`. The `$siteName` is the "host" portion of the domain, which is simply the site name, such as `my-project`. The `$uri` is the incoming request URI such as `/foo/bar`.
+All three methods receive the `$sitePath`, `$siteName`, and `$uri` values as their arguments. The `$sitePath` is the fully qualified path to the site being served on your machine, such as `/Users/Lisa/Sites/my-project`. The `$siteName` is the "host" / "site name" portion of the domain (`my-project`). The `$uri` is the incoming request URI (`/foo/bar`).
 
 Once you have completed your custom Valet driver, place it in the `~/.valet/Drivers` directory using the `FrameworkValetDriver.php` naming convention. For example, if you are writing a custom valet driver for WordPress, your file name should be `WordPressValetDriver.php`.
 
