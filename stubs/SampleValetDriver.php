@@ -12,7 +12,7 @@ class SampleValetDriver extends ValetDriver
      */
     public function serves($sitePath, $siteName, $uri)
     {
-        // if (file_exists($sitePath.'/file-that-identifies-my-framework') {
+        // if (file_exists($sitePath.'/file-that-identifies-my-framework')) {
         //     return true;
         // }
 
