@@ -2,7 +2,7 @@
 
 Laravel development environment for Mac minimalists.
 
-No Vagrant, No Apache, No Nginx, No `/etc/hosts` file.
+No Vagrant, No Apache, No Nginx, No `/etc/hosts` file. You can even stream all of your logs and share your sites publicly using local tunnels. Yeah, we like it too.
 
 ### What Is It?
 
@@ -26,13 +26,23 @@ Once Valet is installed, try pinging any `*.dev` domain on your terminal using a
 
 Once Valet is installed, you're ready to start serving sites. Valet provides two commands to help you serve your Laravel sites: `park` and `link`.
 
-First, let's try the `park` command:
+**The `park` Command**
 
 - Create a new directory on your Mac such `mkdir ~/Sites`. Next, `cd ~/Sites` and run `valet park`. This command will register your current working directory as a path that Valet should search for sites.
 - Next, create a new Laravel site within this directory: `laravel new blog`.
 - Now you may simply open `http://blog.dev` in your browser.
 
-**It's just that simple.** Any Laravel project you create within your "parked" directory will automatically be served using the `http://folder-name.dev` convention.
+**It's just that simple.** Now, any Laravel project you create within your "parked" directory will automatically be served using the `http://folder-name.dev` convention.
+
+**The `link` Command**
+
+The `link` command may also be used to serve your Laravel sites. This command is useful if you just want to serve a single site in a directory and not the entire directory.
+
+- To use the command, navigate to one of your Laravel applications and run `valet link app-name` in your terminal. Valet will create a symbolic link in `~/.valet/Sites` which points to your current working directory.
+- After running the `link` command, you may simply access the site in your browser at `http://app-name.dev`.
+
+To see a listing of all of your linked directories, run the `valet links` command. You may use `valet unlink app-name` to destroy the symbolic link.
+
 
 
 
