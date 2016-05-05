@@ -1,28 +1,29 @@
-## Laravel Valet
+# Laravel Valet
 
 Laravel development environment for Mac minimalists.
 
 No Vagrant, No Apache, No Nginx, No `/etc/hosts` file. You can even share your sites publicly using local tunnels. _Yeah, we like it too._
 
-- [What Is It?](#what-is-it)
+- [Introduction](#introduction)
 - [Installation](#installation)
 - [Serving Sites](#serving-sites)
     - [The "Park" Command](#the-park-command)
     - [The "Link" Command](#the-link-command)
 - [Sharing Sites](#sharing-sites)
 - [Viewing Logs](#viewing-logs)
-- [Supported Frameworks](#supported-frameworks)
 - [Other Useful Commands](#other-useful-commands)
 
 <a name="what-is-it"></a>
-### What Is It?
+## Introduction
 
 Laravel Valet configures your Mac to always run PHP's built-in web server in the background when your machine starts. Then, using DnsMasq, Valet proxies all requests on the `*.dev` domain to point to sites installed on your local machine.
 
 In other words, a blazing fast Laravel development environment that uses roughly 7mb of RAM. No Apache, No Nginx, No `/etc/hosts` file. Valet isn't a complete replacement for Homestead, but provides a great alternative if you just need the basics, prefer extreme speed, or are working on a machine with a limited amount of RAM.
 
+Valet supports [Laravel](https://laravel.com), [Lumen](https://lumen.laravel.com), and [Statamic](https://statamic.com/).
+
 <a name="installation"></a>
-### Installation
+## Installation
 
 **Valet requires the Mac operating system and [Homebrew](http://brew.sh/). Before installation, you should make sure that no other programs such as Apache or Nginx are binding to your local machine's port 80.**
 
@@ -41,7 +42,7 @@ Valet will automatically start its daemon each time your machine boots. There is
 If you need a database, try MariaDB by running `brew install mariadb` on your command line. You can connect to the database at `127.0.0.1` using the `root` username and an empty string for the password.
 
 <a name="serving-sites"></a>
-### Serving Sites
+## Serving Sites
 
 Once Valet is installed, you're ready to start serving sites. Valet provides two commands to help you serve your Laravel sites: `park` and `link`.
 
@@ -65,7 +66,7 @@ The `link` command may also be used to serve your Laravel sites. This command is
 To see a listing of all of your linked directories, run the `valet links` command. You may use `valet unlink app-name` to destroy the symbolic link.
 
 <a name="sharing-sites"></a>
-### Sharing Sites
+## Sharing Sites
 
 Valet even includes a command to share your local sites with the world. No additional software installation is required once Valet is installed.
 
@@ -74,22 +75,19 @@ To share a site, simply navigate to the site and run the `valet share` command. 
 To stop sharing your site, simply hit `Control + C` to cancel the process.
 
 <a name="viewing-logs"></a>
-### Viewing Logs
+## Viewing Logs
 
 If you would like to stream all of the logs for all of your sites to your terminal, run the `valet logs` command. New log entries will display in your terminal as they occur. Squash those bugs!
 
-<a name="supported-frameworks"></a>
-### Supported Frameworks
-
-Valet supports [Laravel](https://laravel.com), [Lumen](https://lumen.laravel.com), and [Statamic](https://statamic.com/).
-
 <a name="other-useful-commands"></a>
-### Other Useful Commands
+## Other Useful Commands
 
-- `valet forget` (Run this command from a "parked" directory to remove it from the parked directory list)
-- `valet paths` (View all of your "parked" paths)
-- `valet prune` (Remove paths that no longer exist from your "parked" paths)
-- `valet restart` (Restart the Valet daemon)
-- `valet start` (Start the Valet daemon)
-- `valet stop` (Stop the Valet daemon)
-- `valet uninstall` (Uninstall the Valet daemon entirely)
+Command  | Description
+------------- | -------------
+`valet forget` | Run this command from a "parked" directory to remove it from the parked directory list.
+`valet paths` | View all of your "parked" paths.
+`valet prune` | Remove paths that no longer exist from your "parked" paths.
+`valet restart` | Restart the Valet daemon.
+`valet start` | Start the Valet daemon.
+`valet stop` | Stop the Valet daemon.
+`valet uninstall` | Uninstall the Valet daemon entirely.
