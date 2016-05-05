@@ -7,7 +7,7 @@ use Symfony\Component\Process\Process;
 
 class DnsMasq
 {
-    const UBUNTU_INSTALL = 'sudo %s apt-get install dnsmasq';
+    const UBUNTU_INSTALL = 'sudo -u %s apt-get install dnsmasq';
     const UBUNTU_ALREADY_INSTALLED = 'which dnsmasq';
     const INSTALLING_DNSMASQ = '<info>DnsMasq is not installed, installing it now via apt...</info> 🍻';
     const RESTART_DNSMASQ = 'sudo service dnsmasq restart';
@@ -83,8 +83,9 @@ class DnsMasq
     {
         $dnsMasqConfigPath = sprintf(self::UBUNTU_ROOT_USER, $_SERVER['SUDO_USER']);
 
-        @mkdir(dirname($dnsMasqConfigPath), 0755, true);
-
+        if(!file_exists(dirname($dnsMasqConfigPath))) {
+            mkdir(dirname($dnsMasqConfigPath), 0755, true);
+        }
 
         if (strpos(file_get_contents(self::DNSMASQ_CONF), $dnsMasqConfigPath) === false) {
             file_put_contents(self::DNSMASQ_CONF, PHP_EOL.'conf-file='.$dnsMasqConfigPath.PHP_EOL, FILE_APPEND);
