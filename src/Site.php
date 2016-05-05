@@ -14,7 +14,7 @@ class Site
      */
     public static function link($name)
     {
-        if (! is_dir($linkPath = $_SERVER['HOME'].'/.valet/Sites')) {
+        if (! is_dir($linkPath = VALET_HOME_PATH.'/Sites')) {
             mkdir($linkPath, 0755);
         }
 
@@ -37,7 +37,7 @@ class Site
      */
     public static function unlink($name)
     {
-        quietly('rm '.$_SERVER['HOME'].'/.valet/Sites/'.$name);
+        quietly('rm '.VALET_HOME_PATH.'/Sites/'.$name);
 
         return true;
     }
@@ -49,12 +49,16 @@ class Site
      */
     public static function pruneLinks()
     {
-        foreach (scandir($_SERVER['HOME'].'/.valet/Sites') as $file) {
+        if (! is_dir(VALET_HOME_PATH.'/Sites')) {
+            return;
+        }
+
+        foreach (scandir(VALET_HOME_PATH.'/Sites') as $file) {
             if (in_array($file, ['.', '..'])) {
                 continue;
             }
 
-            if (is_link($linkPath = $_SERVER['HOME'].'/.valet/Sites/'.$file) && ! file_exists($linkPath)) {
+            if (is_link($linkPath = VALET_HOME_PATH.'/Sites/'.$file) && ! file_exists($linkPath)) {
                 quietly('rm '.$linkPath);
             }
         }

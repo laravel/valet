@@ -9,6 +9,8 @@ if (file_exists(__DIR__.'/vendor/autoload.php')) {
 
 should_be_compatible();
 
+define('VALET_HOME_PATH', $_SERVER['HOME'].'/.valet');
+
 use Silly\Application;
 
 /**
@@ -19,8 +21,10 @@ $app = new Application('Laravel Valet', 'v1.0.2');
 /**
  * Prune missing directories and symbolic links on every command.
  */
-Valet\Configuration::prune();
-Valet\Site::pruneLinks();
+if (is_dir(VALET_HOME_PATH)) {
+    Valet\Configuration::prune();
+    Valet\Site::pruneLinks();
+}
 
 /**
  * Allow Valet to be run more conveniently by allowing the Node proxy to run password-less sudo.
@@ -72,7 +76,7 @@ $app->command('link [name]', function ($name, $output) {
  * Display all of the registered symbolic links.
  */
 $app->command('links', function () {
-    passthru('ls -la '.$_SERVER['HOME'].'/.valet/Sites');
+    passthru('ls -la '.VALET_HOME_PATH.'/Sites');
 });
 
 /**

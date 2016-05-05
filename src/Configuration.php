@@ -11,13 +11,13 @@ class Configuration
      */
     public static function install()
     {
-        if (! is_dir($directory = $_SERVER['HOME'].'/.valet')) {
+        if (! is_dir($directory = VALET_HOME_PATH)) {
             mkdir($directory, 0755);
 
             chown($directory, $_SERVER['SUDO_USER']);
         }
 
-        if (! is_dir($driversDirectory = $_SERVER['HOME'].'/.valet/Drivers')) {
+        if (! is_dir($driversDirectory = VALET_HOME_PATH.'/Drivers')) {
             mkdir($driversDirectory, 0755);
 
             copy(__DIR__.'/../stubs/SampleValetDriver.php', $driversDirectory.'/SampleValetDriver.php');
@@ -76,7 +76,7 @@ class Configuration
      */
     public static function path()
     {
-        return $_SERVER['HOME'].'/.valet/config.json';
+        return VALET_HOME_PATH.'/config.json';
     }
 
     /**
@@ -86,6 +86,10 @@ class Configuration
      */
     public static function prune()
     {
+        if (! file_exists(static::path())) {
+            return;
+        }
+
         $config = static::read();
 
         foreach ($config['paths'] as $key => $path) {
