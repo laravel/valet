@@ -29,9 +29,9 @@ class StatamicValetDriver extends ValetDriver
             return false;
         } elseif (strpos($uri, '/local') === 0 || strpos($uri, '/statamic') === 0) {
             return false;
-        } elseif (file_exists($staticFilePath = $sitePath.'/'.$uri)) {
+        } elseif (file_exists($staticFilePath = $sitePath.$uri)) {
             return $staticFilePath;
-        } elseif (file_exists($staticFilePath = $sitePath.'/public/'.$uri)) {
+        } elseif (file_exists($staticFilePath = $sitePath.'/public'.$uri)) {
             return $staticFilePath;
         }
 

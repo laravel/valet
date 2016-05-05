@@ -95,7 +95,7 @@ abstract class ValetDriver
     {
         $mimes = require(__DIR__.'/../mimes.php');
 
-        header('Content-Type: '.$mimes[pathinfo($uri)['extension']]);
+        header('Content-Type: '.$mimes[pathinfo($staticFilePath)['extension']]);
 
         readfile($staticFilePath);
     }
