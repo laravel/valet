@@ -48,6 +48,10 @@ class StatamicValetDriver extends ValetDriver
      */
     public function frontControllerPath($sitePath, $siteName, $uri)
     {
+        if (isset($_SERVER['HTTP_X_ORIGINAL_HOST'])) {
+            $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_X_ORIGINAL_HOST'];
+        }
+
         $_SERVER['SCRIPT_NAME'] = '/index.php';
 
         if (file_exists($indexPath = $sitePath.'/index.php')) {
