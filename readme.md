@@ -1,6 +1,8 @@
 ## Laravel Valet
 
-Laravel development environment for Mac minimalists. No Vagrant, No Apache, No Nginx, No `/etc/hosts` file.
+Laravel development environment for Mac minimalists.
+
+No Vagrant, No Apache, No Nginx, No `/etc/hosts` file.
 
 ### What Is It?
 
