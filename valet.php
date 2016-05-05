@@ -17,7 +17,7 @@ use Silly\Application;
 $app = new Application('Laravel Valet', 'v1.0.0');
 
 /**
- * Prune missing directories on every command.
+ * Prune missing directories and symbolic links on every command.
  */
 Valet\Configuration::prune();
 Valet\Site::pruneLinks();
