@@ -66,6 +66,7 @@ require_once __DIR__.'/drivers/StatamicValetDriver.php';
 require_once __DIR__.'/drivers/LaravelValetDriver.php';
 require_once __DIR__.'/drivers/StaticValetDriver.php';
 require_once __DIR__.'/drivers/JigsawValetDriver.php';
+require_once __DIR__.'/drivers/WordPressValetDriver.php';
 
 $valetDriver = ValetDriver::assign($valetSitePath, $siteName, $uri);
 
@@ -85,5 +86,9 @@ if ($uri !== '/' && $staticFilePath = $valetDriver->isStaticFile($valetSitePath,
 $frontControllerPath = $valetDriver->frontControllerPath(
     $valetSitePath, $siteName, $uri
 );
+
+if (! $frontControllerPath) {
+    show_valet_404();
+}
 
 require $frontControllerPath;
