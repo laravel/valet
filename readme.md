@@ -16,7 +16,7 @@ Valet is a Laravel development environment for Mac minimalists. No Vagrant, No A
 
 Laravel Valet configures your Mac to always run PHP's built-in web server in the background when your machine starts. Then, using DnsMasq, Valet proxies all requests on the `*.dev` domain to point to sites installed on your local machine.
 
-In other words, a blazing fast Laravel development environment that uses roughly 7mb of RAM. Valet isn't a complete replacement for Vagrant or Homestead, but provides a great alternative if you just need the basics, prefer extreme speed, or are working on a machine with a limited amount of RAM.
+In other words, a blazing fast Laravel development environment that uses roughly 7mb of RAM. Valet isn't a complete replacement for Vagrant or Homestead, but provides a great alternative if you want flexible basics, prefer extreme speed, or are working on a machine with a limited amount of RAM.
 
 Valet supports [Laravel](https://laravel.com), [Lumen](https://lumen.laravel.com), and [Statamic](https://statamic.com/).
 
@@ -49,17 +49,17 @@ Once Valet is installed, you're ready to start serving sites. Valet provides two
 
 - Create a new directory on your Mac such `mkdir ~/Sites`. Next, `cd ~/Sites` and run `valet park`. This command will register your current working directory as a path that Valet should search for sites.
 - Next, create a new Laravel site within this directory: `laravel new blog`.
-- Now you may simply open `http://blog.dev` in your browser.
+- Open `http://blog.dev` in your browser.
 
-**It's just that simple.** Now, any Laravel project you create within your "parked" directory will automatically be served using the `http://folder-name.dev` convention.
+**That's all there is to it.** Now, any Laravel project you create within your "parked" directory will automatically be served using the `http://folder-name.dev` convention.
 
 <a name="the-link-command"></a>
 **The `link` Command**
 
-The `link` command may also be used to serve your Laravel sites. This command is useful if you just want to serve a single site in a directory and not the entire directory.
+The `link` command may also be used to serve your Laravel sites. This command is useful if you want to serve a single site in a directory and not the entire directory.
 
 - To use the command, navigate to one of your Laravel applications and run `valet link app-name` in your terminal. Valet will create a symbolic link in `~/.valet/Sites` which points to your current working directory.
-- After running the `link` command, you may simply access the site in your browser at `http://app-name.dev`.
+- After running the `link` command, you can access the site in your browser at `http://app-name.dev`.
 
 To see a listing of all of your linked directories, run the `valet links` command. You may use `valet unlink app-name` to destroy the symbolic link.
 
@@ -68,9 +68,9 @@ To see a listing of all of your linked directories, run the `valet links` comman
 
 Valet even includes a command to share your local sites with the world. No additional software installation is required once Valet is installed.
 
-To share a site, simply navigate to the site and run the `valet share` command. A publicly accessible URL will be inserted into your clipboard and is ready to paste directly into your browser. It's just that simple.
+To share a site, navigate to the site in your terminal and run the `valet share` command. A publicly accessible URL will be inserted into your clipboard and is ready to paste directly into your browser. That's it.
 
-To stop sharing your site, simply hit `Control + C` to cancel the process.
+To stop sharing your site, hit `Control + C` to cancel the process.
 
 <a name="viewing-logs"></a>
 ## Viewing Logs
