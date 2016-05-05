@@ -10,6 +10,8 @@ No Vagrant, No Apache, No Nginx, No `/etc/hosts` file. You can even stream all o
     - [The "Park" Command](#the-park-command)
     - [The "Link" Command](#the-link-command)
 - [Sharing Sites](#sharing-sites)
+- [Viewing Logs](#viewing-logs)
+- [Other Useful Commands](#other-useful-commands)
 
 <a name="what-is-it"></a>
 ### What Is It?
@@ -62,7 +64,10 @@ To share a site, simply navigate to the site and run the `valet share` command. 
 
 To stop sharing your site, simply hit `Control + C` to cancel the process.
 
+<a name="viewing-logs"></a>
+### Viewing Logs
 
+If you would like to stream all of the logs for all of your sites to your terminal, run the `valet logs` command. New log entries will display in your terminal as they occur. Squash those bugs!
 
-
-
+<a name="other-useful-commands"></a>
+### Other Useful Commands
