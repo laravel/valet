@@ -16,7 +16,9 @@ No Vagrant, No Apache, No Nginx, No `/etc/hosts` file. You can even share your s
 <a name="what-is-it"></a>
 ### What Is It?
 
-Laravel Valet configures your Mac to always run PHP's built-in web server in the background when your machine starts. Then, using DnsMasq, Valet proxies all requests on the `*.dev` domain to point to sites installed on your local machine. In other words, a blazing fast PHP development environment that uses roughly 7mb of RAM. No Apache, No Nginx, No `/etc/hosts` file.
+Laravel Valet configures your Mac to always run PHP's built-in web server in the background when your machine starts. Then, using DnsMasq, Valet proxies all requests on the `*.dev` domain to point to sites installed on your local machine.
+
+In other words, a blazing fast PHP development environment that uses roughly 7mb of RAM. No Apache, No Nginx, No `/etc/hosts` file.
 
 <a name="installation"></a>
 ### Installation
