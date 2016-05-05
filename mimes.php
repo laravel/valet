@@ -984,4 +984,6 @@ return [
     "smv" => "video/x-smv",
     "ice" => "x-conference/x-cooltalk",
     "map" => "application/json",
+    "hbs" => "text/html",
+    "mustache" => "text/html",
 ];
