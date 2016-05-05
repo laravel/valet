@@ -64,6 +64,10 @@ abstract class ValetDriver
      */
     public static function driversIn($path)
     {
+        if (! is_dir($path)) {
+            return [];
+        }
+
         $drivers = [];
 
         foreach (scandir($path) as $file) {
