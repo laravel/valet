@@ -73,4 +73,9 @@ If you would like to stream all of the logs for all of your sites to your termin
 ### Other Useful Commands
 
 - `valet forget` (Run this command from a "parked" directory to remove it from the parked directory list)
-- Something else
+- `valet paths` (View all of your "parked" paths)
+- `valet prune` (Remove paths that no longer exist from your "parked" paths)
+- `valet restart` (Restart the Valet daemon)
+- `valet start` (Start the Valet daemon)
+- `valet stop` (Stop the Valet daemon)
+- `valet uninstall` (Uninstall the Valet daemon entirely)
