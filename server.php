@@ -4,7 +4,11 @@
  * Define the user's "~/.valet" path.
  */
 
-define('VALET_HOME_PATH', '/home/'.posix_getpwuid(fileowner(__FILE__))['name'].'/.valet');
+
+require_once __DIR__.'/src/Compatibility.php';
+
+$valetHomePath = sprintf(\Valet\Compatibility::get('VALET_HOME_PATH'), posix_getpwuid(fileowner(__FILE__)));
+define('VALET_HOME_PATH', $valetHomePath);
 
 /**
  * De-escalate root privileges down to Valet directory owner.

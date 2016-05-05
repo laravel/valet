@@ -1,0 +1,10 @@
+description "Laravel Valet for Ubuntu"
+author "Nil Portugues Caldero <contact@nilportugues.com>"
+
+start on startup
+stop on shutdown
+respawn
+
+script
+ $(which php) -S 127.0.0.1:80 SERVER_PATH
+end script

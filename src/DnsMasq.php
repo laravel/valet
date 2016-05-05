@@ -7,14 +7,6 @@ use Symfony\Component\Process\Process;
 
 class DnsMasq
 {
-    const UBUNTU_INSTALL = 'sudo -u %s apt-get install dnsmasq';
-    const UBUNTU_ALREADY_INSTALLED = 'which dnsmasq';
-    const INSTALLING_DNSMASQ = '<info>DnsMasq is not installed, installing it now via apt...</info> 🍻';
-    const RESTART_DNSMASQ = 'sudo service dnsmasq restart';
-    const UBUNTU_ROOT_USER = '/%s/.valet/dnsmasq.conf';
-    const DNSMASQ_CONF_EXAMPLE = '/etc/dnsmasq.d/dnsmasq.conf.example';
-    const DNSMASQ_CONF = '/etc/dnsmasq.conf';
-
     /**
      * Install and configure DnsMasq.
      *
@@ -31,7 +23,7 @@ class DnsMasq
 
         static::createResolver();
 
-        quietly(self::RESTART_DNSMASQ);
+        quietly(Compatibility::get('DNSMASQ_RESTART'));
     }
 
     /**
@@ -41,7 +33,7 @@ class DnsMasq
      */
     public static function alreadyInstalled()
     {
-        $process = new Process(self::UBUNTU_ALREADY_INSTALLED);
+        $process = new Process(Compatibility::get('DNSMASQ_ALREADY_INSTALLED'));
 
         $process->run();
 
@@ -56,9 +48,9 @@ class DnsMasq
      */
     protected static function download($output)
     {
-        $output->writeln(self::INSTALLING_DNSMASQ);
+        $output->writeln(Compatibility::get('DNSMASQ_INSTALL_TEXT'));
 
-        $process = new Process(sprintf(self::UBUNTU_INSTALL, $_SERVER['SUDO_USER']));
+        $process = new Process(sprintf(Compatibility::get('DNSMASQ_INSTALL'), $_SERVER['SUDO_USER']));
 
         $processOutput = '';
         $process->run(function ($type, $line) use (&$processOutput) {
@@ -81,17 +73,19 @@ class DnsMasq
      */
     protected static function createCustomConfigurationFile()
     {
-        $dnsMasqConfigPath = sprintf(self::UBUNTU_ROOT_USER, $_SERVER['SUDO_USER']);
+        $dnsMasqConfigPath = sprintf(Compatibility::get('DNSMASQ_ROOT_USER'), $_SERVER['SUDO_USER']);
 
         if(!file_exists(dirname($dnsMasqConfigPath))) {
             mkdir(dirname($dnsMasqConfigPath), 0755, true);
         }
 
-        if (strpos(file_get_contents(self::DNSMASQ_CONF), $dnsMasqConfigPath) === false) {
-            file_put_contents(self::DNSMASQ_CONF, PHP_EOL.'conf-file='.$dnsMasqConfigPath.PHP_EOL, FILE_APPEND);
+        $dnsMasqConfig = Compatibility::get('DNSMASQ_CONF');
+
+        if (strpos(file_get_contents($dnsMasqConfig), $dnsMasqConfigPath) === false) {
+            file_put_contents($dnsMasqConfig, PHP_EOL.'conf-file='.$dnsMasqConfigPath.PHP_EOL, FILE_APPEND);
         }
 
-        chown(self::DNSMASQ_CONF, $_SERVER['SUDO_USER']);
+        chown($dnsMasqConfig, $_SERVER['SUDO_USER']);
 
         file_put_contents($dnsMasqConfigPath, 'address=/.dev/127.0.0.1'.PHP_EOL);
 

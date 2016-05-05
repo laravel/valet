@@ -1,0 +1,9 @@
+[Unit]
+Description=Laravel Valet for Ubuntu
+
+[Service]
+ExecStart=/usr/bin/php -S 127.0.0.1:80 SERVER_PATH
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
