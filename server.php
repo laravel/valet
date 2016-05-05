@@ -64,6 +64,7 @@ $valetDriver = null;
 require_once __DIR__.'/drivers/ValetDriver.php';
 require_once __DIR__.'/drivers/StatamicValetDriver.php';
 require_once __DIR__.'/drivers/LaravelValetDriver.php';
+require_once __DIR__.'/drivers/StaticValetDriver.php';
 
 $valetDriver = ValetDriver::assign($valetSitePath, $siteName, $uri);
 

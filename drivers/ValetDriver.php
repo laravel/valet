@@ -46,6 +46,7 @@ abstract class ValetDriver
 
         $drivers[] = 'StatamicValetDriver';
         $drivers[] = 'LaravelValetDriver';
+        $drivers[] = 'StaticValetDriver';
 
         foreach ($drivers as $driver) {
             $driver = new $driver;
