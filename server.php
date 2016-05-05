@@ -16,7 +16,7 @@ $uri = urldecode(
 
 $site = basename(
     $_SERVER['HTTP_HOST'],
-    '.'.$GLOBALS['VALET']['domain'] ?? 'dev'
+    '.'.$GLOBALS['VALET']['domain']
 );
 
 /**

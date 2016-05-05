@@ -22,7 +22,7 @@
         }
     },
     "require": {
-        "php": ">=7.0.0",
+        "php": ">=5.5.9",
         "mnapoli/silly": "~1.0",
         "symfony/process": "~2.7|~3.0",
         "nategood/httpful": "^0.2.20"

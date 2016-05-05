@@ -48,8 +48,8 @@ function should_be_compatible()
         exit(1);
     }
 
-    if (PHP_MAJOR_VERSION < 7) {
-        echo "Valet requires PHP 7.0 or later.";
+    if (version_compare(PHP_VERSION, '5.5.9', '<')) {
+        echo "Valet requires PHP 5.5.9 or later.";
 
         exit(1);
     }
