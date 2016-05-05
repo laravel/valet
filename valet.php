@@ -16,7 +16,7 @@ use Silly\Application;
 /**
  * Create the application.
  */
-$app = new Application('Laravel Valet', 'v1.0.8');
+$app = new Application('Laravel Valet', 'v1.0.9');
 
 /**
  * Prune missing directories and symbolic links on every command.
