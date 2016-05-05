@@ -4,14 +4,18 @@ namespace Valet;
 
 class CompatibilityDarwin
 {
+    const WHICH_INSTALLER = 'which brew';
+    const WHICH_INSTALLER_PATH = '/usr/local/bin/brew';
+    const WHICH_INSTALLER_ERROR = 'Valet requires Brew to be installed on your Mac.';
+
     const VALET_HOME_PATH = '/Users/%s/.valet';
-    const DNSMASQ_INSTALL = 'sudo -u %s apt-get install dnsmasq';
-    const DNSMASQ_INSTALL_TEXT = '<info>DnsMasq is not installed, installing it now via apt...</info>';
-    const DNSMASQ_ALREADY_INSTALLED = 'which dnsmasq';
-    const DNSMASQ_RESTART = 'sudo service dnsmasq restart';
-    const DNSMASQ_ROOT_USER = '/%s/.valet/dnsmasq.conf';
-    const DNSMASQ_CONF_EXAMPLE = '/etc/dnsmasq.conf';
-    const DNSMASQ_CONF = '/etc/dnsmasq.conf';
+    const DNSMASQ_INSTALL = 'sudo -u %s brew install dnsmasq';
+    const DNSMASQ_INSTALL_TEXT = '<info>DnsMasq is not installed, installing it now via Brew...</info> 🍻';
+    const DNSMASQ_ALREADY_INSTALLED = 'brew list | grep dnsmasq';
+    const DNSMASQ_RESTART = 'sudo brew services restart dnsmasq';
+    const DNSMASQ_ROOT_USER = '/Users/%s/.valet/dnsmasq.conf';
+    const DNSMASQ_CONF_EXAMPLE = '/usr/local/opt/dnsmasq/dnsmasq.conf.example';
+    const DNSMASQ_CONF = '/usr/local/etc/dnsmasq.conf';
 
     const LAUNCH_DAEMON_INSTALL_SCRIPT = '/../stubs/daemon.plist';
     const LAUNCH_DAEMON_INSTALL_PATH = '/Library/LaunchDaemons/com.laravel.valetServer.plist';

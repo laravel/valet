@@ -4,6 +4,10 @@ namespace Valet;
 
 class CompatibilityLinux
 {
+    const WHICH_INSTALLER = 'which apt-get';
+    const WHICH_INSTALLER_PATH = '/usr/bin/apt-get';
+    const WHICH_INSTALLER_ERROR = 'Valet requires apt-get to be installed on your Linux.';
+
     const VALET_HOME_PATH = '/home/%s/.valet';
     const DNSMASQ_INSTALL = 'sudo -u %s apt-get install dnsmasq';
     const DNSMASQ_INSTALL_TEXT = '<info>DnsMasq is not installed, installing it now via apt...</info>';
