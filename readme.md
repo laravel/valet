@@ -1,9 +1,5 @@
 # Laravel Valet
 
-Laravel development environment for Mac minimalists.
-
-No Vagrant, No Apache, No Nginx, No `/etc/hosts` file. You can even share your sites publicly using local tunnels. _Yeah, we like it too._
-
 - [Introduction](#introduction)
 - [Installation](#installation)
 - [Serving Sites](#serving-sites)
@@ -16,9 +12,11 @@ No Vagrant, No Apache, No Nginx, No `/etc/hosts` file. You can even share your s
 <a name="what-is-it"></a>
 ## Introduction
 
+Valet is a Laravel development environment for Mac minimalists. No Vagrant, No Apache, No Nginx, No `/etc/hosts` file. You can even share your sites publicly using local tunnels. _Yeah, we like it too._
+
 Laravel Valet configures your Mac to always run PHP's built-in web server in the background when your machine starts. Then, using DnsMasq, Valet proxies all requests on the `*.dev` domain to point to sites installed on your local machine.
 
-In other words, a blazing fast Laravel development environment that uses roughly 7mb of RAM. No Apache, No Nginx, No `/etc/hosts` file. Valet isn't a complete replacement for Homestead, but provides a great alternative if you just need the basics, prefer extreme speed, or are working on a machine with a limited amount of RAM.
+In other words, a blazing fast Laravel development environment that uses roughly 7mb of RAM. Valet isn't a complete replacement for Vagrant or Homestead, but provides a great alternative if you just need the basics, prefer extreme speed, or are working on a machine with a limited amount of RAM.
 
 Valet supports [Laravel](https://laravel.com), [Lumen](https://lumen.laravel.com), and [Statamic](https://statamic.com/).
 
