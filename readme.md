@@ -2,13 +2,14 @@
 
 Laravel development environment for Mac minimalists.
 
-No Vagrant, No Apache, No Nginx, No `/etc/hosts` file. You can even stream all of your logs and share your sites publicly using local tunnels. Yeah, we like it too.
+No Vagrant, No Apache, No Nginx, No `/etc/hosts` file. You can even stream all of your logs and share your sites publicly using local tunnels. _Yeah, we like it too._
 
 - [What Is It?](#what-is-it)
 - [Installation](#installation)
 - [Serving Sites](#serving-sites)
     - [The "Park" Command](#the-park-command)
     - [The "Link" Command](#the-link-command)
+- [Sharing Sites](#sharing-sites)
 
 <a name="what-is-it"></a>
 ### What Is It?
@@ -51,6 +52,15 @@ The `link` command may also be used to serve your Laravel sites. This command is
 - After running the `link` command, you may simply access the site in your browser at `http://app-name.dev`.
 
 To see a listing of all of your linked directories, run the `valet links` command. You may use `valet unlink app-name` to destroy the symbolic link.
+
+<a name="sharing-sites"></a>
+### Sharing Sites
+
+Valet even includes a command to share your local sites with the world. No additional software installation is required once Valet is installed.
+
+To share a site, simply navigate to the site and run the `valet share` command. A publicly accessible URL will be inserted into your clipboard and is ready to paste directly into your browser. It's just that simple.
+
+To stop sharing your site, simply hit `Control + C` to cancel the process.
 
 
 
