@@ -6,6 +6,11 @@
 define('VALET_HOME_PATH', '/Users/'.posix_getpwuid(fileowner(__FILE__))['name'].'/.valet');
 
 /**
+ * De-escalate root privileges down to Valet directory owner.
+ */
+posix_setuid(fileowner(VALET_HOME_PATH.'/config.json'));
+
+/**
  * Show the Valet 404 "Not Found" page.
  */
 function show_valet_404()
@@ -76,7 +81,5 @@ if ($uri !== '/' && $staticFilePath = $valetDriver->isStaticFile($valetSitePath,
 $frontControllerPath = $valetDriver->frontControllerPath(
     $valetSitePath, $siteName, $uri
 );
-
-posix_setuid(fileowner($frontControllerPath));
 
 require $frontControllerPath;
