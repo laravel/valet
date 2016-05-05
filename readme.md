@@ -26,7 +26,13 @@ Once Valet is installed, try pinging any `*.dev` domain on your terminal using a
 
 Once Valet is installed, you're ready to start serving sites. Valet provides two commands to help you serve your Laravel sites: `park` and `link`.
 
-First, let's try the `park` command. Create a new directory on your Mac such `mkdir ~/Sites`. Next, `cd ~/Sites` and run `valet park`. This command will register your current working directory as a path that Valet should search for sites. Next, create a new Laravel site within this directory: `laravel new blog`. Next, you may simply open `http://blog.dev` in your browser. It's just that simple. Any Laravel project you create within your "parked" directory will automatically be served using the `http://folder-name.dev` convention.
+First, let's try the `park` command:
+
+- Create a new directory on your Mac such `mkdir ~/Sites`. Next, `cd ~/Sites` and run `valet park`. This command will register your current working directory as a path that Valet should search for sites.
+- Next, create a new Laravel site within this directory: `laravel new blog`.
+- Now you may simply open `http://blog.dev` in your browser.
+
+**It's just that simple.** Any Laravel project you create within your "parked" directory will automatically be served using the `http://folder-name.dev` convention.
 
 
 
