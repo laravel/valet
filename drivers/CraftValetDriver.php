@@ -1,6 +1,6 @@
 <?php
 
-class LaravelValetDriver extends ValetDriver
+class CraftValetDriver extends ValetDriver
 {
     /**
      * Determine if the driver serves the request.
@@ -12,8 +12,7 @@ class LaravelValetDriver extends ValetDriver
      */
     public function serves($sitePath, $siteName, $uri)
     {
-        return file_exists($sitePath.'/public/index.php') &&
-               file_exists($sitePath.'/artisan');
+        return is_dir($sitePath.'/craft');
     }
 
     /**
@@ -30,10 +29,6 @@ class LaravelValetDriver extends ValetDriver
             return $staticFilePath;
         }
 
-        if (file_exists($sitePath.'/storage/public'.$uri)) {
-            return $sitePath.'/public'.$uri;
-        }
-
         return false;
     }
 
@@ -47,10 +42,10 @@ class LaravelValetDriver extends ValetDriver
      */
     public function frontControllerPath($sitePath, $siteName, $uri)
     {
-        if (isset($_SERVER['HTTP_X_ORIGINAL_HOST'])) {
-            $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_X_ORIGINAL_HOST'];
-        }
+        $_SERVER['SCRIPT_FILENAME'] = $sitePath.'/public/index.php';
 
-        return $sitePath.'/public/index.php';
+        $_SERVER['SCRIPT_NAME'] = '/index.php';
+
+        return $sitePath.'/craft/app/index.php';
     }
 }

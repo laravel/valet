@@ -48,6 +48,7 @@ abstract class ValetDriver
         $drivers[] = 'StatamicValetDriver';
         $drivers[] = 'JigsawValetDriver';
         $drivers[] = 'WordPressValetDriver';
+        $drivers[] = 'CraftValetDriver';
         $drivers[] = 'StaticValetDriver';
 
         foreach ($drivers as $driver) {
