@@ -68,6 +68,7 @@ require_once __DIR__.'/drivers/StaticValetDriver.php';
 require_once __DIR__.'/drivers/JigsawValetDriver.php';
 require_once __DIR__.'/drivers/WordPressValetDriver.php';
 require_once __DIR__.'/drivers/CraftValetDriver.php';
+require_once __DIR__.'/drivers/GenericPublicValetDriver.php';
 
 $valetDriver = ValetDriver::assign($valetSitePath, $siteName, $uri);
 
