@@ -68,7 +68,7 @@ To see a listing of all of your linked directories, run the `valet links` comman
 
 Valet even includes a command to share your local sites with the world. No additional software installation is required once Valet is installed.
 
-To share a site, simply navigate to the site and run the `valet share` command. A publicly accessible URL will be inserted into your clipboard and is ready to paste directly into your browser. It's just that simple.
+To share a site, simply navigate to the site in your terminal and run the `valet share` command. A publicly accessible URL will be inserted into your clipboard and is ready to paste directly into your browser. It's just that simple.
 
 To stop sharing your site, simply hit `Control + C` to cancel the process.
 
