@@ -40,7 +40,7 @@ function is_static_statamic_file($site, $uri)
  */
 function serve_statamic_file($site, $uri)
 {
-    $mimes = require(__DIR__.'/mimes.php');
+    $mimes = require(__DIR__.'/../mimes.php');
 
     header('Content-Type: '.$mimes[pathinfo($uri)['extension']]);
 
@@ -71,4 +71,4 @@ if (file_exists($indexPath = VALET_SITE_PATH.'/index.php') ||
 
 http_response_code(404);
 
-require __DIR__.'/404.html';
+require __DIR__.'/../404.html';

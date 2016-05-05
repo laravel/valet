@@ -37,7 +37,7 @@ if (! defined('VALET_SITE_PATH')) {
  * Check if the site is a Statamic site.
  */
 if (is_dir(VALET_SITE_PATH.'/statamic')) {
-    require __DIR__.'/statamic-server.php';
+    require __DIR__.'/servers/statamic.php';
 
     exit;
 }
