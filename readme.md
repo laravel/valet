@@ -8,11 +8,9 @@ Laravel Valet configures your Mac to always run PHP's built-in web server in the
 
 ### Getting Started
 
-**Requirements**
+#### Installation
 
 Valet requires the Mac operating system and [Homebrew](http://brew.sh/).
-
-**Installation**
 
 1. Install or update [Homebrew](http://brew.sh/) to the latest version.
 2. Make sure `brew services` is available by running `brew services list` and making sure you get valid output. If it is not available, [add it](https://github.com/Homebrew/homebrew-services).
@@ -22,7 +20,7 @@ Valet requires the Mac operating system and [Homebrew](http://brew.sh/).
 
 Once Valet is installed, try pinging any `*.dev` domain on your terminal using a command such as `ping foobar.dev`. If Valet is installed correctly you should see this domain responding on `127.0.0.1`.
 
-**Serving Sites**
+#### Serving Sites
 
 Once Valet is installed, you're ready to start serving sites. Valet provides two commands to help you serve your Laravel sites: `park` and `link`.
 
