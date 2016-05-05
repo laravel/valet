@@ -115,15 +115,6 @@ $app->command('paths', function ($output) {
 });
 
 /**
- * Prune any non-existent paths.
- */
-$app->command('prune', function ($output) {
-    Valet\Configuration::prune();
-
-    $output->writeln('<info>All missing paths have been pruned.</info>');
-});
-
-/**
  * Echo the currently tunneled URL.
  */
 $app->command('fetch-share-url', function ($output) {
