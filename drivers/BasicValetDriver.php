@@ -1,6 +1,6 @@
 <?php
 
-class GenericPhpValetDriver extends ValetDriver
+class BasicValetDriver extends ValetDriver
 {
     /**
      * Determine if the driver serves the request.
@@ -12,8 +12,7 @@ class GenericPhpValetDriver extends ValetDriver
      */
     public function serves($sitePath, $siteName, $uri)
     {
-        return file_exists($sitePath.'/public/index.php') ||
-               file_exists($sitePath.'/index.php');
+        return true;
     }
 
     /**
@@ -47,7 +46,8 @@ class GenericPhpValetDriver extends ValetDriver
     {
         $candidates = [
             $this->asActualFile($sitePath, $uri),
-            $this->asIndexFileInDirectory($sitePath, $uri),
+            $this->asPhpIndexFileInDirectory($sitePath, $uri),
+            $this->asHtmlIndexFileInDirectory($sitePath, $uri),
         ];
 
         foreach ($candidates as $candidate) {
@@ -59,8 +59,8 @@ class GenericPhpValetDriver extends ValetDriver
         }
 
         $candidates = [
-            $this->asPublicIndexFile($sitePath, $uri),
-            // ...and other possible public prefixes
+            $this->asPublicPhpIndexFile($sitePath, $uri),
+            $this->asPublicHtmlIndexFile($sitePath, $uri),
         ];
 
         foreach ($candidates as $candidate) {
@@ -72,23 +72,74 @@ class GenericPhpValetDriver extends ValetDriver
         }
     }
 
+    /**
+     * Determine if the path is a file and not a directory.
+     *
+     * @param  string  $path
+     * @return bool
+     */
     protected function isActualFile($path)
     {
         return file_exists($path) && ! is_dir($path);
     }
 
+    /**
+     * Concatenate the site path and URI as a single file name.
+     *
+     * @param  string  $sitePath
+     * @param  string  $uri
+     * @return string
+     */
     protected function asActualFile($sitePath, $uri)
     {
         return $sitePath.$uri;
     }
 
-    protected function asIndexFileInDirectory($sitePath, $uri)
+    /**
+     * Format the site path and URI with a trailing "index.php".
+     *
+     * @param  string  $sitePath
+     * @param  string  $uri
+     * @return string
+     */
+    protected function asPhpIndexFileInDirectory($sitePath, $uri)
     {
         return $sitePath.rtrim($uri, '/').'/index.php';
     }
 
-    protected function asPublicIndexFile($sitePath, $uri)
+    /**
+     * Format the site path and URI with a trailing "index.html".
+     *
+     * @param  string  $sitePath
+     * @param  string  $uri
+     * @return string
+     */
+    protected function asHtmlIndexFileInDirectory($sitePath, $uri)
+    {
+        return $sitePath.rtrim($uri, '/').'/index.html';
+    }
+
+    /**
+     * Format the incoming site path as a "public/index.php" file path.
+     *
+     * @param  string  $sitePath
+     * @param  string  $uri
+     * @return string
+     */
+    protected function asPublicPhpIndexFile($sitePath, $uri)
     {
         return $sitePath.'/public/index.php';
+    }
+
+    /**
+     * Format the incoming site path as a "public/index.php" file path.
+     *
+     * @param  string  $sitePath
+     * @param  string  $uri
+     * @return string
+     */
+    protected function asPublicHtmlIndexFile($sitePath, $uri)
+    {
+        return $sitePath.'/public/index.html';
     }
 }
