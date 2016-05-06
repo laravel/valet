@@ -7,9 +7,10 @@ class Configuration
     /**
      * Install the Valet configuration file.
      *
+     * @param  string  $domain
      * @return void
      */
-    public static function install()
+    public static function install($domain)
     {
         if (! is_dir($directory = VALET_HOME_PATH)) {
             mkdir($directory, 0755);
@@ -27,7 +28,9 @@ class Configuration
         }
 
         if (! file_exists(static::path())) {
-            static::write(['domain' => 'dev', 'paths' => []]);
+            static::write(['domain' => $domain, 'paths' => []]);
+        } else {
+            static::write(array_merge(Configuration::read(), ['domain' => $domain]));
         }
 
         chown(static::path(), $_SERVER['SUDO_USER']);

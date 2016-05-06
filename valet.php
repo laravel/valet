@@ -29,19 +29,21 @@ if (is_dir(VALET_HOME_PATH)) {
 /**
  * Allow Valet to be run more conveniently by allowing the Node proxy to run password-less sudo.
  */
-$app->command('install', function ($output) {
+$app->command('install [domain]', function ($output, $domain) {
     should_be_sudo();
 
     Valet\LaunchDaemon::install();
 
-    Valet\Configuration::install();
+    Valet\Configuration::install($domain);
 
-    Valet\DnsMasq::install($output);
+    Valet\DnsMasq::install($output, $domain);
 
     Valet\LaunchDaemon::restart();
 
     $output->writeln(PHP_EOL.'<info>Valet installed successfully!</info>');
-});
+})->defaults([
+    'domain' => 'dev',
+]);
 
 /**
  * Change the domain currently being used by Valet.

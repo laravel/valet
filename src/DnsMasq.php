@@ -11,15 +11,16 @@ class DnsMasq
      * Install and configure DnsMasq.
      *
      * @param  OutputInterface  $output
+     * @param  string  $domain
      * @return void
      */
-    public static function install($output)
+    public static function install($output, $domain)
     {
         if (! static::alreadyInstalled()) {
             static::download($output);
         }
 
-        static::createCustomConfigurationFile();
+        static::createCustomConfigurationFile($domain);
 
         static::createResolver();
 
@@ -74,6 +75,7 @@ class DnsMasq
     protected static function createCustomConfigurationFile()
     {
         $dnsMasqConfigPath = '/Users/'.$_SERVER['SUDO_USER'].'/.valet/dnsmasq.conf';
+        $domain = Configuration::read()['domain'];
 
         if (! file_exists('/usr/local/etc/dnsmasq.conf')) {
             copy('/usr/local/opt/dnsmasq/dnsmasq.conf.example', '/usr/local/etc/dnsmasq.conf');
@@ -85,13 +87,13 @@ class DnsMasq
 
         chown('/usr/local/etc/dnsmasq.conf', $_SERVER['SUDO_USER']);
 
-        file_put_contents($dnsMasqConfigPath, 'address=/.dev/127.0.0.1'.PHP_EOL);
+        file_put_contents($dnsMasqConfigPath, 'address=/.'.$domain.'/127.0.0.1'.PHP_EOL);
 
         chown($dnsMasqConfigPath, $_SERVER['SUDO_USER']);
     }
 
     /**
-     * Create the resolver file to point the "dev" domain to 127.0.0.1.
+     * Create the resolver file to point the custom domain to 127.0.0.1.
      *
      * @return void
      */
