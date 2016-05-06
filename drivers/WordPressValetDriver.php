@@ -52,8 +52,19 @@ class WordPressValetDriver extends ValetDriver
 
         if (file_exists($sitePath.$uri) && ! is_dir($sitePath.$uri)) {
             return $sitePath.$uri;
-        } elseif (file_exists($frontControllerPath = $sitePath.$uri.'/index.php')) {
+        } elseif (file_exists($frontControllerPath = $sitePath.$this->fromAdmin($uri).'/index.php')) {
             return $frontControllerPath;
         }
+    }
+
+    /**
+     * Check if the request is made from wp-admin directory.
+     *
+     * @param  string $uri
+     * @return string
+     */
+    protected function fromAdmin($uri)
+    {
+        return strpos($uri, 'wp-admin') !== false ? $uri : '';
     }
 }
