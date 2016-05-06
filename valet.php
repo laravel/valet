@@ -44,6 +44,28 @@ $app->command('install', function ($output) {
 });
 
 /**
+ * Change the domain currently being used by Valet.
+ */
+$app->command('domain domain', function ($domain, $output) {
+    should_be_sudo();
+
+    $domain = trim($domain, '.');
+
+    Valet\DnsMasq::updateDomain(Valet\Configuration::read()['domain'], $domain);
+
+    Valet\Configuration::updateKey('domain', $domain);
+
+    $output->writeln('<info>Your Valet domain has been updated to ['.$domain.'].</info>');
+});
+
+/**
+ * Get the domain currently being used by Valet.
+ */
+$app->command('current-domain', function ($output) {
+    $output->writeln(Valet\Configuration::read()['domain']);
+});
+
+/**
  * Add the current working directory to the paths configuration.
  */
 $app->command('park', function ($output) {

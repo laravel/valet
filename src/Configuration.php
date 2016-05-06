@@ -114,6 +114,24 @@ class Configuration
     }
 
     /**
+     * Update a specific key in the configuration file.
+     *
+     * @param  string  $key
+     * @param  mixed  $value
+     * @return array
+     */
+    public static function updateKey($key, $value)
+    {
+        $config = static::read();
+
+        $config[$key] = $value;
+
+        static::write($config);
+
+        return $config;
+    }
+
+    /**
      * Write the given configuration to disk.
      *
      * @param  array  $config

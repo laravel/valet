@@ -10,12 +10,14 @@ then
     cd "$OLDPWD"
 fi
 
-if [[ "$1" = "install" ]] || [[ "$1" = "start" ]] || [[ "$1" = "restart" ]] || [[ "$1" = "stop" ]] || [[ "$1" = "uninstall" ]]
+if [[ "$1" = "install" ]] || [[ "$1" = "domain" ]] || [[ "$1" = "start" ]] || [[ "$1" = "restart" ]] || [[ "$1" = "stop" ]] || [[ "$1" = "uninstall" ]]
 then
     sudo php "$DIR/valet.php" "$@"
 elif [[ "$1" = "share" ]]
 then
     HOST="${PWD##*/}"
+    DOMAIN=$(php "$DIR/valet.php" current-domain)
+
 
     for linkname in ~/.valet/Sites/*; do
         RESOLVED_LINK="$(readlink $linkname)"
@@ -26,8 +28,10 @@ then
         fi
     done
 
+    # Fetch Ngrok URL In Background...
     bash "$DIR/fetch-share-url.sh" &
-    "$DIR/bin/ngrok" http -host-header=rewrite "$HOST.dev:80"
+
+    "$DIR/bin/ngrok" http -host-header=rewrite "$HOST.$DOMAIN:80"
 else
     php "$DIR/valet.php" $@
 fi

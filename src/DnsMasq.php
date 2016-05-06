@@ -78,7 +78,7 @@ class DnsMasq
         if (! file_exists('/usr/local/etc/dnsmasq.conf')) {
             copy('/usr/local/opt/dnsmasq/dnsmasq.conf.example', '/usr/local/etc/dnsmasq.conf');
         }
-        
+
         if (strpos(file_get_contents('/usr/local/etc/dnsmasq.conf'), $dnsMasqConfigPath) === false) {
             file_put_contents('/usr/local/etc/dnsmasq.conf', PHP_EOL.'conf-file='.$dnsMasqConfigPath.PHP_EOL, FILE_APPEND);
         }
@@ -102,5 +102,23 @@ class DnsMasq
         }
 
         file_put_contents('/etc/resolver/dev', 'nameserver 127.0.0.1'.PHP_EOL);
+    }
+
+    /**
+     * Update the domain used by DnsMasq.
+     *
+     * @param  string  $oldDomain
+     * @param  string  $newDomain
+     * @return void
+     */
+    public static function updateDomain($oldDomain, $newDomain)
+    {
+        quietly('rm /etc/resolver/'.$oldDomain);
+
+        file_put_contents('/etc/resolver/'.$newDomain, 'nameserver 127.0.0.1'.PHP_EOL);
+
+        file_put_contents(VALET_HOME_PATH.'/dnsmasq.conf', 'address=/.'.$newDomain.'/127.0.0.1'.PHP_EOL);
+
+        passthru('sudo brew services restart dnsmasq');
     }
 }
