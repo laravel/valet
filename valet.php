@@ -93,6 +93,21 @@ $app->command('unlink [name]', function ($name, $output) {
 });
 
 /**
+ * Determine which Valet driver the current directory is using.
+ */
+$app->command('which', function ($output) {
+    require __DIR__.'/drivers/require.php';
+
+    $driver = ValetDriver::assign(getcwd(), basename(getcwd()), '/');
+
+    if ($driver) {
+        $output->writeln('<info>This site is served by ['.get_class($driver).'].</info>');
+    } else {
+        $output->writeln('<fg=red>Valet could not determine which driver to use for this site.</>');
+    }
+});
+
+/**
  * Stream all of the logs for all sites.
  */
 $app->command('logs', function ($output) {
