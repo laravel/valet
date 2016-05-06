@@ -23,6 +23,6 @@ class KatanaValetDriver extends StaticValetDriver
      */
     public function serves($sitePath, $siteName, $uri)
     {
-        return is_dir($sitePath.'/katana');
+        return file_exists($sitePath.'/katana');
     }
 }
