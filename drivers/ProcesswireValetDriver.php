@@ -30,6 +30,7 @@ class ProcesswireValetDriver extends ValetDriver
             pathinfo($sitePath.$uri)['extension'] != 'php') {
             return $sitePath.$uri;
         }
+
         return false;
     }
 
