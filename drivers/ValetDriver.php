@@ -52,6 +52,7 @@ abstract class ValetDriver
         $drivers[] = 'JigsawValetDriver';
         $drivers[] = 'GenericPhpValetDriver';
         $drivers[] = 'StaticValetDriver';
+        $drivers[] = 'ContaoValetDriver';
 
         foreach ($drivers as $driver) {
             $driver = new $driver;
