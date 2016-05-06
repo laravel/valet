@@ -26,8 +26,7 @@ class WordPressValetDriver extends ValetDriver
     public function isStaticFile($sitePath, $siteName, $uri)
     {
         if (file_exists($sitePath.$uri) &&
-            ! is_dir($sitePath.$uri) &&
-            pathinfo($sitePath.$uri)['extension'] != 'php') {
+            ! is_dir($sitePath.$uri)) {
             return $sitePath.$uri;
         }
 

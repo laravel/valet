@@ -28,7 +28,7 @@ class GenericPhpValetDriver extends ValetDriver
     {
         if (file_exists($staticFilePath = $sitePath.'/public'.$uri)) {
             return $staticFilePath;
-        } elseif (file_exists($staticFilePath = $sitePath.$uri)) {
+        } elseif (file_exists($staticFilePath = $sitePath.$uri) && ! is_dir($staticFilePath)) {
             return $staticFilePath;
         }
 
@@ -45,14 +45,50 @@ class GenericPhpValetDriver extends ValetDriver
      */
     public function frontControllerPath($sitePath, $siteName, $uri)
     {
-        if (file_exists($frontControllerPath = $sitePath.'/public/index.php')) {
-            $_SERVER['SCRIPT_FILENAME'] = $sitePath.'/public/index.php';
-            $_SERVER['SCRIPT_NAME'] = '/index.php';
-        } elseif (file_exists($frontControllerPath = $sitePath.'/index.php')) {
-            $_SERVER['SCRIPT_FILENAME'] = $sitePath.'/index.php';
-            $_SERVER['SCRIPT_NAME'] = '/index.php';
+        $candidates = [
+            $this->asActualFile($sitePath, $uri),
+            $this->asIndexFileInDirectory($sitePath, $uri),
+        ];
+
+        foreach ($candidates as $candidate) {
+            if ($this->isActualFile($candidate)) {
+                $_SERVER['SCRIPT_FILENAME'] = $candidate;
+                $_SERVER['SCRIPT_NAME'] = str_replace($sitePath, '', $candidate);
+                return $candidate;
+            }
         }
 
-        return $frontControllerPath;
+        $candidates = [
+            $this->asPublicIndexFile($sitePath, $uri),
+            // ...and other possible public prefixes
+        ];
+
+        foreach ($candidates as $candidate) {
+            if ($this->isActualFile($candidate)) {
+                $_SERVER['SCRIPT_FILENAME'] = $candidate;
+                $_SERVER['SCRIPT_NAME'] = '/index.php';
+                return $candidate;
+            }
+        }
+    }
+
+    protected function isActualFile($path)
+    {
+        return file_exists($path) && ! is_dir($path);
+    }
+
+    protected function asActualFile($sitePath, $uri)
+    {
+        return $sitePath.$uri;
+    }
+
+    protected function asIndexFileInDirectory($sitePath, $uri)
+    {
+        return $sitePath.rtrim($uri, '/').'/index.php';
+    }
+
+    protected function asPublicIndexFile($sitePath, $uri)
+    {
+        return $sitePath.'/public/index.php';
     }
 }
