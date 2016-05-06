@@ -9,3 +9,4 @@ require_once __DIR__.'/WordPressValetDriver.php';
 require_once __DIR__.'/CraftValetDriver.php';
 require_once __DIR__.'/SymfonyValetDriver.php';
 require_once __DIR__.'/GenericPhpValetDriver.php';
+require_once __DIR__.'/SculpinValetDriver.php';
