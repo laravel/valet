@@ -3,7 +3,13 @@
 /**
  * Define the user's "~/.valet" path.
  */
-define('VALET_HOME_PATH', '/Users/'.posix_getpwuid(fileowner(__FILE__))['name'].'/.valet');
+require_once (file_exists(__DIR__.'/vendor/autoload.php')) ? __DIR__.'/vendor/autoload.php' : __DIR__.'/../../autoload.php';
+
+$valetHomePath = sprintf(
+    \Valet\Compatibility::get('VALET_HOME_PATH'),
+    posix_getpwuid(fileowner(__FILE__))['name']
+);
+define('VALET_HOME_PATH', $valetHomePath);
 
 /**
  * De-escalate root privileges down to Valet directory owner.

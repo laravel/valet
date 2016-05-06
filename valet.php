@@ -38,6 +38,8 @@ $app->command('install', function ($output) {
 
     Valet\DnsMasq::install($output);
 
+    Valet\Ngrok::install($output);
+
     Valet\LaunchDaemon::restart();
 
     $output->writeln(PHP_EOL.'<info>Valet installed successfully!</info>');

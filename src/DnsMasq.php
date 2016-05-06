@@ -23,7 +23,7 @@ class DnsMasq
 
         static::createResolver();
 
-        quietly('sudo brew services restart dnsmasq');
+        quietly(Compatibility::get('DNSMASQ_RESTART'));
     }
 
     /**
@@ -33,7 +33,7 @@ class DnsMasq
      */
     public static function alreadyInstalled()
     {
-        $process = new Process('brew list | grep dnsmasq');
+        $process = new Process(Compatibility::get('DNSMASQ_ALREADY_INSTALLED'));
 
         $process->run();
 
@@ -48,9 +48,9 @@ class DnsMasq
      */
     protected static function download($output)
     {
-        $output->writeln('<info>DnsMasq is not installed, installing it now via Brew...</info> 🍻');
+        $output->writeln(Compatibility::get('DNSMASQ_INSTALL_TEXT'));
 
-        $process = new Process('sudo -u '.$_SERVER['SUDO_USER'].' brew install dnsmasq');
+        $process = new Process(sprintf(Compatibility::get('DNSMASQ_INSTALL'), $_SERVER['SUDO_USER']));
 
         $processOutput = '';
         $process->run(function ($type, $line) use (&$processOutput) {
@@ -73,17 +73,19 @@ class DnsMasq
      */
     protected static function createCustomConfigurationFile()
     {
-        $dnsMasqConfigPath = '/Users/'.$_SERVER['SUDO_USER'].'/.valet/dnsmasq.conf';
+        $dnsMasqConfigPath = sprintf(Compatibility::get('DNSMASQ_USER'), $_SERVER['SUDO_USER']);
 
-        if (! file_exists('/usr/local/etc/dnsmasq.conf')) {
-            copy('/usr/local/opt/dnsmasq/dnsmasq.conf.example', '/usr/local/etc/dnsmasq.conf');
-        }
-        
-        if (strpos(file_get_contents('/usr/local/etc/dnsmasq.conf'), $dnsMasqConfigPath) === false) {
-            file_put_contents('/usr/local/etc/dnsmasq.conf', PHP_EOL.'conf-file='.$dnsMasqConfigPath.PHP_EOL, FILE_APPEND);
+        if(!file_exists(dirname($dnsMasqConfigPath))) {
+            mkdir(dirname($dnsMasqConfigPath), 0755, true);
         }
 
-        chown('/usr/local/etc/dnsmasq.conf', $_SERVER['SUDO_USER']);
+        $dnsMasqConfig = Compatibility::get('DNSMASQ_CONF');
+
+        if (strpos(file_get_contents($dnsMasqConfig), $dnsMasqConfigPath) === false) {
+            file_put_contents($dnsMasqConfig, PHP_EOL.'conf-file='.$dnsMasqConfigPath.PHP_EOL, FILE_APPEND);
+        }
+
+        chown($dnsMasqConfig, $_SERVER['SUDO_USER']);
 
         file_put_contents($dnsMasqConfigPath, 'address=/.dev/127.0.0.1'.PHP_EOL);
 
