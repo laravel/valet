@@ -48,6 +48,7 @@ abstract class ValetDriver
 
         $drivers[] = 'CraftValetDriver';
         $drivers[] = 'JigsawValetDriver';
+        $drivers[] = 'SculpinValetDriver';
         $drivers[] = 'StatamicValetDriver';
         $drivers[] = 'SymfonyValetDriver';
         $drivers[] = 'WordPressValetDriver';
