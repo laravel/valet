@@ -73,7 +73,7 @@ class DnsMasq
      */
     protected static function createCustomConfigurationFile()
     {
-        $dnsMasqConfigPath = '/Users/'.$_SERVER['SUDO_USER'].'/.valet/dnsmasq.conf';
+        $dnsMasqConfigPath = $_SERVER['HOME'].'/.valet/dnsmasq.conf';
 
         if (! file_exists('/usr/local/etc/dnsmasq.conf')) {
             copy('/usr/local/opt/dnsmasq/dnsmasq.conf.example', '/usr/local/etc/dnsmasq.conf');

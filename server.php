@@ -3,7 +3,7 @@
 /**
  * Define the user's "~/.valet" path.
  */
-define('VALET_HOME_PATH', '/Users/'.posix_getpwuid(fileowner(__FILE__))['name'].'/.valet');
+define('VALET_HOME_PATH', posix_getpwuid(fileowner(__FILE__))['dir'].'/.valet');
 
 /**
  * De-escalate root privileges down to Valet directory owner.
