@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.laravel.valetServer.queues.QUEUE_SITE</string>
+    <key>WorkingDirectory</key>
+    <string>SITE_PATH</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>PHP_PATH</string>
+        <string>artisan</string>
+        <string>queue:work</string>
+        <string>--daemon</string>
+        <string>--memory=QUEUE_MEMORY</string>
+        <string>--sleep=QUEUE_SLEEP</string>
+        <string>--tries=QUEUE_TRIES</string>
+    </array>
+    <key>ProcessType</key>
+    <string>Background</string>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardErrorPath</key>
+    <string>/tmp/com.laravel.valetServer.queues.QUEUE_SITE.err</string>
+    <key>StandardOutputPath</key>
+    <string>/tmp/com.laravel.valetServer.queues.QUEUE_SITE.err</string>
+</dict>
+</plist>

@@ -13,6 +13,9 @@ fi
 if [[ "$1" = "install" ]] || [[ "$1" = "domain" ]] || [[ "$1" = "start" ]] || [[ "$1" = "restart" ]] || [[ "$1" = "stop" ]] || [[ "$1" = "uninstall" ]]
 then
     sudo php "$DIR/valet.php" "$@"
+elif [[ "$1" = "queue" ]]
+then
+    "$DIR/bin/valet-darwin-queue-native"
 elif [[ "$1" = "share" ]]
 then
     HOST="${PWD##*/}"
