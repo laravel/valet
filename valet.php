@@ -1,15 +1,15 @@
 #!/usr/bin/env php
 <?php
 
-if (file_exists(__DIR__.'/vendor/autoload.php')) {
-    require __DIR__.'/vendor/autoload.php';
+if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+    require __DIR__ . '/vendor/autoload.php';
 } else {
-    require __DIR__.'/../../autoload.php';
+    require __DIR__ . '/../../autoload.php';
 }
 
 should_be_compatible();
 
-define('VALET_HOME_PATH', $_SERVER['HOME'].'/.valet');
+define('VALET_HOME_PATH', $_SERVER['HOME'] . '/.valet');
 
 use Silly\Application;
 
@@ -40,7 +40,7 @@ $app->command('install', function ($output) {
 
     Valet\LaunchDaemon::restart();
 
-    $output->writeln(PHP_EOL.'<info>Valet installed successfully!</info>');
+    $output->writeln(PHP_EOL . '<info>Valet installed successfully!</info>');
 });
 
 /**
@@ -69,14 +69,14 @@ $app->command('link [name]', function ($name, $output) {
 
     $linkPath = Valet\Site::link($name);
 
-    $output->writeln('<info>A ['.$name.'] symbolic link has been created in ['.$linkPath.'].</info>');
+    $output->writeln('<info>A [' . $name . '] symbolic link has been created in [' . $linkPath . '].</info>');
 });
 
 /**
  * Display all of the registered symbolic links.
  */
 $app->command('links', function () {
-    passthru('ls -la '.VALET_HOME_PATH.'/Sites');
+    passthru('ls -la ' . VALET_HOME_PATH . '/Sites');
 });
 
 /**
@@ -86,7 +86,7 @@ $app->command('unlink [name]', function ($name, $output) {
     $name = $name ?: basename(getcwd());
 
     if (Valet\Site::unlink($name)) {
-        $output->writeln('<info>The ['.$name.'] symbolic link has been removed.</info>');
+        $output->writeln('<info>The [' . $name . '] symbolic link has been removed.</info>');
     } else {
         $output->writeln('<fg=red>A symbolic link with this name does not exist.</>');
     }
@@ -96,12 +96,12 @@ $app->command('unlink [name]', function ($name, $output) {
  * Determine which Valet driver the current directory is using.
  */
 $app->command('which', function ($output) {
-    require __DIR__.'/drivers/require.php';
+    require __DIR__ . '/drivers/require.php';
 
     $driver = ValetDriver::assign(getcwd(), basename(getcwd()), '/');
 
     if ($driver) {
-        $output->writeln('<info>This site is served by ['.get_class($driver).'].</info>');
+        $output->writeln('<info>This site is served by [' . get_class($driver) . '].</info>');
     } else {
         $output->writeln('<fg=red>Valet could not determine which driver to use for this site.</>');
     }
@@ -114,7 +114,7 @@ $app->command('logs', function ($output) {
     $files = Valet\Site::logs();
 
     if (count($files) > 0) {
-        passthru('tail -f '.implode(' ', $files));
+        passthru('tail -f ' . implode(' ', $files));
     } else {
         $output->writeln('<fg=red>No log files were found.</>');
     }
@@ -185,6 +185,17 @@ $app->command('stop', function ($output) {
     Valet\LaunchDaemon::stop();
 
     $output->writeln('<info>Valet services have been stopped.</info>');
+});
+
+/**
+ * Check the daemon services.
+ */
+$app->command('status', function ($output) {
+    should_be_sudo();
+
+    $state = Valet\LaunchDaemon::status() ? 'running' : 'stopped';
+
+    $output->writeln("<info>Valet services are {$state}.</info>");
 });
 
 /**

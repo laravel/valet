@@ -10,7 +10,7 @@ then
     cd $OLDPWD
 fi
 
-if [[ $1 = "install" ]] || [[ $1 = "start" ]] || [[ $1 = "restart" ]] || [[ $1 = "stop" ]] || [[ $1 = "uninstall" ]]
+if [[ $1 = "install" ]] || [[ $1 = "start" ]] || [[ $1 = "restart" ]] || [[ $1 = "stop" ]] || [[ $1 = "status" ]] || [[ $1 = "uninstall" ]]
 then
     sudo php $DIR/valet.php $@
 elif [[ $1 = "share" ]]
