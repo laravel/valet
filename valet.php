@@ -34,7 +34,7 @@ $app->command('install [domain]', function ($output, $domain) {
 
     Valet\LaunchDaemon::install();
 
-    Valet\Configuration::install();
+    Valet\Configuration::install($domain);
 
     Valet\DnsMasq::install($output, $domain);
 

@@ -70,12 +70,12 @@ class DnsMasq
     /**
      * Append the custom DnsMasq configuration file to the main configuration file.
      *
-     * @param  string  $domain
      * @return void
      */
-    protected static function createCustomConfigurationFile($domain)
+    protected static function createCustomConfigurationFile()
     {
         $dnsMasqConfigPath = '/Users/'.$_SERVER['SUDO_USER'].'/.valet/dnsmasq.conf';
+        $domain = Configuration::read()['domain'];
 
         copy('/usr/local/opt/dnsmasq/dnsmasq.conf.example', '/usr/local/etc/dnsmasq.conf');
 
@@ -91,7 +91,7 @@ class DnsMasq
     }
 
     /**
-     * Create the resolver file to point the "dev" domain to 127.0.0.1.
+     * Create the resolver file to point the custom domain to 127.0.0.1.
      *
      * @return void
      */
