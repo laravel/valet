@@ -54,6 +54,8 @@ class WordPressValetDriver extends ValetDriver
             return $sitePath.$uri;
         } elseif (file_exists($frontControllerPath = $sitePath.$uri.'/index.php')) {
             return $frontControllerPath;
+        } else {
+            return $sitePath.'/index.php';
         }
     }
 }

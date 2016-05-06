@@ -74,11 +74,11 @@ if (! $valetDriver) {
  */
 $uri = $valetDriver->mutateUri($uri);
 
-$valetPathInfo = pathinfo($uri);
+$uriPathInfo = pathinfo($uri);
 
 $isPhpFile = false;
 
-if (isset($valetPathInfo['extension']) && $valetPathInfo['extension'] === 'php') {
+if (isset($uriPathInfo['extension']) && $uriPathInfo['extension'] === 'php') {
     $isPhpFile = true;
 }
 
