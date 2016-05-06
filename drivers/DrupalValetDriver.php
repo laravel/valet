@@ -12,7 +12,12 @@ class DrupalValetDriver extends ValetDriver
      */
     public function serves($sitePath, $siteName, $uri)
     {
-        if (file_exists($sitePath.'/misc/drupal.js')) {
+      /**
+       * /misc/drupal.js = Drupal 6 & 7
+       * /core/lib/Drupal.php = Drupal 8
+       */
+      if (file_exists($sitePath.'/misc/drupal.js') ||
+          file_exists($sitePath.'/core/lib/Drupal.php')) {
             return true;
         }
     }
@@ -46,12 +51,23 @@ class DrupalValetDriver extends ValetDriver
      */
     public function frontControllerPath($sitePath, $siteName, $uri)
     {
-        chdir($sitePath);
+        if (!empty($uri) && $uri !== '/') {
+            $_GET['q'] = $uri;
+        }
 
-        $_GET['q'] = $uri;
-        $_SERVER['SCRIPT_FILENAME'] = $sitePath.'/index.php';
-        $_SERVER['SCRIPT_NAME'] = '/index.php';
-
-        return $sitePath.'/index.php';
+        if (file_exists($sitePath.$uri) && ! is_dir($sitePath.$uri)) {
+            chdir(dirname($sitePath.$uri));
+            $_SERVER['SCRIPT_FILENAME'] = $sitePath.$uri;
+            return $sitePath.$uri;
+        } elseif (file_exists($frontControllerPath = $sitePath.$uri.'/index.php')) {
+            chdir($sitePath.$uri);
+            $_SERVER['SCRIPT_FILENAME'] = $sitePath.$uri.'/index.php';
+            return $frontControllerPath;
+        } else {
+            chdir($sitePath);
+            $_SERVER['SCRIPT_FILENAME'] = $sitePath.'/index.php';
+            $_SERVER['SCRIPT_NAME'] = '/index.php';
+            return $sitePath.'/index.php';
+        }
     }
 }
