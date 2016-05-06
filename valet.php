@@ -16,7 +16,7 @@ use Silly\Application;
 /**
  * Create the application.
  */
-$app = new Application('Laravel Valet', 'v1.0.8');
+$app = new Application('Laravel Valet', 'v1.0.9');
 
 /**
  * Prune missing directories and symbolic links on every command.
@@ -89,6 +89,21 @@ $app->command('unlink [name]', function ($name, $output) {
         $output->writeln('<info>The ['.$name.'] symbolic link has been removed.</info>');
     } else {
         $output->writeln('<fg=red>A symbolic link with this name does not exist.</>');
+    }
+});
+
+/**
+ * Determine which Valet driver the current directory is using.
+ */
+$app->command('which', function ($output) {
+    require __DIR__.'/drivers/require.php';
+
+    $driver = ValetDriver::assign(getcwd(), basename(getcwd()), '/');
+
+    if ($driver) {
+        $output->writeln('<info>This site is served by ['.get_class($driver).'].</info>');
+    } else {
+        $output->writeln('<fg=red>Valet could not determine which driver to use for this site.</>');
     }
 });
 

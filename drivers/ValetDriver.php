@@ -8,7 +8,7 @@ abstract class ValetDriver
      * @param  string  $sitePath
      * @param  string  $siteName
      * @param  string  $uri
-     * @return void
+     * @return bool
      */
     abstract public function serves($sitePath, $siteName, $uri);
 

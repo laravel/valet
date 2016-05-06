@@ -61,14 +61,7 @@ if (is_null($valetSitePath)) {
  */
 $valetDriver = null;
 
-require_once __DIR__.'/drivers/ValetDriver.php';
-require_once __DIR__.'/drivers/StatamicValetDriver.php';
-require_once __DIR__.'/drivers/LaravelValetDriver.php';
-require_once __DIR__.'/drivers/StaticValetDriver.php';
-require_once __DIR__.'/drivers/JigsawValetDriver.php';
-require_once __DIR__.'/drivers/WordPressValetDriver.php';
-require_once __DIR__.'/drivers/CraftValetDriver.php';
-require_once __DIR__.'/drivers/KatanaValetDriver.php';
+require __DIR__.'/drivers/require.php';
 
 $valetDriver = ValetDriver::assign($valetSitePath, $siteName, $uri);
 
