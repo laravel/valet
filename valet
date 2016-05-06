@@ -4,31 +4,30 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 if [ ! -f "$DIR/valet.php" ]
 then
-    OLDPWD=$PWD
-    cd $DIR/../laravel/valet
-    DIR=$(pwd)
-    cd $OLDPWD
+    OLDPWD="$PWD"
+    cd "$DIR/../laravel/valet"
+    DIR="$(pwd)"
+    cd "$OLDPWD"
 fi
 
-if [[ $1 = "install" ]] || [[ $1 = "start" ]] || [[ $1 = "restart" ]] || [[ $1 = "stop" ]] || [[ $1 = "uninstall" ]]
+if [[ "$1" = "install" ]] || [[ "$1" = "start" ]] || [[ "$1" = "restart" ]] || [[ "$1" = "stop" ]] || [[ "$1" = "uninstall" ]]
 then
-    sudo php $DIR/valet.php $@
-elif [[ $1 = "share" ]]
+    sudo php "$DIR/valet.php" "$@"
+elif [[ "$1" = "share" ]]
 then
-    HOST=${PWD##*/}
+    HOST="${PWD##*/}"
 
     for linkname in ~/.valet/Sites/*; do
-        RESOLVED_LINK=$(readlink $linkname)
+        RESOLVED_LINK="$(readlink $linkname)"
 
-        if [[ $RESOLVED_LINK = $PWD ]]
+        if [[ "$RESOLVED_LINK" = "$PWD" ]]
         then
-            HOST=${linkname##*/}
+            HOST="${linkname##*/}"
         fi
     done
 
-    bash $DIR/fetch-share-url.sh &
-    $DIR/bin/ngrok http -host-header=rewrite $HOST.dev:80
+    bash "$DIR/fetch-share-url.sh" &
+    "$DIR/bin/ngrok" http -host-header=rewrite "$HOST.dev:80"
 else
-    php $DIR/valet.php $@
+    php "$DIR/valet.php" $@
 fi
-
