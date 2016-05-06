@@ -47,7 +47,6 @@ abstract class ValetDriver
         $drivers[] = 'LaravelValetDriver';
 
         $drivers[] = 'CraftValetDriver';
-        $drivers[] = 'StatamicValetDriver';
         $drivers[] = 'JigsawValetDriver';
         $drivers[] = 'SculpinValetDriver';
         $drivers[] = 'StatamicValetDriver';
