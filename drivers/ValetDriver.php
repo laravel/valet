@@ -50,6 +50,7 @@ abstract class ValetDriver
         $drivers[] = 'CraftValetDriver';
         $drivers[] = 'StatamicValetDriver';
         $drivers[] = 'JigsawValetDriver';
+        $drivers[] = 'ProcesswireValetDriver';
         $drivers[] = 'GenericPhpValetDriver';
         $drivers[] = 'StaticValetDriver';
 
