@@ -40,7 +40,7 @@ class Ngrok
         $downloadPath = Compatibility::get('NGROK_INSTALL');
         $fileName = __DIR__.'/../bin/ngrok.zip';
 
-        if (!file_exists($fileName)) {
+        if (!file_exists( __DIR__.'/../bin/ngrok')) {
             file_put_contents($fileName, file_get_contents($downloadPath));
 
             $process = new Process(sprintf(Compatibility::get('NGROK_UNZIP'), $fileName));
