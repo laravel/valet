@@ -45,13 +45,13 @@ abstract class ValetDriver
         $drivers = static::driversIn(VALET_HOME_PATH.'/Drivers');
 
         $drivers[] = 'LaravelValetDriver';
-        $drivers[] = 'SymfonyValetDriver';
-        $drivers[] = 'WordPressValetDriver';
+
         $drivers[] = 'CraftValetDriver';
-        $drivers[] = 'StatamicValetDriver';
         $drivers[] = 'JigsawValetDriver';
-        $drivers[] = 'GenericPhpValetDriver';
-        $drivers[] = 'StaticValetDriver';
+        $drivers[] = 'StatamicValetDriver';
+        $drivers[] = 'SymfonyValetDriver';
+
+        $drivers[] = 'BasicValetDriver';
 
         foreach ($drivers as $driver) {
             $driver = new $driver;
