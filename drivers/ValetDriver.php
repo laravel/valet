@@ -110,11 +110,13 @@ abstract class ValetDriver
     public function serveStaticFile($staticFilePath, $sitePath, $siteName, $uri)
     {
         $extension = pathinfo($staticFilePath)['extension'];
-        
+
         $mimes = require(__DIR__.'/../mimes.php');
-        $mine = isset($mines[$extension]) ? $mines[$extension] : 'application/octet-stream';
-        
-        header('Content-Type: '. $mine);
+
+        $mime = isset($mimes[$extension]) ? $mimes[$extension] : 'application/octet-stream';
+
+        header('Content-Type: '. $mime);
+
         readfile($staticFilePath);
     }
 }
