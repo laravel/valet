@@ -7,3 +7,4 @@ require_once __DIR__.'/StaticValetDriver.php';
 require_once __DIR__.'/JigsawValetDriver.php';
 require_once __DIR__.'/WordPressValetDriver.php';
 require_once __DIR__.'/CraftValetDriver.php';
+require_once __DIR__.'/SymfonyValetDriver.php';

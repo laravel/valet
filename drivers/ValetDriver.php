@@ -45,6 +45,7 @@ abstract class ValetDriver
         $drivers = static::driversIn(VALET_HOME_PATH.'/Drivers');
 
         $drivers[] = 'LaravelValetDriver';
+        $drivers[] = 'SymfonyValetDriver';
         $drivers[] = 'WordPressValetDriver';
         $drivers[] = 'CraftValetDriver';
         $drivers[] = 'StatamicValetDriver';
