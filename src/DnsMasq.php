@@ -11,15 +11,16 @@ class DnsMasq
      * Install and configure DnsMasq.
      *
      * @param  OutputInterface  $output
+     * @param  string  $domain
      * @return void
      */
-    public static function install($output)
+    public static function install($output, $domain)
     {
         if (! static::alreadyInstalled()) {
             static::download($output);
         }
 
-        static::createCustomConfigurationFile();
+        static::createCustomConfigurationFile($domain);
 
         static::createResolver();
 
@@ -69,12 +70,12 @@ class DnsMasq
     /**
      * Append the custom DnsMasq configuration file to the main configuration file.
      *
+     * @param  string  $domain
      * @return void
      */
-    protected static function createCustomConfigurationFile()
+    protected static function createCustomConfigurationFile($domain)
     {
         $dnsMasqConfigPath = '/Users/'.$_SERVER['SUDO_USER'].'/.valet/dnsmasq.conf';
-        $domain = Configuration::read()['domain'];
 
         copy('/usr/local/opt/dnsmasq/dnsmasq.conf.example', '/usr/local/etc/dnsmasq.conf');
 
