@@ -98,4 +98,6 @@ if (! $frontControllerPath) {
     show_valet_404();
 }
 
+chdir(dirname($frontControllerPath));
+
 require $frontControllerPath;
