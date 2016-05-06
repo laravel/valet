@@ -73,7 +73,7 @@ class DnsMasq
      */
     protected static function createCustomConfigurationFile()
     {
-        $dnsMasqConfigPath = sprintf(Compatibility::get('DNSMASQ_ROOT_USER'), $_SERVER['SUDO_USER']);
+        $dnsMasqConfigPath = sprintf(Compatibility::get('DNSMASQ_USER'), $_SERVER['SUDO_USER']);
 
         if(!file_exists(dirname($dnsMasqConfigPath))) {
             mkdir(dirname($dnsMasqConfigPath), 0755, true);

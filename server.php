@@ -9,7 +9,6 @@ $valetHomePath = sprintf(
     \Valet\Compatibility::get('VALET_HOME_PATH'),
     posix_getpwuid(fileowner(__FILE__))['name']
 );
-
 define('VALET_HOME_PATH', $valetHomePath);
 
 /**

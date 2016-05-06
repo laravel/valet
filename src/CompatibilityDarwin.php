@@ -13,7 +13,7 @@ class CompatibilityDarwin
     const DNSMASQ_INSTALL_TEXT = '<info>DnsMasq is not installed, installing it now via Brew...</info> 🍻';
     const DNSMASQ_ALREADY_INSTALLED = 'brew list | grep dnsmasq';
     const DNSMASQ_RESTART = 'sudo brew services restart dnsmasq';
-    const DNSMASQ_ROOT_USER = '/Users/%s/.valet/dnsmasq.conf';
+    const DNSMASQ_USER = '/Users/%s/.valet/dnsmasq.conf';
     const DNSMASQ_CONF_EXAMPLE = '/usr/local/opt/dnsmasq/dnsmasq.conf.example';
     const DNSMASQ_CONF = '/usr/local/etc/dnsmasq.conf';
 
