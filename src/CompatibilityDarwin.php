@@ -8,6 +8,10 @@ class CompatibilityDarwin
     const WHICH_INSTALLER_PATH = '/usr/local/bin/brew';
     const WHICH_INSTALLER_ERROR = 'Valet requires Brew to be installed on your Mac.';
 
+    const NGROK_INSTALL = 'https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-darwin-amd64.zip';
+    const NGROK_UNZIP = 'unzip %s';
+    const NGROK_INSTALL_TEXT = '<info>ngrok is not installed, downloading and unzipping it...</info>';
+
     const VALET_HOME_PATH = '/Users/%s/.valet';
     const DNSMASQ_INSTALL = 'sudo -u %s brew install dnsmasq';
     const DNSMASQ_INSTALL_TEXT = '<info>DnsMasq is not installed, installing it now via Brew...</info> 🍻';
