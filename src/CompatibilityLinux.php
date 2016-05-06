@@ -9,12 +9,12 @@ class CompatibilityLinux
     const WHICH_INSTALLER_ERROR = 'Valet requires apt-get to be installed on your Linux.';
 
     const VALET_HOME_PATH = '/home/%s/.valet';
-    const DNSMASQ_INSTALL = 'sudo -u %s apt-get install dnsmasq';
+    const DNSMASQ_INSTALL = 'sudo -u %s apt-get install -y dnsmasq';
     const DNSMASQ_INSTALL_TEXT = '<info>DnsMasq is not installed, installing it now via apt...</info>';
     const DNSMASQ_ALREADY_INSTALLED = 'which dnsmasq';
     const DNSMASQ_RESTART = 'sudo service dnsmasq restart';
-    const DNSMASQ_USER = '/%s/.valet/dnsmasq.conf';
-    const DNSMASQ_CONF_EXAMPLE = '/etc/dnsmasq.d/dnsmasq.conf';
+    const DNSMASQ_USER = '/root/.valet/dnsmasq.conf';
+    const DNSMASQ_CONF_EXAMPLE = '/etc/dnsmasq.conf';
     const DNSMASQ_CONF = '/etc/dnsmasq.conf';
     
     const LAUNCH_DAEMON_INSTALL_SCRIPT = '/../stubs/linux.systemd';
