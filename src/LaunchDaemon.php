@@ -12,12 +12,16 @@ class LaunchDaemon
     public static function install()
     {
         $contents = str_replace(
-            'SERVER_PATH', realpath(__DIR__.'/../server.php'), file_get_contents(__DIR__.'/../stubs/daemon.plist')
+            'SERVER_PATH',
+            realpath(__DIR__.'/../server.php'),
+            file_get_contents(__DIR__.Compatibility::get('LAUNCH_DAEMON_INSTALL_SCRIPT'))
         );
 
         $contents = str_replace('PHP_PATH', exec('which php'), $contents);
 
-        file_put_contents('/Library/LaunchDaemons/com.laravel.valetServer.plist', $contents);
+        file_put_contents(Compatibility::get('LAUNCH_DAEMON_INSTALL_PATH'), $contents);
+
+        quietly(Compatibility::get('LAUNCH_DAEMON_QUIETLY_START'));
     }
 
     /**
@@ -27,9 +31,9 @@ class LaunchDaemon
      */
     public static function restart()
     {
-        quietly('launchctl unload /Library/LaunchDaemons/com.laravel.valetServer.plist > /dev/null');
+        quietly(Compatibility::get('LAUNCH_DAEMON_QUIETLY_RESTART'));
 
-        exec('launchctl load /Library/LaunchDaemons/com.laravel.valetServer.plist');
+        exec(Compatibility::get('LAUNCH_DAEMON_RESTART'));
     }
 
     /**
@@ -39,7 +43,7 @@ class LaunchDaemon
      */
     public static function stop()
     {
-        quietly('launchctl unload /Library/LaunchDaemons/com.laravel.valetServer.plist > /dev/null');
+        quietly(Compatibility::get('LAUNCH_DAEMON_STOP'));
     }
 
     /**
@@ -51,6 +55,6 @@ class LaunchDaemon
     {
         static::stop();
 
-        unlink('/Library/LaunchDaemons/com.laravel.valetServer.plist');
+        unlink(Compatibility::get('LAUNCH_DAEMON_UNLINK'));
     }
 }

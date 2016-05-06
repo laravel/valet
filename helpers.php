@@ -1,6 +1,7 @@
 <?php
 
 use Symfony\Component\Process\Process;
+use Valet\Compatibility;
 
 /**
  * Simple global function to run commands.
@@ -42,8 +43,8 @@ function retry($retries, $fn, $sleep = 0)
  */
 function should_be_compatible()
 {
-    if (PHP_OS != 'Darwin') {
-        echo 'Valet only supports the Mac operating system.'.PHP_EOL;
+    if (PHP_OS != 'Linux' && PHP_OS != 'Darwin') {
+        echo 'Valet only supports the Mac or Linux operating systems.'.PHP_EOL;
 
         exit(1);
     }
@@ -54,8 +55,8 @@ function should_be_compatible()
         exit(1);
     }
 
-    if (exec('which brew') != '/usr/local/bin/brew') {
-        echo 'Valet requires Brew to be installed on your Mac.';
+    if (exec(Compatibility::get('WHICH_INSTALLER')) != Compatibility::get('WHICH_INSTALLER_PATH')) {
+        echo Compatibility::get('WHICH_INSTALLER_ERROR');
 
         exit(1);
     }
