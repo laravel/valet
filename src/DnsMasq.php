@@ -75,8 +75,10 @@ class DnsMasq
     {
         $dnsMasqConfigPath = '/Users/'.$_SERVER['SUDO_USER'].'/.valet/dnsmasq.conf';
 
-        copy('/usr/local/opt/dnsmasq/dnsmasq.conf.example', '/usr/local/etc/dnsmasq.conf');
-
+        if (! file_exists('/usr/local/etc/dnsmasq.conf')) {
+            copy('/usr/local/opt/dnsmasq/dnsmasq.conf.example', '/usr/local/etc/dnsmasq.conf');
+        }
+        
         if (strpos(file_get_contents('/usr/local/etc/dnsmasq.conf'), $dnsMasqConfigPath) === false) {
             file_put_contents('/usr/local/etc/dnsmasq.conf', PHP_EOL.'conf-file='.$dnsMasqConfigPath.PHP_EOL, FILE_APPEND);
         }
