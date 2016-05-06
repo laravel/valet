@@ -12,7 +12,7 @@ class LaunchDaemon
     public static function install()
     {
         $contents = str_replace(
-            'SERVER_PATH', realpath(__DIR__.'/../server.php'), file_get_contents(__DIR__.'/../stubs/daemon.plist')
+            'SERVER_PATH', realpath(__DIR__ . '/../server.php'), file_get_contents(__DIR__ . '/../stubs/daemon.plist')
         );
 
         $contents = str_replace('PHP_PATH', exec('which php'), $contents);
@@ -40,6 +40,16 @@ class LaunchDaemon
     public static function stop()
     {
         quietly('launchctl unload /Library/LaunchDaemons/com.laravel.valetServer.plist > /dev/null');
+    }
+
+    /**
+     * Check for an existing Valet daemon.
+     *
+     * @return string | null
+     */
+    public static function status()
+    {
+        return exec('launchctl list | grep valetServer');
     }
 
     /**
