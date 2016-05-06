@@ -74,6 +74,7 @@ class DnsMasq
     protected static function createCustomConfigurationFile()
     {
         $dnsMasqConfigPath = '/Users/'.$_SERVER['SUDO_USER'].'/.valet/dnsmasq.conf';
+        $domain = Configuration::read()['domain'];
 
         copy('/usr/local/opt/dnsmasq/dnsmasq.conf.example', '/usr/local/etc/dnsmasq.conf');
 
@@ -83,7 +84,7 @@ class DnsMasq
 
         chown('/usr/local/etc/dnsmasq.conf', $_SERVER['SUDO_USER']);
 
-        file_put_contents($dnsMasqConfigPath, 'address=/.dev/127.0.0.1'.PHP_EOL);
+        file_put_contents($dnsMasqConfigPath, 'address=/.'.$domain.'/127.0.0.1'.PHP_EOL);
 
         chown($dnsMasqConfigPath, $_SERVER['SUDO_USER']);
     }
