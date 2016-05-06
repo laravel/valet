@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+# ------------------------------------------------------------------
+# Start Laravel Queue Listeners
+# ------------------------------------------------------------------
+
+# Configuration
+SCRIPT_NAME=$(basename $0)
+SCRIPT_VERSION="0.0.1"
+
+# Text Colors
+COLOR_FAIL="\033[31m"
+COLOR_WARN="\033[33m"
+COLOR_PASS="\033[36m"
+COLOR_BOLD="\033[1m"
+COLOR_RESET="\033[m"
+COLOR_BLUE="\033[34m"
+COLOR_MAGENTA="\033[35m"
+
+# Configuration
+QUEUE_MEMORY=64
+QUEUE_SLEEP=3
+QUEUE_TRIES=3
+VALET_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PHP_PATH="$(which php)"
+PLIST_TEMPLATE="${VALET_DIR}/stubs/laravel-queue.plist"
+QUEUE_NAME_BASE="com.laravel.valetServer.queues"
+LAUNCH_DAEMON_DIR="${HOME}/Library/LaunchAgents"
+
+echo -e "${COLOR_BOLD}Checking valet queues...${COLOR_RESET}"
+for linkname in ~/.valet/Sites/*; do
+    RESOLVED_LINK=$(readlink "$linkname")
+    SITE_NAME="$(basename "$linkname")"
+    QUEUE_NAME="${QUEUE_NAME_BASE}.${SITE_NAME}.plist"
+    QUEUE_DEST="${LAUNCH_DAEMON_DIR}/${QUEUE_NAME}"
+    if [[ -f "${QUEUE_DEST}" ]]; then
+        echo -e "  ${COLOR_BLUE}${SITE_NAME}${COLOR_RESET} -> ${COLOR_WARN}already configured!${COLOR_RESET}"
+    else
+        echo -e "  ${COLOR_BLUE}${SITE_NAME}${COLOR_RESET} -> Generating LaunchAgent"
+        sed -e "s|PHP_PATH|${PHP_PATH}|1"\
+            -e "s|SITE_PATH|${linkname}|1"\
+            -e "s|QUEUE_MEMORY|${QUEUE_MEMORY}|1"\
+            -e "s|QUEUE_SLEEP|${QUEUE_SLEEP}|1"\
+            -e "s|QUEUE_TRIES|${QUEUE_TRIES}|1"\
+            -e "s|QUEUE_SITE|${SITE_NAME}|g"\
+            "${PLIST_TEMPLATE}" > "${QUEUE_DEST}"
+            echo -e "  ${COLOR_BLUE}${SITE_NAME}${COLOR_RESET} -> Starting LaunchAgent"
+            launchctl load "${QUEUE_DEST}"
+            launchctl start "${QUEUE_DEST}"
+    fi
+done
