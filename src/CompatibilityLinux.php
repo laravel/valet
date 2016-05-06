@@ -13,8 +13,8 @@ class CompatibilityLinux
     const DNSMASQ_INSTALL_TEXT = '<info>DnsMasq is not installed, installing it now via apt...</info>';
     const DNSMASQ_ALREADY_INSTALLED = 'which dnsmasq';
     const DNSMASQ_RESTART = 'sudo service dnsmasq restart';
-    const DNSMASQ_USER = '/etc/dnsmasq.conf';
-    const DNSMASQ_CONF_EXAMPLE = '/etc/dnsmasq.conf';
+    const DNSMASQ_USER = '/%s/.valet/dnsmasq.conf';
+    const DNSMASQ_CONF_EXAMPLE = '/etc/dnsmasq.d/dnsmasq.conf';
     const DNSMASQ_CONF = '/etc/dnsmasq.conf';
     
     const LAUNCH_DAEMON_INSTALL_SCRIPT = '/../stubs/linux.systemd';
