@@ -74,10 +74,20 @@ if (! $valetDriver) {
 }
 
 /**
- * Dispatch the request.
+ * Overwrite the HTTP host for Ngrok.
+ */
+if (isset($_SERVER['HTTP_X_ORIGINAL_HOST'])) {
+    $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_X_ORIGINAL_HOST'];
+}
+
+/**
+ * Allow driver to mutate incoming URL.
  */
 $uri = $valetDriver->mutateUri($uri);
 
+/**
+ * Determine if the incoming request is for a static file.
+ */
 $uriPathInfo = pathinfo($uri);
 
 $isPhpFile = false;
@@ -90,6 +100,9 @@ if ($uri !== '/' && ! $isPhpFile && $staticFilePath = $valetDriver->isStaticFile
     return $valetDriver->serveStaticFile($staticFilePath, $valetSitePath, $siteName, $uri);
 }
 
+/**
+ * Attempt to dispatch to a front controller.
+ */
 $frontControllerPath = $valetDriver->frontControllerPath(
     $valetSitePath, $siteName, $uri
 );
