@@ -3,49 +3,6 @@
 use Symfony\Component\Process\Process;
 
 /**
- * Determine if the given formula is installed.
- *
- * @param  string  $formula
- * @return bool
- */
-function formula_installed($formula)
-{
-    return in_array($formula, explode(PHP_EOL, run('brew list | grep '.$formula)));
-}
-
-/**
- * Determine which version of PHP is linked in Homebrew.
- *
- * @return string
- */
-function linked_php()
-{
-    if (! is_link('/usr/local/bin/php')) {
-        throw new Exception("Unable to determine linked PHP.");
-    }
-
-    $resolvedPath = readlink('/usr/local/bin/php');
-
-    if (strpos($resolvedPath, 'php70') !== false) {
-        return 'php70';
-    } elseif (strpos($resolvedPath, 'php56') !== false) {
-        return 'php56';
-    } else {
-        throw new Exception("Unable to determine linked PHP.");
-    }
-}
-
-/**
- * Determine if a compatible PHP version is Homebrewed.
- *
- * @return bool
- */
-function php_is_installed()
-{
-    return formula_installed('php70') || formula_installed('php56');
-}
-
-/**
  * Simple global function to run commands.
  */
 function quietly($command)
