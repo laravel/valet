@@ -1,15 +1,14 @@
 #!/usr/bin/env php
 <?php
 
+/**
+ * Load correct autoloader depending on install location.
+ */
 if (file_exists(__DIR__.'/vendor/autoload.php')) {
     require __DIR__.'/vendor/autoload.php';
 } else {
     require __DIR__.'/../../autoload.php';
 }
-
-should_be_compatible();
-
-define('VALET_HOME_PATH', $_SERVER['HOME'].'/.valet');
 
 use Silly\Application;
 
