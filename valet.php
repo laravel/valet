@@ -23,6 +23,7 @@ $app = new Application('Laravel Valet', 'v1.0.12');
  */
 if (is_dir(VALET_HOME_PATH)) {
     Valet\Configuration::prune();
+
     Valet\Site::pruneLinks();
 }
 
