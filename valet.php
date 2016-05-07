@@ -186,6 +186,7 @@ $app->command('fetch-share-url', function ($output) {
 $app->command('start', function ($output) {
     should_be_sudo();
 
+    Valet\PhpFpm::restart();
     Valet\LaunchDaemon::restart();
 
     $output->writeln('<info>Valet services have been started.</info>');
@@ -197,6 +198,7 @@ $app->command('start', function ($output) {
 $app->command('restart', function ($output) {
     should_be_sudo();
 
+    Valet\PhpFpm::restart();
     Valet\LaunchDaemon::restart();
 
     $output->writeln('<info>Valet services have been restarted.</info>');
@@ -208,6 +210,7 @@ $app->command('restart', function ($output) {
 $app->command('stop', function ($output) {
     should_be_sudo();
 
+    Valet\PhpFpm::stop();
     Valet\LaunchDaemon::stop();
 
     $output->writeln('<info>Valet services have been stopped.</info>');

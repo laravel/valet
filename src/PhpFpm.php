@@ -89,4 +89,14 @@ class PhpFpm
     {
         quietly('sudo brew services restart php70');
     }
+
+    /**
+     * Stop the PHP FPM process.
+     *
+     * @return void
+     */
+    public static function stop()
+    {
+        quietly('sudo brew services stop php70');
+    }
 }
