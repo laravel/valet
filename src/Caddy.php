@@ -11,9 +11,22 @@ class Caddy
      */
     public static function install()
     {
-        copy(__DIR__.'/../stubs/Caddyfile', VALET_HOME_PATH.'/Caddyfile');
+        file_put_contents(
+            VALET_HOME_PATH.'/Caddyfile',
+            str_replace('USER', $_SERVER['SUDO_USER'], file_get_contents(__DIR__.'/../stubs/Caddyfile'))
+        );
 
         chown(VALET_HOME_PATH.'/Caddyfile', $_SERVER['SUDO_USER']);
+
+        if (! is_dir($caddyDirectory = VALET_HOME_PATH.'/Caddy')) {
+            mkdir($caddyDirectory, 0755);
+
+            chown($caddyDirectory, $_SERVER['SUDO_USER']);
+
+            touch($caddyDirectory.'/.keep');
+
+            chown($caddyDirectory.'/.keep', $_SERVER['SUDO_USER']);
+        }
 
         $contents = str_replace(
             'VALET_PATH', realpath(__DIR__.'/../'), file_get_contents(__DIR__.'/../stubs/daemon.plist')
