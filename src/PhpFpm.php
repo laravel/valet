@@ -15,27 +15,13 @@ class PhpFpm
      */
     public static function install($output)
     {
-        if (! static::alreadyInstalled()) {
+        if (! php_is_installed()) {
             static::download($output);
         }
 
         static::updateConfiguration();
 
         static::restart();
-    }
-
-    /**
-     * Determine if DnsMasq is already installed.
-     *
-     * @return void
-     */
-    public static function alreadyInstalled()
-    {
-        $process = new Process('brew list | grep php70');
-
-        $process->run();
-
-        return in_array('php70', explode(PHP_EOL, $process->getOutput()));
     }
 
     /**
@@ -52,20 +38,11 @@ class PhpFpm
         passthru('sudo -u '.$_SERVER['SUDO_USER'].' brew tap homebrew/versions');
         passthru('sudo -u '.$_SERVER['SUDO_USER'].' brew tap homebrew/homebrew-php');
 
-        $process = new Process('sudo -u '.$_SERVER['SUDO_USER'].' brew install php70');
-
-        $processOutput = '';
-        $process->run(function ($type, $line) use (&$processOutput) {
-            $processOutput .= $line;
-        });
-
-        if ($process->getExitCode() > 0) {
+        run('brew install php70', function ($exitCode, $processOutput) use ($output)  {
             $output->write($processOutput);
 
             throw new Exception('We were unable to install PHP.');
-        }
-
-        $output->writeln('');
+        });
     }
 
     /**
@@ -75,9 +52,9 @@ class PhpFpm
      */
     public static function updateConfiguration()
     {
-        quietly('sed -i "" -e "s/^user = \_www/user = '.$_SERVER['SUDO_USER'].'/" /usr/local/etc/php/7.0/php-fpm.d/www.conf');
+        quietly('sed -i "" -e "s/^user = \_www/user = '.$_SERVER['SUDO_USER'].'/" '.static::fpmConfigPath());
 
-        quietly('sed -i "" -e "s/^group = \_www/group = staff/" /usr/local/etc/php/7.0/php-fpm.d/www.conf');
+        quietly('sed -i "" -e "s/^group = \_www/group = staff/" '.static::fpmConfigPath());
     }
 
     /**
@@ -87,7 +64,9 @@ class PhpFpm
      */
     public static function restart()
     {
-        quietly('sudo brew services restart php70');
+        static::stop();
+
+        quietly('sudo brew services restart '.linked_php());
     }
 
     /**
@@ -97,6 +76,21 @@ class PhpFpm
      */
     public static function stop()
     {
+        quietly('sudo brew services stop php56');
         quietly('sudo brew services stop php70');
+    }
+
+    /**
+     * Get the path to the FPM configuration file for the current PHP version.
+     *
+     * @return string
+     */
+    protected static function fpmConfigPath()
+    {
+        if (linked_php() === 'php70') {
+            return '/usr/local/etc/php/7.0/php-fpm.d/www.conf';
+        } else {
+            return '/usr/local/etc/php/5.6/php-fpm.conf';
+        }
     }
 }

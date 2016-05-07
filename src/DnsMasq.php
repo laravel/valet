@@ -15,7 +15,7 @@ class DnsMasq
      */
     public static function install($output)
     {
-        if (! static::alreadyInstalled()) {
+        if (! formula_installed('dnsmasq')) {
             static::download($output);
         }
 
@@ -24,20 +24,6 @@ class DnsMasq
         static::createResolver();
 
         quietly('sudo brew services restart dnsmasq');
-    }
-
-    /**
-     * Determine if DnsMasq is already installed.
-     *
-     * @return void
-     */
-    public static function alreadyInstalled()
-    {
-        $process = new Process('brew list | grep dnsmasq');
-
-        $process->run();
-
-        return strlen(trim($process->getOutput())) > 0;
     }
 
     /**
@@ -50,20 +36,11 @@ class DnsMasq
     {
         $output->writeln('<info>DnsMasq is not installed, installing it now via Brew...</info> 🍻');
 
-        $process = new Process('sudo -u '.$_SERVER['SUDO_USER'].' brew install dnsmasq');
-
-        $processOutput = '';
-        $process->run(function ($type, $line) use (&$processOutput) {
-            $processOutput .= $line;
-        });
-
-        if ($process->getExitCode() > 0) {
-            $output->write($processOutput);
+        run('brew install dnsmasq', function ($errorOutput) use ($output) {
+            $output->write($errorOutput);
 
             throw new Exception('We were unable to install DnsMasq.');
-        }
-
-        $output->writeln('');
+        });
     }
 
     /**
