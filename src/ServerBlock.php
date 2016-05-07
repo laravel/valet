@@ -4,6 +4,9 @@ namespace Valet;
 
 class ServerBlock
 {
+    /**
+     * Prepares the ServerBlocks folder in VALET_HOME_PATH/ServerBlocks
+     */
     public static function install()
     {
         if (! is_dir($serverBlocksDirectory = VALET_HOME_PATH.'/ServerBlocks')) {
@@ -83,7 +86,12 @@ class ServerBlock
             closedir($handle);
         }
     }
-    
+
+    /**
+     * Trim and the string and append current tld
+     * @param $domain
+     * @return string
+     */
     public static function generateDomain($domain)
     {
         return trim($domain).'.'.Configuration::read()['domain'];
