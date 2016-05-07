@@ -33,19 +33,17 @@ if (is_dir(VALET_HOME_PATH)) {
 $app->command('install', function ($output) {
     should_be_sudo();
 
-    Valet\LaunchDaemon::stop();
+    Valet\Caddy::stop();
 
     Valet\Configuration::install();
 
-    Valet\LaunchDaemon::install();
-
-    Valet\CaddyFile::install();
+    Valet\Caddy::install();
 
     Valet\PhpFpm::install($output);
 
     Valet\DnsMasq::install($output);
 
-    Valet\LaunchDaemon::restart();
+    Valet\Caddy::restart();
 
     $output->writeln(PHP_EOL.'<info>Valet installed successfully!</info>');
 });
@@ -190,7 +188,7 @@ $app->command('start', function ($output) {
     should_be_sudo();
 
     Valet\PhpFpm::restart();
-    Valet\LaunchDaemon::restart();
+    Valet\Caddy::restart();
 
     $output->writeln('<info>Valet services have been started.</info>');
 });
@@ -202,7 +200,7 @@ $app->command('restart', function ($output) {
     should_be_sudo();
 
     Valet\PhpFpm::restart();
-    Valet\LaunchDaemon::restart();
+    Valet\Caddy::restart();
 
     $output->writeln('<info>Valet services have been restarted.</info>');
 });
@@ -214,7 +212,7 @@ $app->command('stop', function ($output) {
     should_be_sudo();
 
     Valet\PhpFpm::stop();
-    Valet\LaunchDaemon::stop();
+    Valet\Caddy::stop();
 
     $output->writeln('<info>Valet services have been stopped.</info>');
 });
@@ -225,7 +223,7 @@ $app->command('stop', function ($output) {
 $app->command('uninstall', function ($output) {
     should_be_sudo();
 
-    Valet\LaunchDaemon::uninstall();
+    Valet\Caddy::uninstall();
 
     $output->writeln('<info>Valet has been uninstalled.</info>');
 });

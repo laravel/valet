@@ -2,7 +2,7 @@
 
 namespace Valet;
 
-class LaunchDaemon
+class Caddy
 {
     /**
      * Install the system launch daemon for the Node proxy.
@@ -11,6 +11,8 @@ class LaunchDaemon
      */
     public static function install()
     {
+        copy(__DIR__.'/../stubs/Caddyfile', VALET_HOME_PATH.'/Caddyfile');
+
         $contents = str_replace(
             'VALET_PATH', realpath(__DIR__.'/../'), file_get_contents(__DIR__.'/../stubs/daemon.plist')
         );
