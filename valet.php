@@ -42,6 +42,8 @@ $app->command('install', function ($output) {
 
     Valet\DnsMasq::install($output);
 
+    Valet\ServerBlock::install();
+
     Valet\Caddy::restart();
 
     $output->writeln(PHP_EOL.'<info>Valet installed successfully!</info>');
@@ -57,7 +59,12 @@ $app->command('domain domain', function ($domain, $output) {
 
     Valet\DnsMasq::updateDomain(Valet\Configuration::read()['domain'], $domain);
 
+    Valet\ServerBlock::renameBlocks(Valet\Configuration::read()['domain'], $domain);
+
     Valet\Configuration::updateKey('domain', $domain);
+
+    Valet\PhpFpm::restart();
+    Valet\Caddy::restart();
 
     $output->writeln('<info>Your Valet domain has been updated to ['.$domain.'].</info>');
 });
@@ -226,6 +233,47 @@ $app->command('uninstall', function ($output) {
 
     $output->writeln('<info>Valet has been uninstalled.</info>');
 });
+
+/**
+ * Add a custom server block to Caddy
+ */
+$app->command('serve domain serverblock [-d|--data=]*', function($domain, $serverblock, $data, $output) {
+    should_be_sudo();
+
+    $serverblockStub = VALET_HOME_PATH.'/ServerBlocks/'.$serverblock.'.conf';
+    $fallbackServerblockStub = __DIR__ . '/stubs/ServerBlocks/' .$serverblock.'.conf';
+
+    if(!file_exists($serverblockStub) && !file_exists($fallbackServerblockStub)) {
+        $output->writeln('<error>Unable to find server block stub file.</error>');
+        return;
+    }
+    else {
+        if(!file_exists($serverblockStub)) {
+            $serverblockStub = $fallbackServerblockStub; // Use fallback stub file when custom file not exists
+        }
+
+        Valet\ServerBlock::add(\Valet\ServerBlock::generateDomain($domain), $serverblockStub, $data);
+
+        $output->writeln('<info>Valet is now serving your custom server block for the domain "'.$domain.'".</info>');
+    }
+})->descriptions('Adds a custom server block to Valet', [
+    'domain'   => 'Which domain do you want to use for the server block?',
+    'serverblock' => 'What type of server block is it? e.g. homestead',
+    '--data' => 'Used to provide extra data for the server block'
+]);
+
+/**
+ * Remove a custom server block from Caddy
+ */
+$app->command('unserve domain', function($domain, $output) {
+    should_be_sudo();
+
+    Valet\ServerBlock::remove(\Valet\ServerBlock::generateDomain($domain));
+
+    $output->writeln('<info>Removed custom server block for "'.$domain.'" from Valet.</info>');
+})->descriptions('Remove a custom server block from Valet', [
+    'domain'   => 'Which domain do you want to remove?'
+]);
 
 /**
  * Run the application.
