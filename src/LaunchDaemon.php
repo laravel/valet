@@ -15,6 +15,8 @@ class LaunchDaemon
             'VALET_PATH', realpath(__DIR__.'/../'), file_get_contents(__DIR__.'/../stubs/daemon.plist')
         );
 
+        $contents = str_replace('VALET_HOME_PATH', VALET_HOME_PATH, $contents);
+
         file_put_contents('/Library/LaunchDaemons/com.laravel.valetServer.plist', $contents);
     }
 
