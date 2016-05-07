@@ -32,9 +32,13 @@ if (is_dir(VALET_HOME_PATH)) {
 $app->command('install', function ($output) {
     should_be_sudo();
 
+    Valet\LaunchDaemon::stop();
+
     Valet\LaunchDaemon::install();
 
     Valet\Configuration::install();
+
+    Valet\PhpFpm::install($output);
 
     Valet\DnsMasq::install($output);
 
