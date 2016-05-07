@@ -15,6 +15,7 @@
     ],
     "autoload": {
         "files": [
+            "compatibility.php",
             "helpers.php"
         ],
         "psr-4": {

@@ -78,31 +78,6 @@ function run_as_root($command, callable $onError = null)
 }
 
 /**
- * Check the system's compatibility with Valet.
- *
- * @return void
- */
-call_user_func(function () {
-    if (PHP_OS != 'Darwin') {
-        echo 'Valet only supports the Mac operating system.'.PHP_EOL;
-
-        exit(1);
-    }
-
-    if (version_compare(PHP_VERSION, '5.5.9', '<')) {
-        echo "Valet requires PHP 5.5.9 or later.";
-
-        exit(1);
-    }
-
-    if (exec('which brew') != '/usr/local/bin/brew') {
-        echo 'Valet requires Brew to be installed on your Mac.';
-
-        exit(1);
-    }
-});
-
-/**
  * Verify that the script is currently running as "sudo".
  *
  * @return void
