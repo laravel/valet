@@ -13,7 +13,7 @@ class Caddy
     {
         copy(__DIR__.'/../stubs/Caddyfile', VALET_HOME_PATH.'/Caddyfile');
 
-        chown(__DIR__.'/../stubs/Caddyfile', $_SERVER['SUDO_USER']);
+        chown(VALET_HOME_PATH.'/Caddyfile', $_SERVER['SUDO_USER']);
 
         $contents = str_replace(
             'VALET_PATH', realpath(__DIR__.'/../'), file_get_contents(__DIR__.'/../stubs/daemon.plist')
