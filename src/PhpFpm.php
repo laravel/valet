@@ -50,9 +50,9 @@ class PhpFpm
      */
     public static function updateConfiguration()
     {
-        quietly('sed -i "" -e "s/^user = \_www/user = '.$_SERVER['SUDO_USER'].'/" '.static::fpmConfigPath());
+        quietly('sed -i "" -E "s/^user = .+$/user = '.$_SERVER['SUDO_USER'].'/" '.static::fpmConfigPath());
 
-        quietly('sed -i "" -e "s/^group = \_www/group = staff/" '.static::fpmConfigPath());
+        quietly('sed -i "" -E "s/^group = .+$/group = staff/" '.static::fpmConfigPath());
     }
 
     /**
