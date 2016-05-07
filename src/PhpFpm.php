@@ -15,7 +15,7 @@ class PhpFpm
      */
     public static function install($output)
     {
-        if (! php_is_installed()) {
+        if (! Brew::hasInstalledPhp()) {
             static::download($output);
         }
 
@@ -34,9 +34,7 @@ class PhpFpm
     {
         $output->writeln('<info>PHP 7.0 is not installed, installing it now via Brew...</info> 🍻');
 
-        passthru('sudo -u '.$_SERVER['SUDO_USER'].' brew tap homebrew/dupes');
-        passthru('sudo -u '.$_SERVER['SUDO_USER'].' brew tap homebrew/versions');
-        passthru('sudo -u '.$_SERVER['SUDO_USER'].' brew tap homebrew/homebrew-php');
+        Brew::tap('homebrew/dupes', 'homebrew/versions', 'homebrew/homebrew-php');
 
         run('brew install php70', function ($exitCode, $processOutput) use ($output)  {
             $output->write($processOutput);
@@ -66,7 +64,7 @@ class PhpFpm
     {
         static::stop();
 
-        quietly('sudo brew services restart '.linked_php());
+        Brew::restartLinkedPhp();
     }
 
     /**
@@ -76,8 +74,7 @@ class PhpFpm
      */
     public static function stop()
     {
-        quietly('sudo brew services stop php56');
-        quietly('sudo brew services stop php70');
+        Brew::stopService('php56', 'php70');
     }
 
     /**
@@ -87,7 +84,7 @@ class PhpFpm
      */
     protected static function fpmConfigPath()
     {
-        if (linked_php() === 'php70') {
+        if (Brew::linkedPhp() === 'php70') {
             return '/usr/local/etc/php/7.0/php-fpm.d/www.conf';
         } else {
             return '/usr/local/etc/php/5.6/php-fpm.conf';

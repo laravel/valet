@@ -15,7 +15,7 @@ class DnsMasq
      */
     public static function install($output)
     {
-        if (! formula_installed('dnsmasq')) {
+        if (! Brew::installed('dnsmasq')) {
             static::download($output);
         }
 
