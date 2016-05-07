@@ -22,11 +22,11 @@ class Caddy
             mkdir($caddyDirectory, 0755);
 
             chown($caddyDirectory, $_SERVER['SUDO_USER']);
-
-            touch($caddyDirectory.'/.keep');
-
-            chown($caddyDirectory.'/.keep', $_SERVER['SUDO_USER']);
         }
+
+        touch($caddyDirectory.'/.keep');
+
+        chown($caddyDirectory.'/.keep', $_SERVER['SUDO_USER']);
 
         $contents = str_replace(
             'VALET_PATH', realpath(__DIR__.'/../'), file_get_contents(__DIR__.'/../stubs/daemon.plist')
