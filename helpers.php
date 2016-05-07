@@ -2,6 +2,8 @@
 
 use Symfony\Component\Process\Process;
 
+define('VALET_HOME_PATH', $_SERVER['HOME'].'/.valet');
+
 /**
  * Simple global function to run commands.
  */
@@ -24,13 +26,16 @@ function retry($retries, $fn, $sleep = 0)
     try {
         return $fn();
     } catch (Exception $e) {
-        if (!$retries) {
+        if (! $retries) {
             throw $e;
         }
+
         $retries--;
+
         if ($sleep > 0) {
             usleep($sleep * 1000);
         }
+
         goto beginning;
     }
 }
@@ -75,10 +80,9 @@ function run_as_root($command, callable $onError = null)
 /**
  * Check the system's compatibility with Valet.
  *
- * @return bool
+ * @return void
  */
-function should_be_compatible()
-{
+call_user_func(function () {
     if (PHP_OS != 'Darwin') {
         echo 'Valet only supports the Mac operating system.'.PHP_EOL;
 
@@ -96,10 +100,10 @@ function should_be_compatible()
 
         exit(1);
     }
-}
+});
 
 /**
- * Verify that a command is being run as "sudo".
+ * Verify that the script is currently running as "sudo".
  *
  * @return void
  */
