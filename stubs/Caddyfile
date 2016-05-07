@@ -1,10 +1,9 @@
-:80
+:80 {
+    fastcgi / 127.0.0.1:9000 php {
+        index server.php
+    }
 
-fastcgi / 127.0.0.1:9000 php {
-    index server.php
-}
-
-rewrite {
-    r .*
-    to /server.php?{query}
+    rewrite {
+        to /server.php?{query}
+    }
 }
