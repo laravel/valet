@@ -8,5 +8,3 @@ rewrite {
     r .*
     to /server.php?{query}
 }
-
-errors ./error.log
