@@ -59,6 +59,13 @@ $app->command('domain domain', function ($domain, $output) {
 });
 
 /**
+ * Get the domain currently being used by Valet.
+ */
+$app->command('current-domain', function ($output) {
+    $output->writeln(Valet\Configuration::read()['domain']);
+});
+
+/**
  * Change the sites manifest url currently being used by Valet.
  */
 $app->command('manifest manifest', function ($manifest, $output) {
@@ -70,10 +77,12 @@ $app->command('manifest manifest', function ($manifest, $output) {
 });
 
 /**
- * Get the domain currently being used by Valet.
+ * Get the sites manifest url currently being used by Valet.
  */
-$app->command('current-domain', function ($output) {
-    $output->writeln(Valet\Configuration::read()['domain']);
+$app->command('manifest-url', function ($output) {
+    $config = Valet\Configuration::read();
+
+    $output->writeln('http://'.$config['manifest'].'.'.$config['domain']);
 });
 
 /**
