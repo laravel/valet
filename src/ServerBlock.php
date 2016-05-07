@@ -88,7 +88,7 @@ class ServerBlock
     }
 
     /**
-     * Trim and the string and append current tld
+     * Trim the string and append current tld
      * @param $domain
      * @return string
      */
