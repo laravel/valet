@@ -251,12 +251,16 @@ $app->command('serve domain serverblock [-d|--data=]*', function($domain, $serve
         if(!file_exists($serverblockStub)) {
             $serverblockStub = $fallbackServerblockStub; // Use fallback stub file when custom file not exists
         }
-        
+
         Valet\ServerBlock::add(\Valet\ServerBlock::generateDomain($domain), $serverblockStub, $data);
 
         $output->writeln('<info>Valet is now serving your custom server block for the domain "'.$domain.'".</info>');
     }
-});
+})->descriptions('Adds a custom server block to Valet', [
+    'domain'   => 'Which domain do you want to use for the server block?',
+    'serverblock' => 'What type of server block is it? e.g. homestead',
+    '--data' => 'Used to provide extra data for the server block'
+]);
 
 /**
  * Remove a custom server block from Caddy
@@ -267,7 +271,9 @@ $app->command('unserve domain', function($domain, $output) {
     Valet\ServerBlock::remove(\Valet\ServerBlock::generateDomain($domain));
 
     $output->writeln('<info>Removed custom server block for "'.$domain.'" from Valet.</info>');
-});
+})->descriptions('Remove a custom server block from Valet', [
+    'domain'   => 'Which domain do you want to remove?'
+]);
 
 /**
  * Run the application.
