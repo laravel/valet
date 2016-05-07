@@ -12,7 +12,7 @@ class LaunchDaemon
     public static function install()
     {
         $contents = str_replace(
-            'VALET_PATH', realpath(__DIR__.'/../'), file_get_contents(__DIR__.'/../stubs/caddyDaemon.plist')
+            'VALET_PATH', realpath(__DIR__.'/../'), file_get_contents(__DIR__.'/../stubs/daemon.plist')
         );
 
         file_put_contents('/Library/LaunchDaemons/com.laravel.valetServer.plist', $contents);
