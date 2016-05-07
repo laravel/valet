@@ -16,3 +16,4 @@ require_once __DIR__.'/SculpinValetDriver.php';
 require_once __DIR__.'/StatamicValetDriver.php';
 require_once __DIR__.'/SymfonyValetDriver.php';
 require_once __DIR__.'/WordPressValetDriver.php';
+require_once __DIR__.'/MagentoValetDriver.php';
