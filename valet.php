@@ -35,9 +35,11 @@ $app->command('install', function ($output) {
 
     Valet\LaunchDaemon::stop();
 
+    Valet\Configuration::install();
+
     Valet\LaunchDaemon::install();
 
-    Valet\Configuration::install();
+    Valet\CaddyFile::install();
 
     Valet\PhpFpm::install($output);
 
