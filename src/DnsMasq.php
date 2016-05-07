@@ -23,7 +23,7 @@ class DnsMasq
 
         static::createResolver();
 
-        quietly('sudo brew services restart dnsmasq');
+        Brew::restartService('dnsmasq');
     }
 
     /**
@@ -96,6 +96,6 @@ class DnsMasq
 
         file_put_contents(VALET_HOME_PATH.'/dnsmasq.conf', 'address=/.'.$newDomain.'/127.0.0.1'.PHP_EOL);
 
-        passthru('sudo brew services restart dnsmasq');
+        Brew::restartService('dnsmasq');
     }
 }
