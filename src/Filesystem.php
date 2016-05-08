@@ -33,6 +33,21 @@ class Filesystem
     }
 
     /**
+     * Ensure that the given directory exists.
+     *
+     * @param  string  $path
+     * @param  string|null  $owner
+     * @param  int  $mode
+     * @return void
+     */
+    public function ensureDirExists($path, $owner = null, $mode = 0755)
+    {
+        if (! $this->isDir($path)) {
+            $this->mkdir($path, $owner, $mode);
+        }
+    }
+
+    /**
      * Create a directory as the non-root user.
      *
      * @param  string  $path
@@ -120,6 +135,61 @@ class Filesystem
     public function putAsUser($path, $contents)
     {
         return $this->put($path, $contents, user());
+    }
+
+    /**
+     * Append the contents to the given file.
+     *
+     * @param  string  $path
+     * @param  string  $contents
+     * @param  string|null  $owner
+     * @return void
+     */
+    public function append($path, $contents, $owner = null)
+    {
+        file_put_contents($path, $contents, FILE_APPEND);
+
+        if ($owner) {
+            $this->chown($path, $owner);
+        }
+    }
+
+    /**
+     * Append the contents to the given file as the non-root user.
+     *
+     * @param  string  $path
+     * @param  string  $contents
+     * @return void
+     */
+    public function appendAsUser($path, $contents)
+    {
+        return $this->append($path, $contents, user());
+    }
+
+    /**
+     * Copy the given file to a new location.
+     *
+     * @param  string  $from
+     * @param  string  $to
+     * @return void
+     */
+    public function copy($from, $to)
+    {
+        copy($from, $to);
+    }
+
+    /**
+     * Copy the given file to a new location for the non-root user.
+     *
+     * @param  string  $from
+     * @param  string  $to
+     * @return void
+     */
+    public function copyAsUser($from, $to)
+    {
+        copy($from, $to);
+
+        $this->chown($to, user());
     }
 
     /**

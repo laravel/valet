@@ -45,6 +45,42 @@ class Brew
     }
 
     /**
+     * Ensure that the given formula is installed.
+     *
+     * @param  string  $formula
+     * @param  array  $taps
+     * @return void
+     */
+    function ensureInstalled($formula, array $taps = [])
+    {
+        if (! $this->installed($formula)) {
+            $this->installOrFail($formula, $taps);
+        }
+    }
+
+    /**
+     * Install the given formula and throw an exception on failure.
+     *
+     * @param  string  $formula
+     * @param  array  $taps
+     * @return void
+     */
+    function installOrFail($formula, array $taps = [])
+    {
+        if (count($taps) > 0) {
+            $this->tap($taps);
+        }
+
+        output('<info>['.$formula.'] is not installed, installing it now via Brew...</info> 🍻');
+
+        $this->cli->run('brew install '.$formula, function ($errorOutput) use ($formula) {
+            output($errorOutput);
+
+            throw new DomainException('Brew was unable to install ['.$formula.'].');
+        });
+    }
+
+    /**
      * Tag the given formulas.
      *
      * @param  dynamic[string]  $formula

@@ -1,0 +1,70 @@
+<?php
+
+use Valet\Brew;
+use Valet\DnsMasq;
+use Valet\Filesystem;
+use Valet\CommandLine;
+use Illuminate\Container\Container;
+
+class DnsMasqTest extends PHPUnit_Framework_TestCase
+{
+    public function setUp()
+    {
+        $_SERVER['SUDO_USER'] = 'Taylor';
+
+        Container::setInstance(new Container);
+    }
+
+
+    public function tearDown()
+    {
+        exec('rm -rf '.__DIR__.'/output');
+        mkdir(__DIR__.'/output');
+        touch(__DIR__.'/output/.gitkeep');
+
+        Mockery::close();
+    }
+
+
+    public function test_install_installs_and_places_configuration_files_in_proper_locations()
+    {
+        $brew = Mockery::mock(Brew::class);
+        $brew->shouldReceive('ensureInstalled')->with('dnsmasq');
+        $brew->shouldReceive('restartService')->with('dnsmasq');
+        swap(Brew::class, $brew);
+
+        $dnsMasq = resolve(StubForCreatingCustomDnsMasqConfigFiles::class);
+
+        $dnsMasq->exampleConfigPath = __DIR__.'/files/dnsmasq.conf';
+        $dnsMasq->configPath = __DIR__.'/output/dnsmasq.conf';
+        $dnsMasq->resolverPath = __DIR__.'/output/resolver';
+
+        $dnsMasq->install('dev');
+
+        $this->assertEquals('nameserver 127.0.0.1'.PHP_EOL, file_get_contents(__DIR__.'/output/resolver/dev'));
+        $this->assertEquals('address=/.dev/127.0.0.1'.PHP_EOL, file_get_contents(__DIR__.'/output/custom-dnsmasq.conf'));
+        $this->assertEquals('test-contents
+
+conf-file=/Users/'.user().'/Documents/Code/Valet/tests/output/custom-dnsmasq.conf
+', file_get_contents(__DIR__.'/output/dnsmasq.conf'));
+    }
+
+
+    public function test_update_domain_removes_old_resolver_and_reinstalls()
+    {
+        $cli = Mockery::mock(CommandLine::class);
+        $cli->shouldReceive('quietly')->with('rm /etc/resolver/old');
+        $dnsMasq = Mockery::mock(DnsMasq::class.'[install]', [resolve(Brew::class), $cli, new Filesystem]);
+        $dnsMasq->shouldReceive('install')->with('new');
+        $dnsMasq->updateDomain('old', 'new');
+    }
+}
+
+
+class StubForCreatingCustomDnsMasqConfigFiles extends DnsMasq
+{
+    public function customConfigPath()
+    {
+        return __DIR__.'/output/custom-dnsmasq.conf';
+    }
+}

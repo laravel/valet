@@ -16,6 +16,10 @@ define('VALET_HOME_PATH', $_SERVER['HOME'].'/.valet');
  */
 function output($output)
 {
+    if (isset($_ENV['APP_ENV']) && $_ENV['APP_ENV'] == 'testing') {
+        return;
+    }
+
     (new Symfony\Component\Console\Output\ConsoleOutput)->writeln($output);
 }
 

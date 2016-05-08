@@ -7,78 +7,116 @@ use Symfony\Component\Process\Process;
 
 class DnsMasq
 {
+    var $brew, $cli, $files;
+
+    var $resolverPath = '/etc/resolver';
+    var $configPath = '/usr/local/etc/dnsmasq.conf';
+    var $exampleConfigPath = '/usr/local/opt/dnsmasq/dnsmasq.conf.example';
+
     /**
-     * Install and configure DnsMasq.
+     * Create a new DnsMasq instance.
      *
-     * @param  OutputInterface  $output
+     * @param  Brew  $brew
+     * @param  CommandLine  $cli
+     * @param  Filesystem  $files
      * @return void
      */
-    public static function install($output)
+    function __construct(Brew $brew, CommandLine $cli, Filesystem $files)
     {
-        if (! Brew::installed('dnsmasq')) {
-            static::download($output);
-        }
-
-        static::createCustomConfigurationFile();
-
-        static::createResolver();
-
-        Brew::restartService('dnsmasq');
+        $this->cli = $cli;
+        $this->brew = $brew;
+        $this->files = $files;
     }
 
     /**
-     * Download DnsMasq from Brew.
+     * Install and configure DnsMasq.
      *
-     * @param  OutputInterface  $output
      * @return void
      */
-    protected static function download($output)
+    function install($domain = 'dev')
     {
-        $output->writeln('<info>DnsMasq is not installed, installing it now via Brew...</info> 🍻');
+        $this->brew->ensureInstalled('dnsmasq');
 
-        run('brew install dnsmasq', function ($errorOutput) use ($output) {
-            $output->write($errorOutput);
+        // For DnsMasq, we create our own custom configuration file which will be imported
+        // in the main DnsMasq file. This allows Valet to make changes to our own files
+        // without needing to modify the "primary" DnsMasq configuration files again.
+        $this->createCustomConfigFile($domain);
 
-            throw new Exception('We were unable to install DnsMasq.');
-        });
+        $this->createDomainResolver($domain);
+
+        $this->brew->restartService('dnsmasq');
     }
 
     /**
      * Append the custom DnsMasq configuration file to the main configuration file.
      *
+     * @param  string  $domain
      * @return void
      */
-    protected static function createCustomConfigurationFile()
+    function createCustomConfigFile($domain)
     {
-        $dnsMasqConfigPath = '/Users/'.$_SERVER['SUDO_USER'].'/.valet/dnsmasq.conf';
+        $customConfigPath = $this->customConfigPath();
 
-        if (! file_exists('/usr/local/etc/dnsmasq.conf')) {
-            copy('/usr/local/opt/dnsmasq/dnsmasq.conf.example', '/usr/local/etc/dnsmasq.conf');
+        $this->copyExampleConfig();
+
+        $this->appendCustomConfigImport($customConfigPath);
+
+        $this->files->putAsUser($customConfigPath, 'address=/.'.$domain.'/127.0.0.1'.PHP_EOL);
+    }
+
+    /**
+     * Copy the Homebrew installed example DnsMasq configuration file.
+     *
+     * @return void
+     */
+    function copyExampleConfig()
+    {
+        if (! $this->files->exists($this->configPath)) {
+            $this->files->copyAsUser(
+                $this->exampleConfigPath,
+                $this->configPath
+            );
         }
+    }
 
-        if (strpos(file_get_contents('/usr/local/etc/dnsmasq.conf'), $dnsMasqConfigPath) === false) {
-            file_put_contents('/usr/local/etc/dnsmasq.conf', PHP_EOL.'conf-file='.$dnsMasqConfigPath.PHP_EOL, FILE_APPEND);
+    /**
+     * Append import command for our custom configuration to DnsMasq file.
+     *
+     * @param  string  $customConfigPath
+     * @return void
+     */
+    function appendCustomConfigImport($customConfigPath)
+    {
+        if (! $this->customConfigIsBeingImported($customConfigPath)) {
+            $this->files->appendAsUser(
+                $this->configPath,
+                PHP_EOL.'conf-file='.$customConfigPath.PHP_EOL
+            );
         }
+    }
 
-        chown('/usr/local/etc/dnsmasq.conf', $_SERVER['SUDO_USER']);
-
-        file_put_contents($dnsMasqConfigPath, 'address=/.dev/127.0.0.1'.PHP_EOL);
-
-        chown($dnsMasqConfigPath, $_SERVER['SUDO_USER']);
+    /**
+     * Determine if Valet's custom DnsMasq configuration is being imported.
+     *
+     * @param  string  $customConfigPath
+     * @return bool
+     */
+    function customConfigIsBeingImported($customConfigPath)
+    {
+        return strpos($this->files->get($this->configPath), $customConfigPath) !== false;
     }
 
     /**
      * Create the resolver file to point the "dev" domain to 127.0.0.1.
      *
+     * @param  string  $domain
      * @return void
      */
-    protected static function createResolver()
+    function createDomainResolver($domain)
     {
-        if (! is_dir('/etc/resolver')) {
-            mkdir('/etc/resolver', 0755);
-        }
+        $this->files->ensureDirExists($this->resolverPath);
 
-        file_put_contents('/etc/resolver/dev', 'nameserver 127.0.0.1'.PHP_EOL);
+        $this->files->put($this->resolverPath.'/'.$domain, 'nameserver 127.0.0.1'.PHP_EOL);
     }
 
     /**
@@ -88,14 +126,20 @@ class DnsMasq
      * @param  string  $newDomain
      * @return void
      */
-    public static function updateDomain($oldDomain, $newDomain)
+    function updateDomain($oldDomain, $newDomain)
     {
-        quietly('rm /etc/resolver/'.$oldDomain);
+        $this->cli->quietly('rm '.$this->resolverPath.'/'.$oldDomain);
 
-        file_put_contents('/etc/resolver/'.$newDomain, 'nameserver 127.0.0.1'.PHP_EOL);
+        $this->install($newDomain);
+    }
 
-        file_put_contents(VALET_HOME_PATH.'/dnsmasq.conf', 'address=/.'.$newDomain.'/127.0.0.1'.PHP_EOL);
-
-        Brew::restartService('dnsmasq');
+    /**
+     * Get the custom configuration path.
+     *
+     * @return string
+     */
+    function customConfigPath()
+    {
+        return '/Users/'.user().'/.valet/dnsmasq.conf';
     }
 }
