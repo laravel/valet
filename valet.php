@@ -70,6 +70,26 @@ $app->command('current-domain', function ($output) {
 });
 
 /**
+ * Change the sites manifest url currently being used by Valet.
+ */
+$app->command('manifest manifest', function ($manifest, $output) {
+    Valet\Configuration::updateKey('manifest', $manifest);
+
+    $domain = Valet\Configuration::read()['domain'];
+
+    $output->writeln('<info>Your Valet manifest url has been updated to [http://'.$manifest.'.'.$domain.'].</info>');
+});
+
+/**
+ * Get the sites manifest url currently being used by Valet.
+ */
+$app->command('manifest-url', function ($output) {
+    $config = Valet\Configuration::read();
+
+    $output->writeln('http://'.$config['manifest'].'.'.$config['domain']);
+});
+
+/**
  * Add the current working directory to the paths configuration.
  */
 $app->command('park', function ($output) {

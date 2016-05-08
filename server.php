@@ -17,6 +17,16 @@ function show_valet_404()
 }
 
 /**
+ * Show the Valet manifest page.
+ */
+function show_valet_manifest($valetConfig)
+{
+    http_response_code(200);
+    require __DIR__.'/manifest.php';
+    exit;
+}
+
+/**
  * Load the Valet configuration.
  */
 $valetConfig = json_decode(
@@ -37,6 +47,13 @@ $siteName = basename(
 
 if (strpos($siteName, 'www.') === 0) {
     $siteName = substr($siteName, 4);
+}
+
+/**
+ * Display the sites manifest if requested.
+ */
+if ($siteName === $valetConfig['manifest']) {
+    show_valet_manifest($valetConfig);
 }
 
 /**

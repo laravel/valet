@@ -27,7 +27,7 @@ class Configuration
         }
 
         if (! file_exists(static::path())) {
-            static::write(['domain' => 'dev', 'paths' => []]);
+            static::write(['domain' => 'dev', 'manifest' => 'valet', 'paths' => []]);
         }
 
         chown(static::path(), $_SERVER['SUDO_USER']);
