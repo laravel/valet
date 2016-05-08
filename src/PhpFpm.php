@@ -7,40 +7,38 @@ use Symfony\Component\Process\Process;
 
 class PhpFpm
 {
+    var $brew, $cli;
+
+    var $taps = [
+        'homebrew/dupes', 'homebrew/versions', 'homebrew/homebrew-php'
+    ];
+
+    /**
+     * Create a new PHP FPM class instance.
+     *
+     * @param  Brew  $brew
+     * @param  CommandLine  $cli
+     * @return void
+     */
+    function __construct(Brew $brew, CommandLine $cli)
+    {
+        $this->cli = $cli;
+        $this->brew = $brew;
+    }
+
     /**
      * Install and configure DnsMasq.
      *
      * @param  OutputInterface  $output
      * @return void
      */
-    public static function install($output)
+    function install($output)
     {
-        if (! Brew::hasInstalledPhp()) {
-            static::download($output);
-        }
+        $this->brew->ensureInstalled('php70', $this->taps);
 
-        static::updateConfiguration();
+        $this->updateConfiguration();
 
-        static::restart();
-    }
-
-    /**
-     * Download a fresh copy of PHP 7.0 from Brew.
-     *
-     * @param  OutputInterface  $output
-     * @return void
-     */
-    public static function download($output)
-    {
-        $output->writeln('<info>PHP 7.0 is not installed, installing it now via Brew...</info> 🍻');
-
-        Brew::tap('homebrew/dupes', 'homebrew/versions', 'homebrew/homebrew-php');
-
-        run('brew install php70', function ($exitCode, $processOutput) use ($output)  {
-            $output->write($processOutput);
-
-            throw new Exception('We were unable to install PHP.');
-        });
+        $this->restart();
     }
 
     /**
@@ -48,11 +46,11 @@ class PhpFpm
      *
      * @return void
      */
-    public static function updateConfiguration()
+    function updateConfiguration()
     {
-        quietly('sed -i "" -E "s/^user = .+$/user = '.$_SERVER['SUDO_USER'].'/" '.static::fpmConfigPath());
+        $this->cli->quietly('sed -i "" -E "s/^user = .+$/user = '.user().'/" '.$this->fpmConfigPath());
 
-        quietly('sed -i "" -E "s/^group = .+$/group = staff/" '.static::fpmConfigPath());
+        $this->cli->quietly('sed -i "" -E "s/^group = .+$/group = staff/" '.$this->fpmConfigPath());
     }
 
     /**
@@ -60,11 +58,11 @@ class PhpFpm
      *
      * @return void
      */
-    public static function restart()
+    function restart()
     {
-        static::stop();
+        $this->stop();
 
-        Brew::restartLinkedPhp();
+        $this->brew->restartLinkedPhp();
     }
 
     /**
@@ -72,9 +70,9 @@ class PhpFpm
      *
      * @return void
      */
-    public static function stop()
+    function stop()
     {
-        Brew::stopService('php56', 'php70');
+        $this->brew->stopService('php56', 'php70');
     }
 
     /**
@@ -82,9 +80,9 @@ class PhpFpm
      *
      * @return string
      */
-    protected static function fpmConfigPath()
+    function fpmConfigPath()
     {
-        if (Brew::linkedPhp() === 'php70') {
+        if ($this->brew->linkedPhp() === 'php70') {
             return '/usr/local/etc/php/7.0/php-fpm.d/www.conf';
         } else {
             return '/usr/local/etc/php/5.6/php-fpm.conf';

@@ -29,8 +29,8 @@ class DnsMasqTest extends PHPUnit_Framework_TestCase
     public function test_install_installs_and_places_configuration_files_in_proper_locations()
     {
         $brew = Mockery::mock(Brew::class);
-        $brew->shouldReceive('ensureInstalled')->with('dnsmasq');
-        $brew->shouldReceive('restartService')->with('dnsmasq');
+        $brew->shouldReceive('ensureInstalled')->once()->with('dnsmasq');
+        $brew->shouldReceive('restartService')->once()->with('dnsmasq');
         swap(Brew::class, $brew);
 
         $dnsMasq = resolve(StubForCreatingCustomDnsMasqConfigFiles::class);
