@@ -4,37 +4,81 @@ namespace Valet;
 
 class Caddy
 {
+    var $cli;
+    var $files;
+    var $daemonPath = '/Library/LaunchDaemons/com.laravel.valetServer.plist';
+
     /**
-     * Install the system launch daemon for the Node proxy.
+     * Create a new Brew instance.
+     *
+     * @param  CommandLine  $cli
+     * @param  Filesystem  $files
+     * @return void
+     */
+    function __construct(CommandLine $cli, Filesystem $files)
+    {
+        $this->cli = $cli;
+        $this->files = $files;
+    }
+
+    /**
+     * Install the system launch daemon for the Caddy server.
      *
      * @return void
      */
-    public static function install()
+    function install()
     {
-        file_put_contents(
+        $this->installCaddyFile();
+        $this->installCaddyDirectory();
+        $this->installCaddyDaemon();
+    }
+
+    /**
+     * Install the Caddyfile to the ~/.valet directory.
+     *
+     * This file serves as the main server configuration for Valet.
+     *
+     * @return void
+     */
+    function installCaddyFile()
+    {
+        $this->files->putAsUser(
             VALET_HOME_PATH.'/Caddyfile',
-            str_replace('USER', $_SERVER['SUDO_USER'], file_get_contents(__DIR__.'/../stubs/Caddyfile'))
+            str_replace('USER', user(), $this->files->get(__DIR__.'/../stubs/Caddyfile'))
         );
+    }
 
-        chown(VALET_HOME_PATH.'/Caddyfile', $_SERVER['SUDO_USER']);
-
-        if (! is_dir($caddyDirectory = VALET_HOME_PATH.'/Caddy')) {
-            mkdir($caddyDirectory, 0755);
-
-            chown($caddyDirectory, $_SERVER['SUDO_USER']);
+    /**
+     * Install the Caddy configuration directory to the ~/.valet directory.
+     *
+     * This directory contains all site-specific Caddy definitions.
+     *
+     * @return void
+     */
+    function installCaddyDirectory()
+    {
+        if (! $this->files->isDir($caddyDirectory = VALET_HOME_PATH.'/Caddy')) {
+            $this->files->mkdirAsUser($caddyDirectory);
         }
 
-        touch($caddyDirectory.'/.keep');
+        $this->files->touchAsUser($caddyDirectory.'/.keep');
+    }
 
-        chown($caddyDirectory.'/.keep', $_SERVER['SUDO_USER']);
-
+    /**
+     * Install the Caddy daemon on a system level daemon.
+     *
+     * @return void
+     */
+    function installCaddyDaemon()
+    {
         $contents = str_replace(
-            'VALET_PATH', realpath(__DIR__.'/../'), file_get_contents(__DIR__.'/../stubs/daemon.plist')
+            'VALET_PATH', $this->files->realpath(__DIR__.'/../'),
+            $this->files->get(__DIR__.'/../stubs/daemon.plist')
         );
 
-        $contents = str_replace('VALET_HOME_PATH', VALET_HOME_PATH, $contents);
-
-        file_put_contents('/Library/LaunchDaemons/com.laravel.valetServer.plist', $contents);
+        $this->files->put(
+            $this->daemonPath, str_replace('VALET_HOME_PATH', VALET_HOME_PATH, $contents)
+        );
     }
 
     /**
@@ -42,11 +86,11 @@ class Caddy
      *
      * @return void
      */
-    public static function restart()
+    function restart()
     {
-        quietly('launchctl unload /Library/LaunchDaemons/com.laravel.valetServer.plist > /dev/null');
+        $this->cli->quietly('launchctl unload '.$this->daemonPath);
 
-        exec('launchctl load /Library/LaunchDaemons/com.laravel.valetServer.plist');
+        $this->cli->quietly('launchctl load '.$this->daemonPath);
     }
 
     /**
@@ -54,9 +98,9 @@ class Caddy
      *
      * @return void
      */
-    public static function stop()
+    function stop()
     {
-        quietly('launchctl unload /Library/LaunchDaemons/com.laravel.valetServer.plist > /dev/null');
+        $this->cli->quietly('launchctl unload '.$this->daemonPath);
     }
 
     /**
@@ -64,10 +108,10 @@ class Caddy
      *
      * @return void
      */
-    public static function uninstall()
+    function uninstall()
     {
-        static::stop();
+        $this->stop();
 
-        unlink('/Library/LaunchDaemons/com.laravel.valetServer.plist');
+        $this->files->unlink($this->daemonPath);
     }
 }

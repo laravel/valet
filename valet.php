@@ -11,10 +11,13 @@ if (file_exists(__DIR__.'/vendor/autoload.php')) {
 }
 
 use Silly\Application;
+use Illuminate\Container\Container;
 
 /**
  * Create the application.
  */
+Container::setInstance(new Container);
+
 $app = new Application('Laravel Valet', 'v1.0.12');
 
 /**
@@ -44,7 +47,7 @@ $app->command('install', function ($output) {
 
     Valet\Caddy::restart();
 
-    $output->writeln(PHP_EOL.'<info>Valet installed successfully!</info>');
+    output(PHP_EOL.'<info>Valet installed successfully!</info>');
 });
 
 /**

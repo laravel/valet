@@ -1,15 +1,45 @@
 <?php
 
+use Illuminate\Container\Container;
 use Symfony\Component\Process\Process;
 
+/**
+ * Define the ~/.valet path as a constant.
+ */
 define('VALET_HOME_PATH', $_SERVER['HOME'].'/.valet');
 
 /**
- * Simple global function to run commands.
+ * Output the given text to the console.
+ *
+ * @param  string  $output
+ * @return void
  */
-function quietly($command)
+function output($output)
 {
-    (new Process($command))->run();
+    (new Symfony\Component\Console\Output\ConsoleOutput)->writeln($output);
+}
+
+/**
+ * Resolve the given class from the container.
+ *
+ * @param  string  $class
+ * @return mixed
+ */
+function resolve($class)
+{
+    return Container::getInstance()->make($class);
+}
+
+/**
+ * Swap the given class implementation in the container.
+ *
+ * @param  string  $class
+ * @param  mixed  $instance
+ * @return void
+ */
+function swap($class, $instance)
+{
+    Container::getInstance()->instance($class, $instance);
 }
 
 /**
@@ -41,43 +71,6 @@ function retry($retries, $fn, $sleep = 0)
 }
 
 /**
- * Run the given command.
- *
- * @param  string  $command
- * @param  callable $onError
- * @return string
- */
-function run($command, callable $onError = null)
-{
-    return run_as_root('sudo -u '.$_SERVER['SUDO_USER'].' '.$command, $onError);
-}
-
-/**
- * Run the given command as root.
- *
- * @param  string  $command
- * @param  callable $onError
- * @return string
- */
-function run_as_root($command, callable $onError = null)
-{
-    $onError = $onError ?: function () {};
-
-    $process = new Process($command);
-
-    $processOutput = '';
-    $process->run(function ($type, $line) use (&$processOutput) {
-        $processOutput .= $line;
-    });
-
-    if ($process->getExitCode() > 0) {
-        $onError($process->getExitCode(), $processOutput);
-    }
-
-    return $processOutput;
-}
-
-/**
  * Verify that the script is currently running as "sudo".
  *
  * @return void
@@ -87,4 +80,30 @@ function should_be_sudo()
     if (! isset($_SERVER['SUDO_USER'])) {
         throw new Exception('This command must be run with sudo.');
     }
+}
+
+/**
+ * Tap the given value.
+ *
+ * @param  mixed  $value
+ * @param  callable  $callback
+ * @return mixed
+ */
+function tap($value, callable $callback)
+{
+    $callback($value);
+
+    return $value;
+}
+
+/**
+ * Get the user
+ */
+function user()
+{
+    if (! isset($_SERVER['SUDO_USER'])) {
+        return $_SERVER['USER'];
+    }
+
+    return $_SERVER['SUDO_USER'];
 }

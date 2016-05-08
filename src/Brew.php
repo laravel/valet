@@ -3,18 +3,35 @@
 namespace Valet;
 
 use Exception;
+use DomainException;
 
 class Brew
 {
+    var $cli;
+    var $files;
+
+    /**
+     * Create a new Brew instance.
+     *
+     * @param  CommandLine  $cli
+     * @param  Filesystem  $files
+     * @return void
+     */
+    function __construct(CommandLine $cli, Filesystem $files)
+    {
+        $this->cli = $cli;
+        $this->files = $files;
+    }
+
     /**
      * Determine if the given formula is installed.
      *
      * @param  string  $formula
      * @return bool
      */
-    public static function installed($formula)
+    function installed($formula)
     {
-        return in_array($formula, explode(PHP_EOL, run('brew list | grep '.$formula)));
+        return in_array($formula, explode(PHP_EOL, $this->cli->run('brew list | grep '.$formula)));
     }
 
     /**
@@ -22,9 +39,9 @@ class Brew
      *
      * @return bool
      */
-    public static function hasInstalledPhp()
+    function hasInstalledPhp()
     {
-        return static::installed('php70') || static::installed('php56');
+        return $this->installed('php70') || $this->installed('php56');
     }
 
     /**
@@ -33,12 +50,12 @@ class Brew
      * @param  dynamic[string]  $formula
      * @return void
      */
-    public static function tap($formulas)
+    function tap($formulas)
     {
         $formulas = is_array($formulas) ? $formulas : func_get_args();
 
         foreach ($formulas as $formula) {
-            passthru('sudo -u '.$_SERVER['SUDO_USER'].' brew tap '.$formula);
+            $this->cli->passthru('sudo -u '.user().' brew tap '.$formula);
         }
     }
 
@@ -47,12 +64,12 @@ class Brew
      *
      * @param
      */
-    public static function restartService($services)
+    function restartService($services)
     {
         $services = is_array($services) ? $services : func_get_args();
 
         foreach ($services as $service) {
-            quietly('sudo brew services restart '.$service);
+            $this->cli->quietly('sudo brew services restart '.$service);
         }
     }
 
@@ -61,12 +78,12 @@ class Brew
      *
      * @param
      */
-    public static function stopService($services)
+    function stopService($services)
     {
         $services = is_array($services) ? $services : func_get_args();
 
         foreach ($services as $service) {
-            quietly('sudo brew services stop '.$service);
+            $this->cli->quietly('sudo brew services stop '.$service);
         }
     }
 
@@ -75,20 +92,20 @@ class Brew
      *
      * @return string
      */
-    public static function linkedPhp()
+    function linkedPhp()
     {
-        if (! is_link('/usr/local/bin/php')) {
-            throw new Exception("Unable to determine linked PHP.");
+        if (! $this->files->isLink('/usr/local/bin/php')) {
+            throw new DomainException("Unable to determine linked PHP.");
         }
 
-        $resolvedPath = readlink('/usr/local/bin/php');
+        $resolvedPath = $this->files->readLink('/usr/local/bin/php');
 
         if (strpos($resolvedPath, 'php70') !== false) {
             return 'php70';
         } elseif (strpos($resolvedPath, 'php56') !== false) {
             return 'php56';
         } else {
-            throw new Exception("Unable to determine linked PHP.");
+            throw new DomainException("Unable to determine linked PHP.");
         }
     }
 
@@ -97,8 +114,8 @@ class Brew
      *
      * @return void
      */
-    public static function restartLinkedPhp()
+    function restartLinkedPhp()
     {
-        return static::restartService(static::linkedPhp());
+        return $this->restartService($this->linkedPhp());
     }
 }
