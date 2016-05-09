@@ -4,7 +4,7 @@
  * Define the user's "~/.valet" path.
  */
 
-define('VALET_HOME_PATH', '/Users/'.$_SERVER['USER'].'/.valet');
+define('VALET_HOME_PATH', posix_getpwuid(fileowner(__FILE__))['dir'].'/.valet');
 
 /**
  * Show the Valet 404 "Not Found" page.
