@@ -35,7 +35,9 @@ class PhpFpm
      */
     function install()
     {
-        $this->brew->ensureInstalled('php70', $this->taps);
+        if (! $this->brew->installed('php70') && ! $this->brew->installed('php56')) {
+            $this->brew->ensureInstalled('php70', $this->taps);
+        }
 
         $this->updateConfiguration();
 
