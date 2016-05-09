@@ -7,6 +7,7 @@ php:
 env:
   global:
     - setup=basic
+    - APP_ENV=testing
 
 matrix:
   include:
