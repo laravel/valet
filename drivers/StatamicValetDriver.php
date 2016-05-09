@@ -52,6 +52,10 @@ class StatamicValetDriver extends ValetDriver
             $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_X_ORIGINAL_HOST'];
         }
 
+        if (file_exists($staticPath = $sitePath.'/static'.$uri.'/index.html')) {
+            return $staticPath;
+        }
+
         $_SERVER['SCRIPT_NAME'] = '/index.php';
 
         if (strpos($_SERVER['REQUEST_URI'], '/index.php') === 0) {
