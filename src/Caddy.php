@@ -44,7 +44,7 @@ class Caddy
     {
         $this->files->putAsUser(
             VALET_HOME_PATH.'/Caddyfile',
-            str_replace('USER', user(), $this->files->get(__DIR__.'/../stubs/Caddyfile'))
+            str_replace('VALET_HOME_PATH', VALET_HOME_PATH, $this->files->get(__DIR__.'/../stubs/Caddyfile'))
         );
     }
 
