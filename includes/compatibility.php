@@ -3,7 +3,7 @@
 /**
  * Check the system's compatibility with Valet.
  */
-$inTestingEnvironment = isset($_ENV['APP_ENV']) && $_ENV['APP_ENV'] == 'testing';
+$inTestingEnvironment = strpos($_SERVER['SCRIPT_NAME'], 'phpunit') !== false;
 
 if (PHP_OS != 'Darwin' && ! $inTestingEnvironment) {
     echo 'Valet only supports the Mac operating system.'.PHP_EOL;
