@@ -12,8 +12,13 @@ class JekyllValetDriver extends ValetDriver
      */
     public function serves($sitePath, $siteName, $uri)
     {
-        //Check for Jekyll Meta File to as folder name seemed to general.
-        return is_dir($sitePath.'/'.$this->getServingFolderName()) && file_exists($sitePath.'/.jekyll-metadata');
+        //Check for several default Jekyll folders and files.
+        return 
+            is_dir($sitePath.'/'.$this->getServingFolderName())
+            && is_dir($sitePath.'/_sass')
+            && is_dir($sitePath.'/_includes')
+            && file_exists($sitePath.'/_config.yml')
+            && file_exists($sitePath.'/'.$this->getServingFileName());
     }
 
     /**
