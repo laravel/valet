@@ -15,7 +15,9 @@
     ],
     "autoload": {
         "files": [
-            "helpers.php"
+            "includes/compatibility.php",
+            "includes/facades.php",
+            "includes/helpers.php"
         ],
         "psr-4": {
             "Valet\\": "src/"
@@ -23,9 +25,15 @@
     },
     "require": {
         "php": ">=5.5.9",
+        "illuminate/container": "~5.1",
         "mnapoli/silly": "~1.0",
         "symfony/process": "~2.7|~3.0",
-        "nategood/httpful": "~0.2"
+        "nategood/httpful": "~0.2",
+        "tightenco/collect": "^5.2"
+    },
+    "require-dev": {
+        "mockery/mockery": "0.9.*",
+        "phpunit/phpunit": "~5.0"
     },
     "bin": [
         "valet"

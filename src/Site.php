@@ -2,31 +2,43 @@
 
 namespace Valet;
 
-use Exception;
+use DomainException;
 
 class Site
 {
+    var $config, $files;
+
+    /**
+     * Create a new Site instance.
+     *
+     * @param  Configuration  $config
+     * @param  Filesystem  $files
+     * @return void
+     */
+    function __construct(Configuration $config, Filesystem $files)
+    {
+        $this->files = $files;
+        $this->config = $config;
+    }
+
     /**
      * Link the current working directory with the given name.
      *
+     * @param  string  $target
      * @param  string  $name
      * @return string
      */
-    public static function link($name)
+    function link($target, $link)
     {
-        if (! is_dir($linkPath = VALET_HOME_PATH.'/Sites')) {
-            mkdir($linkPath, 0755);
-        }
+        $this->files->ensureDirExists(
+            $linkPath = $this->sitesPath(), user()
+        );
 
-        Configuration::addPath($linkPath);
+        $this->config->prependPath($linkPath);
 
-        if (file_exists($linkPath.'/'.$name)) {
-            throw new Exception("A symbolic link with this name already exists.");
-        }
+        $this->files->symlink($target, $linkPath.'/'.$link);
 
-        symlink(getcwd(), $linkPath.'/'.$name);
-
-        return $linkPath;
+        return $linkPath.'/'.$link;
     }
 
     /**
@@ -35,11 +47,11 @@ class Site
      * @param  string  $name
      * @return void
      */
-    public static function unlink($name)
+    function unlink($name)
     {
-        quietly('rm '.VALET_HOME_PATH.'/Sites/'.$name);
-
-        return true;
+        if ($this->files->exists($path = $this->sitesPath().'/'.$name)) {
+            $this->files->unlink($path);
+        }
     }
 
     /**
@@ -47,52 +59,43 @@ class Site
      *
      * @return void
      */
-    public static function pruneLinks()
+    function pruneLinks()
     {
-        if (! is_dir(VALET_HOME_PATH.'/Sites')) {
-            return;
-        }
-
-        foreach (scandir(VALET_HOME_PATH.'/Sites') as $file) {
-            if (in_array($file, ['.', '..'])) {
-                continue;
-            }
-
-            if (is_link($linkPath = VALET_HOME_PATH.'/Sites/'.$file) && ! file_exists($linkPath)) {
-                quietly('rm '.$linkPath);
-            }
+        if ($this->files->isDir($sitesPath = $this->sitesPath())) {
+            $this->files->removeBrokenLinksAt($sitesPath);
         }
     }
 
     /**
      * Get all of the log files for all sites.
      *
+     * @param  array  $paths
      * @return array
      */
-    public static function logs()
+    function logs($paths)
     {
-        $paths = Configuration::read()['paths'];
-
-        $files = [];
+        $files = collect();
 
         foreach ($paths as $path) {
-            foreach (scandir($path) as $directory) {
+            $files = $files->merge(collect($this->files->scandir($path))->map(function ($directory) use ($path) {
                 $logPath = $path.'/'.$directory.'/storage/logs/laravel.log';
 
-                if (in_array($directory, ['.', '..'])) {
-                    continue;
+                if ($this->files->isDir(dirname($logPath))) {
+                    return $this->files->touch($logPath);
                 }
-
-                if (file_exists($logPath)) {
-                    $files[] = $logPath;
-                } elseif (is_dir(dirname($logPath))) {
-                    touch($logPath);
-
-                    $files[] = $logPath;
-                }
-            }
+            })->filter());
         }
 
-        return $files;
+        return $files->values()->all();
+    }
+
+    /**
+     * Get the path to the linked Valet sites.
+     *
+     * @return string
+     */
+    function sitesPath()
+    {
+        return VALET_HOME_PATH.'/Sites';
     }
 }

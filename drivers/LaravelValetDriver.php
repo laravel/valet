@@ -8,7 +8,7 @@ class LaravelValetDriver extends ValetDriver
      * @param  string  $sitePath
      * @param  string  $siteName
      * @param  string  $uri
-     * @return void
+     * @return bool
      */
     public function serves($sitePath, $siteName, $uri)
     {
@@ -47,10 +47,6 @@ class LaravelValetDriver extends ValetDriver
      */
     public function frontControllerPath($sitePath, $siteName, $uri)
     {
-        if (isset($_SERVER['HTTP_X_ORIGINAL_HOST'])) {
-            $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_X_ORIGINAL_HOST'];
-        }
-
         return $sitePath.'/public/index.php';
     }
 }

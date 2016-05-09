@@ -3,12 +3,8 @@
 /**
  * Define the user's "~/.valet" path.
  */
-define('VALET_HOME_PATH', '/Users/'.posix_getpwuid(fileowner(__FILE__))['name'].'/.valet');
 
-/**
- * De-escalate root privileges down to Valet directory owner.
- */
-posix_setuid(fileowner(VALET_HOME_PATH.'/config.json'));
+define('VALET_HOME_PATH', '/Users/'.$_SERVER['USER'].'/.valet');
 
 /**
  * Show the Valet 404 "Not Found" page.
@@ -74,22 +70,29 @@ if (! $valetDriver) {
 }
 
 /**
- * Dispatch the request.
+ * Overwrite the HTTP host for Ngrok.
+ */
+if (isset($_SERVER['HTTP_X_ORIGINAL_HOST'])) {
+    $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_X_ORIGINAL_HOST'];
+}
+
+/**
+ * Allow driver to mutate incoming URL.
  */
 $uri = $valetDriver->mutateUri($uri);
 
-$uriPathInfo = pathinfo($uri);
-
-$isPhpFile = false;
-
-if (isset($uriPathInfo['extension']) && $uriPathInfo['extension'] === 'php') {
-    $isPhpFile = true;
-}
+/**
+ * Determine if the incoming request is for a static file.
+ */
+$isPhpFile = pathinfo($uri, PATHINFO_EXTENSION) === 'php';
 
 if ($uri !== '/' && ! $isPhpFile && $staticFilePath = $valetDriver->isStaticFile($valetSitePath, $siteName, $uri)) {
     return $valetDriver->serveStaticFile($staticFilePath, $valetSitePath, $siteName, $uri);
 }
 
+/**
+ * Attempt to dispatch to a front controller.
+ */
 $frontControllerPath = $valetDriver->frontControllerPath(
     $valetSitePath, $siteName, $uri
 );
@@ -97,5 +100,7 @@ $frontControllerPath = $valetDriver->frontControllerPath(
 if (! $frontControllerPath) {
     show_valet_404();
 }
+
+chdir(dirname($frontControllerPath));
 
 require $frontControllerPath;

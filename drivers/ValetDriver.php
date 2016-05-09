@@ -45,14 +45,16 @@ abstract class ValetDriver
         $drivers = static::driversIn(VALET_HOME_PATH.'/Drivers');
 
         $drivers[] = 'LaravelValetDriver';
-        $drivers[] = 'SymfonyValetDriver';
-        $drivers[] = 'WordPressValetDriver';
+
         $drivers[] = 'CraftValetDriver';
         $drivers[] = 'ExpressionEngineValetDriver';
-        $drivers[] = 'StatamicValetDriver';
         $drivers[] = 'JigsawValetDriver';
-        $drivers[] = 'GenericPhpValetDriver';
-        $drivers[] = 'StaticValetDriver';
+        $drivers[] = 'SculpinValetDriver';
+        $drivers[] = 'StatamicValetDriver';
+        $drivers[] = 'SymfonyValetDriver';
+        $drivers[] = 'WordPressValetDriver';
+
+        $drivers[] = 'BasicValetDriver';
 
         foreach ($drivers as $driver) {
             $driver = new $driver;
@@ -110,9 +112,13 @@ abstract class ValetDriver
      */
     public function serveStaticFile($staticFilePath, $sitePath, $siteName, $uri)
     {
+        $extension = pathinfo($staticFilePath)['extension'];
+
         $mimes = require(__DIR__.'/../mimes.php');
 
-        header('Content-Type: '.$mimes[pathinfo($staticFilePath)['extension']]);
+        $mime = isset($mimes[$extension]) ? $mimes[$extension] : 'application/octet-stream';
+
+        header('Content-Type: '. $mime);
 
         readfile($staticFilePath);
     }
