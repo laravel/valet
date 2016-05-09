@@ -15,9 +15,9 @@
     ],
     "autoload": {
         "files": [
-            "compatibility.php",
-            "facades.php",
-            "helpers.php"
+            "includes/compatibility.php",
+            "includes/facades.php",
+            "includes/helpers.php"
         ],
         "psr-4": {
             "Valet\\": "src/"
