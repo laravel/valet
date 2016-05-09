@@ -14,6 +14,17 @@ define('VALET_HOME_PATH', $_SERVER['HOME'].'/.valet');
  * @param  string  $output
  * @return void
  */
+function info($output)
+{
+    output('<info>'.$output.'</info>');
+}
+
+/**
+ * Output the given text to the console.
+ *
+ * @param  string  $output
+ * @return void
+ */
 function output($output)
 {
     if (isset($_ENV['APP_ENV']) && $_ENV['APP_ENV'] == 'testing') {

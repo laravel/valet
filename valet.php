@@ -41,8 +41,6 @@ if (is_dir(VALET_HOME_PATH)) {
  * Allow Valet to be run more conveniently by allowing the Node proxy to run password-less sudo.
  */
 $app->command('install', function () {
-    should_be_sudo();
-
     Caddy::stop();
 
     Configuration::install();
@@ -62,22 +60,20 @@ $app->command('install', function () {
  * Change the domain currently being used by Valet.
  */
 $app->command('domain domain', function ($domain) {
-    should_be_sudo();
-
-    $domain = trim($domain, '.');
-
-    DnsMasq::updateDomain(Configuration::read()['domain'], $domain);
+    DnsMasq::updateDomain(
+        Configuration::read()['domain'], $domain = trim($domain, '.')
+    );
 
     Configuration::updateKey('domain', $domain);
 
-    output('<info>Your Valet domain has been updated to ['.$domain.'].</info>');
+    info('Your Valet domain has been updated to ['.$domain.'].');
 });
 
 /**
  * Get the domain currently being used by Valet.
  */
 $app->command('current-domain', function () {
-    output(Configuration::read()['domain']);
+    info(Configuration::read()['domain']);
 });
 
 /**
@@ -86,7 +82,7 @@ $app->command('current-domain', function () {
 $app->command('park', function () {
     Configuration::addPath(getcwd());
 
-    output("<info>This directory has been added to Valet's paths.</info>");
+    info("This directory has been added to Valet's paths.");
 });
 
 /**
@@ -95,18 +91,16 @@ $app->command('park', function () {
 $app->command('forget', function () {
     Configuration::removePath(getcwd());
 
-    output("<info>This directory has been removed from Valet's paths.</info>");
+    info("This directory has been removed from Valet's paths.");
 });
 
 /**
  * Register a symbolic link with Valet.
  */
 $app->command('link [name]', function ($name) {
-    $name = $name ?: basename(getcwd());
+    $linkPath = Site::link(getcwd(), $name = $name ?: basename(getcwd()));
 
-    $linkPath = Site::link(getcwd(), $name);
-
-    output('<info>A ['.$name.'] symbolic link has been created in ['.$linkPath.'].</info>');
+    info('A ['.$name.'] symbolic link has been created in ['.$linkPath.'].');
 });
 
 /**
@@ -120,11 +114,9 @@ $app->command('links', function () {
  * Unlink a link from the Valet links directory.
  */
 $app->command('unlink [name]', function ($name) {
-    $name = $name ?: basename(getcwd());
+    Site::unlink($name ?: basename(getcwd()));
 
-    Site::unlink($name);
-
-    output('<info>The ['.$name.'] symbolic link has been removed.</info>');
+    info('The ['.$name.'] symbolic link has been removed.');
 });
 
 /**
@@ -136,7 +128,7 @@ $app->command('which', function () {
     $driver = ValetDriver::assign(getcwd(), basename(getcwd()), '/');
 
     if ($driver) {
-        output('<info>This site is served by ['.get_class($driver).'].</info>');
+        info('This site is served by ['.get_class($driver).'].');
     } else {
         output('<fg=red>Valet could not determine which driver to use for this site.</>');
     }
@@ -164,7 +156,7 @@ $app->command('paths', function () {
     if (count($paths) > 0) {
         output(json_encode($paths, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
     } else {
-        output('No paths have been registered.');
+        info('No paths have been registered.');
     }
 });
 
@@ -193,47 +185,42 @@ $app->command('fetch-share-url', function () {
  * Start the daemon services.
  */
 $app->command('start', function () {
-    should_be_sudo();
-
     PhpFpm::restart();
+
     Caddy::restart();
 
-    output('<info>Valet services have been started.</info>');
+    info('Valet services have been started.');
 });
 
 /**
  * Restart the daemon services.
  */
 $app->command('restart', function () {
-    should_be_sudo();
-
     PhpFpm::restart();
+
     Caddy::restart();
 
-    output('<info>Valet services have been restarted.</info>');
+    info('Valet services have been restarted.');
 });
 
 /**
  * Stop the daemon services.
  */
 $app->command('stop', function () {
-    should_be_sudo();
-
     PhpFpm::stop();
+
     Caddy::stop();
 
-    output('<info>Valet services have been stopped.</info>');
+    info('Valet services have been stopped.');
 });
 
 /**
  * Uninstall Valet entirely.
  */
 $app->command('uninstall', function () {
-    should_be_sudo();
-
     Caddy::uninstall();
 
-    output('<info>Valet has been uninstalled.</info>');
+    info('Valet has been uninstalled.');
 });
 
 /**
