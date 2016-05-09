@@ -14,4 +14,19 @@ class WordPressValetDriver extends BasicValetDriver
     {
         return is_dir($sitePath.'/wp-admin');
     }
+
+    /**
+     * Get the fully resolved path to the application's front controller.
+     *
+     * @param  string  $sitePath
+     * @param  string  $siteName
+     * @param  string  $uri
+     * @return string
+     */
+    public function frontControllerPath($sitePath, $siteName, $uri)
+    {
+        $_SERVER['PHP_SELF'] = $uri;
+
+        return parent::frontControllerPath($sitePath, $siteName, $uri);
+    }
 }
