@@ -9,7 +9,7 @@ class SiteTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        $_SERVER['SUDO_USER'] = 'Taylor';
+        $_SERVER['SUDO_USER'] = user();
 
         Container::setInstance(new Container);
     }
