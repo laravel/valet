@@ -76,13 +76,27 @@ class Configuration
      * Add the given path to the configuration.
      *
      * @param  string  $path
-     * @return array
+     * @param  bool  $prepend
+     * @return void
      */
-    function addPath($path)
+    function addPath($path, $prepend = false)
     {
-        $this->write(tap($this->read(), function (&$config) use ($path) {
-            $config['paths'] = collect($config['paths'])->push($path)->unique()->all();
+        $this->write(tap($this->read(), function (&$config) use ($path, $prepend) {
+            $method = $prepend ? 'prepend' : 'push';
+
+            $config['paths'] = collect($config['paths'])->{$method}($path)->unique()->all();
         }));
+    }
+
+    /**
+     * Prepend the given path to the configuration.
+     *
+     * @param  string  $path
+     * @return void
+     */
+    function prependPath($path)
+    {
+        return $this->addPath($path, true);
     }
 
     /**

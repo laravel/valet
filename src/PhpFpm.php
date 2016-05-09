@@ -29,10 +29,9 @@ class PhpFpm
     /**
      * Install and configure DnsMasq.
      *
-     * @param  OutputInterface  $output
      * @return void
      */
-    function install($output)
+    function install()
     {
         $this->brew->ensureInstalled('php70', $this->taps);
 

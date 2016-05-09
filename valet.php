@@ -11,6 +11,14 @@ if (file_exists(__DIR__.'/vendor/autoload.php')) {
 }
 
 use Silly\Application;
+use Valet\Facades\Brew;
+use Valet\Facades\Site;
+use Valet\Facades\Caddy;
+use Valet\Facades\PhpFpm;
+use Valet\Facades\DnsMasq;
+use Valet\Facades\Filesystem;
+use Valet\Facades\CommandLine;
+use Valet\Facades\Configuration;
 use Illuminate\Container\Container;
 
 /**
@@ -24,28 +32,28 @@ $app = new Application('Laravel Valet', 'v1.0.12');
  * Prune missing directories and symbolic links on every command.
  */
 if (is_dir(VALET_HOME_PATH)) {
-    Valet\Configuration::prune();
+    Configuration::prune();
 
-    Valet\Site::pruneLinks();
+    Site::pruneLinks();
 }
 
 /**
  * Allow Valet to be run more conveniently by allowing the Node proxy to run password-less sudo.
  */
-$app->command('install', function ($output) {
+$app->command('install', function () {
     should_be_sudo();
 
-    Valet\Caddy::stop();
+    Caddy::stop();
 
-    Valet\Configuration::install();
+    Configuration::install();
 
-    Valet\Caddy::install();
+    Caddy::install();
 
-    Valet\PhpFpm::install($output);
+    PhpFpm::install();
 
-    Valet\DnsMasq::install($output);
+    DnsMasq::install();
 
-    Valet\Caddy::restart();
+    Caddy::restart();
 
     output(PHP_EOL.'<info>Valet installed successfully!</info>');
 });
@@ -53,52 +61,52 @@ $app->command('install', function ($output) {
 /**
  * Change the domain currently being used by Valet.
  */
-$app->command('domain domain', function ($domain, $output) {
+$app->command('domain domain', function ($domain) {
     should_be_sudo();
 
     $domain = trim($domain, '.');
 
-    Valet\DnsMasq::updateDomain(Valet\Configuration::read()['domain'], $domain);
+    DnsMasq::updateDomain(Configuration::read()['domain'], $domain);
 
-    Valet\Configuration::updateKey('domain', $domain);
+    Configuration::updateKey('domain', $domain);
 
-    $output->writeln('<info>Your Valet domain has been updated to ['.$domain.'].</info>');
+    output('<info>Your Valet domain has been updated to ['.$domain.'].</info>');
 });
 
 /**
  * Get the domain currently being used by Valet.
  */
-$app->command('current-domain', function ($output) {
-    $output->writeln(Valet\Configuration::read()['domain']);
+$app->command('current-domain', function () {
+    output(Configuration::read()['domain']);
 });
 
 /**
  * Add the current working directory to the paths configuration.
  */
-$app->command('park', function ($output) {
-    Valet\Configuration::addPath(getcwd());
+$app->command('park', function () {
+    Configuration::addPath(getcwd());
 
-    $output->writeln("<info>This directory has been added to Valet's paths.</info>");
+    output("<info>This directory has been added to Valet's paths.</info>");
 });
 
 /**
  * Remove the current working directory to the paths configuration.
  */
-$app->command('forget', function ($output) {
-    Valet\Configuration::removePath(getcwd());
+$app->command('forget', function () {
+    Configuration::removePath(getcwd());
 
-    $output->writeln("<info>This directory has been removed from Valet's paths.</info>");
+    output("<info>This directory has been removed from Valet's paths.</info>");
 });
 
 /**
  * Register a symbolic link with Valet.
  */
-$app->command('link [name]', function ($name, $output) {
+$app->command('link [name]', function ($name) {
     $name = $name ?: basename(getcwd());
 
-    $linkPath = Valet\Site::link($name);
+    $linkPath = Site::link(getcwd(), $name);
 
-    $output->writeln('<info>A ['.$name.'] symbolic link has been created in ['.$linkPath.'].</info>');
+    output('<info>A ['.$name.'] symbolic link has been created in ['.$linkPath.'].</info>');
 });
 
 /**
@@ -111,62 +119,60 @@ $app->command('links', function () {
 /**
  * Unlink a link from the Valet links directory.
  */
-$app->command('unlink [name]', function ($name, $output) {
+$app->command('unlink [name]', function ($name) {
     $name = $name ?: basename(getcwd());
 
-    if (Valet\Site::unlink($name)) {
-        $output->writeln('<info>The ['.$name.'] symbolic link has been removed.</info>');
-    } else {
-        $output->writeln('<fg=red>A symbolic link with this name does not exist.</>');
-    }
+    Site::unlink($name);
+
+    output('<info>The ['.$name.'] symbolic link has been removed.</info>');
 });
 
 /**
  * Determine which Valet driver the current directory is using.
  */
-$app->command('which', function ($output) {
+$app->command('which', function () {
     require __DIR__.'/drivers/require.php';
 
     $driver = ValetDriver::assign(getcwd(), basename(getcwd()), '/');
 
     if ($driver) {
-        $output->writeln('<info>This site is served by ['.get_class($driver).'].</info>');
+        output('<info>This site is served by ['.get_class($driver).'].</info>');
     } else {
-        $output->writeln('<fg=red>Valet could not determine which driver to use for this site.</>');
+        output('<fg=red>Valet could not determine which driver to use for this site.</>');
     }
 });
 
 /**
  * Stream all of the logs for all sites.
  */
-$app->command('logs', function ($output) {
-    $files = Valet\Site::logs();
+$app->command('logs', function () {
+    $files = Site::logs(Configuration::read()['paths']);
 
     if (count($files) > 0) {
         passthru('tail -f '.implode(' ', $files));
     } else {
-        $output->writeln('<fg=red>No log files were found.</>');
+        output('<fg=red>No log files were found.</>');
     }
 });
 
 /**
  * Display all of the registered paths.
  */
-$app->command('paths', function ($output) {
-    $paths = Valet\Configuration::read()['paths'];
+$app->command('paths', function () {
+    $paths = Configuration::read()['paths'];
 
     if (count($paths) > 0) {
-        $output->writeln(json_encode($paths, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+        output(json_encode($paths, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
     } else {
-        $output->writeln('No paths have been registered.');
+        output('No paths have been registered.');
     }
 });
 
 /**
  * Echo the currently tunneled URL.
  */
-$app->command('fetch-share-url', function ($output) {
-    retry(20, function () use ($output) {
+$app->command('fetch-share-url', function () {
+    retry(20, function () {
         $response = Httpful\Request::get('http://127.0.0.1:4040/api/tunnels')->send();
 
         $body = $response->body;
@@ -186,48 +192,48 @@ $app->command('fetch-share-url', function ($output) {
 /**
  * Start the daemon services.
  */
-$app->command('start', function ($output) {
+$app->command('start', function () {
     should_be_sudo();
 
-    Valet\PhpFpm::restart();
-    Valet\Caddy::restart();
+    PhpFpm::restart();
+    Caddy::restart();
 
-    $output->writeln('<info>Valet services have been started.</info>');
+    output('<info>Valet services have been started.</info>');
 });
 
 /**
  * Restart the daemon services.
  */
-$app->command('restart', function ($output) {
+$app->command('restart', function () {
     should_be_sudo();
 
-    Valet\PhpFpm::restart();
-    Valet\Caddy::restart();
+    PhpFpm::restart();
+    Caddy::restart();
 
-    $output->writeln('<info>Valet services have been restarted.</info>');
+    output('<info>Valet services have been restarted.</info>');
 });
 
 /**
  * Stop the daemon services.
  */
-$app->command('stop', function ($output) {
+$app->command('stop', function () {
     should_be_sudo();
 
-    Valet\PhpFpm::stop();
-    Valet\Caddy::stop();
+    PhpFpm::stop();
+    Caddy::stop();
 
-    $output->writeln('<info>Valet services have been stopped.</info>');
+    output('<info>Valet services have been stopped.</info>');
 });
 
 /**
  * Uninstall Valet entirely.
  */
-$app->command('uninstall', function ($output) {
+$app->command('uninstall', function () {
     should_be_sudo();
 
-    Valet\Caddy::uninstall();
+    Caddy::uninstall();
 
-    $output->writeln('<info>Valet has been uninstalled.</info>');
+    output('<info>Valet has been uninstalled.</info>');
 });
 
 /**
