@@ -8,7 +8,7 @@ class StatamicValetDriver extends ValetDriver
      * @param  string  $sitePath
      * @param  string  $siteName
      * @param  string  $uri
-     * @return void
+     * @return bool
      */
     public function serves($sitePath, $siteName, $uri)
     {
@@ -48,8 +48,8 @@ class StatamicValetDriver extends ValetDriver
      */
     public function frontControllerPath($sitePath, $siteName, $uri)
     {
-        if (isset($_SERVER['HTTP_X_ORIGINAL_HOST'])) {
-            $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_X_ORIGINAL_HOST'];
+        if (file_exists($staticPath = $sitePath.'/static'.$uri.'/index.html')) {
+            return $staticPath;
         }
 
         $_SERVER['SCRIPT_NAME'] = '/index.php';

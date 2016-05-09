@@ -46,12 +46,17 @@ abstract class ValetDriver
 
         $drivers[] = 'LaravelValetDriver';
 
-        $drivers[] = 'CraftValetDriver';
-        $drivers[] = 'JigsawValetDriver';
-        $drivers[] = 'StatamicValetDriver';
-        $drivers[] = 'SymfonyValetDriver';
         $drivers[] = 'WordPressValetDriver';
-        $drivers[] = 'JekyllValetDriver';
+        $drivers[] = 'SymfonyValetDriver';
+        $drivers[] = 'CraftValetDriver';
+        $drivers[] = 'StatamicValetDriver';
+        $drivers[] = 'StatamicV1ValetDriver';
+        $drivers[] = 'CakeValetDriver';
+        $drivers[] = 'SculpinValetDriver';
+        $drivers[] = 'JigsawValetDriver';
+        $drivers[] = 'KirbyValetDriver';
+        $drivers[] = 'ContaoValetDriver';
+        $drivers[] = 'KatanaValetDriver';
 
         $drivers[] = 'BasicValetDriver';
 

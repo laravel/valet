@@ -8,7 +8,7 @@ class BasicValetDriver extends ValetDriver
      * @param  string  $sitePath
      * @param  string  $siteName
      * @param  string  $uri
-     * @return void
+     * @return bool
      */
     public function serves($sitePath, $siteName, $uri)
     {
@@ -27,7 +27,7 @@ class BasicValetDriver extends ValetDriver
     {
         if (file_exists($staticFilePath = $sitePath.'/public'.$uri)) {
             return $staticFilePath;
-        } elseif (file_exists($staticFilePath = $sitePath.$uri) && ! is_dir($staticFilePath)) {
+        } elseif ($this->isActualFile($staticFilePath = $sitePath.$uri)) {
             return $staticFilePath;
         }
 

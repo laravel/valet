@@ -8,7 +8,7 @@ class LaravelValetDriver extends ValetDriver
      * @param  string  $sitePath
      * @param  string  $siteName
      * @param  string  $uri
-     * @return void
+     * @return bool
      */
     public function serves($sitePath, $siteName, $uri)
     {
@@ -30,8 +30,15 @@ class LaravelValetDriver extends ValetDriver
             return $staticFilePath;
         }
 
-        if (file_exists($sitePath.'/storage/public'.$uri)) {
-            return $sitePath.'/public'.$uri;
+        $storageUri = $uri;
+
+        if (strpos($uri, '/storage/') === 0) {
+            $storageUri = substr($uri, 8);
+        }
+
+        if (file_exists($storagePath = $sitePath.'/storage/app/public'.$storageUri) &&
+            ! is_dir($storagePath)) {
+            return $storagePath;
         }
 
         return false;

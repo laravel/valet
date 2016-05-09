@@ -4,33 +4,99 @@ namespace Valet;
 
 class Configuration
 {
+    var $files;
+
+    /**
+     * Create a new Valet configuration class instance.
+     *
+     * @param  Filesystem  $filesystem
+     * @return void
+     */
+    function __construct(Filesystem $files)
+    {
+        $this->files = $files;
+    }
+
     /**
      * Install the Valet configuration file.
      *
      * @return void
      */
-    public static function install()
+    function install()
     {
-        if (! is_dir($directory = VALET_HOME_PATH)) {
-            mkdir($directory, 0755);
+        $this->createConfigurationDirectory();
+        $this->createDriversDirectory();
+        $this->writeBaseConfiguration();
 
-            chown($directory, $_SERVER['SUDO_USER']);
+        $this->files->chown($this->path(), user());
+    }
+
+    /**
+     * Create the Valet configuration directory.
+     *
+     * @return void
+     */
+    function createConfigurationDirectory()
+    {
+        if (! $this->files->isDir(VALET_HOME_PATH)) {
+            $this->files->mkdirAsUser(VALET_HOME_PATH);
+        }
+    }
+
+    /**
+     * Create the Valet drivers directory.
+     *
+     * @return void
+     */
+    function createDriversDirectory()
+    {
+        if ($this->files->isDir($driversDirectory = VALET_HOME_PATH.'/Drivers')) {
+            return;
         }
 
-        if (! is_dir($driversDirectory = VALET_HOME_PATH.'/Drivers')) {
-            mkdir($driversDirectory, 0755);
+        $this->files->mkdirAsUser($driversDirectory);
 
-            copy(__DIR__.'/../stubs/SampleValetDriver.php', $driversDirectory.'/SampleValetDriver.php');
+        $this->files->putAsUser(
+            $driversDirectory.'/SampleValetDriver.php',
+            $this->files->get(__DIR__.'/../stubs/SampleValetDriver.php')
+        );
+    }
 
-            chown($driversDirectory.'/SampleValetDriver.php', $_SERVER['SUDO_USER']);
-            chown($driversDirectory, $_SERVER['SUDO_USER']);
+    /**
+     * Write the base, initial configuration for Valet.
+     */
+    function writeBaseConfiguration()
+    {
+        if (! $this->files->exists($this->path())) {
+            $this->write(['domain' => 'dev', 'paths' => []]);
         }
+    }
 
-        if (! file_exists(static::path())) {
-            static::write(['domain' => 'dev', 'paths' => []]);
-        }
+    /**
+     * Add the given path to the configuration.
+     *
+     * @param  string  $path
+     * @param  bool  $prepend
+     * @return void
+     */
+    function addPath($path, $prepend = false)
+    {
+        $this->write(tap($this->read(), function (&$config) use ($path, $prepend) {
+            $method = $prepend ? 'prepend' : 'push';
 
-        chown(static::path(), $_SERVER['SUDO_USER']);
+            $config['paths'] = collect($config['paths'])->{$method}($path)->unique()->all();
+        }));
+    }
+
+    /**
+     * Prepend the given path to the configuration.
+     *
+     * @param  string  $path
+     * @return void
+     */
+    function prependPath($path)
+    {
+        return $this->addPath($path, true);
     }
 
     /**
@@ -39,44 +105,13 @@ class Configuration
      * @param  string  $path
      * @return void
      */
-    public static function addPath($path)
+    function removePath($path)
     {
-        $config = static::read();
-
-        $config['paths'] = array_unique(array_merge($config['paths'], [$path]));
-
-        static::write($config);
-    }
-
-    /**
-     * Add the given path to the configuration.
-     *
-     * @param  string  $path
-     * @return void
-     */
-    public static function removePath($path)
-    {
-        $config = static::read();
-
-        foreach ($config['paths'] as $key => $value) {
-            if ($path === $value) {
-                unset($config['paths'][$key]);
-            }
-        }
-
-        $config['paths'] = array_unique(array_values($config['paths']));
-
-        static::write($config);
-    }
-
-    /**
-     * Get the configuration file path.
-     *
-     * @return string
-     */
-    public static function path()
-    {
-        return VALET_HOME_PATH.'/config.json';
+        $this->write(tap($this->read(), function (&$config) use ($path) {
+            $config['paths'] = collect($config['paths'])->reject(function ($value) use ($path) {
+                return $value === $path;
+            })->values()->all();
+        }));
     }
 
     /**
@@ -84,23 +119,17 @@ class Configuration
      *
      * @return void
      */
-    public static function prune()
+    function prune()
     {
-        if (! file_exists(static::path())) {
+        if (! $this->files->exists($this->path())) {
             return;
         }
 
-        $config = static::read();
-
-        foreach ($config['paths'] as $key => $path) {
-            if (! is_dir($path)) {
-                unset($config['paths'][$key]);
-            }
-        }
-
-        $config['paths'] = array_values($config['paths']);
-
-        static::write($config);
+        $this->write(tap($this->read(), function (&$config) {
+            $config['paths'] = collect($config['paths'])->filter(function ($path) {
+                return $this->files->isDir($path);
+            })->values()->all();
+        }));
     }
 
     /**
@@ -108,9 +137,9 @@ class Configuration
      *
      * @return array
      */
-    public static function read()
+    function read()
     {
-        return json_decode(file_get_contents(static::path()), true);
+        return json_decode($this->files->get($this->path()), true);
     }
 
     /**
@@ -120,15 +149,13 @@ class Configuration
      * @param  mixed  $value
      * @return array
      */
-    public static function updateKey($key, $value)
+    function updateKey($key, $value)
     {
-        $config = static::read();
+        return tap($this->read(), function (&$config) use ($key, $value) {
+            $config[$key] = $value;
 
-        $config[$key] = $value;
-
-        static::write($config);
-
-        return $config;
+            $this->write($config);
+        });
     }
 
     /**
@@ -137,8 +164,20 @@ class Configuration
      * @param  array  $config
      * @return void
      */
-    public static function write(array $config)
+    function write(array $config)
     {
-        file_put_contents(static::path(), json_encode($config, JSON_PRETTY_PRINT).PHP_EOL);
+        $this->files->putAsUser($this->path(), json_encode(
+            $config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
+        ).PHP_EOL);
+    }
+
+    /**
+     * Get the configuration file path.
+     *
+     * @return string
+     */
+    function path()
+    {
+        return VALET_HOME_PATH.'/config.json';
     }
 }
