@@ -10,6 +10,7 @@ require_once __DIR__.'/BasicValetDriver.php';
  * Specific drivers...
  */
 require_once __DIR__.'/CraftValetDriver.php';
+require_once __DIR__.'/ExpressionEngineValetDriver.php';
 require_once __DIR__.'/JigsawValetDriver.php';
 require_once __DIR__.'/LaravelValetDriver.php';
 require_once __DIR__.'/SculpinValetDriver.php';
