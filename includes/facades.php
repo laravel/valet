@@ -33,5 +33,6 @@ class CommandLine extends Facade {}
 class Configuration extends Facade {}
 class DnsMasq extends Facade {}
 class Filesystem extends Facade {}
+class Ngrok extends Facade {}
 class PhpFpm extends Facade {}
 class Site extends Facade {}

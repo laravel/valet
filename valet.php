@@ -14,6 +14,7 @@ use Silly\Application;
 use Valet\Facades\Brew;
 use Valet\Facades\Site;
 use Valet\Facades\Caddy;
+use Valet\Facades\Ngrok;
 use Valet\Facades\PhpFpm;
 use Valet\Facades\DnsMasq;
 use Valet\Facades\Filesystem;
@@ -164,21 +165,7 @@ $app->command('paths', function () {
  * Echo the currently tunneled URL.
  */
 $app->command('fetch-share-url', function () {
-    retry(20, function () {
-        $response = Httpful\Request::get('http://127.0.0.1:4040/api/tunnels')->send();
-
-        $body = $response->body;
-
-        if (isset($body->tunnels) && count($body->tunnels) > 0) {
-            foreach ($body->tunnels as $tunnel) {
-                if ($tunnel->proto == 'http') {
-                    return output($tunnel->public_url);
-                }
-            }
-        }
-
-        throw new Exception("Tunnel not established.");
-    }, 250);
+    output(Ngrok::currentTunnelUrl());
 });
 
 /**
