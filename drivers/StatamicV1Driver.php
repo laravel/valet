@@ -49,10 +49,6 @@ class StatamicV1ValetDriver extends ValetDriver
      */
     public function frontControllerPath($sitePath, $siteName, $uri)
     {
-        if ($uri === '') {
-            $uri = '/';
-        }
-
         if (strpos($uri, '/admin.php') === 0) {
             $_SERVER['SCRIPT_NAME'] = '/admin.php';
 
@@ -65,10 +61,8 @@ class StatamicV1ValetDriver extends ValetDriver
             return $sitePath.'/admin/index.php';
         }
 
-        if ($indexPath = $sitePath.'/index.php') {
-            $_SERVER['SCRIPT_NAME'] = '/index.php';
+        $_SERVER['SCRIPT_NAME'] = '/index.php';
 
-            return $indexPath;
-        }
+        return $sitePath.'/index.php';
     }
 }
