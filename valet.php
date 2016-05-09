@@ -141,6 +141,10 @@ $app->command('which', function () {
 $app->command('logs', function () {
     $files = Site::logs(Configuration::read()['paths']);
 
+    $files = collect($files)->transform(function ($file) {
+        return escapeshellarg($file);
+    })->all();
+
     if (count($files) > 0) {
         passthru('tail -f '.implode(' ', $files));
     } else {
