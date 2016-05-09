@@ -45,7 +45,7 @@ class DnsMasqTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('address=/.dev/127.0.0.1'.PHP_EOL, file_get_contents(__DIR__.'/output/custom-dnsmasq.conf'));
         $this->assertEquals('test-contents
 
-conf-file=/Users/'.user().'/Documents/Code/Valet/tests/output/custom-dnsmasq.conf
+conf-file='.__DIR__.'/output/custom-dnsmasq.conf
 ', file_get_contents(__DIR__.'/output/dnsmasq.conf'));
     }
 

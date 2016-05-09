@@ -7,7 +7,7 @@ use Symfony\Component\Process\Process;
 
 class PhpFpm
 {
-    var $brew, $cli;
+    var $brew, $cli, $files;
 
     var $taps = [
         'homebrew/dupes', 'homebrew/versions', 'homebrew/homebrew-php'
@@ -18,12 +18,14 @@ class PhpFpm
      *
      * @param  Brew  $brew
      * @param  CommandLine  $cli
+     * @param  Filesystem  $files
      * @return void
      */
-    function __construct(Brew $brew, CommandLine $cli)
+    function __construct(Brew $brew, CommandLine $cli, Filesystem $files)
     {
         $this->cli = $cli;
         $this->brew = $brew;
+        $this->files = $files;
     }
 
     /**
@@ -47,9 +49,12 @@ class PhpFpm
      */
     function updateConfiguration()
     {
-        $this->cli->quietly('sed -i "" -E "s/^user = .+$/user = '.user().'/" '.$this->fpmConfigPath());
+        $contents = $this->files->get($this->fpmConfigPath());
 
-        $this->cli->quietly('sed -i "" -E "s/^group = .+$/group = staff/" '.$this->fpmConfigPath());
+        $contents = preg_replace('/^user = .+$/m', 'user = '.user(), $contents);
+        $contents = preg_replace('/^group = .+$/m', 'group = staff', $contents);
+
+        $this->files->put($this->fpmConfigPath(), $contents);
     }
 
     /**
