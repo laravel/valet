@@ -54,6 +54,7 @@ abstract class ValetDriver
         $drivers[] = 'JigsawValetDriver';
         $drivers[] = 'KirbyValetDriver';
         $drivers[] = 'ContaoValetDriver';
+        $drivers[] = 'KatanaValetDriver';
 
         $drivers[] = 'BasicValetDriver';
 
