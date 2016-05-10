@@ -74,17 +74,6 @@ class BasicValetDriver extends ValetDriver
     }
 
     /**
-     * Determine if the path is a file and not a directory.
-     *
-     * @param  string  $path
-     * @return bool
-     */
-    protected function isActualFile($path)
-    {
-        return file_exists($path) && ! is_dir($path);
-    }
-
-    /**
      * Concatenate the site path and URI as a single file name.
      *
      * @param  string  $sitePath
