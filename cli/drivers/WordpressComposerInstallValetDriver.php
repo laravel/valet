@@ -59,7 +59,7 @@ class WordpressComposerInstallValetDriver extends ValetDriver
     public function frontControllerPath($sitePath, $siteName, $uri)
     {
         if (is_dir($staticFilePath = $sitePath . $uri)) {
-            return $sitePath . $uri . '/index.php';
+            return $staticFilePath . '/index.php';
         } elseif ($this->fileIsPHP($uri)) {
             $_SERVER['PHP_SELF'] = $uri;
             return $sitePath . preg_replace('/\/$/', '', $uri);
