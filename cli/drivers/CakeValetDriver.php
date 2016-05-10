@@ -1,6 +1,6 @@
 <?php
 
-class LaravelValetDriver extends ValetDriver
+class CakeValetDriver extends ValetDriver
 {
     /**
      * Determine if the driver serves the request.
@@ -12,8 +12,7 @@ class LaravelValetDriver extends ValetDriver
      */
     public function serves($sitePath, $siteName, $uri)
     {
-        return file_exists($sitePath.'/public/index.php') &&
-               file_exists($sitePath.'/artisan');
+        return file_exists($sitePath.'/bin/cake');
     }
 
     /**
@@ -26,19 +25,8 @@ class LaravelValetDriver extends ValetDriver
      */
     public function isStaticFile($sitePath, $siteName, $uri)
     {
-        if (file_exists($staticFilePath = $sitePath.'/public'.$uri)) {
+        if ($this->isActualFile($staticFilePath = $sitePath.'/webroot/'.$uri)) {
             return $staticFilePath;
-        }
-
-        $storageUri = $uri;
-
-        if (strpos($uri, '/storage/') === 0) {
-            $storageUri = substr($uri, 8);
-        }
-
-        if (file_exists($storagePath = $sitePath.'/storage/app/public'.$storageUri) &&
-            ! is_dir($storagePath)) {
-            return $storagePath;
         }
 
         return false;
@@ -54,6 +42,8 @@ class LaravelValetDriver extends ValetDriver
      */
     public function frontControllerPath($sitePath, $siteName, $uri)
     {
-        return $sitePath.'/public/index.php';
+        $_SERVER['SCRIPT_FILENAME'] = $sitePath.'/webroot/index.php';
+
+        return $sitePath.'/webroot/index.php';
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-class SymfonyValetDriver extends ValetDriver
+class StatamicV1ValetDriver extends ValetDriver
 {
     /**
      * Determine if the driver serves the request.
@@ -8,12 +8,11 @@ class SymfonyValetDriver extends ValetDriver
      * @param  string  $sitePath
      * @param  string  $siteName
      * @param  string  $uri
-     * @return bool
+     * @return void
      */
     public function serves($sitePath, $siteName, $uri)
     {
-        return (file_exists($sitePath.'/web/app_dev.php') || file_exists($sitePath.'/web/app.php')) &&
-               (file_exists($sitePath.'/bin/symfony_requirements'));
+        return file_exists($sitePath.'/_app/core/statamic.php');
     }
 
     /**
@@ -26,7 +25,14 @@ class SymfonyValetDriver extends ValetDriver
      */
     public function isStaticFile($sitePath, $siteName, $uri)
     {
-        if (file_exists($staticFilePath = $sitePath.'/web/'.$uri)) {
+        if (strpos($uri, '/_add-ons') === 0 || strpos($uri, '/_app') === 0 || strpos($uri, '/_content') === 0 ||
+            strpos($uri, '/_cache') === 0 || strpos($uri, '/_config') === 0 || strpos($uri, '/_logs') === 0 ||
+            $uri === '/admin'
+        ) {
+            return false;
+        }
+
+        if ($this->isActualFile($staticFilePath = $sitePath.$uri)) {
             return $staticFilePath;
         }
 
@@ -43,10 +49,20 @@ class SymfonyValetDriver extends ValetDriver
      */
     public function frontControllerPath($sitePath, $siteName, $uri)
     {
-        if (file_exists($frontControllerPath = $sitePath.'/web/app_dev.php')) {
-            return $frontControllerPath;
-        } elseif (file_exists($frontControllerPath = $sitePath.'/web/app.php')) {
-            return $frontControllerPath;
+        if (strpos($uri, '/admin.php') === 0) {
+            $_SERVER['SCRIPT_NAME'] = '/admin.php';
+
+            return $sitePath.'/admin.php';
         }
+
+        if ($uri === '/admin') {
+            $_SERVER['SCRIPT_NAME'] = '/admin/index.php';
+
+            return $sitePath.'/admin/index.php';
+        }
+
+        $_SERVER['SCRIPT_NAME'] = '/index.php';
+
+        return $sitePath.'/index.php';
     }
 }

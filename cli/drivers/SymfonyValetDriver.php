@@ -1,6 +1,6 @@
 <?php
 
-class CakeValetDriver extends ValetDriver
+class SymfonyValetDriver extends ValetDriver
 {
     /**
      * Determine if the driver serves the request.
@@ -12,7 +12,8 @@ class CakeValetDriver extends ValetDriver
      */
     public function serves($sitePath, $siteName, $uri)
     {
-        return file_exists($sitePath.'/bin/cake');
+        return (file_exists($sitePath.'/web/app_dev.php') || file_exists($sitePath.'/web/app.php')) &&
+               (file_exists($sitePath.'/bin/symfony_requirements'));
     }
 
     /**
@@ -25,7 +26,7 @@ class CakeValetDriver extends ValetDriver
      */
     public function isStaticFile($sitePath, $siteName, $uri)
     {
-        if (file_exists($staticFilePath = $sitePath.'/webroot/'.$uri)) {
+        if ($this->isActualFile($staticFilePath = $sitePath.'/web/'.$uri)) {
             return $staticFilePath;
         }
 
@@ -42,8 +43,10 @@ class CakeValetDriver extends ValetDriver
      */
     public function frontControllerPath($sitePath, $siteName, $uri)
     {
-        $_SERVER['SCRIPT_FILENAME'] = $sitePath.'/webroot/index.php';
-
-        return $sitePath.'/webroot/index.php';
+        if (file_exists($frontControllerPath = $sitePath.'/web/app_dev.php')) {
+            return $frontControllerPath;
+        } elseif (file_exists($frontControllerPath = $sitePath.'/web/app.php')) {
+            return $frontControllerPath;
+        }
     }
 }

@@ -1,8 +1,18 @@
 #!/usr/bin/env bash
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SOURCE="${BASH_SOURCE[0]}"
 
-if [ ! -f "$DIR/valet.php" ]
+# Resolve possible symbolic link (http://stackoverflow.com/a/246128/416354)
+while [ -h "$SOURCE" ]; do
+  DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+
+DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+
+# Correct path if we are globally installed via Composer
+if [ ! -f "$DIR/cli/valet.php" ]
 then
     OLDPWD="$PWD"
     cd "$DIR/../laravel/valet"
@@ -12,11 +22,19 @@ fi
 
 if [[ "$1" = "install" ]] || [[ "$1" = "domain" ]] || [[ "$1" = "start" ]] || [[ "$1" = "restart" ]] || [[ "$1" = "stop" ]] || [[ "$1" = "uninstall" ]]
 then
-    sudo php "$DIR/valet.php" "$@"
+    if [[ "$EUID" -ne 0 ]]
+    then
+        sudo php "$DIR/cli/valet.php" "$@"
+    else
+        php "$DIR/cli/valet.php" "$@"
+    fi
+elif [[ "$1" = "update" ]]
+then
+    bash <(curl -s https://raw.githubusercontent.com/laravel/valet/master/update.sh)
 elif [[ "$1" = "share" ]]
 then
     HOST="${PWD##*/}"
-    DOMAIN=$(php "$DIR/valet.php" current-domain)
+    DOMAIN=$(php "$DIR/cli/valet.php" current-domain)
 
 
     for linkname in ~/.valet/Sites/*; do
@@ -29,9 +47,9 @@ then
     done
 
     # Fetch Ngrok URL In Background...
-    bash "$DIR/fetch-share-url.sh" &
+    bash "$DIR/cli/fetch-share-url.sh" &
 
     "$DIR/bin/ngrok" http -host-header=rewrite "$HOST.$DOMAIN:80"
 else
-    php "$DIR/valet.php" $@
+    php "$DIR/cli/valet.php" $@
 fi

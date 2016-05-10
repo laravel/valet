@@ -25,7 +25,7 @@ class Filesystem
      */
     function mkdir($path, $owner = null, $mode = 0755)
     {
-        mkdir($path, $mode);
+        mkdir($path, $mode, true);
 
         if ($owner) {
             $this->chown($path, $owner);

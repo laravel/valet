@@ -1,6 +1,6 @@
 <?php
 
-class CraftValetDriver extends ValetDriver
+class KirbyValetDriver extends ValetDriver
 {
     /**
      * Determine if the driver serves the request.
@@ -8,11 +8,11 @@ class CraftValetDriver extends ValetDriver
      * @param  string  $sitePath
      * @param  string  $siteName
      * @param  string  $uri
-     * @return bool
+     * @return void
      */
     public function serves($sitePath, $siteName, $uri)
     {
-        return is_dir($sitePath.'/craft');
+        return is_dir($sitePath.'/kirby');
     }
 
     /**
@@ -25,11 +25,11 @@ class CraftValetDriver extends ValetDriver
      */
     public function isStaticFile($sitePath, $siteName, $uri)
     {
-        if (file_exists($staticFilePath = $sitePath.'/public'.$uri)) {
-            return $staticFilePath;
-        }
+       if ($this->isActualFile($staticFilePath = $sitePath.$uri)) {
+           return $staticFilePath;
+       }
 
-        return false;
+       return false;
     }
 
     /**
@@ -42,10 +42,19 @@ class CraftValetDriver extends ValetDriver
      */
     public function frontControllerPath($sitePath, $siteName, $uri)
     {
-        $_SERVER['SCRIPT_FILENAME'] = $sitePath.'/public/index.php';
+        // Needed to force Kirby to use *.dev to generate its URLs...
+        $_SERVER['SERVER_NAME'] = $_SERVER['HTTP_HOST'];
 
-        $_SERVER['SCRIPT_NAME'] = '/index.php';
+        if (preg_match('/^\/panel/', $uri)) {
+            $_SERVER['SCRIPT_NAME'] = '/panel/index.php';
 
-        return $sitePath.'/craft/app/index.php';
+            return $sitePath.'/panel/index.php';
+        }
+
+        if (file_exists($indexPath = $sitePath.'/index.php')) {
+            $_SERVER['SCRIPT_NAME'] = '/index.php';
+
+            return $indexPath;
+        }
     }
 }

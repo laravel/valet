@@ -1,6 +1,6 @@
 <?php
 
-class ContaoValetDriver extends ValetDriver
+class LaravelValetDriver extends ValetDriver
 {
     /**
      * Determine if the driver serves the request.
@@ -8,11 +8,12 @@ class ContaoValetDriver extends ValetDriver
      * @param  string  $sitePath
      * @param  string  $siteName
      * @param  string  $uri
-     * @return void
+     * @return bool
      */
     public function serves($sitePath, $siteName, $uri)
     {
-        return is_dir($sitePath.'/vendor/contao') && file_exists($sitePath.'/web/app.php');
+        return file_exists($sitePath.'/public/index.php') &&
+               file_exists($sitePath.'/artisan');
     }
 
     /**
@@ -25,8 +26,18 @@ class ContaoValetDriver extends ValetDriver
      */
     public function isStaticFile($sitePath, $siteName, $uri)
     {
-        if (file_exists($staticFilePath = $sitePath.'/web'.$uri)) {
+        if (file_exists($staticFilePath = $sitePath.'/public'.$uri)) {
             return $staticFilePath;
+        }
+
+        $storageUri = $uri;
+
+        if (strpos($uri, '/storage/') === 0) {
+            $storageUri = substr($uri, 8);
+        }
+
+        if ($this->isActualFile($storagePath = $sitePath.'/storage/app/public'.$storageUri)) {
+            return $storagePath;
         }
 
         return false;
@@ -42,10 +53,6 @@ class ContaoValetDriver extends ValetDriver
      */
     public function frontControllerPath($sitePath, $siteName, $uri)
     {
-        if ($uri == '/install.php') {
-            return $sitePath.'/web/install.php';
-        }
-
-        return $sitePath.'/web/app.php';
+        return $sitePath.'/public/index.php';
     }
 }
