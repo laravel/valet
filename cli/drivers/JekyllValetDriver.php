@@ -15,8 +15,6 @@ class JekyllValetDriver extends ValetDriver
         //Check for several default Jekyll folders and files.
         return 
             is_dir($sitePath.'/'.$this->getServingFolderName())
-            && is_dir($sitePath.'/_sass')
-            && is_dir($sitePath.'/_includes')
             && file_exists($sitePath.'/_config.yml')
             && file_exists($sitePath.'/'.$this->getServingFileName());
     }
