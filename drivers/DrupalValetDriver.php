@@ -55,21 +55,19 @@ class DrupalValetDriver extends ValetDriver
           $_GET['q'] = $uri;
         }
 
-        if (file_exists($sitePath.$uri) && ! is_dir($sitePath.$uri)) {
-          chdir(dirname($sitePath.$uri));
-          $_SERVER['SCRIPT_FILENAME'] = $sitePath.$uri;
-          $_SERVER['SCRIPT_NAME'] = $uri;
-          return $sitePath.$uri;
-        } elseif (file_exists($frontControllerPath = $sitePath.$uri.'/index.php')) {
-          chdir($sitePath.$uri);
-          $_SERVER['SCRIPT_FILENAME'] = $sitePath.$uri.'/index.php';
-          $_SERVER['SCRIPT_NAME'] = $uri;
-          return $frontControllerPath;
-        } else {
-          chdir($sitePath);
-          $_SERVER['SCRIPT_FILENAME'] = $sitePath.'/index.php';
-          $_SERVER['SCRIPT_NAME'] = '/index.php';
-          return $sitePath.'/index.php';
+        $matches = [];
+        if (preg_match('/^\/(.*?)\.php/', $uri, $matches)) {
+            $filename = $matches[0];
+            if (file_exists($sitePath.$filename) && ! is_dir($sitePath.$filename)) {
+                $_SERVER['SCRIPT_FILENAME'] = $sitePath.$filename;
+                $_SERVER['SCRIPT_NAME'] = $filename;
+                return $sitePath.$filename;
+            }
         }
+
+        // Fallback
+        $_SERVER['SCRIPT_FILENAME'] = $sitePath.'/index.php';
+        $_SERVER['SCRIPT_NAME'] = '/index.php';
+        return $sitePath.'/index.php';
     }
 }
