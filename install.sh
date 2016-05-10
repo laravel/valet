@@ -25,14 +25,14 @@ chmod +x /usr/local/bin/composer
 # Download and unpack the latest Valet release
 rm -rf $HOME/.valet-cli
 mkdir $HOME/.valet-cli
-wget https://github.com/laravel/valet/archive/v1.1.3.tar.gz -O $HOME/.valet-cli/valet.tar.gz
+wget https://github.com/laravel/valet/archive/master.tar.gz -O $HOME/.valet-cli/valet.tar.gz
 tar xvzf $HOME/.valet-cli/valet.tar.gz -C $HOME/.valet-cli --strip 1 > /dev/null 2>&1
 
 ln -s $HOME/.valet-cli/valet /usr/local/bin/valet
 chmod +x /usr/local/bin/valet
 
 # Install Valet's Composer dependencies
-/usr/local/bin/php composer install -d $HOME/.valet-cli
+/usr/local/bin/php /usr/local/bin/composer install -d $HOME/.valet-cli
 
 # Run the Valet installation process
 $HOME/.valet-cli/valet install

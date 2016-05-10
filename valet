@@ -3,10 +3,10 @@
 SOURCE="${BASH_SOURCE[0]}"
 
 # Resolve possible symbolic link (http://stackoverflow.com/a/246128/416354)
-while [ -h "$SOURCE" ]; do # Resolve until we are no longer a symbolic link
+while [ -h "$SOURCE" ]; do
   DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
   SOURCE="$(readlink "$SOURCE")"
-  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # Resolve relative symbolic link
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
 done
 
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
