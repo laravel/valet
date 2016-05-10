@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 SOURCE="${BASH_SOURCE[0]}"
+echo $SOURCE
+exit
 
 # Resolve possible symbolic link (http://stackoverflow.com/a/246128/416354)
 while [ -h "$SOURCE" ]; do
@@ -24,7 +26,7 @@ if [[ "$1" = "install" ]] || [[ "$1" = "domain" ]] || [[ "$1" = "start" ]] || [[
 then
     if [[ "$EUID" -ne 0 ]]
     then
-        sudo php "$DIR/cli/valet.php" "$@"
+        sudo $SOURCE "$@"
     else
         php "$DIR/cli/valet.php" "$@"
     fi
