@@ -39,6 +39,7 @@ echo "Downloading Valet..."
 wget https://github.com/laravel/valet/archive/master.tar.gz -O $HOME/.valet-cli/valet.tar.gz > /dev/null 2>&1
 tar xvzf $HOME/.valet-cli/valet.tar.gz -C $HOME/.valet-cli --strip 1 > /dev/null 2>&1
 
+# Install Valet to /usr/local/bin
 rm /usr/local/bin/valet
 ln -s $HOME/.valet-cli/valet /usr/local/bin/valet
 chmod +x /usr/local/bin/valet
@@ -47,5 +48,5 @@ chmod +x /usr/local/bin/valet
 echo "Installing Valet's Composer dependencies..."
 /usr/local/bin/php $COMPOSER_PATH install -d $HOME/.valet-cli > /dev/null 2>&1
 
-# Run the Valet installation process
+# Run the Valet server installation process
 $HOME/.valet-cli/valet install
