@@ -14,4 +14,7 @@ echo "Installing Valet's Composer dependencies..."
 /usr/local/bin/php /usr/local/bin/composer install -d $HOME/.valet-cli > /dev/null 2>&1
 
 # Run the Valet installation process
+$HOME/.valet-cli/valet install
+
+# Display the new Valet version
 $HOME/.valet-cli/valet --version
