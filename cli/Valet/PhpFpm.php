@@ -39,6 +39,8 @@ class PhpFpm
             $this->brew->ensureInstalled('php70', $this->taps);
         }
 
+        $this->files->ensureDirExists('/usr/local/var/log', user());
+
         $this->updateConfiguration();
 
         $this->restart();
