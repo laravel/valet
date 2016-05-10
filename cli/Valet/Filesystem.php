@@ -199,15 +199,20 @@ class Filesystem
      *
      * @param  string  $target
      * @param  string  $link
+     * @param  string|null  $owner
      * @return void
      */
-    function symlink($target, $link)
+    function symlink($target, $link, $owner = null)
     {
         if ($this->exists($link)) {
             $this->unlink($link);
         }
 
         symlink($target, $link);
+
+        if ($owner) {
+            $this->chown($link, $owner);
+        }
     }
 
     /**

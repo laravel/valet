@@ -54,6 +54,9 @@ $app->command('install', function () {
 
     Caddy::restart();
 
+    CommandLine::quietly('rm /usr/local/bin/valet');
+    Filesystem::symlink(realpath(__DIR__.'/../valet'), '/usr/local/bin/valet', user());
+
     output(PHP_EOL.'<info>Valet installed successfully!</info>');
 });
 
