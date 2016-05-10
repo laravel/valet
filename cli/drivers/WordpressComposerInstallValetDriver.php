@@ -12,8 +12,8 @@ class WordpressComposerInstallValetDriver extends ValetDriver
      */
     public function serves($sitePath, $siteName, $uri)
     {
-        if (file_exists($composerFile = $sitePath .'/composer.json')) {
-            if (file_exists($sitePath .'/wp-config.php')) {
+        if (file_exists($composerFile = $sitePath . '/composer.json')) {
+            if (file_exists($sitePath . '/wp-config.php')) {
                 return true;
             }
 
@@ -41,6 +41,11 @@ class WordpressComposerInstallValetDriver extends ValetDriver
      */
     public function isStaticFile($sitePath, $siteName, $uri)
     {
+        // Look in public web directory
+        if ($this->isBedrockInstall($sitePath)) {
+            $sitePath .= '/web';
+        }
+
         if (file_exists($staticFilePath = $sitePath . $uri) && !$this->fileIsPHP($uri) && !is_dir($staticFilePath)) {
             return $staticFilePath;
         }
@@ -58,6 +63,11 @@ class WordpressComposerInstallValetDriver extends ValetDriver
      */
     public function frontControllerPath($sitePath, $siteName, $uri)
     {
+        // Look in public web directory
+        if ($this->isBedrockInstall($sitePath)) {
+            $sitePath .= '/web';
+        }
+
         if (is_dir($staticFilePath = $sitePath . $uri)) {
             return $staticFilePath . '/index.php';
         } elseif ($this->fileIsPHP($uri)) {
@@ -68,6 +78,26 @@ class WordpressComposerInstallValetDriver extends ValetDriver
         return $sitePath . '/index.php';
     }
 
+    /**
+     * Checks if current install is [roots/bedrock](https://github.com/roots/bedrock)
+     * @param  string  $path
+     * @return boolean
+     */
+    private function isBedrockInstall($path)
+    {
+        return (file_exists($path . '/web/app/mu-plugins/bedrock-autoloader.php')
+            || (is_dir($path . '/web/app/')
+                && file_exists($path . '/web/wp-config.php')
+                && file_exists($path . '/config/application.php')
+            )
+        );
+    }
+
+    /**
+     * Check if the uri points to a PHP file
+     * @param  string $uri
+     * @return bool
+     */
     private function fileIsPHP($uri)
     {
         return (pathinfo($uri, PATHINFO_EXTENSION) === 'php');
