@@ -15,12 +15,12 @@
     ],
     "autoload": {
         "files": [
-            "includes/compatibility.php",
-            "includes/facades.php",
-            "includes/helpers.php"
+            "cli/includes/compatibility.php",
+            "cli/includes/facades.php",
+            "cli/includes/helpers.php"
         ],
         "psr-4": {
-            "Valet\\": "src/"
+            "Valet\\": "cli/Valet/"
         }
     },
     "require": {
