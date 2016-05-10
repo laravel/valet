@@ -13,7 +13,6 @@ class WordpressComposerInstallValetDriver extends ValetDriver
     public function serves($sitePath, $siteName, $uri)
     {
         if (file_exists($composerFile = $sitePath .'/composer.json')) {
-
             if (file_exists($sitePath .'/wp-config.php')) {
                 return true;
             }
@@ -61,7 +60,7 @@ class WordpressComposerInstallValetDriver extends ValetDriver
     {
         if (is_dir($staticFilePath = $sitePath . $uri)) {
             return $sitePath . $uri . '/index.php';
-        } else if ($this->fileIsPHP($uri)) {
+        } elseif ($this->fileIsPHP($uri)) {
             $_SERVER['PHP_SELF'] = $uri;
             return $sitePath . preg_replace('/\/$/', '', $uri);
         }
