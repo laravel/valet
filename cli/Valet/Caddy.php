@@ -72,7 +72,7 @@ class Caddy
     function installCaddyDaemon()
     {
         $contents = str_replace(
-            'VALET_PATH', $this->files->realpath(__DIR__.'/../'),
+            'VALET_PATH', $this->files->realpath(__DIR__.'/../../'),
             $this->files->get(__DIR__.'/../stubs/daemon.plist')
         );
 
