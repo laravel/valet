@@ -30,7 +30,7 @@ then
     fi
 elif [[ "$1" = "update" ]]
 then
-    bash <(curl -s https://raw.githubusercontent.com/laravel/valet/master/update.sh)
+    bash <(curl -s https://raw.githubusercontent.com/laravel/valet/master/cli/scripts/update.sh)
 elif [[ "$1" = "share" ]]
 then
     HOST="${PWD##*/}"
@@ -47,7 +47,7 @@ then
     done
 
     # Fetch Ngrok URL In Background...
-    bash "$DIR/cli/fetch-share-url.sh" &
+    bash "$DIR/cli/scripts/fetch-share-url.sh" &
 
     "$DIR/bin/ngrok" http -host-header=rewrite "$HOST.$DOMAIN:80"
 else
