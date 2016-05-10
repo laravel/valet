@@ -97,7 +97,7 @@ class PhpFpm
             return '/usr/local/etc/php/7.0/php-fpm.d/www.conf';
         } elseif ($this->brew->linkedPhp() === 'php56') {
             return '/usr/local/etc/php/5.6/php-fpm.conf';
-        } elseif ($this->brew->linkedPhp() === 'php55' {
+        } elseif ($this->brew->linkedPhp() === 'php55') {
             return '/usr/local/etc/php/5.5/php-fpm.conf';
         } else {
             throw new DomainException('Unable to find php-fpm config.');
