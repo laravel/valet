@@ -27,7 +27,7 @@ class CaddyTest extends PHPUnit_Framework_TestCase
 
         $files->shouldReceive('putAsUser')->andReturnUsing(function ($path, $contents) {
             $this->assertEquals(VALET_HOME_PATH.'/Caddyfile', $path);
-            $this->assertTrue(strpos($contents, 'import '.VALET_HOME_PATH.'/.valet/Caddy/*') !== false);
+            $this->assertTrue(strpos($contents, 'import '.VALET_HOME_PATH.'/Caddy/*') !== false);
         });
 
         swap(Filesystem::class, $files);
