@@ -46,6 +46,7 @@ abstract class ValetDriver
 
         $drivers[] = 'LaravelValetDriver';
 
+        $drivers[] = 'WordpressComposerInstallValetDriver';
         $drivers[] = 'WordPressValetDriver';
         $drivers[] = 'SymfonyValetDriver';
         $drivers[] = 'CraftValetDriver';
