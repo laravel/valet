@@ -215,6 +215,17 @@ $app->command('uninstall', function () {
 });
 
 /**
+ * Open the current url.
+ */
+ $app->command('open', function () {
+     $url = "http://".basename(getcwd()).'.'.Configuration::read()['domain'].'/';
+
+     passthru("open ".escapeshellarg($url));
+
+     info('The url ['.$url.'] has been openend.');
+ });
+
+/**
  * Run the application.
  */
 $app->run();
