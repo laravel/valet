@@ -22,7 +22,12 @@ fi
 
 if [[ "$1" = "install" ]] || [[ "$1" = "domain" ]] || [[ "$1" = "start" ]] || [[ "$1" = "restart" ]] || [[ "$1" = "stop" ]] || [[ "$1" = "uninstall" ]]
 then
-    sudo php "$DIR/cli/valet.php" "$@"
+    if [[ "$EUID" -ne 0 ]]
+    then
+        sudo php "$DIR/cli/valet.php" "$@"
+    else
+        php "$DIR/cli/valet.php" "$@"
+    fi
 elif [[ "$1" = "update" ]]
 then
     bash <(curl -s https://raw.githubusercontent.com/laravel/valet/master/update.sh)
