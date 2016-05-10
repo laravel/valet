@@ -142,7 +142,7 @@ class Brew
             return 'php70';
         } elseif (strpos($resolvedPath, 'php56') !== false) {
             return 'php56';
-        } elseif (strpos($resolvedPath, 'php55' !== false) {
+        } elseif (strpos($resolvedPath, 'php55') !== false) {
             return 'php55';
         } else {
             throw new DomainException("Unable to determine linked PHP.");
