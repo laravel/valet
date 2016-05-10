@@ -25,8 +25,8 @@ class KirbyValetDriver extends ValetDriver
      */
     public function isStaticFile($sitePath, $siteName, $uri)
     {
-       if (file_exists($sitePath.$uri) && ! is_dir($sitePath.$uri)) {
-           return $sitePath.$uri;
+       if ($this->isActualFile($staticFilePath = $sitePath.$uri)) {
+           return $staticFilePath;
        }
 
        return false;

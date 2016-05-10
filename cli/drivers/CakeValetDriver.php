@@ -25,7 +25,7 @@ class CakeValetDriver extends ValetDriver
      */
     public function isStaticFile($sitePath, $siteName, $uri)
     {
-        if (file_exists($staticFilePath = $sitePath.'/webroot/'.$uri)) {
+        if ($this->isActualFile($staticFilePath = $sitePath.'/webroot/'.$uri)) {
             return $staticFilePath;
         }
 

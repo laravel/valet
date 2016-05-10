@@ -8,7 +8,7 @@ class ContaoValetDriver extends ValetDriver
      * @param  string  $sitePath
      * @param  string  $siteName
      * @param  string  $uri
-     * @return void
+     * @return bool
      */
     public function serves($sitePath, $siteName, $uri)
     {
@@ -25,7 +25,7 @@ class ContaoValetDriver extends ValetDriver
      */
     public function isStaticFile($sitePath, $siteName, $uri)
     {
-        if (file_exists($staticFilePath = $sitePath.'/web'.$uri)) {
+        if ($this->isActualFile($staticFilePath = $sitePath.'/web'.$uri)) {
             return $staticFilePath;
         }
 

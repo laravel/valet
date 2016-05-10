@@ -126,4 +126,15 @@ abstract class ValetDriver
 
         readfile($staticFilePath);
     }
+
+    /**
+     * Determine if the path is a file and not a directory.
+     *
+     * @param  string  $path
+     * @return bool
+     */
+    protected function isActualFile($path)
+    {
+        return ! is_dir($path) && file_exists($path);
+    }
 }

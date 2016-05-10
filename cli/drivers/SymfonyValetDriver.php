@@ -26,7 +26,7 @@ class SymfonyValetDriver extends ValetDriver
      */
     public function isStaticFile($sitePath, $siteName, $uri)
     {
-        if (file_exists($staticFilePath = $sitePath.'/web/'.$uri)) {
+        if ($this->isActualFile($staticFilePath = $sitePath.'/web/'.$uri)) {
             return $staticFilePath;
         }
 
