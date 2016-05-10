@@ -32,7 +32,7 @@ class StatamicV1ValetDriver extends ValetDriver
             return false;
         }
 
-        if (file_exists($staticFilePath = $sitePath.$uri)) {
+        if ($this->isActualFile($staticFilePath = $sitePath.$uri)) {
             return $staticFilePath;
         }
 
