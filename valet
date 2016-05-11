@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
 SOURCE="${BASH_SOURCE[0]}"
-echo $SOURCE
-exit
 
 # Resolve possible symbolic link (http://stackoverflow.com/a/246128/416354)
 while [ -h "$SOURCE" ]; do

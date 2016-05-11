@@ -13,6 +13,7 @@ if (file_exists(__DIR__.'/../vendor/autoload.php')) {
 use Silly\Application;
 use Valet\Facades\Brew;
 use Valet\Facades\Site;
+use Valet\Facades\Valet;
 use Valet\Facades\Caddy;
 use Valet\Facades\Ngrok;
 use Valet\Facades\PhpFpm;
@@ -45,17 +46,12 @@ $app->command('install', function () {
     Caddy::stop();
 
     Configuration::install();
-
     Caddy::install();
-
     PhpFpm::install();
-
     DnsMasq::install();
-
     Caddy::restart();
-
-    CommandLine::quietly('rm /usr/local/bin/valet');
-    Filesystem::symlink(realpath(__DIR__.'/../valet'), '/usr/local/bin/valet', user());
+    Valet::symlinkToUsersBin();
+    Valet::createSudoersEntries();
 
     output(PHP_EOL.'<info>Valet installed successfully!</info>');
 });
