@@ -51,6 +51,8 @@ $app->command('install', function () {
     DnsMasq::install();
     Caddy::restart();
     Valet::symlinkToUsersBin();
+
+    Filesystem::ensureDirExists('/etc/sudoers.d');
     Brew::createSudoersEntry();
     Valet::createSudoersEntry();
 
