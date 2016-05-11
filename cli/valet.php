@@ -51,7 +51,8 @@ $app->command('install', function () {
     DnsMasq::install();
     Caddy::restart();
     Valet::symlinkToUsersBin();
-    Valet::createSudoersEntries();
+    Brew::createSudoersEntry();
+    Valet::createSudoersEntry();
 
     output(PHP_EOL.'<info>Valet installed successfully!</info>');
 });

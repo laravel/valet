@@ -34,14 +34,13 @@ class Valet
     }
 
     /**
-     * Create the "sudoers.d" entries for running Valet and Brew commands.
+     * Create the "sudoers.d" entries for running Valet.
+     *
+     * @return void
      */
-    function createSudoersEntries()
+    function createSudoersEntry()
     {
         $this->files->put('/etc/sudoers.d/valet', 'Cmnd_Alias VALET = /usr/local/bin/valet *
 %admin ALL=(root) NOPASSWD: VALET'.PHP_EOL);
-
-        $this->files->put('/etc/sudoers.d/brew', 'Cmnd_Alias BREW = /usr/local/bin/brew *
-%admin ALL=(root) NOPASSWD: BREW'.PHP_EOL);
     }
 }
