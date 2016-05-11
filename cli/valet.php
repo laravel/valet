@@ -28,7 +28,9 @@ use Illuminate\Container\Container;
  */
 Container::setInstance(new Container);
 
-$app = new Application('Laravel Valet', 'v1.1.5');
+$version = '1.1.5';
+
+$app = new Application('Laravel Valet', $version);
 
 /**
  * Prune missing directories and symbolic links on every command.
@@ -51,8 +53,6 @@ $app->command('install', function () {
     DnsMasq::install();
     Caddy::restart();
     Valet::symlinkToUsersBin();
-
-    Filesystem::ensureDirExists('/etc/sudoers.d');
     Brew::createSudoersEntry();
     Valet::createSudoersEntry();
 
@@ -214,6 +214,19 @@ $app->command('uninstall', function () {
     Caddy::uninstall();
 
     info('Valet has been uninstalled.');
+});
+
+/**
+ * Determine if this is the latest release of Valet.
+ */
+$app->command('on-latest-version', function () use ($version) {
+    $response = Httpful\Request::get('https://api.github.com/repos/laravel/valet/releases/latest')->send();
+
+    if (version_compare($version, trim($response->body->tag_name, 'v'), '>=')) {
+        output('YES');
+    } else {
+        output('NO');
+    }
 });
 
 /**

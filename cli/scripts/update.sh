@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
 
+# Determine if this is the latest Valet release
+LATEST=$($HOME/.valet-cli/valet on-latest-version)
+
+if [[ "$LATEST" = "YES" ]]
+then
+    echo "You are already using the latest version of Valet."
+    exit
+fi
+
 # Remove existing Valet directory
 rm -rf $HOME/.valet-cli
 

@@ -40,6 +40,8 @@ class Valet
      */
     function createSudoersEntry()
     {
+        $this->files->ensureDirExists('/etc/sudoers.d');
+
         $this->files->put('/etc/sudoers.d/valet', 'Cmnd_Alias VALET = /usr/local/bin/valet *
 %admin ALL=(root) NOPASSWD: VALET'.PHP_EOL);
     }
