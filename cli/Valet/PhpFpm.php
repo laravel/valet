@@ -2,6 +2,7 @@
 
 namespace Valet;
 
+use DomainException;
 use Exception;
 use Symfony\Component\Process\Process;
 
@@ -35,7 +36,9 @@ class PhpFpm
      */
     function install()
     {
-        if (! $this->brew->installed('php70') && ! $this->brew->installed('php56')) {
+        if (! $this->brew->installed('php70')
+            && ! $this->brew->installed('php56')
+            && ! $this->brew->installed('php55')) {
             $this->brew->ensureInstalled('php70', $this->taps);
         }
 
@@ -80,7 +83,7 @@ class PhpFpm
      */
     function stop()
     {
-        $this->brew->stopService('php56', 'php70');
+        $this->brew->stopService('php55', 'php56', 'php70');
     }
 
     /**
@@ -92,8 +95,12 @@ class PhpFpm
     {
         if ($this->brew->linkedPhp() === 'php70') {
             return '/usr/local/etc/php/7.0/php-fpm.d/www.conf';
-        } else {
+        } elseif ($this->brew->linkedPhp() === 'php56') {
             return '/usr/local/etc/php/5.6/php-fpm.conf';
+        } elseif ($this->brew->linkedPhp() === 'php55') {
+            return '/usr/local/etc/php/5.5/php-fpm.conf';
+        } else {
+            throw new DomainException('Unable to find php-fpm config.');
         }
     }
 }
