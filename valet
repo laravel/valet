@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 
 SOURCE="${BASH_SOURCE[0]}"
+UPDATER="https://raw.githubusercontent.com/laravel/valet/master/cli/scripts/update.sh"
 
+# If the current source is a symbolic link, we need to resolve it to an
+# actual directory name. We'll use PHP to do this easier than we can
+# do it in pure Bash. So, we'll call into PHP CLI here to resolve.
 if [[ -L $SOURCE ]]
 then
     DIR=$(php -r "echo dirname(readlink('$SOURCE'));")
@@ -9,13 +13,20 @@ else
     DIR="$( cd "$( dirname "$SOURCE" )" && pwd )"
 fi
 
-# Correct path if we are globally installed via Composer
+# If we are in the global Composer "bin" directory, we need to bump our
+# current directory up two, so that we will correctly proxy into the
+# Valet CLI script which is written in PHP. Will use PHP to do it.
 if [ ! -f "$DIR/cli/valet.php" ]
 then
     DIR=$(php -r "echo realpath('$DIR/../laravel/valet');")
 fi
 
-if [[ "$1" = "install" ]] || [[ "$1" = "domain" ]] || [[ "$1" = "start" ]] || [[ "$1" = "restart" ]] || [[ "$1" = "stop" ]] || [[ "$1" = "uninstall" ]]
+# If the command is one of the commands that requires "sudo" privileges
+# then we'll proxy the incoming CLI request using sudo, which allows
+# us to never require the end users to manually specify each sudo.
+if [[ "$1" = "install" ]] || [[ "$1" = "domain" ]] || \
+   [[ "$1" = "start" ]] || [[ "$1" = "restart" ]] || \
+   [[ "$1" = "stop" ]] || [[ "$1" = "uninstall" ]]
 then
     if [[ "$EUID" -ne 0 ]]
     then
@@ -23,19 +34,24 @@ then
     else
         php "$DIR/cli/valet.php" "$@"
     fi
+
+# If the command is to run the updater we'll run the updater script and
+# let it handle this entire update. It will download a fresh copy of
+# Valet and replace the current install with the "fresh" download.
 elif [[ "$1" = "update" ]]
 then
-    bash <(curl -s https://raw.githubusercontent.com/laravel/valet/master/cli/scripts/update.sh)
+    bash $DIR/cli/scripts/update.sh
+
+# If the command is the "share" command we will need to resolve out any
+# symbolic links for the site. Before starting Ngrok, we will fire a
+# process to retrieve the live Ngrok tunnel URL in the background.
 elif [[ "$1" = "share" ]]
 then
     HOST="${PWD##*/}"
     DOMAIN=$(php "$DIR/cli/valet.php" current-domain)
 
-
     for linkname in ~/.valet/Sites/*; do
-        RESOLVED_LINK="$(readlink $linkname)"
-
-        if [[ "$RESOLVED_LINK" = "$PWD" ]]
+        if [[ "$(readlink $linkname)" = "$PWD" ]]
         then
             HOST="${linkname##*/}"
         fi
@@ -43,8 +59,11 @@ then
 
     # Fetch Ngrok URL In Background...
     bash "$DIR/cli/scripts/fetch-share-url.sh" &
-
     "$DIR/bin/ngrok" http -host-header=rewrite "$HOST.$DOMAIN:80"
+
+# Finally, for every other command we will just proxy into the PHP tool
+# and let it handle the request. These are commands which can be run
+# without sudo and don't require taking over terminals like Ngrok.
 else
     php "$DIR/cli/valet.php" $@
 fi
