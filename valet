@@ -2,22 +2,17 @@
 
 SOURCE="${BASH_SOURCE[0]}"
 
-# Resolve possible symbolic link (http://stackoverflow.com/a/246128/416354)
-while [ -h "$SOURCE" ]; do
-  DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
-  SOURCE="$(readlink "$SOURCE")"
-  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
-done
-
-DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+if [[ -L $SOURCE ]]
+then
+    DIR=$(php -r "echo dirname(readlink('${BASH_SOURCE[0]}'));")
+else
+    DIR="$( cd "$( dirname "$SOURCE" )" && pwd )"
+fi
 
 # Correct path if we are globally installed via Composer
 if [ ! -f "$DIR/cli/valet.php" ]
 then
-    OLDPWD="$PWD"
-    cd "$DIR/../laravel/valet"
-    DIR="$(pwd)"
-    cd "$OLDPWD"
+    DIR=$(php -r "echo realpath('$DIR/../laravel/valet');")
 fi
 
 if [[ "$1" = "install" ]] || [[ "$1" = "domain" ]] || [[ "$1" = "start" ]] || [[ "$1" = "restart" ]] || [[ "$1" = "stop" ]] || [[ "$1" = "uninstall" ]]
