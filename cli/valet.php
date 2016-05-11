@@ -28,7 +28,7 @@ use Illuminate\Container\Container;
  */
 Container::setInstance(new Container);
 
-$app = new Application('Laravel Valet', 'v1.1.3');
+$app = new Application('Laravel Valet', 'v1.1.4');
 
 /**
  * Prune missing directories and symbolic links on every command.
