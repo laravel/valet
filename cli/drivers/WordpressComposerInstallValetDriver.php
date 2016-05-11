@@ -12,20 +12,11 @@ class WordpressComposerInstallValetDriver extends ValetDriver
      */
     public function serves($sitePath, $siteName, $uri)
     {
-        if (file_exists($composerFile = $sitePath . '/composer.json')) {
-            if (file_exists($sitePath . '/wp-config.php')) {
-                return true;
-            }
-
-            $composerJson = json_decode(file_get_contents($composerFile));
-
-            if (isset($composerJson->extra)) {
-                $extra = (array) $composerJson->extra;
-
-                if (isset($extra['wordpress-install-dir'])) {
-                    return true;
-                }
-            }
+        if (file_exists($sitePath . '/composer.json')
+            && (file_exists($sitePath . '/wp-config.php')
+                || is_dir($sitePath . '/vendor/johnpbloch/wordpress-core-installer'))
+        ) {
+            return true;
         }
 
         return false;
@@ -88,8 +79,7 @@ class WordpressComposerInstallValetDriver extends ValetDriver
         return (file_exists($path . '/web/app/mu-plugins/bedrock-autoloader.php')
             || (is_dir($path . '/web/app/')
                 && file_exists($path . '/web/wp-config.php')
-                && file_exists($path . '/config/application.php')
-            )
+                && file_exists($path . '/config/application.php'))
         );
     }
 
