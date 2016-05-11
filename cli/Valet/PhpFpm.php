@@ -8,9 +8,9 @@ use Symfony\Component\Process\Process;
 
 class PhpFpm
 {
-    var $brew, $cli, $files;
+    public $brew, $cli, $files;
 
-    var $taps = [
+    public $taps = [
         'homebrew/dupes', 'homebrew/versions', 'homebrew/homebrew-php'
     ];
 
@@ -22,7 +22,7 @@ class PhpFpm
      * @param  Filesystem  $files
      * @return void
      */
-    function __construct(Brew $brew, CommandLine $cli, Filesystem $files)
+    public function __construct(Brew $brew, CommandLine $cli, Filesystem $files)
     {
         $this->cli = $cli;
         $this->brew = $brew;
@@ -34,11 +34,11 @@ class PhpFpm
      *
      * @return void
      */
-    function install()
+    public function install()
     {
-        if (! $this->brew->installed('php70')
-            && ! $this->brew->installed('php56')
-            && ! $this->brew->installed('php55')) {
+        if (! $this->brew->installed('php70') &&
+            ! $this->brew->installed('php56') &&
+            ! $this->brew->installed('php55')) {
             $this->brew->ensureInstalled('php70', $this->taps);
         }
 
@@ -54,7 +54,7 @@ class PhpFpm
      *
      * @return void
      */
-    function updateConfiguration()
+    public function updateConfiguration()
     {
         $contents = $this->files->get($this->fpmConfigPath());
 
@@ -69,7 +69,7 @@ class PhpFpm
      *
      * @return void
      */
-    function restart()
+    public function restart()
     {
         $this->stop();
 
@@ -81,7 +81,7 @@ class PhpFpm
      *
      * @return void
      */
-    function stop()
+    public function stop()
     {
         $this->brew->stopService('php55', 'php56', 'php70');
     }
@@ -91,7 +91,7 @@ class PhpFpm
      *
      * @return string
      */
-    function fpmConfigPath()
+    public function fpmConfigPath()
     {
         if ($this->brew->linkedPhp() === 'php70') {
             return '/usr/local/etc/php/7.0/php-fpm.d/www.conf';
