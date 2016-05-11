@@ -45,4 +45,17 @@ class Valet
         $this->files->put('/etc/sudoers.d/valet', 'Cmnd_Alias VALET = /usr/local/bin/valet *
 %admin ALL=(root) NOPASSWD: VALET'.PHP_EOL);
     }
+
+    /**
+     * Determine if this is the latest version of Valet.
+     *
+     * @param  string  $currentVersion
+     * @return bool
+     */
+    public function onLatestVersion($currentVersion)
+    {
+        $response = \Httpful\Request::get('https://api.github.com/repos/laravel/valet/releases/latest')->send();
+
+        return version_compare($currentVersion, trim($response->body->tag_name, 'v'), '>=');
+    }
 }

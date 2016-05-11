@@ -220,9 +220,7 @@ $app->command('uninstall', function () {
  * Determine if this is the latest release of Valet.
  */
 $app->command('on-latest-version', function () use ($version) {
-    $response = Httpful\Request::get('https://api.github.com/repos/laravel/valet/releases/latest')->send();
-
-    if (version_compare($version, trim($response->body->tag_name, 'v'), '>=')) {
+    if (Valet::onLatestVersion($version)) {
         output('YES');
     } else {
         output('NO');
