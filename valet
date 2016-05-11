@@ -4,7 +4,7 @@ SOURCE="${BASH_SOURCE[0]}"
 
 if [[ -L $SOURCE ]]
 then
-    DIR=$(php -r "echo dirname(readlink('${BASH_SOURCE[0]}'));")
+    DIR=$(php -r "echo dirname(readlink('$SOURCE'));")
 else
     DIR="$( cd "$( dirname "$SOURCE" )" && pwd )"
 fi
