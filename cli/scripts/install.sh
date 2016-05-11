@@ -7,6 +7,7 @@ then
 fi
 
 brew install wget > /dev/null 2>&1
+brew install jq > /dev/null 2>&1
 
 # Install PHP 7.0
 brew tap homebrew/dupes
@@ -36,7 +37,9 @@ rm -rf $HOME/.valet-cli
 mkdir $HOME/.valet-cli
 
 echo "Downloading Valet..."
-wget https://github.com/laravel/valet/archive/master.tar.gz -O $HOME/.valet-cli/valet.tar.gz > /dev/null 2>&1
+TARBALL=$(curl -s https://api.github.com/repos/laravel/valet/releases/latest | jq ".tarball_url")
+TARBALL=$(echo $TARBALL | sed -e 's/^"//'  -e 's/"$//')
+wget --max-redirect=10 $TARBALL -O $HOME/.valet-cli/valet.tar.gz > /dev/null 2>&1
 tar xvzf $HOME/.valet-cli/valet.tar.gz -C $HOME/.valet-cli --strip 1 > /dev/null 2>&1
 
 # Install Valet to /usr/local/bin
@@ -49,4 +52,4 @@ echo "Installing Valet's Composer dependencies..."
 /usr/local/bin/php $COMPOSER_PATH install -d $HOME/.valet-cli > /dev/null 2>&1
 
 # Run the Valet server installation process
-$HOME/.valet-cli/valet install
+/usr/local/bin/valet install
