@@ -7,7 +7,7 @@ SOURCE="${BASH_SOURCE[0]}"
 # do it in pure Bash. So, we'll call into PHP CLI here to resolve.
 if [[ -L $SOURCE ]]
 then
-    DIR=$(php -r "echo dirname(readlink('$SOURCE'));")
+    DIR=$(php -r "echo dirname(realpath('$SOURCE'));")
 else
     DIR="$( cd "$( dirname "$SOURCE" )" && pwd )"
 fi
