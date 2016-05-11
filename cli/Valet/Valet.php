@@ -34,7 +34,7 @@ class Valet
     }
 
     /**
-     * Create the "sudoers.d" entries for running Valet.
+     * Create the "sudoers.d" entry for running Valet.
      *
      * @return void
      */

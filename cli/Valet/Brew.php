@@ -156,7 +156,7 @@ class Brew
     }
 
     /**
-     * Create the "sudoers.d" entries for running Brew.
+     * Create the "sudoers.d" entry for running Brew.
      *
      * @return void
      */
