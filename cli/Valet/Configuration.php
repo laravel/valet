@@ -104,7 +104,7 @@ class Configuration
      */
     function prependPath($path)
     {
-        return $this->addPath($path, true);
+        $this->addPath($path, true);
     }
 
     /**
