@@ -167,7 +167,7 @@ class Filesystem
      */
     function appendAsUser($path, $contents)
     {
-        return $this->append($path, $contents, user());
+        $this->append($path, $contents, user());
     }
 
     /**
