@@ -12,7 +12,7 @@ class JoomlaValetDriver extends BasicValetDriver
      */
     public function serves($sitePath, $siteName, $uri)
     {
-        return is_dir($sitePath.'/libraries/joomla') && is_dir($sitePath.'/build/phpcs/Joomla');
+        return is_dir($sitePath.'/libraries/joomla');
     }
 
     /**
