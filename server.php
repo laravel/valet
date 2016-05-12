@@ -12,7 +12,7 @@ define('VALET_HOME_PATH', posix_getpwuid(fileowner(__FILE__))['dir'].'/.valet');
 function show_valet_404()
 {
     http_response_code(404);
-    require __DIR__.'/404.html';
+    require __DIR__.'/cli/templates/404.html';
     exit;
 }
 
@@ -61,7 +61,7 @@ if (is_null($valetSitePath)) {
  */
 $valetDriver = null;
 
-require __DIR__.'/drivers/require.php';
+require __DIR__.'/cli/drivers/require.php';
 
 $valetDriver = ValetDriver::assign($valetSitePath, $siteName, $uri);
 

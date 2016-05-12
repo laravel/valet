@@ -31,7 +31,7 @@ class SiteTest extends PHPUnit_Framework_TestCase
         $files->shouldReceive('ensureDirExists')->once()->with(VALET_HOME_PATH.'/Sites', user());
         $config = Mockery::mock(Configuration::class);
         $config->shouldReceive('prependPath')->once()->with(VALET_HOME_PATH.'/Sites');
-        $files->shouldReceive('symlink')->once()->with('target', VALET_HOME_PATH.'/Sites/link');
+        $files->shouldReceive('symlinkAsUser')->once()->with('target', VALET_HOME_PATH.'/Sites/link');
 
         swap(Filesystem::class, $files);
         swap(Configuration::class, $config);
