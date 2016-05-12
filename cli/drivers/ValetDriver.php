@@ -63,6 +63,7 @@ abstract class ValetDriver
         $drivers[] = 'BasicValetDriver';
 
         foreach ($drivers as $driver) {
+            /** @var ValetDriver $driver */
             $driver = new $driver;
 
             if ($driver->serves($sitePath, $siteName, $driver->mutateUri($uri))) {
