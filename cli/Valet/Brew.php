@@ -155,7 +155,7 @@ class Brew
      */
     function restartLinkedPhp()
     {
-        return $this->restartService($this->linkedPhp());
+        $this->restartService($this->linkedPhp());
     }
 
     /**
