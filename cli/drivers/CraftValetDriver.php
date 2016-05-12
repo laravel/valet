@@ -46,6 +46,6 @@ class CraftValetDriver extends ValetDriver
 
         $_SERVER['SCRIPT_NAME'] = '/index.php';
 
-        return $sitePath.'/craft/app/index.php';
+        return $sitePath.'/public/index.php';
     }
 }
