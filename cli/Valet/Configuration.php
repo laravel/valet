@@ -9,8 +9,7 @@ class Configuration
     /**
      * Create a new Valet configuration class instance.
      *
-     * @param  Filesystem  $filesystem
-     * @return void
+     * @param Filesystem $filesystem
      */
     function __construct(Filesystem $files)
     {
