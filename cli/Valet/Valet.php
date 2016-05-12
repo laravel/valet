@@ -13,7 +13,6 @@ class Valet
      *
      * @param  CommandLine  $cli
      * @param  Filesystem  $files
-     * @return void
      */
     function __construct(CommandLine $cli, Filesystem $files)
     {
