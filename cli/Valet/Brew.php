@@ -7,8 +7,7 @@ use DomainException;
 
 class Brew
 {
-    var $cli;
-    var $files;
+    var $cli, $files;
 
     /**
      * Create a new Brew instance.
