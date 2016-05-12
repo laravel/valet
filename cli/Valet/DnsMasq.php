@@ -128,7 +128,7 @@ class DnsMasq
      */
     function updateDomain($oldDomain, $newDomain)
     {
-        $this->cli->quietly('rm '.$this->resolverPath.'/'.$oldDomain);
+        $this->files->unlink($this->resolverPath.'/'.$oldDomain);
 
         $this->install($newDomain);
     }

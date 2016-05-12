@@ -223,7 +223,9 @@ class Filesystem
      */
     function unlink($path)
     {
-        @unlink($path);
+        if ($this->exists($path)) {
+            @unlink($path);
+        }
     }
 
     /**

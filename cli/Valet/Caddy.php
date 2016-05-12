@@ -88,9 +88,9 @@ class Caddy
      */
     function restart()
     {
-        $this->cli->quietly('launchctl unload '.$this->daemonPath);
+        $this->cli->quietly('sudo launchctl unload '.$this->daemonPath);
 
-        $this->cli->quietly('launchctl load '.$this->daemonPath);
+        $this->cli->quietly('sudo launchctl load '.$this->daemonPath);
     }
 
     /**
@@ -100,7 +100,7 @@ class Caddy
      */
     function stop()
     {
-        $this->cli->quietly('launchctl unload '.$this->daemonPath);
+        $this->cli->quietly('sudo launchctl unload '.$this->daemonPath);
     }
 
     /**
