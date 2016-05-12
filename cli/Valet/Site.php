@@ -14,7 +14,6 @@ class Site
      * @param  Configuration  $config
      * @param  CommandLine  $cli
      * @param  Filesystem  $files
-     * @return void
      */
     function __construct(Configuration $config, CommandLine $cli, Filesystem $files)
     {
