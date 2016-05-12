@@ -77,7 +77,7 @@ class CommandLine
         $process = new Process($command);
 
         $processOutput = '';
-        $process->run(function ($type, $line) use (&$processOutput) {
+        $process->setTimeout(null)->run(function ($type, $line) use (&$processOutput) {
             $processOutput .= $line;
         });
 
