@@ -123,7 +123,7 @@ $app->command('which', function () {
     if ($driver) {
         info('This site is served by ['.get_class($driver).'].');
     } else {
-        output('<fg=red>Valet could not determine which driver to use for this site.</>');
+        warning('Valet could not determine which driver to use for this site.');
     }
 })->descriptions('Determine which Valet driver serves the current workign directory');
 
@@ -140,7 +140,7 @@ $app->command('logs', function () {
     if (count($files) > 0) {
         passthru('tail -f '.implode(' ', $files));
     } else {
-        output('<fg=red>No log files were found.</>');
+        warning('No log files were found.');
     }
 })->descriptions('Stream all of the logs for all Laravel sites registered with Valet');
 
