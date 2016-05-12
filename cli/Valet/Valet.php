@@ -60,7 +60,11 @@ class Valet
         return collect($this->files->scandir(VALET_HOME_PATH.'/Extensions'))
                     ->reject(function ($file) {
                         return is_dir($file);
-                    })->values()->all();
+                    })
+                    ->map(function ($file) {
+                        return VALET_HOME_PATH.'/Extensions/'.$file;
+                    })
+                    ->values()->all();
     }
 
     /**
