@@ -2,8 +2,8 @@
 
 namespace Valet;
 
-use DomainException;
 use Exception;
+use DomainException;
 use Symfony\Component\Process\Process;
 
 class PhpFpm
