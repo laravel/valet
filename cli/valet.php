@@ -50,24 +50,21 @@ $app->command('install', function () {
 })->descriptions('Install the Valet services');
 
 /**
- * Change the domain currently being used by Valet.
+ * Get or set the domain currently being used by Valet.
  */
-$app->command('domain domain', function ($domain) {
-    DnsMasq::updateDomain(
-        Configuration::read()['domain'], $domain = trim($domain, '.')
-    );
+$app->command('domain [domain]', function ($domain = null) {
+    if ($domain === null) {
+        info(Configuration::read()['domain']);
+    } else {
+        DnsMasq::updateDomain(
+            Configuration::read()['domain'], $domain = trim($domain, '.')
+        );
 
-    Configuration::updateKey('domain', $domain);
+        Configuration::updateKey('domain', $domain);
 
-    info('Your Valet domain has been updated to ['.$domain.'].');
-})->descriptions('Set the domain used for Valet sites');
-
-/**
- * Get the domain currently being used by Valet.
- */
-$app->command('current-domain', function () {
-    info(Configuration::read()['domain']);
-})->descriptions('Get the current Valet domain');
+        info('Your Valet domain has been updated to ['.$domain.'].');
+    }
+})->descriptions('Get or set the domain used for Valet sites');
 
 /**
  * Add the current working directory to the paths configuration.
