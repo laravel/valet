@@ -12,12 +12,10 @@ class BedrockValetDriver extends BasicValetDriver
      */
     public function serves($sitePath, $siteName, $uri)
     {
-        return file_exists($sitePath.'/web/app/mu-plugins/bedrock-autoloader.php')
-            || (
-                is_dir($sitePath.'/web/app/')
-                && file_exists($sitePath.'/web/wp-config.php')
-                && file_exists($sitePath.'/config/application.php')
-            );
+        return file_exists($sitePath.'/web/app/mu-plugins/bedrock-autoloader.php') ||
+              (is_dir($sitePath.'/web/app/') &&
+               file_exists($sitePath.'/web/wp-config.php') &&
+               file_exists($sitePath.'/config/application.php'));
     }
 
     /**
@@ -32,7 +30,7 @@ class BedrockValetDriver extends BasicValetDriver
     {
         $staticFilePath = $sitePath.'/web'.$uri;
 
-        if (file_exists($staticFilePath) && ! is_dir($staticFilePath)) {
+        if ($this->isActualFile($staticFilePath)) {
             return $staticFilePath;
         }
 
@@ -51,10 +49,10 @@ class BedrockValetDriver extends BasicValetDriver
     {
         $_SERVER['PHP_SELF'] = $uri;
 
-        if (0 === strpos($uri, '/wp/')) {
+        if (strpos($uri, '/wp/') === 0) {
             return is_dir($sitePath.'/web'.$uri)
-                ? $sitePath.'/web'.$uri.'/index.php'
-                : $sitePath.'/web'.$uri;
+                            ? $sitePath.'/web'.$uri.'/index.php'
+                            : $sitePath.'/web'.$uri;
         }
 
         return $sitePath.'/web/index.php';
