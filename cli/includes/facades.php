@@ -1,7 +1,5 @@
 <?php
 
-namespace Valet\Facades;
-
 class Facade
 {
     /**

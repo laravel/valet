@@ -47,12 +47,29 @@ class Valet
     }
 
     /**
+     * Get the paths to all of the Valet extensions.
+     *
+     * @return array
+     */
+    function extensions()
+    {
+        if (! $this->files->isDir(VALET_HOME_PATH.'/Extensions')) {
+            return [];
+        }
+
+        return collect($this->files->scandir(VALET_HOME_PATH.'/Extensions'))
+                    ->reject(function ($file) {
+                        return is_dir($file);
+                    })->values()->all();
+    }
+
+    /**
      * Determine if this is the latest version of Valet.
      *
      * @param  string  $currentVersion
      * @return bool
      */
-    public function onLatestVersion($currentVersion)
+    function onLatestVersion($currentVersion)
     {
         $response = \Httpful\Request::get('https://api.github.com/repos/laravel/valet/releases/latest')->send();
 

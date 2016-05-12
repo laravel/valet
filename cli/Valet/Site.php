@@ -38,7 +38,7 @@ class Site
 
         $this->config->prependPath($linkPath);
 
-        $this->cli->runAsUser('ln -s '.$target.' '.$linkPath.'/'.$link);
+        $this->files->symlinkAsUser($target, $linkPath.'/'.$link);
 
         return $linkPath.'/'.$link;
     }

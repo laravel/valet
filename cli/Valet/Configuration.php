@@ -26,6 +26,7 @@ class Configuration
     {
         $this->createConfigurationDirectory();
         $this->createDriversDirectory();
+        $this->createExtensionsDirectory();
         $this->writeBaseConfiguration();
 
         $this->files->chown($this->path(), user());
@@ -38,9 +39,7 @@ class Configuration
      */
     function createConfigurationDirectory()
     {
-        if (! $this->files->isDir(VALET_HOME_PATH)) {
-            $this->files->mkdirAsUser(VALET_HOME_PATH);
-        }
+        $this->files->ensureDirExists(VALET_HOME_PATH, user());
     }
 
     /**
@@ -60,6 +59,16 @@ class Configuration
             $driversDirectory.'/SampleValetDriver.php',
             $this->files->get(__DIR__.'/../stubs/SampleValetDriver.php')
         );
+    }
+
+    /**
+     * Create the directory for the Valet extensions.
+     *
+     * @return void
+     */
+    function createExtensionsDirectory()
+    {
+        $this->files->ensureDirExists(VALET_HOME_PATH.'/Extensions', user());
     }
 
     /**

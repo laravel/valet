@@ -2,6 +2,8 @@
 
 namespace Valet;
 
+use CommandLine as CommandLineFacade;
+
 class Filesystem
 {
     /**
@@ -199,20 +201,33 @@ class Filesystem
      *
      * @param  string  $target
      * @param  string  $link
-     * @param  string|null  $owner
      * @return void
      */
-    function symlink($target, $link, $owner = null)
+    function symlink($target, $link)
     {
         if ($this->exists($link)) {
             $this->unlink($link);
         }
 
         symlink($target, $link);
+    }
 
-        if ($owner) {
-            $this->chown($link, $owner);
+    /**
+     * Create a symlink to the given target for the non-root user.
+     *
+     * This uses the command line as PHP can't change symlink permissions.
+     *
+     * @param  string  $target
+     * @param  string  $link
+     * @return void
+     */
+    function symlinkAsUser($target, $link)
+    {
+        if ($this->exists($link)) {
+            $this->unlink($link);
         }
+
+        CommandLineFacade::runAsUser('ln -s '.$target.' '.$link);
     }
 
     /**
@@ -223,7 +238,7 @@ class Filesystem
      */
     function unlink($path)
     {
-        if ($this->exists($path)) {
+        if (file_exists($path) || is_link($path)) {
             @unlink($path);
         }
     }

@@ -11,16 +11,6 @@ if (file_exists(__DIR__.'/../vendor/autoload.php')) {
 }
 
 use Silly\Application;
-use Valet\Facades\Brew;
-use Valet\Facades\Site;
-use Valet\Facades\Valet;
-use Valet\Facades\Caddy;
-use Valet\Facades\Ngrok;
-use Valet\Facades\PhpFpm;
-use Valet\Facades\DnsMasq;
-use Valet\Facades\Filesystem;
-use Valet\Facades\CommandLine;
-use Valet\Facades\Configuration;
 use Illuminate\Container\Container;
 
 /**
@@ -226,6 +216,13 @@ $app->command('on-latest-version', function () use ($version) {
         output('NO');
     }
 })->descriptions('Determine if this is the latest version of Valet');
+
+/**
+ * Load all of the Valet extensions.
+ */
+foreach (Valet::extensions() as $extension) {
+    include $extension;
+}
 
 /**
  * Run the application.
