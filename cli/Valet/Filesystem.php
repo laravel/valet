@@ -227,7 +227,7 @@ class Filesystem
             $this->unlink($link);
         }
 
-        CommandLineFacade::runAsUser('ln -s '.quote($target).' '.quote($link));
+        CommandLineFacade::runAsUser('ln -s '.escapeshellarg($target).' '.escapeshellarg($link));
     }
 
     /**
