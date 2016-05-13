@@ -28,7 +28,7 @@ class Site
      * @param  string  $path
      * @return string|null
      */
-    function hostForDirectory($path)
+    function host($path)
     {
         foreach ($this->files->scandir($this->sitesPath()) as $link) {
             if ($resolved = realpath($this->sitesPath().'/'.$link) == $path) {

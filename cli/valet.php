@@ -158,7 +158,7 @@ $app->command('paths', function () {
  * Open the current directory in the browser.
  */
  $app->command('open', function () {
-     $url = "http://".Site::hostForDirectory(getcwd()).'.'.Configuration::read()['domain'].'/';
+     $url = "http://".Site::host(getcwd()).'.'.Configuration::read()['domain'].'/';
 
      passthru("open ".escapeshellarg($url));
  });
