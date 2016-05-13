@@ -34,7 +34,7 @@ class Caddy
     }
 
     /**
-     * Make the certificate we're going to use when serving over HTTPS
+     * Make the certificate we're going to use when serving over HTTPS.
      * 
      * Place in the ~/.valet/certs directory.
      *
