@@ -54,16 +54,16 @@ $app->command('install', function () {
  */
 $app->command('domain [domain]', function ($domain = null) {
     if ($domain === null) {
-        info(Configuration::read()['domain']);
-    } else {
-        DnsMasq::updateDomain(
-            Configuration::read()['domain'], $domain = trim($domain, '.')
-        );
-
-        Configuration::updateKey('domain', $domain);
-
-        info('Your Valet domain has been updated to ['.$domain.'].');
+        return info(Configuration::read()['domain']);
     }
+
+    DnsMasq::updateDomain(
+        Configuration::read()['domain'], $domain = trim($domain, '.')
+    );
+
+    Configuration::updateKey('domain', $domain);
+
+    info('Your Valet domain has been updated to ['.$domain.'].');
 })->descriptions('Get or set the domain used for Valet sites');
 
 /**
