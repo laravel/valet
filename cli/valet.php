@@ -155,6 +155,15 @@ $app->command('paths', function () {
 })->descriptions('Get all of the paths registered with Valet');
 
 /**
+ * Open the current directory in the browser.
+ */
+ $app->command('open', function () {
+     $url = "http://".Site::hostForDirectory(getcwd()).'.'.Configuration::read()['domain'].'/';
+
+     passthru("open ".escapeshellarg($url));
+ });
+
+/**
  * Echo the currently tunneled URL.
  */
 $app->command('fetch-share-url', function () {
@@ -220,17 +229,6 @@ $app->command('on-latest-version', function () use ($version) {
 foreach (Valet::extensions() as $extension) {
     include $extension;
 }
-
-/**
- * Open the current url.
- */
- $app->command('open', function () {
-     $url = "http://".basename(getcwd()).'.'.Configuration::read()['domain'].'/';
-
-     passthru("open ".escapeshellarg($url));
-
-     info('The url ['.$url.'] has been openend.');
- });
 
 /**
  * Run the application.

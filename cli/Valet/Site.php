@@ -23,6 +23,23 @@ class Site
     }
 
     /**
+     * Get the real hostname for the given path, checking links.
+     *
+     * @param  string  $path
+     * @return string|null
+     */
+    function hostForDirectory($path)
+    {
+        foreach ($this->files->scandir($this->sitesPath()) as $link) {
+            if ($resolved = realpath($this->sitesPath().'/'.$link) == $path) {
+                return $link;
+            }
+        }
+
+        return basename($path);
+    }
+
+    /**
      * Link the current working directory with the given name.
      *
      * @param  string  $target
