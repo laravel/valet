@@ -161,7 +161,7 @@ $app->command('paths', function () {
      $url = "http://".Site::host(getcwd()).'.'.Configuration::read()['domain'].'/';
 
      passthru("open ".escapeshellarg($url));
- });
+ })->descriptions('Open the site for the current directory in your browser');
 
 /**
  * Echo the currently tunneled URL.
