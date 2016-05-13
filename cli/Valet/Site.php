@@ -85,6 +85,153 @@ class Site
     }
 
     /**
+     * Resecure all currently secured sites with a fresh domain.
+     *
+     * @param  string  $oldDomain
+     * @param  string  $domain
+     * @return void
+     */
+    function resecureForNewDomain($oldDomain, $domain)
+    {
+        $secured = $this->secured();
+
+        foreach ($secured as $url) {
+            $this->unsecure($url);
+        }
+
+        foreach ($secured as $url) {
+            $this->secure(str_replace('.'.$oldDomain, '.'.$domain, $url));
+        }
+    }
+
+    /**
+     * Get all of the URLs that are currently secured.
+     *
+     * @return array
+     */
+    function secured()
+    {
+        return collect($this->files->scandir($this->certificatesPath()))
+                    ->map(function ($file) {
+                        return str_replace(['.key', '.csr', '.crt'], '', $file);
+                    })->unique()->values()->all();
+    }
+
+    /**
+     * Secure the given host with TLS.
+     *
+     * @param  string  $url
+     * @return void
+     */
+    function secure($url)
+    {
+        $this->unsecure($url);
+
+        $this->files->ensureDirExists($this->certificatesPath(), user());
+
+        $this->createCertificate($url);
+
+        $this->files->putAsUser(
+            VALET_HOME_PATH.'/Caddy/'.$url, $this->buildSecureCaddyfile($url)
+        );
+    }
+
+    /**
+     * Create and trust a certificate for the given URL.
+     *
+     * @param  string  $url
+     * @return void
+     */
+    function createCertificate($url)
+    {
+        $keyPath = $this->certificatesPath().'/'.$url.'.key';
+        $csrPath = $this->certificatesPath().'/'.$url.'.csr';
+        $crtPath = $this->certificatesPath().'/'.$url.'.crt';
+
+        $this->createPrivateKey($keyPath);
+        $this->createSigningRequest($url, $keyPath, $csrPath);
+
+        $this->cli->runAsUser(sprintf(
+            'openssl x509 -req -days 365 -in %s -signkey %s -out %s', $csrPath, $keyPath, $crtPath
+        ));
+
+        $this->trustCertificate($crtPath);
+    }
+
+    /**
+     * Create the private key for the TLS certificate.
+     *
+     * @param  string  $keyPath
+     * @return void
+     */
+    function createPrivateKey($keyPath)
+    {
+        $this->cli->runAsUser(sprintf('openssl genrsa -out %s 2048', $keyPath));
+    }
+
+    /**
+     * Create the signing request for the TLS certificate.
+     *
+     * @param  string  $keyPath
+     * @return void
+     */
+    function createSigningRequest($url, $keyPath, $csrPath)
+    {
+        $this->cli->runAsUser(sprintf(
+            'openssl req -new -subj "/C=/ST=/O=/localityName=/commonName=%s/organizationalUnitName=/emailAddress=/" -key %s -out %s -passin pass:',
+            $url, $keyPath, $csrPath
+        ));
+    }
+
+    /**
+     * Trust the given certificate file in the Mac Keychain.
+     *
+     * @param  string  $crtPath
+     * @return void
+     */
+    function trustCertificate($crtPath)
+    {
+        $this->cli->run(sprintf(
+            'sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain %s', $crtPath
+        ));
+    }
+
+    /**
+     * Build the TLS secured Caddyfile for the given URL.
+     *
+     * @param  string  $url
+     * @return string
+     */
+    function buildSecureCaddyfile($url)
+    {
+        $path = $this->certificatesPath();
+
+        return str_replace(
+            ['VALET_SITE', 'VALET_CERT', 'VALET_KEY'], [$url, $path.'/'.$url.'.crt', $path.'/'.$url.'.key'],
+            $this->files->get(__DIR__.'/../stubs/SecureCaddyfile')
+        );
+    }
+
+    /**
+     * Unsecure the given URL so that it will use HTTP again.
+     *
+     * @param  string  $url
+     * @return void
+     */
+    function unsecure($url)
+    {
+        if ($this->files->exists($this->certificatesPath().'/'.$url.'.crt')) {
+            $this->files->unlink(VALET_HOME_PATH.'/Caddy/'.$url);
+
+            $this->files->unlink($this->certificatesPath().'/'.$url.'.key');
+            $this->files->unlink($this->certificatesPath().'/'.$url.'.csr');
+            $this->files->unlink($this->certificatesPath().'/'.$url.'.crt');
+
+            $this->cli->run(sprintf('sudo security delete-certificate -c "%s" -t', $url));
+        }
+    }
+
+    /**
      * Get all of the log files for all sites.
      *
      * @param  array  $paths
@@ -115,5 +262,15 @@ class Site
     function sitesPath()
     {
         return VALET_HOME_PATH.'/Sites';
+    }
+
+    /**
+     * Get the path to the Valet TLS certificates.
+     *
+     * @return string
+     */
+    function certificatesPath()
+    {
+        return VALET_HOME_PATH.'/Certificates';
     }
 }

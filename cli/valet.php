@@ -58,10 +58,14 @@ $app->command('domain [domain]', function ($domain = null) {
     }
 
     DnsMasq::updateDomain(
-        Configuration::read()['domain'], $domain = trim($domain, '.')
+        $oldDomain = Configuration::read()['domain'], $domain = trim($domain, '.')
     );
 
     Configuration::updateKey('domain', $domain);
+
+    Site::resecureForNewDomain($oldDomain, $domain);
+    PhpFpm::restart();
+    Caddy::restart();
 
     info('Your Valet domain has been updated to ['.$domain.'].');
 })->descriptions('Get or set the domain used for Valet sites');
@@ -108,6 +112,33 @@ $app->command('unlink [name]', function ($name) {
 
     info('The ['.$name.'] symbolic link has been removed.');
 })->descriptions('Remove the specified Valet link');
+
+/**
+ * Secure the given domain with a trusted TLS certificate.
+ */
+$app->command('secure [domain]', function ($domain = null) {
+    $url = ($domain ?: Site::host(getcwd())).'.'.Configuration::read()['domain'];
+
+    Site::secure($url);
+
+    PhpFpm::restart();
+
+    Caddy::restart();
+
+    info('The ['.$url.'] site has been secured with a fresh TLS certificate.');
+});
+
+$app->command('unsecure [domain]', function ($domain = null) {
+    $url = ($domain ?: Site::host(getcwd())).'.'.Configuration::read()['domain'];
+
+    Site::unsecure($url);
+
+    PhpFpm::restart();
+
+    Caddy::restart();
+
+    info('The ['.$url.'] site will now serve traffic over HTTP.');
+});
 
 /**
  * Determine which Valet driver the current directory is using.
