@@ -27,9 +27,23 @@ class Caddy
      */
     function install()
     {
+        $this->installSSLCertificate();
         $this->installCaddyFile();
         $this->installCaddyDirectory();
         $this->installCaddyDaemon();
+    }
+
+    /**
+     * Make the certificate we're going to use when serving over HTTPS
+     * 
+     * Place in the ~/.valet/certs directory.
+     *
+     * @return void
+     */
+
+    function installSSLCertificate()
+    {
+        $this->cli->runAsUser('sh '.$this->files->realpath(__DIR__.'/..').'/scripts/make-certificate.sh dev');
     }
 
     /**

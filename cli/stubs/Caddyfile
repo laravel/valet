@@ -9,3 +9,14 @@ import VALET_HOME_PATH/Caddy/*
         to /server.php?{query}
     }
 }
+
+:443 {
+    fastcgi / 127.0.0.1:9000 php {
+        index server.php
+    }
+
+    rewrite {
+        to /server.php?{query}
+    }
+    tls VALET_HOME_PATH/Certificates/dev.pem VALET_HOME_PATH/Certificates/dev.key
+}
