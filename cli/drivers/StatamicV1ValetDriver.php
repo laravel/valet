@@ -8,7 +8,7 @@ class StatamicV1ValetDriver extends ValetDriver
      * @param  string  $sitePath
      * @param  string  $siteName
      * @param  string  $uri
-     * @return void
+     * @return bool
      */
     public function serves($sitePath, $siteName, $uri)
     {

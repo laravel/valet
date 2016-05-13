@@ -14,7 +14,6 @@ class Site
      * @param  Configuration  $config
      * @param  CommandLine  $cli
      * @param  Filesystem  $files
-     * @return void
      */
     function __construct(Configuration $config, CommandLine $cli, Filesystem $files)
     {
@@ -27,7 +26,7 @@ class Site
      * Link the current working directory with the given name.
      *
      * @param  string  $target
-     * @param  string  $name
+     * @param  string  $link
      * @return string
      */
     function link($target, $link)

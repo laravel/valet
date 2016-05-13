@@ -9,8 +9,7 @@ class Configuration
     /**
      * Create a new Valet configuration class instance.
      *
-     * @param  Filesystem  $filesystem
-     * @return void
+     * @param Filesystem $filesystem
      */
     function __construct(Filesystem $files)
     {
@@ -105,7 +104,7 @@ class Configuration
      */
     function prependPath($path)
     {
-        return $this->addPath($path, true);
+        $this->addPath($path, true);
     }
 
     /**
