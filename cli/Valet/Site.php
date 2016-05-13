@@ -79,9 +79,9 @@ class Site
      */
     function pruneLinks()
     {
-        if ($this->files->isDir($sitesPath = $this->sitesPath())) {
-            $this->files->removeBrokenLinksAt($sitesPath);
-        }
+        $this->files->ensureDirExists($this->sitesPath(), user());
+
+        $this->files->removeBrokenLinksAt($this->sitesPath());
     }
 
     /**
