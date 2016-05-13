@@ -25,6 +25,7 @@ class Configuration
     {
         $this->createConfigurationDirectory();
         $this->createDriversDirectory();
+        $this->createSitesDirectory();
         $this->createExtensionsDirectory();
         $this->writeBaseConfiguration();
 
@@ -58,6 +59,16 @@ class Configuration
             $driversDirectory.'/SampleValetDriver.php',
             $this->files->get(__DIR__.'/../stubs/SampleValetDriver.php')
         );
+    }
+
+    /**
+     * Create the Valet sites directory.
+     *
+     * @return void
+     */
+    function createSitesDirectory()
+    {
+        $this->files->ensureDirExists(VALET_HOME_PATH.'/Sites', user());
     }
 
     /**
