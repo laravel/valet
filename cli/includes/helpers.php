@@ -133,3 +133,15 @@ function user()
 
     return $_SERVER['SUDO_USER'];
 }
+
+/**
+ * Quote the given string.
+ *
+ * @param  string  $string
+ * @param  string  $quote_character
+ * @return string
+ */
+function quote( $string, $quote_character = '"' )
+{
+    return $quote_character . $string . $quote_character;
+}
