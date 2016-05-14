@@ -30,12 +30,12 @@ class UbuntuTest extends PHPUnit_Framework_TestCase
     public function test_installed_returns_true_when_given_formula_is_installed()
     {
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('run')->once()->with('dpkg --get-selections | grep php7.0')->andReturn('php7.0');
+        $cli->shouldReceive('run')->once()->with('dpkg -l | grep php7.0 | sed \'s_  _\t_g\' | cut -f 2')->andReturn('php7.0');
         swap(CommandLine::class, $cli);
         $this->assertTrue(resolve(Ubuntu::class)->installed('php7.0'));
 
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('run')->once()->with('dpkg --get-selections | grep php7.0')->andReturn('php7.0-mcrypt
+        $cli->shouldReceive('run')->once()->with('dpkg -l | grep php7.0 | sed \'s_  _\t_g\' | cut -f 2')->andReturn('php7.0-mcrypt
 php7.0');
         swap(CommandLine::class, $cli);
         $this->assertTrue(resolve(Ubuntu::class)->installed('php7.0'));
@@ -45,17 +45,17 @@ php7.0');
     public function test_installed_returns_false_when_given_formula_is_not_installed()
     {
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('run')->once()->with('dpkg --get-selections | grep php7.0')->andReturn('');
+        $cli->shouldReceive('run')->once()->with('dpkg -l | grep php7.0 | sed \'s_  _\t_g\' | cut -f 2')->andReturn('');
         swap(CommandLine::class, $cli);
         $this->assertFalse(resolve(Ubuntu::class)->installed('php7.0'));
 
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('run')->once()->with('dpkg --get-selections | grep php7.0')->andReturn('php7.0-mcrypt');
+        $cli->shouldReceive('run')->once()->with('dpkg -l | grep php7.0 | sed \'s_  _\t_g\' | cut -f 2')->andReturn('php7.0-mcrypt');
         swap(CommandLine::class, $cli);
         $this->assertFalse(resolve(Ubuntu::class)->installed('php7.0'));
 
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('run')->once()->with('dpkg --get-selections | grep php7.0')->andReturn('php7.0-mcrypt
+        $cli->shouldReceive('run')->once()->with('dpkg -l | grep php7.0 | sed \'s_  _\t_g\' | cut -f 2')->andReturn('php7.0-mcrypt
 php7.0-something-else
 php7');
         swap(CommandLine::class, $cli);

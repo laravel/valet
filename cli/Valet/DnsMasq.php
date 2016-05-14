@@ -35,7 +35,7 @@ class DnsMasq
      */
     function install($domain = 'dev')
     {
-        $this->ubuntu->ensureInstalled('dnsmasq[^-]');
+        $this->ubuntu->ensureInstalled('dnsmasq');
         $this->manageDnsmasqManually();
 
         // For DnsMasq, we create our own custom configuration file which will be imported

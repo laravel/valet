@@ -30,7 +30,7 @@ class Ubuntu
      */
     function installed($package)
     {
-        return in_array($package, explode(PHP_EOL, $this->cli->run('dpkg --get-selections | grep '.$package)));
+        return in_array($package, explode(PHP_EOL, $this->cli->run('dpkg -l | grep '.$package.' | sed \'s_  _\t_g\' | cut -f 2')));
     }
 
     /**

@@ -29,7 +29,7 @@ class DnsMasqTest extends PHPUnit_Framework_TestCase
     public function test_install_installs_and_places_configuration_files_in_proper_locations()
     {
         $ubuntu = Mockery::mock(Ubuntu::class);
-        $ubuntu->shouldReceive('ensureInstalled')->once()->with('dnsmasq[^-]');
+        $ubuntu->shouldReceive('ensureInstalled')->once()->with('dnsmasq');
         $ubuntu->shouldReceive('restartService')->once()->with('dnsmasq');
         swap(Ubuntu::class, $ubuntu);
 

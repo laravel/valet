@@ -295,7 +295,13 @@ class Filesystem
      */
     function readLink($path)
     {
-        return readlink($path);
+        $link = readlink($path);
+
+        while ( is_link($link) ) {
+            $link = readlink($link);
+        }
+
+        return $link;
     }
 
     /**
