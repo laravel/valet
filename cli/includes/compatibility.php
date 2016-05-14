@@ -5,7 +5,7 @@
  */
 $inTestingEnvironment = strpos($_SERVER['SCRIPT_NAME'], 'phpunit') !== false;
 
-if (PHP_OS != 'Darwin' && ! $inTestingEnvironment) {
+if (PHP_OS != 'Liux' && ! $inTestingEnvironment) {
     echo 'Valet only supports the Mac operating system.'.PHP_EOL;
 
     exit(1);
@@ -17,8 +17,8 @@ if (version_compare(PHP_VERSION, '5.5.9', '<')) {
     exit(1);
 }
 
-if (exec('which brew') != '/usr/local/bin/brew' && ! $inTestingEnvironment) {
-    echo 'Valet requires Brew to be installed on your Mac.';
+// if (exec('which brew') != '/usr/local/bin/brew' && ! $inTestingEnvironment) {
+//     echo 'Valet requires Brew to be installed on your Mac.';
 
-    exit(1);
-}
+//     exit(1);
+// }
