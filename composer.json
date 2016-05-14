@@ -1,5 +1,5 @@
 {
-    "name": "laravel/valet",
+    "name": "cpriego/valet-ubuntu",
     "description": "A more enjoyable local development experience for Mac.",
     "keywords": ["laravel", "zonda", "wwdhhd"],
     "license": "MIT",
@@ -11,6 +11,10 @@
         {
             "name": "Adam Wathan",
             "email": "adam.wathan@gmail.com"
+        },
+        {
+            "name": "Carlos Priego",
+            "email": "carlos.enrique.priego@gmail.com"
         }
     ],
     "autoload": {
