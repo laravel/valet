@@ -45,7 +45,7 @@ class Caddy
     {
         $caddy_bin = $this->files->realpath(__DIR__.'/../../').'/bin/caddy';
 
-        $this->cli->run('setcap cap_net_bind_service=+ep '.$caddy_bin);
+        $this->cli->quietly('setcap cap_net_bind_service=+ep '.$caddy_bin);
     }
 
     /**
@@ -95,7 +95,7 @@ class Caddy
             $this->daemonPath, str_replace('VALET_HOME_PATH', VALET_HOME_PATH, $contents)
         );
 
-        $this->cli->run('systemctl --user daemon-reload');
+        $this->cli->quietly('systemctl --user daemon-reload');
         $this->cli->quietly('systemctl --user enable caddy@'.user());
     }
 

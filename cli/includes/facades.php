@@ -26,6 +26,7 @@ class Facade
 }
 
 class Brew extends Facade {}
+class Ubuntu extends Facade {}
 class Caddy extends Facade {}
 class CommandLine extends Facade {}
 class Configuration extends Facade {}

@@ -90,6 +90,13 @@ $app->command('forget', function () {
 })->descriptions('Remove the current working directory from Valet\'s list of paths');
 
 /**
+ * Remove the current working directory to the paths configuration.
+ */
+$app->command('status', function () {
+    Caddy::restart();
+})->descriptions('View Caddy\'s service status');
+
+/**
  * Register a symbolic link with Valet.
  */
 $app->command('link [name]', function ($name) {
@@ -192,7 +199,7 @@ $app->command('paths', function () {
  $app->command('open', function () {
      $url = "http://".Site::host(getcwd()).'.'.Configuration::read()['domain'].'/';
 
-     passthru("open ".escapeshellarg($url));
+     passthru("xdg-open ".escapeshellarg($url));
  })->descriptions('Open the site for the current directory in your browser');
 
 /**
