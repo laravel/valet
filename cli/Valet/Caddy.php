@@ -9,7 +9,7 @@ class Caddy
     var $daemonPath;
 
     /**
-     * Create a new Brew instance.
+     * Create a new Caddy instance.
      *
      * @param  CommandLine  $cli
      * @param  Filesystem  $files
@@ -43,7 +43,9 @@ class Caddy
      */
     function caddyAllowRootPorts()
     {
-        $this->cli->run('setcap cap_net_bind_service=+ep '.VALET_PATH.'/bin/caddy');
+        $caddy_bin = $this->files->realpath(__DIR__.'/../../').'/bin/caddy';
+
+        $this->cli->run('setcap cap_net_bind_service=+ep '.$caddy_bin);
     }
 
     /**
