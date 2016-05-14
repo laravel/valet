@@ -22,7 +22,7 @@ tar xvzf $HOME/.valet-cli/valet.tar.gz -C $HOME/.valet-cli --strip 1 > /dev/null
 
 # Install Valet's Composer dependencies
 echo "Installing Valet's Composer dependencies..."
-/usr/local/bin/php /usr/local/bin/composer install -d $HOME/.valet-cli > /dev/null 2>&1
+/usr/bin/php /usr/local/bin/composer install -d $HOME/.valet-cli > /dev/null 2>&1
 
 # Run the Valet installation process
 /usr/local/bin/valet install

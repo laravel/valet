@@ -6,7 +6,7 @@ class Caddy
 {
     var $cli;
     var $files;
-    var $daemonPath = '/Library/LaunchDaemons/com.laravel.valetServer.plist';
+    var $daemonPath;
 
     /**
      * Create a new Brew instance.
@@ -18,6 +18,7 @@ class Caddy
     {
         $this->cli = $cli;
         $this->files = $files;
+        $this->daemonPath = '/home/'.user().'/.config/systemd/user/caddy@.service';
     }
 
     /**
@@ -72,12 +73,15 @@ class Caddy
     {
         $contents = str_replace(
             'VALET_PATH', $this->files->realpath(__DIR__.'/../../'),
-            $this->files->get(__DIR__.'/../stubs/daemon.plist')
+            $this->files->get(__DIR__.'/../stubs/caddy.service')
         );
 
         $this->files->put(
             $this->daemonPath, str_replace('VALET_HOME_PATH', VALET_HOME_PATH, $contents)
         );
+
+        $this->cli->quietly('systemctl --user daemon-reload');
+        $this->cli->quietly('systemctl --user enable caddy@'.user());
     }
 
     /**
@@ -87,9 +91,8 @@ class Caddy
      */
     function restart()
     {
-        $this->cli->quietly('sudo launchctl unload '.$this->daemonPath);
-
-        $this->cli->quietly('sudo launchctl load '.$this->daemonPath);
+        // $this->cli->quietly('systemctl --user stop caddy@'.user());
+        $this->cli->quietly('systemctl --user restart caddy@'.user());
     }
 
     /**
@@ -99,7 +102,7 @@ class Caddy
      */
     function stop()
     {
-        $this->cli->quietly('sudo launchctl unload '.$this->daemonPath);
+        $this->cli->quietly('systemctl --user stop caddy@'.user());
     }
 
     /**
@@ -110,6 +113,8 @@ class Caddy
     function uninstall()
     {
         $this->stop();
+        $this->cli->quietly('systemctl --user disable caddy@'.user());
+        $this->cli->quietly('systemctl --user daemon-reload');
 
         $this->files->unlink($this->daemonPath);
     }

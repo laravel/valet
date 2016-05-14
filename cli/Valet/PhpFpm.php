@@ -8,24 +8,20 @@ use Symfony\Component\Process\Process;
 
 class PhpFpm
 {
-    public $brew, $cli, $files;
-
-    public $taps = [
-        'homebrew/dupes', 'homebrew/versions', 'homebrew/homebrew-php'
-    ];
+    public $ubuntu, $cli, $files;
 
     /**
      * Create a new PHP FPM class instance.
      *
-     * @param  Brew  $brew
+     * @param  Ubuntu  $ubuntu
      * @param  CommandLine  $cli
      * @param  Filesystem  $files
      * @return void
      */
-    public function __construct(Brew $brew, CommandLine $cli, Filesystem $files)
+    public function __construct(Ubuntu $ubuntu, CommandLine $cli, Filesystem $files)
     {
         $this->cli = $cli;
-        $this->brew = $brew;
+        $this->ubuntu = $ubuntu;
         $this->files = $files;
     }
 
@@ -36,13 +32,13 @@ class PhpFpm
      */
     public function install()
     {
-        if (! $this->brew->installed('php70') &&
-            ! $this->brew->installed('php56') &&
-            ! $this->brew->installed('php55')) {
-            $this->brew->ensureInstalled('php70', $this->taps);
+        if (! $this->ubuntu->installed('php7.0') &&
+            ! $this->ubuntu->installed('php5.6') &&
+            ! $this->ubuntu->installed('php5.5')) {
+            $this->ubuntu->ensureInstalled('php7.0');
         }
 
-        $this->files->ensureDirExists('/usr/local/var/log', user());
+        $this->files->ensureDirExists('/var/log', user());
 
         $this->updateConfiguration();
 
@@ -73,7 +69,7 @@ class PhpFpm
     {
         $this->stop();
 
-        $this->brew->restartLinkedPhp();
+        $this->ubuntu->restartLinkedPhp();
     }
 
     /**
@@ -83,7 +79,7 @@ class PhpFpm
      */
     public function stop()
     {
-        $this->brew->stopService('php55', 'php56', 'php70');
+        $this->ubuntu->stopService('php5.5', 'php5.6', 'php7.0');
     }
 
     /**
@@ -93,12 +89,12 @@ class PhpFpm
      */
     public function fpmConfigPath()
     {
-        if ($this->brew->linkedPhp() === 'php70') {
-            return '/usr/local/etc/php/7.0/php-fpm.d/www.conf';
-        } elseif ($this->brew->linkedPhp() === 'php56') {
-            return '/usr/local/etc/php/5.6/php-fpm.conf';
-        } elseif ($this->brew->linkedPhp() === 'php55') {
-            return '/usr/local/etc/php/5.5/php-fpm.conf';
+        if ($this->ubuntu->linkedPhp() === 'php7.0') {
+            return '/etc/php/7.0/fpm/php-fpm.conf';
+        } elseif ($this->ubuntu->linkedPhp() === 'php5.6') {
+            return '/etc/php/5.6/php-fpm.conf';
+        } elseif ($this->ubuntu->linkedPhp() === 'php5.5') {
+            return '/etc/php/5.5/php-fpm.conf';
         } else {
             throw new DomainException('Unable to find php-fpm config.');
         }

@@ -1,30 +1,24 @@
 #!/usr/bin/env bash
 
-# Install Homebrew for dependency management
-if [[ ! $(which brew -A) ]]
-then
-    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-fi
-
-brew install wget > /dev/null 2>&1
-brew install jq > /dev/null 2>&1
+apt-get install jq xsel > /dev/null 2>&1
 
 # Install PHP 7.0
-brew tap homebrew/dupes
-brew tap homebrew/versions
-brew tap homebrew/homebrew-php
+if [[ ! $(apt-cache search php7.0-cli) ]]
+then
+    add-apt-repository -y ppa:ondrej/php && apt-get update
+fi
 
-brew unlink php56 > /dev/null 2>&1
-brew install php70
+# Install PHP 7.0
+apt-get install -y php7.0-cli php7.0-common php7.0-curl php7.0-json php7.0-mbstring php7.0-mcrypt php7.0-mysql php7.0-opcache php7.0-readline php7.0-xml php7.0-zip
 
 # Install Composer to /usr/local/bin
-if [[ ! $(which composer -A) ]]
+if [[ ! $(which -a composer) ]]
 then
     echo "Installing Composer..."
-    /usr/local/bin/php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-    /usr/local/bin/php -r "if (hash_file('SHA384', 'composer-setup.php') === '92102166af5abdb03f49ce52a40591073a7b859a86e8ff13338cf7db58a19f7844fbc0bb79b2773bf30791e935dbd938') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;" > /dev/null 2>&1
-    /usr/local/bin/php composer-setup.php > /dev/null 2>&1
-    /usr/local/bin/php -r "unlink('composer-setup.php');"
+    /usr/bin/php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+    /usr/bin/php -r "if (hash_file('SHA384', 'composer-setup.php') === '92102166af5abdb03f49ce52a40591073a7b859a86e8ff13338cf7db58a19f7844fbc0bb79b2773bf30791e935dbd938') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;" > /dev/null 2>&1
+    /usr/bin/php composer-setup.php > /dev/null 2>&1
+    /usr/bin/php -r "unlink('composer-setup.php');"
 
     mv composer.phar /usr/local/bin/composer
     chmod +x /usr/local/bin/composer
@@ -49,7 +43,7 @@ chmod +x /usr/local/bin/valet
 
 # Install Valet's Composer dependencies
 echo "Installing Valet's Composer dependencies..."
-/usr/local/bin/php $COMPOSER_PATH install -d $HOME/.valet-cli > /dev/null 2>&1
+/usr/bin/php $COMPOSER_PATH install -d $HOME/.valet-cli > /dev/null 2>&1
 
 # Run the Valet server installation process
 /usr/local/bin/valet install

@@ -40,9 +40,9 @@ class Brew
      */
     function hasInstalledPhp()
     {
-        return $this->installed('php70')
-            || $this->installed('php56')
-            || $this->installed('php55');
+        return $this->installed('php7.0')
+            || $this->installed('php5.6')
+            || $this->installed('php5.5');
     }
 
     /**
@@ -131,18 +131,18 @@ class Brew
      */
     function linkedPhp()
     {
-        if (! $this->files->isLink('/usr/local/bin/php')) {
+        if (! $this->files->isLink('/usr/bin/php')) {
             throw new DomainException("Unable to determine linked PHP.");
         }
 
-        $resolvedPath = $this->files->readLink('/usr/local/bin/php');
+        $resolvedPath = $this->files->readLink('/usr/bin/php');
 
-        if (strpos($resolvedPath, 'php70') !== false) {
-            return 'php70';
-        } elseif (strpos($resolvedPath, 'php56') !== false) {
-            return 'php56';
-        } elseif (strpos($resolvedPath, 'php55') !== false) {
-            return 'php55';
+        if (strpos($resolvedPath, 'php7.0') !== false) {
+            return 'php7.0';
+        } elseif (strpos($resolvedPath, 'php5.6') !== false) {
+            return 'php5.6';
+        } elseif (strpos($resolvedPath, 'php5.5') !== false) {
+            return 'php5.5';
         } else {
             throw new DomainException("Unable to determine linked PHP.");
         }

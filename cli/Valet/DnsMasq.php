@@ -7,25 +7,25 @@ use Symfony\Component\Process\Process;
 
 class DnsMasq
 {
-    var $brew, $cli, $files;
+    var $ubuntu, $cli, $files;
 
-    var $resolverPath = '/etc/resolver';
-    var $configPath = '/usr/local/etc/dnsmasq.conf';
-    var $exampleConfigPath = '/usr/local/opt/dnsmasq/dnsmasq.conf.example';
+    var $configPath = '/etc/dnsmasq.conf';
+    var $exampleConfigPath;
 
     /**
      * Create a new DnsMasq instance.
      *
-     * @param  Brew  $brew
+     * @param  Ubuntu  $ubuntu
      * @param  CommandLine  $cli
      * @param  Filesystem  $files
      * @return void
      */
-    function __construct(Brew $brew, CommandLine $cli, Filesystem $files)
+    function __construct(Ubuntu $ubuntu, CommandLine $cli, Filesystem $files)
     {
         $this->cli = $cli;
-        $this->brew = $brew;
+        $this->ubuntu = $ubuntu;
         $this->files = $files;
+        $this->exampleConfigPath = $this->files->get(__DIR__.'/../stubs/Caddyfile');
     }
 
     /**
@@ -35,16 +35,17 @@ class DnsMasq
      */
     function install($domain = 'dev')
     {
-        $this->brew->ensureInstalled('dnsmasq');
+        $this->ubuntu->ensureInstalled('dnsmasq[^-]');
+        $this->manageDnsmasqManually();
 
         // For DnsMasq, we create our own custom configuration file which will be imported
         // in the main DnsMasq file. This allows Valet to make changes to our own files
         // without needing to modify the "primary" DnsMasq configuration files again.
         $this->createCustomConfigFile($domain);
 
-        $this->createDomainResolver($domain);
+        // $this->createDomainResolver($domain);
 
-        $this->brew->restartService('dnsmasq');
+        $this->ubuntu->restartService('dnsmasq');
     }
 
     /**
@@ -62,6 +63,24 @@ class DnsMasq
         $this->appendCustomConfigImport($customConfigPath);
 
         $this->files->putAsUser($customConfigPath, 'address=/.'.$domain.'/127.0.0.1'.PHP_EOL);
+    }
+
+    /**
+     * Configure standalone Dnsmasq
+     *
+     * @return void
+     */
+    function manageDnsmasqManually()
+    {
+        // Because I don't want you to lose your network connection everytime we update the domain
+        // lets remove the Dnsmasq control from NetworkManager.
+        if ( $this->cli->run('grep \'^dns=dnsmasq\' /etc/NetworkManager/NetworkManager.conf') ) {
+            $this->cli->run('sudo sed -i \'s/^dns=/#dns=/g\' /etc/NetworkManager/NetworkManager.conf');
+            $this->cli->run('sudo service network-manager stop');
+            $this->cli->run('sudo pkill dnsmasq');
+            $this->cli->run('sudo service network-manager start');
+            $this->cli->run('sudo service dnsmasq restart');
+        }
     }
 
     /**
@@ -107,19 +126,6 @@ class DnsMasq
     }
 
     /**
-     * Create the resolver file to point the "dev" domain to 127.0.0.1.
-     *
-     * @param  string  $domain
-     * @return void
-     */
-    function createDomainResolver($domain)
-    {
-        $this->files->ensureDirExists($this->resolverPath);
-
-        $this->files->put($this->resolverPath.'/'.$domain, 'nameserver 127.0.0.1'.PHP_EOL);
-    }
-
-    /**
      * Update the domain used by DnsMasq.
      *
      * @param  string  $oldDomain
@@ -128,7 +134,7 @@ class DnsMasq
      */
     function updateDomain($oldDomain, $newDomain)
     {
-        $this->files->unlink($this->resolverPath.'/'.$oldDomain);
+        // $this->files->unlink($this->resolverPath.'/'.$oldDomain);
 
         $this->install($newDomain);
     }

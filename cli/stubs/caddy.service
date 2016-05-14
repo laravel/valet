@@ -1,0 +1,15 @@
+[Unit]
+Description=Caddy webserver
+Documentation=https://caddyserver.com/
+After=network.target
+
+[Service]
+WorkingDirectory=VALET_HOME_PATH
+LimitNOFILE=4096
+PIDFile=VALET_HOME_PATH/caddy.pid
+ExecStart=VALET_HOME_PATH/bin/caddy --conf=Caddyfile -pidfile=VALET_HOME_PATH/caddy.pid
+Restart=on-failure
+StartLimitInterval=600
+
+[Install]
+WantedBy=default.target
