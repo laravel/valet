@@ -95,7 +95,7 @@ class Caddy
             $this->daemonPath, str_replace('VALET_HOME_PATH', VALET_HOME_PATH, $contents)
         );
 
-        $this->cli->quietly('systemctl --user daemon-reload');
+        $this->cli->run('systemctl --user daemon-reload');
         $this->cli->quietly('systemctl --user enable caddy@'.user());
     }
 
@@ -129,8 +129,19 @@ class Caddy
     {
         $this->stop();
         $this->cli->quietly('systemctl --user disable caddy@'.user());
-        $this->cli->quietly('systemctl --user daemon-reload');
-
+        
         $this->files->unlink($this->daemonPath);
+        
+        $this->cli->quietly('systemctl --user daemon-reload');
+    }
+
+    /**
+     * Show Caddy running status.
+     *
+     * @return void
+     */
+    function status()
+    {
+        $this->cli->run('systemctl --user status caddy@'.user());
     }
 }

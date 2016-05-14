@@ -55,7 +55,8 @@ class PhpFpm
         $contents = $this->files->get($this->fpmConfigPath());
 
         $contents = preg_replace('/^user = .+$/m', 'user = '.user(), $contents);
-        $contents = preg_replace('/^group = .+$/m', 'group = staff', $contents);
+        $contents = preg_replace('/^listen.owner = .+$/m', 'listen.owner = '.user(), $contents);
+        // $contents = preg_replace('/^group = .+$/m', 'group = staff', $contents);
 
         $this->files->put($this->fpmConfigPath(), $contents);
     }
@@ -90,7 +91,7 @@ class PhpFpm
     public function fpmConfigPath()
     {
         if ($this->ubuntu->linkedPhp() === 'php7.0') {
-            return '/etc/php/7.0/fpm/php-fpm.conf';
+            return '/etc/php/7.0/fpm/pool.d/www.conf';
         } elseif ($this->ubuntu->linkedPhp() === 'php5.6') {
             return '/etc/php/5.6/php-fpm.conf';
         } elseif ($this->ubuntu->linkedPhp() === 'php5.5') {
