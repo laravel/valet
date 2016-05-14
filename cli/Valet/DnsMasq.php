@@ -25,7 +25,7 @@ class DnsMasq
         $this->cli = $cli;
         $this->ubuntu = $ubuntu;
         $this->files = $files;
-        $this->exampleConfigPath = $this->files->get(__DIR__.'/../stubs/Caddyfile');
+        $this->exampleConfigPath = $this->files->get(__DIR__.'/../stubs/dnsmasq.conf');
     }
 
     /**

@@ -28,9 +28,22 @@ class Caddy
      */
     function install()
     {
+        $this->caddyAllowRootPorts();
         $this->installCaddyFile();
         $this->installCaddyDirectory();
         $this->installCaddyDaemon();
+    }
+
+    /**
+     * Install the Caddyfile to the ~/.valet directory.
+     *
+     * This file serves as the main server configuration for Valet.
+     *
+     * @return void
+     */
+    function caddyAllowRootPorts()
+    {
+        $this->cli->run('setcap cap_net_bind_service=+ep '.VALET_PATH.'/bin/caddy');
     }
 
     /**
@@ -91,8 +104,8 @@ class Caddy
      */
     function restart()
     {
-        // $this->cli->quietly('systemctl --user stop caddy@'.user());
-        $this->cli->quietly('systemctl --user restart caddy@'.user());
+        $this->cli->quietly('systemctl --user stop caddy@'.user());
+        $this->cli->quietly('systemctl --user start caddy@'.user());
     }
 
     /**
