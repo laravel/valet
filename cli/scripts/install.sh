@@ -31,7 +31,7 @@ rm -rf $HOME/.valet-cli
 mkdir $HOME/.valet-cli
 
 echo "Downloading Valet..."
-TARBALL=$(curl -s https://api.github.com/repos/laravel/valet/releases/latest | jq ".tarball_url")
+TARBALL=$(curl -s https://api.github.com/repos/cpriego/valet-ubuntu/releases/latest | jq ".tarball_url")
 TARBALL=$(echo $TARBALL | sed -e 's/^"//'  -e 's/"$//')
 wget --max-redirect=10 $TARBALL -O $HOME/.valet-cli/valet.tar.gz > /dev/null 2>&1
 tar xvzf $HOME/.valet-cli/valet.tar.gz -C $HOME/.valet-cli --strip 1 > /dev/null 2>&1
