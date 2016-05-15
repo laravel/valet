@@ -93,7 +93,7 @@ $app->command('forget', function () {
  * Remove the current working directory to the paths configuration.
  */
 $app->command('status', function () {
-    Caddy::restart();
+    Caddy::status();
 })->descriptions('View Caddy\'s service status');
 
 /**

@@ -5,7 +5,7 @@ http://VALET_SITE:80 {
 https://VALET_SITE:443 {
     tls VALET_CERT VALET_KEY
 
-    fastcgi / 127.0.0.1:9000 php {
+    fastcgi / /var/run/php/php7.0-fpm.sock php {
         index server.php
     }
 

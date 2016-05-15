@@ -6,7 +6,7 @@ class Caddy
 {
     var $cli;
     var $files;
-    var $daemonPath;
+    var $daemonPath = '/lib/systemd/system/caddy.service';
 
     /**
      * Create a new Caddy instance.
@@ -18,7 +18,6 @@ class Caddy
     {
         $this->cli = $cli;
         $this->files = $files;
-        $this->daemonPath = '/home/'.user().'/.config/systemd/user/caddy@.service';
     }
 
     /**
@@ -95,8 +94,8 @@ class Caddy
             $this->daemonPath, str_replace('VALET_HOME_PATH', VALET_HOME_PATH, $contents)
         );
 
-        $this->cli->quietly('systemctl --user daemon-reload');
-        $this->cli->quietly('systemctl --user enable caddy@'.user());
+        $this->cli->quietly('systemctl daemon-reload');
+        $this->cli->quietly('systemctl enable caddy.service');
     }
 
     /**
@@ -106,8 +105,8 @@ class Caddy
      */
     function restart()
     {
-        $this->cli->quietly('systemctl --user stop caddy@'.user());
-        $this->cli->quietly('systemctl --user start caddy@'.user());
+        $this->cli->quietly('systemctl stop caddy.service');
+        $this->cli->quietly('systemctl start caddy.service');
     }
 
     /**
@@ -117,7 +116,7 @@ class Caddy
      */
     function stop()
     {
-        $this->cli->quietly('systemctl --user stop caddy@'.user());
+        $this->cli->quietly('systemctl stop caddy.service');
     }
 
     /**
@@ -128,11 +127,11 @@ class Caddy
     function uninstall()
     {
         $this->stop();
-        $this->cli->quietly('systemctl --user disable caddy@'.user());
+        $this->cli->quietly('systemctl disable caddy.service');
         
         $this->files->unlink($this->daemonPath);
         
-        $this->cli->quietly('systemctl --user daemon-reload');
+        $this->cli->quietly('systemctl daemon-reload');
     }
 
     /**
@@ -142,6 +141,6 @@ class Caddy
      */
     function status()
     {
-        $this->cli->run('systemctl --user status caddy@'.user());
+        passthru('systemctl status caddy.service');
     }
 }

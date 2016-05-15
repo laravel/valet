@@ -4,12 +4,12 @@ Documentation=https://caddyserver.com/
 After=network.target
 
 [Service]
-WorkingDirectory=VALET_HOME_PATH
-LimitNOFILE=4096
-PIDFile=VALET_HOME_PATH/caddy.pid
-ExecStart=VALET_PATH/bin/caddy --conf=Caddyfile -pidfile=VALET_HOME_PATH/caddy.pid
+WorkingDirectory=VALET_PATH
+LimitNOFILE=32786
+PIDFile=/var/run/caddy.pid
+ExecStart=VALET_PATH/bin/caddy --conf=VALET_HOME_PATH/Caddyfile -pidfile=/var/run/caddy.pid
 Restart=on-failure
 StartLimitInterval=600
 
 [Install]
-WantedBy=default.target
+WantedBy=multi-user.target
