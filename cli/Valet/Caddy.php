@@ -111,8 +111,8 @@ class Caddy
      */
     function restart()
     {
-        $this->cli->quietly('systemctl stop caddy.service');
-        $this->cli->quietly('systemctl start caddy.service');
+        $this->cli->quietly('systemctl daemon-reload');
+        $this->cli->quietly('systemctl restart caddy.service');
     }
 
     /**
@@ -138,15 +138,5 @@ class Caddy
         $this->files->unlink($this->daemonPath);
         
         $this->cli->quietly('systemctl daemon-reload');
-    }
-
-    /**
-     * Show Caddy running status.
-     *
-     * @return void
-     */
-    function status()
-    {
-        passthru('systemctl status caddy.service');
     }
 }

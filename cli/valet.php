@@ -93,8 +93,15 @@ $app->command('forget', function () {
  * Remove the current working directory to the paths configuration.
  */
 $app->command('status', function () {
-    Caddy::status();
-})->descriptions('View Caddy\'s service status');
+    passthru('systemctl status caddy.service php7.0-fpm.service');
+})->descriptions('View Valet service status');
+
+/**
+ * Reload systemd services
+ */
+$app->command('reload', function () {
+    passthru('systemctl daemon-reload');
+})->descriptions('Reload Valet services');
 
 /**
  * Register a symbolic link with Valet.
