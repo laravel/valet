@@ -6,7 +6,7 @@ class Caddy
 {
     var $cli;
     var $files;
-    var $daemonPath = '/lib/systemd/system/caddy.service';
+    var $daemonPath;
 
     /**
      * Create a new Caddy instance.
@@ -18,6 +18,7 @@ class Caddy
     {
         $this->cli = $cli;
         $this->files = $files;
+        $this->daemonPath = get_config('systemd-caddy');
     }
 
     /**
@@ -56,9 +57,14 @@ class Caddy
      */
     function installCaddyFile()
     {
+        $contents = str_replace(
+            'FPM_ADDRESS', get_config('systemd-caddy-fpm'),
+            $this->files->get(__DIR__.'/../stubs/Caddyfile')
+        );
+
         $this->files->putAsUser(
             VALET_HOME_PATH.'/Caddyfile',
-            str_replace('VALET_HOME_PATH', VALET_HOME_PATH, $this->files->get(__DIR__.'/../stubs/Caddyfile'))
+            str_replace('VALET_HOME_PATH', VALET_HOME_PATH, $contents)
         );
     }
 

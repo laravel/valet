@@ -32,10 +32,10 @@ class PhpFpm
      */
     public function install()
     {
-        if (! $this->ubuntu->installed('php7.0') &&
-            ! $this->ubuntu->installed('php5.6') &&
-            ! $this->ubuntu->installed('php5.5')) {
-            $this->ubuntu->ensureInstalled('php7.0');
+        if (! $this->ubuntu->installed(get_config('php-latest')) &&
+            ! $this->ubuntu->installed(get_config('php-56')) &&
+            ! $this->ubuntu->installed(get_config('php-55'))) {
+            $this->ubuntu->ensureInstalled(get_config('php-latest'));
         }
 
         $this->files->ensureDirExists('/var/log', user());
@@ -80,7 +80,11 @@ class PhpFpm
      */
     public function stop()
     {
-        $this->ubuntu->stopService('php5.5', 'php5.6', 'php7.0');
+        $this->ubuntu->stopService(
+            get_config('fpm55-service'),
+            get_config('fpm56-service'),
+            get_config('fpm-service')
+        );
     }
 
     /**
@@ -90,12 +94,12 @@ class PhpFpm
      */
     public function fpmConfigPath()
     {
-        if ($this->ubuntu->linkedPhp() === 'php7.0') {
-            return '/etc/php/7.0/fpm/pool.d/www.conf';
-        } elseif ($this->ubuntu->linkedPhp() === 'php5.6') {
-            return '/etc/php/5.6/php-fpm.conf';
-        } elseif ($this->ubuntu->linkedPhp() === 'php5.5') {
-            return '/etc/php/5.5/php-fpm.conf';
+        if ($this->ubuntu->linkedPhp() === get_config('php-latest')) {
+            return get_config('fpm-config');
+        } elseif ($this->ubuntu->linkedPhp() === get_config('php-56')) {
+            return get_config('fpm56-config');
+        } elseif ($this->ubuntu->linkedPhp() === get_config('php-55')) {
+            return get_config('fpm55-config');
         } else {
             throw new DomainException('Unable to find php-fpm config.');
         }

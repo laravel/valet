@@ -30,57 +30,67 @@ class UbuntuTest extends PHPUnit_Framework_TestCase
     public function test_installed_returns_true_when_given_formula_is_installed()
     {
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('run')->once()->with('dpkg -l | grep php7.0 | sed \'s_  _\t_g\' | cut -f 2')->andReturn('php7.0');
+        $cli->shouldReceive('run')->once()
+            ->with('dpkg -l | grep '.get_config('php-latest').' | sed \'s_  _\t_g\' | cut -f 2')
+            ->andReturn(get_config('php-latest'));
         swap(CommandLine::class, $cli);
-        $this->assertTrue(resolve(Ubuntu::class)->installed('php7.0'));
+        $this->assertTrue(resolve(Ubuntu::class)->installed(get_config('php-latest')));
 
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('run')->once()->with('dpkg -l | grep php7.0 | sed \'s_  _\t_g\' | cut -f 2')->andReturn('php7.0-mcrypt
+        $cli->shouldReceive('run')->once()
+            ->with('dpkg -l | grep '.get_config('php-latest').' | sed \'s_  _\t_g\' | cut -f 2')
+            ->andReturn('php7.0-mcrypt
 php7.0');
         swap(CommandLine::class, $cli);
-        $this->assertTrue(resolve(Ubuntu::class)->installed('php7.0'));
+        $this->assertTrue(resolve(Ubuntu::class)->installed(get_config('php-latest')));
     }
 
 
     public function test_installed_returns_false_when_given_formula_is_not_installed()
     {
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('run')->once()->with('dpkg -l | grep php7.0 | sed \'s_  _\t_g\' | cut -f 2')->andReturn('');
+        $cli->shouldReceive('run')->once()
+            ->with('dpkg -l | grep '.get_config('php-latest').' | sed \'s_  _\t_g\' | cut -f 2')
+            ->andReturn('');
         swap(CommandLine::class, $cli);
-        $this->assertFalse(resolve(Ubuntu::class)->installed('php7.0'));
+        $this->assertFalse(resolve(Ubuntu::class)->installed(get_config('php-latest')));
 
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('run')->once()->with('dpkg -l | grep php7.0 | sed \'s_  _\t_g\' | cut -f 2')->andReturn('php7.0-mcrypt');
+        $cli->shouldReceive('run')->once()
+            ->with('dpkg -l | grep '.get_config('php-latest').' | sed \'s_  _\t_g\' | cut -f 2')
+            ->andReturn('php7.0-mcrypt');
         swap(CommandLine::class, $cli);
-        $this->assertFalse(resolve(Ubuntu::class)->installed('php7.0'));
+        $this->assertFalse(resolve(Ubuntu::class)->installed(get_config('php-latest')));
 
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('run')->once()->with('dpkg -l | grep php7.0 | sed \'s_  _\t_g\' | cut -f 2')->andReturn('php7.0-mcrypt
+        $cli->shouldReceive('run')->once()
+            ->with('dpkg -l | grep '.get_config('php-latest').' | sed \'s_  _\t_g\' | cut -f 2')
+            ->andReturn('php7.0-mcrypt
 php7.0-something-else
 php7');
         swap(CommandLine::class, $cli);
-        $this->assertFalse(resolve(Ubuntu::class)->installed('php7.0'));
+        $this->assertFalse(resolve(Ubuntu::class)->installed(get_config('php-latest')));
     }
 
 
     public function test_has_installed_php_indicates_if_php_is_installed_via_apt()
     {
         $apt = Mockery::mock(Ubuntu::class.'[installed]', [new CommandLine, new Filesystem]);
-        $apt->shouldReceive('installed')->once()->with('php7.0')->andReturn(true);
-        $apt->shouldReceive('installed')->with('php5.6')->andReturn(true);
-        $apt->shouldReceive('installed')->with('php5.5')->andReturn(true);
+        $apt->shouldReceive('installed')->once()->with(get_config('php-latest'))->andReturn(true);
+        $apt->shouldReceive('installed')->with(get_config('php-56'))->andReturn(true);
+        $apt->shouldReceive('installed')->with(get_config('php-55'))->andReturn(true);
         $this->assertTrue($apt->hasInstalledPhp());
 
         $apt = Mockery::mock(Ubuntu::class.'[installed]', [new CommandLine, new Filesystem]);
-        $apt->shouldReceive('installed')->once()->with('php7.0')->andReturn(true);
-        $apt->shouldReceive('installed')->with('php5.6')->andReturn(false);
-        $apt->shouldReceive('installed')->with('php5.5')->andReturn(false);
+        $apt->shouldReceive('installed')->once()->with(get_config('php-latest'))->andReturn(true);
+        $apt->shouldReceive('installed')->with(get_config('php-56'))->andReturn(false);
+        $apt->shouldReceive('installed')->with(get_config('php-55'))->andReturn(false);
         $this->assertTrue($apt->hasInstalledPhp());
 
         $apt = Mockery::mock(Ubuntu::class.'[installed]', [new CommandLine, new Filesystem]);
-        $apt->shouldReceive('installed')->once()->with('php7.0')->andReturn(false);
-        $apt->shouldReceive('installed')->once()->with('php5.6')->andReturn(false);
-        $apt->shouldReceive('installed')->once()->with('php5.5')->andReturn(false);
+        $apt->shouldReceive('installed')->once()->with(get_config('php-latest'))->andReturn(false);
+        $apt->shouldReceive('installed')->once()->with(get_config('php-56'))->andReturn(false);
+        $apt->shouldReceive('installed')->once()->with(get_config('php-55'))->andReturn(false);
         $this->assertFalse($apt->hasInstalledPhp());
     }
 
@@ -106,16 +116,16 @@ php7');
     public function test_linked_php_returns_linked_php_formula_name()
     {
         $files = Mockery::mock(Filesystem::class);
-        $files->shouldReceive('isLink')->once()->with('/usr/bin/php')->andReturn(true);
-        $files->shouldReceive('readLink')->once()->with('/usr/bin/php')->andReturn('/test/path/php7.0/test');
+        $files->shouldReceive('isLink')->once()->with(get_config('php-bin'))->andReturn(true);
+        $files->shouldReceive('readLink')->once()->with(get_config('php-bin'))->andReturn('/test/path/php7.0/test');
         swap(Filesystem::class, $files);
-        $this->assertEquals('php7.0', resolve(Ubuntu::class)->linkedPhp());
+        $this->assertEquals(get_config('php-latest'), resolve(Ubuntu::class)->linkedPhp());
 
         $files = Mockery::mock(Filesystem::class);
-        $files->shouldReceive('isLink')->once()->with('/usr/bin/php')->andReturn(true);
-        $files->shouldReceive('readLink')->once()->with('/usr/bin/php')->andReturn('/test/path/php5.6/test');
+        $files->shouldReceive('isLink')->once()->with(get_config('php-bin'))->andReturn(true);
+        $files->shouldReceive('readLink')->once()->with(get_config('php-bin'))->andReturn('/test/path/php5.6/test');
         swap(Filesystem::class, $files);
-        $this->assertEquals('php5.6', resolve(Ubuntu::class)->linkedPhp());
+        $this->assertEquals(get_config('php-56'), resolve(Ubuntu::class)->linkedPhp());
     }
 
 
@@ -125,7 +135,7 @@ php7');
     public function test_linked_php_throws_exception_if_no_php_link()
     {
         $files = Mockery::mock(Filesystem::class);
-        $files->shouldReceive('isLink')->once()->with('/usr/bin/php')->andReturn(false);
+        $files->shouldReceive('isLink')->once()->with(get_config('php-bin'))->andReturn(false);
         swap(Filesystem::class, $files);
         resolve(Ubuntu::class)->linkedPhp();
     }
@@ -137,8 +147,8 @@ php7');
     public function test_linked_php_throws_exception_if_unsupported_php_version_is_linked()
     {
         $files = Mockery::mock(Filesystem::class);
-        $files->shouldReceive('isLink')->once()->with('/usr/bin/php')->andReturn(true);
-        $files->shouldReceive('readLink')->once()->with('/usr/bin/php')->andReturn('/test/path/php42/test');
+        $files->shouldReceive('isLink')->once()->with(get_config('php-bin'))->andReturn(true);
+        $files->shouldReceive('readLink')->once()->with(get_config('php-bin'))->andReturn('/test/path/php42/test');
         swap(Filesystem::class, $files);
         resolve(Ubuntu::class)->linkedPhp();
     }

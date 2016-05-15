@@ -1,7 +1,7 @@
 import VALET_HOME_PATH/Caddy/*
 
 :80 {
-    fastcgi / /var/run/php/php7.0-fpm.sock php {
+    fastcgi / FPM_ADDRESS php {
         index server.php
     }
 

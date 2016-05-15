@@ -40,9 +40,9 @@ class Ubuntu
      */
     function hasInstalledPhp()
     {
-        return $this->installed('php7.0')
-            || $this->installed('php5.6')
-            || $this->installed('php5.5');
+        return $this->installed(get_config('php-latest'))
+            || $this->installed(get_config('php-56'))
+            || $this->installed(get_config('php-55'));
     }
 
     /**
@@ -110,18 +110,18 @@ class Ubuntu
      */
     function linkedPhp()
     {
-        if (! $this->files->isLink('/usr/bin/php')) {
+        if (! $this->files->isLink(get_config('php-bin'))) {
             throw new DomainException("Unable to determine linked PHP.");
         }
 
-        $resolvedPath = $this->files->readLink('/usr/bin/php');
+        $resolvedPath = $this->files->readLink(get_config('php-bin'));
 
-        if (strpos($resolvedPath, 'php7.0') !== false) {
-            return 'php7.0';
-        } elseif (strpos($resolvedPath, 'php5.6') !== false) {
-            return 'php5.6';
-        } elseif (strpos($resolvedPath, 'php5.5') !== false) {
-            return 'php5.5';
+        if (strpos($resolvedPath, get_config('php-latest')) !== false) {
+            return get_config('php-latest');
+        } elseif (strpos($resolvedPath, get_config('php-56')) !== false) {
+            return get_config('php-56');
+        } elseif (strpos($resolvedPath, get_config('php-55')) !== false) {
+            return get_config('php-55');
         } else {
             throw new DomainException("Unable to determine linked PHP.");
         }

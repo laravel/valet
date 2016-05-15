@@ -207,7 +207,8 @@ class Site
         $path = $this->certificatesPath();
 
         return str_replace(
-            ['VALET_SITE', 'VALET_CERT', 'VALET_KEY'], [$url, $path.'/'.$url.'.crt', $path.'/'.$url.'.key'],
+            ['VALET_SITE', 'VALET_CERT', 'VALET_KEY', 'FPM_ADDRESS'],
+            [$url, $path.'/'.$url.'.crt', $path.'/'.$url.'.key', get_config('systemd-caddy-fpm')],
             $this->files->get(__DIR__.'/../stubs/SecureCaddyfile')
         );
     }
