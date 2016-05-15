@@ -1,7 +1,7 @@
 {
     "name": "cpriego/valet-ubuntu",
-    "description": "A more enjoyable local development experience for Mac.",
-    "keywords": ["laravel", "zonda", "wwdhhd"],
+    "description": "A more enjoyable local development experience for Ubuntu.",
+    "keywords": ["laravel", "zonda", "wwdhhd", "ubuntu", "xenial", "16.04"],
     "license": "MIT",
     "authors": [
         {
