@@ -35,12 +35,16 @@ Documentation for Valet can be found on the [Laravel website](http://laravel.com
 ## Usage
 
 **`valet park`**
+
 You can use `valet park` inside the directory where you store your projects (like Sites or Code) and then you can open `http://projectname.dev` in your browser. This command will allow you to access all the projects in the *parked* folder.
 
 **`valet link`**
+
 If you just want to serve a single site you can use `valet link [your-desired-url]` and then open `http://your-desired-url.dev` in the browser.
 
-To check the status of the **Caddy** Server just type **`valet status`**.
+**`valet status`**
+
+To check the status of the **Valet _for Ubuntu_** services.
 
 ## Update
 
