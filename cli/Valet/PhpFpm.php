@@ -56,7 +56,6 @@ class PhpFpm
 
         $contents = preg_replace('/^user = .+$/m', 'user = '.user(), $contents);
         $contents = preg_replace('/^listen.owner = .+$/m', 'listen.owner = '.user(), $contents);
-        // $contents = preg_replace('/^group = .+$/m', 'group = staff', $contents);
 
         $this->files->put($this->fpmConfigPath(), $contents);
     }
@@ -70,7 +69,7 @@ class PhpFpm
     {
         $this->stop();
 
-        $this->ubuntu->restartLinkedPhp();
+        $this->ubuntu->restartService(get_config('fpm-service'));
     }
 
     /**

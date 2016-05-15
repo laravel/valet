@@ -126,14 +126,4 @@ class Ubuntu
             throw new DomainException("Unable to determine linked PHP.");
         }
     }
-
-    /**
-     * Restart the linked PHP-FPM Homebrew service.
-     *
-     * @return void
-     */
-    function restartLinkedPhp()
-    {
-        $this->restartService($this->linkedPhp());
-    }
 }
