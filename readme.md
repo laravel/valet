@@ -1,10 +1,10 @@
 # Laravel Valet
 
-[![Build Status](https://travis-ci.org/laravel/valet.svg)](https://travis-ci.org/laravel/valet)
-[![Total Downloads](https://poser.pugx.org/laravel/valet/d/total.svg)](https://packagist.org/packages/laravel/valet)
-[![Latest Stable Version](https://poser.pugx.org/laravel/valet/v/stable.svg)](https://packagist.org/packages/laravel/valet)
-[![Latest Unstable Version](https://poser.pugx.org/laravel/valet/v/unstable.svg)](https://packagist.org/packages/laravel/valet)
-[![License](https://poser.pugx.org/laravel/valet/license.svg)](https://packagist.org/packages/laravel/valet)
+[![Build Status](https://travis-ci.org/cpriego/valet-ubuntu.svg?branch=master)](https://travis-ci.org/cpriego/valet-ubuntu)
+[![Latest Stable Version](https://poser.pugx.org/cpriego/valet-ubuntu/v/stable)](https://packagist.org/packages/cpriego/valet-ubuntu)
+[![Total Downloads](https://poser.pugx.org/cpriego/valet-ubuntu/downloads)](https://packagist.org/packages/cpriego/valet-ubuntu)
+[![Latest Unstable Version](https://poser.pugx.org/cpriego/valet-ubuntu/v/unstable)](https://packagist.org/packages/cpriego/valet-ubuntu)
+[![License](https://poser.pugx.org/cpriego/valet-ubuntu/license)](https://packagist.org/packages/cpriego/valet-ubuntu)
 
 ## Introduction
 
