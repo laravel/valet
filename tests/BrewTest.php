@@ -157,7 +157,7 @@ php7');
     public function test_install_or_fail_will_install_brew_formulas()
     {
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('run')->once()->with('brew install dnsmasq', Mockery::type('Closure'));
+        $cli->shouldReceive('runAsUser')->once()->with('brew install dnsmasq', Mockery::type('Closure'));
         swap(CommandLine::class, $cli);
         resolve(Brew::class)->installOrFail('dnsmasq');
     }
@@ -166,7 +166,7 @@ php7');
     public function test_install_or_fail_can_install_taps()
     {
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('run')->once()->with('brew install dnsmasq', Mockery::type('Closure'));
+        $cli->shouldReceive('runAsUser')->once()->with('brew install dnsmasq', Mockery::type('Closure'));
         swap(CommandLine::class, $cli);
         $brew = Mockery::mock(Brew::class.'[tap]', [$cli, new Filesystem]);
         $brew->shouldReceive('tap')->once()->with(['test/tap']);
@@ -180,8 +180,8 @@ php7');
     public function test_install_or_fail_throws_exception_on_failure()
     {
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('run')->andReturnUsing(function ($command, $onError) {
-            $onError('test error ouput');
+        $cli->shouldReceive('runAsUser')->andReturnUsing(function ($command, $onError) {
+            $onError(1, 'test error ouput');
         });
         swap(CommandLine::class, $cli);
         resolve(Brew::class)->installOrFail('dnsmasq');
