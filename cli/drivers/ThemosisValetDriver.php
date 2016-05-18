@@ -36,8 +36,11 @@ class ThemosisValetDriver extends BasicValetDriver
      */
     public function frontControllerPath($sitePath, $siteName, $uri)
     {
-        $_SERVER['PHP_SELF'] = $uri;
+        if (strpos($uri, '/cms/') !== false) {
+            $_SERVER['PHP_SELF'] = $uri;
+            return parent::frontControllerPath($sitePath, $siteName, $uri);
+        }
 
-        return parent::frontControllerPath($sitePath, $siteName, $uri);
+        return $sitePath.'/htdocs/index.php';
     }
 }
