@@ -74,7 +74,7 @@ class Brew
 
         output('<info>['.$formula.'] is not installed, installing it now via Brew...</info> 🍻');
 
-        $this->cli->run('brew install '.$formula, function ($errorOutput) use ($formula) {
+        $this->cli->runAsUser('brew install '.$formula, function ($exitCode, $errorOutput) use ($formula) {
             output($errorOutput);
 
             throw new DomainException('Brew was unable to install ['.$formula.'].');
