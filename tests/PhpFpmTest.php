@@ -1,8 +1,6 @@
 <?php
 
-use Valet\Brew;
 use Valet\PhpFpm;
-use Valet\CommandLine;
 use Illuminate\Container\Container;
 
 class PhpFpmTest extends PHPUnit_Framework_TestCase

@@ -2,7 +2,6 @@
 
 use Valet\Caddy;
 use Valet\Filesystem;
-use Valet\CommandLine;
 use Illuminate\Container\Container;
 
 class CaddyTest extends PHPUnit_Framework_TestCase
