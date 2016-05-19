@@ -38,7 +38,7 @@ function warning($output)
  */
 function output($output)
 {
-    if (isset($_ENV['APP_ENV']) && $_ENV['APP_ENV'] == 'testing') {
+    if (isset($_ENV['APP_ENV']) && $_ENV['APP_ENV'] === 'testing') {
         return;
     }
 
