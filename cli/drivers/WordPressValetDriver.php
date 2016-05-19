@@ -12,7 +12,7 @@ class WordPressValetDriver extends BasicValetDriver
      */
     public function serves($sitePath, $siteName, $uri)
     {
-        return is_dir($sitePath.'/wp-admin');
+        return file_exists($sitePath.'/wp-config.php');
     }
 
     /**
