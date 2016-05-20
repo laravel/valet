@@ -23,7 +23,7 @@ class ThemosisValetDriver extends BasicValetDriver
      */
     public function serves($sitePath, $siteName, $uri)
     {
-        return is_dir($sitePath.'/htdocs');
+        return file_exists($sitePath.'/library/Thms/Config/Environment.php');
     }
 
     /**
