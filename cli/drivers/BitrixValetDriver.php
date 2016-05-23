@@ -40,22 +40,6 @@ class BitrixValetDriver extends BasicValetDriver
      * @param  string  $uri
      * @return string
      */
-    /*public function frontControllerPath($sitePath, $siteName, $uri)
-    {
-        $_SERVER['PHP_SELF'] = $uri;
-        $_SERVER["DOCUMENT_ROOT"] = $sitePath;
-        $_SERVER['SCRIPT_FILENAME'] =  $sitePath.'/company/personal.php';
-        return parent::frontControllerPath($sitePath, $siteName, $uri);
-    }*/
-
-    /**
-     * Get the fully resolved path to the application's front controller.
-     *
-     * @param  string  $sitePath
-     * @param  string  $siteName
-     * @param  string  $uri
-     * @return string
-     */
     public function frontControllerPath($sitePath, $siteName, $uri)
     {
         $_SERVER["DOCUMENT_ROOT"] = $sitePath;
