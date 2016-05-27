@@ -25,7 +25,7 @@ class CaddyTest extends PHPUnit_Framework_TestCase
         $files = Mockery::mock(Filesystem::class.'[putAsUser]');
 
         $files->shouldReceive('putAsUser')->andReturnUsing(function ($path, $contents) {
-            $this->assertEquals(VALET_HOME_PATH.'/Caddyfile', $path);
+            $this->assertSame(VALET_HOME_PATH.'/Caddyfile', $path);
             $this->assertTrue(strpos($contents, 'import '.VALET_HOME_PATH.'/Caddy/*') !== false);
         });
 
@@ -71,7 +71,7 @@ class CaddyTest extends PHPUnit_Framework_TestCase
         $caddy = resolve(Caddy::class);
 
         $files->shouldReceive('put')->andReturnUsing(function ($path, $contents) use ($caddy) {
-            $this->assertEquals($caddy->daemonPath, $path);
+            $this->assertSame($caddy->daemonPath, $path);
             $this->assertTrue(strpos($contents, VALET_HOME_PATH) !== false);
         });
 
