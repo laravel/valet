@@ -52,9 +52,16 @@ then
         fi
     done
 
-    # Fetch Ngrok URL In Background...
-    bash "$DIR/cli/scripts/fetch-share-url.sh" &
-    sudo -u $(logname) "$DIR/bin/ngrok" http -host-header=rewrite "$HOST.$DOMAIN:80"
+    if [[ -n $2 ]]
+    then
+      #Use localtunnel.me for serving with a custom sub-domain.
+      echo "https://$2.localtunnel.me" | pbcopy
+      sudo -u $(logname) lt --port 80 --local-host "$HOST.$DOMAIN" --subdomain "$2"    
+    else
+      # Fetch Ngrok URL In Background...
+      bash "$DIR/cli/scripts/fetch-share-url.sh" &
+      sudo -u $(logname) "$DIR/bin/ngrok" http -host-header=rewrite "$HOST.$DOMAIN:80"
+    fi
     exit
 
 # Finally, for every other command we will just proxy into the PHP tool
