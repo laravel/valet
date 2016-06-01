@@ -30,6 +30,10 @@ class PhpFpmTest extends PHPUnit_Framework_TestCase
         $contents = file_get_contents(__DIR__.'/output/fpm.conf');
         $this->assertTrue(strpos($contents, 'user = '.user()) !== false);
         $this->assertTrue(strpos($contents, 'group = staff') !== false);
+        $this->assertTrue(strpos($contents, 'listen = /var/run/php-fpm.sock') !== false);
+        $this->assertTrue(strpos($contents, 'listen.owner = _www') !== false);
+        $this->assertTrue(strpos($contents, 'listen.group = _www') !== false);
+        $this->assertTrue(strpos($contents, 'listen.mode = 0660') !== false);
     }
 }
 
