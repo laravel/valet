@@ -20,7 +20,7 @@ Documentation for Valet can be found on the [Laravel website](http://laravel.com
 
 ## Requirements
 
- - Ubuntu >= 15.05 
+ - Ubuntu >= 15.04
  - PHP >= 5.6
  - PHP Packages: `php*-cli php*-common php*-curl php*-json php*-mbstring php*-mcrypt php*-mysql php*-opcache php*-readline php*-xml php*-zip`
  - Optional PHP Packages: `php*-sqlite3 php*-mysql php*-pgsql`
