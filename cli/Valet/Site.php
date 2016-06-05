@@ -31,7 +31,7 @@ class Site
     function host($path)
     {
         foreach ($this->files->scandir($this->sitesPath()) as $link) {
-            if ($resolved = realpath($this->sitesPath().'/'.$link) == $path) {
+            if ($resolved = realpath($this->sitesPath().'/'.$link) === $path) {
                 return $link;
             }
         }
