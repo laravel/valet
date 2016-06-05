@@ -119,13 +119,13 @@ php7');
         $files->shouldReceive('isLink')->once()->with(get_config('php-bin'))->andReturn(true);
         $files->shouldReceive('readLink')->once()->with(get_config('php-bin'))->andReturn('/test/path/php7.0/test');
         swap(Filesystem::class, $files);
-        $this->assertEquals(get_config('php-latest'), resolve(Ubuntu::class)->linkedPhp());
+        $this->assertSame(get_config('php-latest'), resolve(Ubuntu::class)->linkedPhp());
 
         $files = Mockery::mock(Filesystem::class);
         $files->shouldReceive('isLink')->once()->with(get_config('php-bin'))->andReturn(true);
         $files->shouldReceive('readLink')->once()->with(get_config('php-bin'))->andReturn('/test/path/php5.6/test');
         swap(Filesystem::class, $files);
-        $this->assertEquals(get_config('php-56'), resolve(Ubuntu::class)->linkedPhp());
+        $this->assertSame(get_config('php-56'), resolve(Ubuntu::class)->linkedPhp());
     }
 
 

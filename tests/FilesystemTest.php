@@ -17,9 +17,9 @@ class FilesystemTest extends PHPUnit_Framework_TestCase
         $files = new Filesystem;
         file_put_contents(__DIR__.'/output/file.out', 'test');
         symlink(__DIR__.'/output/file.out', __DIR__.'/output/file.link');
-        $this->assertTrue(file_exists(__DIR__.'/output/file.link'));
+        $this->assertFileExists(__DIR__.'/output/file.link');
         unlink(__DIR__.'/output/file.out');
         $files->removeBrokenLinksAt(__DIR__.'/output');
-        $this->assertFalse(file_exists(__DIR__.'/output/file.link'));
+        $this->assertFileNotExists(__DIR__.'/output/file.link');
     }
 }
