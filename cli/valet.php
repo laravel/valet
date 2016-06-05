@@ -36,7 +36,6 @@ if (is_dir(VALET_HOME_PATH)) {
  */
 $app->command('install', function () {
     Caddy::stop();
-
     Configuration::install();
     Caddy::install();
     PhpFpm::install();
@@ -44,8 +43,6 @@ $app->command('install', function () {
     Caddy::restart();
     Valet::symlinkToUsersBin();
     Valet::createSudoersEntry();
-    // Brew::createSudoersEntry();
-    // Ubuntu::createSudoersEntry();
 
     output(PHP_EOL.'<info>Valet installed successfully!</info>');
 })->descriptions('Install the Valet services');
@@ -168,7 +165,7 @@ $app->command('which', function () {
     } else {
         warning('Valet could not determine which driver to use for this site.');
     }
-})->descriptions('Determine which Valet driver serves the current workign directory');
+})->descriptions('Determine which Valet driver serves the current working directory');
 
 /**
  * Stream all of the logs for all sites.
