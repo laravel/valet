@@ -2,9 +2,6 @@
 
 namespace Valet;
 
-use Exception;
-use Symfony\Component\Process\Process;
-
 class DnsMasq
 {
     var $brew, $cli, $files;

@@ -2,7 +2,6 @@
 
 namespace Valet;
 
-use Exception;
 use DomainException;
 use Symfony\Component\Process\Process;
 

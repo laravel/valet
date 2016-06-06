@@ -2,8 +2,6 @@
 
 namespace Valet;
 
-use DomainException;
-
 class Site
 {
     var $config, $cli, $files;

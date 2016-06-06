@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Container\Container;
-use Symfony\Component\Process\Process;
 
 /**
  * Define the ~/.valet path as a constant.
