@@ -8,6 +8,8 @@ https://VALET_SITE:443 {
     fastcgi / FPM_ADDRESS php {
         index server.php
     }
+    
+    header / Strict-Transport-Security "max-age=0;"
 
     rewrite {
         to /server.php?{query}

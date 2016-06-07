@@ -21,6 +21,7 @@ Documentation for Valet can be found on the [Laravel website](http://laravel.com
 ## Requirements
 
  - Ubuntu >= 15.04
+ - Dependencies: `sudo apt-get install libnss3-tools jq xsel`
  - PHP >= 5.6
  - PHP Packages: `php*-cli php*-common php*-curl php*-json php*-mbstring php*-mcrypt php*-mysql php*-opcache php*-readline php*-xml php*-zip`
  - Optional PHP Packages: `php*-sqlite3 php*-mysql php*-pgsql`
@@ -31,6 +32,14 @@ Documentation for Valet can be found on the [Laravel website](http://laravel.com
 
 1. `composer global require cpriego/valet-ubuntu`
 2. `valet install`
+
+## Caveats
+
+Because of the way Firefox and Chrome/Chromium/Opera/Any.Other.Blink.Based.Browser manages certificates in Linux the experience when **securing** a site might not be as smooth as it is in OSX.
+
+Whenever you secure a site you'll need to restart your testing browser so that it can trust the new certificate and you'll have to do the same when you unsecure it.
+
+If you have **secured** a domain you will not be able to share it through Ngrok.
 
 ## Usage
 
@@ -65,6 +74,7 @@ Well, your choice! You could use the superlight SQLite **`sqlite3`**, the extrem
 Oh yeah!, for those looking for a beautiful looking Database management tool like Sequel Pro but for Linux* try out Valentina Studio, it's free, multiplatform and supports all of the databases mentioned above.
 
 [You can check it here](https://www.valentina-db.com/en/valentina-studio-overview)
+
 [And download it here](https://www.valentina-db.com/en/studio/download)
 
 _* I know it is GNU/Linux but is too long and it confuses people even more_

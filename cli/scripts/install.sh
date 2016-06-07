@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-apt-get install jq xsel > /dev/null 2>&1
+apt-get install libnss3-tools jq xsel > /dev/null 2>&1
 
 # Install PHP 7.0
 if [[ ! $(apt-cache search php7.0-cli) ]]

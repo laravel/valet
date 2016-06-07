@@ -18,7 +18,7 @@ use Illuminate\Container\Container;
  */
 Container::setInstance(new Container);
 
-$version = '1.1.13';
+$version = '1.1.14';
 
 $app = new Application('Laravel Valet', $version);
 
@@ -43,6 +43,8 @@ $app->command('install', function () {
     Caddy::restart();
     Valet::symlinkToUsersBin();
     Valet::createSudoersEntry();
+
+    passthru('/bin/bash '.__DIR__.'/scripts/install-packages.sh');
 
     output(PHP_EOL.'<info>Valet installed successfully!</info>');
 })->descriptions('Install the Valet services');

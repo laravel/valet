@@ -61,7 +61,7 @@ then
 
     # Fetch Ngrok URL In Background...
     bash "$DIR/cli/scripts/fetch-share-url.sh" &
-    sudo -u $(logname) "$DIR/bin/ngrok" http -host-header=rewrite -region="$REGION" "$HOST.$DOMAIN:80"
+    sudo -u $USER "$DIR/bin/ngrok" http -host-header=rewrite -region="$REGION" "$HOST.$DOMAIN:80"
     exit
 
 # Finally, for every other command we will just proxy into the PHP tool
