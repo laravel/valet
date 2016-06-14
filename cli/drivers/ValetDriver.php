@@ -66,7 +66,7 @@ abstract class ValetDriver
         $drivers[] = 'JekyllValetDriver';
         $drivers[] = 'DrupalValetDriver';
         $drivers[] = 'ShopWareValetDriver';
-        $drivers[] = 'SpaValetDriver';
+        $drivers[] = 'SinglePageApplicationValetDriver';
 
         $drivers[] = 'BasicValetDriver';
 
