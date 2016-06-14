@@ -8,4 +8,6 @@ import VALET_HOME_PATH/Caddy/*
     rewrite {
         to /server.php?{query}
     }
+
+    errors /var/log/valet-error.log
 }
