@@ -30,4 +30,4 @@ require_once __DIR__.'/CsCartValetDriver.php';
 require_once __DIR__.'/JekyllValetDriver.php';
 require_once __DIR__.'/DrupalValetDriver.php';
 require_once __DIR__.'/ShopwareValetDriver.php';
-require_once __DIR__.'/SpaValetDriver.php';
+require_once __DIR__.'/SinglePageApplicationValetDriver.php';
