@@ -173,6 +173,23 @@ $app->command('logs', function () {
 })->descriptions('Stream all of the logs for all Laravel sites registered with Valet');
 
 /**
+ * Stream Caddy access- and error-log.
+ */
+$app->command('server-log', function () {
+    $files = Filesystem::scandir(VALET_HOME_PATH.'/Log');
+
+    $files = collect($files)->transform(function ($file) {
+        return escapeshellarg(VALET_HOME_PATH.'/Log/'.$file);
+    })->all();
+
+    if (count($files) > 0) {
+        passthru('tail -f '.implode(' ', $files));
+    } else {
+        warning('No log files were found.');
+    }
+})->descriptions('Stream Caddy access- and error-log.');
+
+/**
  * Display all of the registered paths.
  */
 $app->command('paths', function () {
