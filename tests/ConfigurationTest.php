@@ -39,15 +39,6 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase
         resolve(Configuration::class)->createDriversDirectory();
     }
 
-    public function test_log_directory_is_created_with_log_files_if_it_doesnt_exist()
-    {
-        $files = Mockery::mock(Filesystem::class.'[isDir,mkdirAsUser,touch]');
-        $files->shouldReceive('isDir')->with(VALET_HOME_PATH.'/Log')->andReturn(false);
-        $files->shouldReceive('mkdirAsUser')->with(VALET_HOME_PATH.'/Log');
-        $files->shouldReceive('touch');
-        swap(Filesystem::class, $files);
-        resolve(Configuration::class)->createLogDirectory();
-    }
 
     public function test_add_path_adds_a_path_to_the_paths_array_and_removes_duplicates()
     {
