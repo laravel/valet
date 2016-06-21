@@ -122,7 +122,7 @@ $app->command('links', function () {
  * Unlink a link from the Valet links directory.
  */
 $app->command('unlink [name]', function ($name) {
-    Site::unlink($name ?: basename(getcwd()));
+    Site::unlink($name = $name ?: basename(getcwd()));
 
     info('The ['.$name.'] symbolic link has been removed.');
 })->descriptions('Remove the specified Valet link');
