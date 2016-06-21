@@ -134,9 +134,9 @@ class Caddy
     {
         $this->stop();
         $this->cli->quietly('systemctl disable caddy.service');
-        
+
         $this->files->unlink($this->daemonPath);
-        
+
         $this->cli->quietly('systemctl daemon-reload');
     }
 }
