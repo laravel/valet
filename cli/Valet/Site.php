@@ -93,6 +93,10 @@ class Site
      */
     function resecureForNewDomain($oldDomain, $domain)
     {
+        if (!$this->files->exists($this->certificatesPath())) {
+            return;
+        }
+
         $secured = $this->secured();
 
         foreach ($secured as $url) {
