@@ -43,7 +43,15 @@ then
 elif [[ "$1" = "share" ]]
 then
     HOST="${PWD##*/}"
-    DOMAIN=$(php "$DIR/cli/valet.php" domain)
+    DOMAIN="$2"
+
+    # Make sure a domain has been given
+    if [[ -z "$DOMAIN" ]]
+    then
+        echo -e
+        echo -e "No domain name was given"
+        exit
+    fi
 
     for linkname in ~/.valet/Sites/*; do
         if [[ "$(readlink $linkname)" = "$PWD" ]]

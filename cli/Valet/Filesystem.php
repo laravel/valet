@@ -191,7 +191,33 @@ class Filesystem
      */
     function copyAsUser($from, $to)
     {
-        copy($from, $to);
+        $this->copy($from, $to);
+
+        $this->chown($to, user());
+    }
+
+    /**
+     * Rename the given file
+     *
+     * @param  string $from
+     * @param  string $to
+     * @return void
+     */
+    function rename($from, $to)
+    {
+        @rename($from, $to);
+    }
+
+    /**
+     * Rename the given file for the non-root user.
+     *
+     * @param  string $from
+     * @param  string $to
+     * @return void
+     */
+    function renameAsUser($from, $to)
+    {
+        $this->rename($from, $to);
 
         $this->chown($to, user());
     }
@@ -306,13 +332,20 @@ class Filesystem
      */
     function removeBrokenLinksAt($path)
     {
-        collect($this->scandir($path))
-                ->filter(function ($file) use ($path) {
-                    return $this->isBrokenLink($path.'/'.$file);
+        collect($this->scandir($path))->each(function ($domain) use ($path) {
+            $domainPath = $path.'/'.$domain;
+            if (!is_dir($domainPath)) {
+                return;
+            };
+
+            collect($this->scandir($domainPath))
+                ->filter(function ($file) use ($domainPath) {
+                    return $this->isBrokenLink($domainPath.'/'.$file);
                 })
-                ->each(function ($file) use ($path) {
-                    $this->unlink($path.'/'.$file);
+                ->each(function ($file) use ($domainPath) {
+                    $this->unlink($domainPath.'/'.$file);
                 });
+        });
     }
 
     /**

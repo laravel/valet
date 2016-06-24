@@ -50,74 +50,227 @@ $app->command('install', function () {
 })->descriptions('Install the Valet services');
 
 /**
- * Get or set the domain currently being used by Valet.
+ * Manage domains. Add, rename or delete domains.
  */
-$app->command('domain [domain]', function ($domain = null) {
-    if ($domain === null) {
-        return info(Configuration::read()['domain']);
+$app->command('domain [action] [domain] [newDomain]', function ($action, $domain = null, $newDomain = null) {
+    if (!in_array($action, ['add', 'rename', 'delete'])) {
+        warning(PHP_EOL . sprintf('Invalid action [%s].', $action));
+        return info(PHP_EOL . 'Available actions: "add", "rename" or "delete"');
     }
 
-    DnsMasq::updateDomain(
-        $oldDomain = Configuration::read()['domain'], $domain = trim($domain, '.')
-    );
+    if ($action != 'add' && ! domain_exists($domain)) {
+        return warning(PHP_EOL . 'Domain ['.$domain.'] does not exist.');
+    }
 
-    Configuration::updateKey('domain', $domain);
+    if ($action == 'add') {
+        if ($domain == null) {
+            return warning(PHP_EOL . 'Specify domain name.');
+        }
 
-    Site::resecureForNewDomain($oldDomain, $domain);
+        DnsMasq::addDomain($domain);
+        Configuration::addDomain($domain);
+
+        info('Valet domain ['.$domain.'] has been added.');
+    } elseif ($action == 'rename') {
+        if ($newDomain === null) {
+            return warning(PHP_EOL . 'New domain name not provided.');
+        }
+
+        DnsMasq::renameDomain($domain, $newDomain);
+        Configuration::renameDomain($domain, $newDomain);
+        Site::resecureForNewDomain($domain, $newDomain);
+
+        info('Valet domain ['.$domain.'] has been renamed to ['.$newDomain.'].');
+    } elseif ($action == 'delete') {
+        DnsMasq::deleteDomain($domain);
+        Configuration::deleteDomain($domain);
+        Site::unsecureAllForDomain($domain);
+
+        info('Valet domain ['.$domain.'] has been deleted.');
+    }
+
     PhpFpm::restart();
     Caddy::restart();
-
-    info('Your Valet domain has been updated to ['.$domain.'].');
-})->descriptions('Get or set the domain used for Valet sites');
+})->descriptions('Manage Valet domains.', [
+    'action' => 'Options: <comment>add</comment>, <comment>rename</comment> or <comment>delete</comment>',
+    'domain' => 'Name of domain',
+    'newDomain' => 'Only required with <comment>rename</comment> action',
+]);
 
 /**
- * Add the current working directory to the paths configuration.
+ * Display all domains found in the configuration file.
  */
-$app->command('park', function () {
-    Configuration::addPath(getcwd());
+$app->command('domains', function() {
+    $domains = Configuration::getAllDomains();
+    if ($domains->isEmpty()) {
+        return warning(PHP_EOL.'No domains found.');
+    }
 
-    info("This directory has been added to Valet's paths.");
-})->descriptions('Register the current working directory with Valet');
+    info(PHP_EOL.'[domains]');
+    $domains->each(function($domain) {
+        output('- '.$domain['domain']);
+    });
+})->descriptions('Display all available Valet domains');
+
+/**
+ * Add the current working directory to the domain's paths in the configuration file.
+ */
+$app->command('park [domain]', function ($domain = null) {
+    if ($domain !== null && ! domain_exists($domain)) {
+        return warning(PHP_EOL.'Domain ['.$domain.'] does not exist.');
+    }
+
+    if ($domain === null && Configuration::totalDomains() > 1) {
+        warning(PHP_EOL.'Please choose which domain you want to park current directory to.');
+        output(PHP_EOL.'<comment>Available domains:</comment>');
+        return collect(Configuration::getAllDomains())->each(function($domain) {
+            output('- '.$domain['domain']);
+        });
+    }
+
+    $domain = $domain ?: Configuration::getFirstDomain()['domain'];
+
+    Configuration::addPath($domain, getcwd());
+
+    info("This directory has been added to Valet domain's [".$domain."] paths.");
+})->descriptions('Register the current working directory with a Valet domain', [
+    'domain' => 'Name of domain',
+]);
 
 /**
  * Remove the current working directory to the paths configuration.
  */
-$app->command('forget', function () {
-    Configuration::removePath(getcwd());
+$app->command('forget [domain]', function ($domain = null) {
+    $domains = Configuration::getDomainsByParkedDirectory(getcwd());
+    if ($domains->isEmpty()) {
+        return warning('Directory is not registered with any Valet domains.');
+    }
 
-    info("This directory has been removed from Valet's paths.");
-})->descriptions('Remove the current working directory from Valet\'s list of paths');
+    if ($domain === null && $domains->count() > 1) {
+        warning(PHP_EOL.'Directory is registered with multiple domains.');
+        output(PHP_EOL.'<comment>Following domains are registered with directory:</comment>');
+        return $domains->each(function($domain) {
+            output('- '.$domain['domain']);
+        });
+    }
+
+    $domain = $domain ?: $domains->first()['domain'];
+
+    Configuration::removePath($domain, getcwd());
+
+    info("This directory has been removed from Valet domain's [".$domain."] paths.");
+})->descriptions('Remove the current working directory from a Valet domain\'s list of paths');
 
 /**
- * Register a symbolic link with Valet.
+ * Register a symbolic link with Valet domain.
  */
-$app->command('link [name]', function ($name) {
-    $linkPath = Site::link(getcwd(), $name = $name ?: basename(getcwd()));
+$app->command('link [domain] [name]', function ($domain = null, $name = null) {
+    if ($domain !== null && ! domain_exists($domain)) {
+        return warning(PHP_EOL.'Domain ['.$domain.'] does not exist.');
+    }
 
-    info('A ['.$name.'] symbolic link has been created in ['.$linkPath.'].');
-})->descriptions('Link the current working directory to Valet');
+    if ($domain === null && Configuration::totalDomains() > 1) {
+        warning(PHP_EOL.'Please specify which domain you want to register directory with.');
+        output(PHP_EOL.'<comment>Available domains:</comment>');
+        return collect(Configuration::getAllDomains())->each(function($domain) {
+            output('- '.$domain['domain']);
+        });
+    }
+
+    $domain = $domain ?: Configuration::getFirstDomain()['domain'];
+
+    $linkPath = Site::link($domain, getcwd(), $name = $name ?: basename(getcwd()));
+
+    info('A ['.$name.'] symbolic link has been created in ['.$linkPath.'] for Valet domain ['.$domain.'].');
+})->descriptions('Link the current working directory to a Valet domain', [
+    'name' => 'Name of symbolic link',
+    'domain' => 'Name of domain',
+]);
 
 /**
  * Display all of the registered symbolic links.
  */
 $app->command('links', function () {
-    passthru('ls -la '.VALET_HOME_PATH.'/Sites');
+    $linksFound = 0;
+    collect(Filesystem::scandir(VALET_HOME_PATH.'/Sites'))->each(function($domain) use (&$linksFound) {
+        $domainPath = VALET_HOME_PATH.'/Sites/'.$domain;
+
+        $links = collect(Filesystem::scandir($domainPath));
+        if ($links->isEmpty()) {
+            return;
+        }
+
+        // Add links found to total count
+        $linksFound += $links->count();
+
+        info(PHP_EOL.'[' . $domain . ']');
+        $links->each(function ($link) use ($domainPath, &$linksFound) {
+            output(sprintf('<comment>%s</comment> -> <comment>%s</comment>', $link, Filesystem::readLink($domainPath . '/' . $link)));
+        });
+    });
+
+    if (!$linksFound) {
+        return warning(PHP_EOL.'No links has been registered with any Valet domains.');
+    }
 })->descriptions('Display all of the registered Valet links');
 
 /**
- * Unlink a link from the Valet links directory.
+ * Unlink a link from a registered Valet domain.
  */
-$app->command('unlink [name]', function ($name) {
-    Site::unlink($name ?: basename(getcwd()));
+$app->command('unlink [domain] [name]', function ($domain = null, $name = null) {
+    $name = $name ?: basename(getcwd());
 
-    info('The ['.$name.'] symbolic link has been removed.');
-})->descriptions('Remove the specified Valet link');
+    $domains = Configuration::getDomainsByLinkedDirectory($name);
+    if ($domains->isEmpty()) {
+        return warning(PHP_EOL.'Directory is not linked with any Valet domains.');
+    }
+
+    if ($domain !== null && ! domain_exists($domain)) {
+        return warning(PHP_EOL.'Domain ['.$domain.'] does not exist.');
+    }
+
+    if ($domain == null && $domains->count() > 1) {
+        warning(PHP_EOL.'Directory is linked with multiple domains.');
+        output(PHP_EOL.'<comment>Following domains are linked with directory:</comment>');
+        return $domains->each(function($domain) {
+            output('- '.$domain['domain']);
+        });
+    }
+
+    $domain = $domain ?: $domains->first()['domain'];
+
+    Site::unlink($domain, $name);
+
+    info('The ['.$name.'] symbolic link has been removed from Valet domain ['.$domain.'].');
+})->descriptions('Remove the specified link from a Valet domain', [
+    'name' => 'Name of symbolic link',
+    'domain' => 'Name of domain',
+]);
 
 /**
  * Secure the given domain with a trusted TLS certificate.
  */
-$app->command('secure [domain]', function ($domain = null) {
-    $url = ($domain ?: Site::host(getcwd())).'.'.Configuration::read()['domain'];
+$app->command('secure [domain] [host]', function ($domain = null, $host = null) {
+    $domains = Configuration::getDomainsByPath(getcwd());
+    if ($domains->isEmpty()) {
+        return warning(PHP_EOL.'Directory is not registered with any Valet domains.');
+    }
+
+    if ($domain !== null && !$domains->contains('domain', $domain)) {
+        return warning(PHP_EOL.'Directory is not registered with domain ['.$domain.'].');
+    }
+
+    if ($domain == null && count($domains) > 1) {
+        warning(PHP_EOL.'Directory is registered with multiple domains.');
+        output(PHP_EOL.'<comment>Following domains are registered with directory:</comment>');
+        return collect($domains)->each(function($domain) {
+            output('- '.$domain['domain']);
+        });
+    }
+
+    $domain = $domain ?: $domains->first()['domain'];
+
+    $url = ($host ?: Site::host(getcwd())).'.'.$domain;
 
     Site::secure($url);
 
@@ -126,10 +279,35 @@ $app->command('secure [domain]', function ($domain = null) {
     Caddy::restart();
 
     info('The ['.$url.'] site has been secured with a fresh TLS certificate.');
-});
+})->descriptions('Create a TLS certificate for the specified site', [
+    'domain' => 'Name of domain to secure',
+    'host' => 'Name of host to secure',
+]);
 
-$app->command('unsecure [domain]', function ($domain = null) {
-    $url = ($domain ?: Site::host(getcwd())).'.'.Configuration::read()['domain'];
+/**
+ * Unsecure the given domain and delete existing TLS certificates.
+ */
+$app->command('unsecure [domain] [host]', function ($domain = null, $host = null) {
+    $domains = Configuration::getDomainsByPath(getcwd());
+    if ($domains->isEmpty()) {
+        return warning(PHP_EOL.'Directory is not registered with any Valet domains.');
+    }
+
+    if ($domain !== null && ! $domains->contains('domain', $domain)) {
+        return warning(PHP_EOL.'Directory is not registered with domain ['.$domain.'].');
+    }
+
+    if ($domain == null && count($domains) > 1) {
+        warning(PHP_EOL.'Directory is registered with multiple domains.');
+        output(PHP_EOL.'<comment>Following domains are registered with directory:</comment>');
+        return collect($domains)->each(function($domain) {
+            output('- '.$domain['domain']);
+        });
+    }
+
+    $domain = $domain ?: $domains->first()['domain'];
+
+    $url = ($host ?: Site::host(getcwd())).'.'.$domain;
 
     Site::unsecure($url);
 
@@ -138,7 +316,10 @@ $app->command('unsecure [domain]', function ($domain = null) {
     Caddy::restart();
 
     info('The ['.$url.'] site will now serve traffic over HTTP.');
-});
+})->descriptions('Remove a TLS certificate from the specified site', [
+    'domain' => 'Name of domain to secure',
+    'host' => 'Name of host to unsecure'
+]);
 
 /**
  * Determine which Valet driver the current directory is using.
@@ -149,17 +330,23 @@ $app->command('which', function () {
     $driver = ValetDriver::assign(getcwd(), basename(getcwd()), '/');
 
     if ($driver) {
-        info('This site is served by ['.get_class($driver).'].');
+        info(PHP_EOL.'This site is served by ['.get_class($driver).'].');
     } else {
-        warning('Valet could not determine which driver to use for this site.');
+        warning(PHP_EOL.'Valet could not determine which driver to use for this site.');
     }
 })->descriptions('Determine which Valet driver serves the current working directory');
 
 /**
  * Stream all of the logs for all sites.
  */
-$app->command('logs', function () {
-    $files = Site::logs(Configuration::read()['paths']);
+$app->command('logs [domain]', function ($domain = null) {
+    if ($domain !== null && domain_exists($domain)) {
+        $domains = [Configuration::getDomain($domain)];
+    } else {
+        $domains = Configuration::getAllDomains();
+    }
+
+    $files = Site::logs($domains);
 
     $files = collect($files)->transform(function ($file) {
         return escapeshellarg($file);
@@ -168,28 +355,58 @@ $app->command('logs', function () {
     if (count($files) > 0) {
         passthru('tail -f '.implode(' ', $files));
     } else {
-        warning('No log files were found.');
+        warning(PHP_EOL.'No log files were found.');
     }
-})->descriptions('Stream all of the logs for all Laravel sites registered with Valet');
+})->descriptions('Stream all of the logs for all Laravel sites registered with a Valet domain');
 
 /**
- * Display all of the registered paths.
+ * Display all of the registered paths for domain
  */
-$app->command('paths', function () {
-    $paths = Configuration::read()['paths'];
-
-    if (count($paths) > 0) {
-        output(json_encode($paths, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+$app->command('paths [domain]', function ($domain = null) {
+    if ($domain !== null && domain_exists($domain)) {
+        $domains = [Configuration::getDomain($domain)];
     } else {
-        info('No paths have been registered.');
+        $domains = Configuration::getAllDomains();
     }
-})->descriptions('Get all of the paths registered with Valet');
+
+    collect($domains)->each(function($domain) {
+        $domainPaths = collect($domain['paths']);
+
+        info(PHP_EOL.'[' . $domain['domain'] . ']');
+
+        if (!$domainPaths->isEmpty()) {
+             $domainPaths->each(function($path) {
+                 output('- '.$path);
+             });
+        } else {
+            output('No paths have been registered');
+        }
+    });
+})->descriptions('Get all of the paths registered with a Valet domain', [
+    'domain' => 'Name of domain',
+]);
 
 /**
  * Open the current directory in the browser.
  */
- $app->command('open', function () {
-     $url = "http://".Site::host(getcwd()).'.'.Configuration::read()['domain'].'/';
+ $app->command('open [domain]', function ($domain = null) {
+     if (is_null($domain) || ! domain_exists($domain)) {
+         $domains = Configuration::getDomainsByPath(getcwd());
+
+         if ($domains->count() > 1) {
+             warning(PHP_EOL.'Directory is registered with multiple domains.');
+             output(PHP_EOL.'<comment>Following domains are registered with directory:</comment>');
+             return collect($domains)->each(function($domain) {
+                 output('- '.$domain['domain']);
+             });
+         } elseif ($domains->isEmpty()) {
+             return warning(PHP_EOL.'Directory is not registered with any Valet domains.');
+         }
+
+         $domain = $domains->first()['domain'];
+     }
+
+     $url = "http://".Site::host(getcwd()).'.'.$domain.'/';
 
      passthru("open ".escapeshellarg($url));
  })->descriptions('Open the site for the current directory in your browser');
@@ -209,6 +426,8 @@ $app->command('start', function () {
 
     Caddy::restart();
 
+    DnsMasq::restart();
+
     info('Valet services have been started.');
 })->descriptions('Start the Valet services');
 
@@ -220,6 +439,8 @@ $app->command('restart', function () {
 
     Caddy::restart();
 
+    DnsMasq::restart();
+
     info('Valet services have been restarted.');
 })->descriptions('Restart the Valet services');
 
@@ -230,6 +451,8 @@ $app->command('stop', function () {
     PhpFpm::stop();
 
     Caddy::stop();
+
+    DnsMasq::restart();
 
     info('Valet services have been stopped.');
 })->descriptions('Stop the Valet services');
