@@ -118,7 +118,7 @@ abstract class ValetDriver
      */
     public function serveStaticFile($staticFilePath, $sitePath, $siteName, $uri)
     {
-        $extension = pathinfo($staticFilePath)['extension'];
+        $extension = strtolower(pathinfo($staticFilePath)['extension']);
 
         $mimes = require(__DIR__.'/../mimes.php');
 
