@@ -17,22 +17,34 @@ function show_valet_404()
 }
 
 /**
- * Load the Valet configuration.
- */
-$valetConfig = json_decode(
-    file_get_contents(VALET_HOME_PATH.'/config.json'), true
-);
-
-/**
- * Parse the URI and site / host for the incoming request.
+ * Parse the URI and determine domain for incoming request.
  */
 $uri = urldecode(
     parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)
 );
 
+$domain = substr(
+    $_SERVER['HTTP_HOST'],
+    strrpos($_SERVER['HTTP_HOST'], '.')+1
+);
+
+/**
+ * Load the Valet configuration based on domain for incoming request.
+ */
+$valetConfig = json_decode(
+    file_get_contents(VALET_HOME_PATH.'/config.json'), true
+);
+
+$valetConfig = @array_pop(array_filter($valetConfig['domains'], function($data) use ($domain) {
+    return ($data['domain'] == $domain);
+}));
+
+/**
+ * Parse the hostname and determine site name for incoming request.
+ */
 $siteName = basename(
     $_SERVER['HTTP_HOST'],
-    '.'.$valetConfig['domain']
+    '.'.$domain
 );
 
 if (strpos($siteName, 'www.') === 0) {
@@ -44,11 +56,13 @@ if (strpos($siteName, 'www.') === 0) {
  */
 $valetSitePath = null;
 
-foreach ($valetConfig['paths'] as $path) {
-    if (is_dir($path.'/'.$siteName)) {
-        $valetSitePath = $path.'/'.$siteName;
+if (array_key_exists('paths', $valetConfig)) {
+    foreach ($valetConfig['paths'] as $path) {
+        if (is_dir($path . '/' . $siteName)) {
+            $valetSitePath = $path . '/' . $siteName;
 
-        break;
+            break;
+        }
     }
 }
 

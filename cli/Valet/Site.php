@@ -2,8 +2,6 @@
 
 namespace Valet;
 
-use DomainException;
-
 class Site
 {
     var $config, $cli, $files;
@@ -42,17 +40,18 @@ class Site
     /**
      * Link the current working directory with the given name.
      *
+     * @param  string  $domain
      * @param  string  $target
      * @param  string  $link
      * @return string
      */
-    function link($target, $link)
+    function link($domain, $target, $link)
     {
         $this->files->ensureDirExists(
-            $linkPath = $this->sitesPath(), user()
+            $linkPath = $this->sitesPath().'/'.$domain, user()
         );
 
-        $this->config->prependPath($linkPath);
+        $this->config->prependPath($domain, $linkPath);
 
         $this->files->symlinkAsUser($target, $linkPath.'/'.$link);
 
@@ -62,12 +61,15 @@ class Site
     /**
      * Unlink the given symbolic link.
      *
+     * @param  string  $domain
      * @param  string  $name
      * @return void
      */
-    function unlink($name)
+    function unlink($domain, $name)
     {
-        if ($this->files->exists($path = $this->sitesPath().'/'.$name)) {
+        if ($this->files->exists($path = $this->sitesPath().'/'.$domain.'/'.$name)) {
+            $this->config->removePath($domain, $path);
+
             $this->files->unlink($path);
         }
     }
@@ -105,6 +107,27 @@ class Site
 
         foreach ($secured as $url) {
             $this->secure(str_replace('.'.$oldDomain, '.'.$domain, $url));
+        }
+    }
+
+    /**
+     * Unsecure all sites within domain
+     *
+     * @param  string  $domain
+     * @return void
+     */
+    function unsecureAllForDomain($domain)
+    {
+        if (!$this->files->exists($this->certificatesPath())) {
+            return;
+        }
+
+        $secured = $this->secured();
+
+        foreach ($secured as $url) {
+            if (strpos($url, '.'.$domain) === false) { continue; }
+
+            $this->unsecure($url);
         }
     }
 
@@ -238,21 +261,23 @@ class Site
     /**
      * Get all of the log files for all sites.
      *
-     * @param  array  $paths
+     * @param  array  $domains
      * @return array
      */
-    function logs($paths)
+    function logs($domains)
     {
         $files = collect();
 
-        foreach ($paths as $path) {
-            $files = $files->merge(collect($this->files->scandir($path))->map(function ($directory) use ($path) {
-                $logPath = $path.'/'.$directory.'/storage/logs/laravel.log';
+        foreach ($domains as $domain) {
+            foreach ($domain['paths'] as $path) {
+                $files = $files->merge(collect($this->files->scandir($path))->map(function ($directory) use ($path) {
+                    $logPath = $path . '/' . $directory . '/storage/logs/laravel.log';
 
-                if ($this->files->isDir(dirname($logPath))) {
-                    return $this->files->touchAsUser($logPath);
-                }
-            })->filter());
+                    if ($this->files->isDir(dirname($logPath))) {
+                        return $this->files->touchAsUser($logPath);
+                    }
+                })->filter());
+            }
         }
 
         return $files->values()->all();

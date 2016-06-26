@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Container\Container;
-use Symfony\Component\Process\Process;
+use Valet\Configuration;
 
 /**
  * Define the ~/.valet path as a constant.
@@ -60,7 +60,7 @@ function resolve($class)
  * Swap the given class implementation in the container.
  *
  * @param  string  $class
- * @param  mixed  $instance
+ * @param  mixed   $instance
  * @return void
  */
 function swap($class, $instance)
@@ -69,12 +69,24 @@ function swap($class, $instance)
 }
 
 /**
+ * Check if domain exists
+ *
+ * @param  string  $domain
+ * @return bool
+ */
+function domain_exists($domain)
+{
+    return resolve(Configuration::class)->doesDomainExist($domain);
+}
+
+/**
  * Retry the given function N times.
  *
  * @param  int  $retries
- * @param  callable  $retries
+ * @param  callable  $fn
  * @param  int  $sleep
  * @return mixed
+ * @throws \Exception
  */
 function retry($retries, $fn, $sleep = 0)
 {
@@ -100,6 +112,7 @@ function retry($retries, $fn, $sleep = 0)
  * Verify that the script is currently running as "sudo".
  *
  * @return void
+ * @throws \Exception
  */
 function should_be_sudo()
 {

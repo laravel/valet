@@ -44,21 +44,34 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase
     {
         $config = Mockery::mock(Configuration::class.'[read,write]', [new Filesystem]);
         $config->shouldReceive('read')->andReturn([
-            'paths' => ['path-1', 'path-2'],
+            'domains' => [[
+                'domain' => 'dev',
+                'paths' => ['path-1', 'path-2'],
+            ]]
         ]);
         $config->shouldReceive('write')->with([
-            'paths' => ['path-1', 'path-2', 'path-3'],
+            'domains' => [[
+                'domain' => 'dev',
+                'paths' => ['path-1', 'path-2', 'path-3']
+            ]]
         ]);
-        $config->addPath('path-3');
+        $config->addPath('dev','path-3');
 
         $config = Mockery::mock(Configuration::class.'[read,write]', [new Filesystem]);
         $config->shouldReceive('read')->andReturn([
-            'paths' => ['path-1', 'path-2', 'path-3'],
+            'domains' => [[
+                'domain' => 'dev',
+                'paths' => ['path-1', 'path-2', 'path-3'],
+            ]]
         ]);
+
         $config->shouldReceive('write')->with([
-            'paths' => ['path-1', 'path-2', 'path-3'],
+            'domains' => [[
+                'domain' => 'dev',
+                'paths' => ['path-1', 'path-2', 'path-3'],
+            ]]
         ]);
-        $config->addPath('path-3');
+        $config->addPath('dev', 'path-3');
     }
 
 
@@ -66,12 +79,18 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase
     {
         $config = Mockery::mock(Configuration::class.'[read,write]', [new Filesystem]);
         $config->shouldReceive('read')->andReturn([
-            'paths' => ['path-1', 'path-2'],
+            'domains' => [[
+                'domain' => 'dev',
+                'paths' => ['path-1', 'path-2'],
+            ]]
         ]);
         $config->shouldReceive('write')->with([
-            'paths' => ['path-1'],
+            'domains' => [[
+                'domain' => 'dev',
+                'paths' => ['path-1'],
+            ]]
         ]);
-        $config->removePath('path-2');
+        $config->removePath('dev', 'path-2');
     }
 
 
@@ -84,10 +103,16 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase
         $files->shouldReceive('isDir')->with('path-2')->andReturn(false);
         $config = Mockery::mock(Configuration::class.'[read,write]', [$files]);
         $config->shouldReceive('read')->andReturn([
-            'paths' => ['path-1', 'path-2'],
+            'domains' => [[
+                'domain' => 'dev',
+                'paths' => ['path-1', 'path-2'],
+            ]]
         ]);
         $config->shouldReceive('write')->with([
-            'paths' => ['path-1'],
+            'domains' => [[
+                'domain' => 'dev',
+                'paths' => ['path-1'],
+            ]]
         ]);
         $config->prune();
     }
@@ -102,14 +127,5 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase
         $config->shouldReceive('read')->never();
         $config->shouldReceive('write')->never();
         $config->prune();
-    }
-
-
-    public function test_update_key_updates_the_specified_configuration_key()
-    {
-        $config = Mockery::mock(Configuration::class.'[read,write]', [new Filesystem]);
-        $config->shouldReceive('read')->once()->andReturn(['foo' => 'bar']);
-        $config->shouldReceive('write')->once()->with(['foo' => 'bar', 'bar' => 'baz']);
-        $config->updateKey('bar', 'baz');
     }
 }
