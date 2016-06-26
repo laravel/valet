@@ -18,6 +18,7 @@ class SiteTest extends PHPUnit_Framework_TestCase
     public function tearDown()
     {
         exec('rm -rf '.__DIR__.'/output/dev');
+        exec('rm -rf '.__DIR__.'/output/file.out');
         mkdir(__DIR__.'/output/dev/', 0777);
         touch(__DIR__.'/output/.gitkeep');
 
@@ -42,6 +43,10 @@ class SiteTest extends PHPUnit_Framework_TestCase
 
     public function test_unlink_removes_existing_symlink()
     {
+        $config = Mockery::mock(Configuration::class, [new Filesystem]);
+        $config->shouldReceive('removePath');
+        swap(Configuration::class, $config);
+
         file_put_contents(__DIR__.'/output/file.out', 'test');
         symlink(__DIR__.'/output/file.out', __DIR__.'/output/dev/link');
         $site = resolve(StubForRemovingLinks::class);

@@ -35,6 +35,8 @@ class DnsMasqTest extends PHPUnit_Framework_TestCase
 
         $dnsMasq = resolve(StubForCreatingCustomDnsMasqConfigFiles::class);
 
+        $dnsMasq->setTestPaths();
+
         $dnsMasq->install('dev');
 
         $this->assertSame('nameserver 127.0.0.1'.PHP_EOL, file_get_contents(__DIR__.'/output/resolver/dev'));
@@ -47,8 +49,14 @@ conf-file='.__DIR__.'/output/custom-dnsmasq.conf
 
     public function test_rename_domain_resolver_and_rename_in_configuration_file()
     {
-        $dnsMasq = Mockery::mock(StubForCreatingCustomDnsMasqConfigFiles::class.'[restart]', [resolve(Brew::class), resolve(CommandLine::class), new Filesystem]);
-        $dnsMasq->shouldReceive('restart');
+        $brew = Mockery::mock(Brew::class);
+        $brew->shouldReceive('ensureInstalled')->once()->with('dnsmasq');
+        $brew->shouldReceive('restartService')->twice()->with('dnsmasq');
+        swap(Brew::class, $brew);
+
+        $dnsMasq = resolve(StubForCreatingCustomDnsMasqConfigFiles::class);
+
+        $dnsMasq->setTestPaths();
 
         $dnsMasq->install('dev');
 
@@ -59,8 +67,14 @@ conf-file='.__DIR__.'/output/custom-dnsmasq.conf
 
     public function test_delete_domain_resolver_and_remove_from_configuration_file()
     {
-        $dnsMasq = Mockery::mock(StubForCreatingCustomDnsMasqConfigFiles::class.'[restart]', [resolve(Brew::class), resolve(CommandLine::class), new Filesystem]);
-        $dnsMasq->shouldReceive('restart');
+        $brew = Mockery::mock(Brew::class);
+        $brew->shouldReceive('ensureInstalled')->once()->with('dnsmasq');
+        $brew->shouldReceive('restartService')->twice()->with('dnsmasq');
+        swap(Brew::class, $brew);
+
+        $dnsMasq = resolve(StubForCreatingCustomDnsMasqConfigFiles::class);
+
+        $dnsMasq->setTestPaths();
 
         $dnsMasq->install('dev');
 
@@ -73,9 +87,17 @@ conf-file='.__DIR__.'/output/custom-dnsmasq.conf
 
 class StubForCreatingCustomDnsMasqConfigFiles extends DnsMasq
 {
-    public $exampleConfigPath = __DIR__.'/files/dnsmasq.conf';
-    public $configPath = __DIR__.'/output/dnsmasq.conf';
-    public $resolverPath = __DIR__.'/output/resolver';
+    public function flushDnsCache()
+    {
+        return;
+    }
+
+    public function setTestPaths()
+    {
+        $this->exampleConfigPath = __DIR__.'/files/dnsmasq.conf';
+        $this->configPath = __DIR__.'/output/dnsmasq.conf';
+        $this->resolverPath = __DIR__.'/output/resolver';
+    }
 
     public function customConfigPath()
     {
