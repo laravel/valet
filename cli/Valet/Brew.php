@@ -40,7 +40,8 @@ class Brew
      */
     function hasInstalledPhp()
     {
-        return $this->installed('php70')
+        return $this->installed('php71')
+            || $this->installed('php70')
             || $this->installed('php56')
             || $this->installed('php55');
     }
@@ -137,7 +138,9 @@ class Brew
 
         $resolvedPath = $this->files->readLink('/usr/local/bin/php');
 
-        if (strpos($resolvedPath, 'php70') !== false) {
+        if (strpos($resolvedPath, 'php71') !== false) {
+            return 'php71';
+        } elseif (strpos($resolvedPath, 'php70') !== false) {
             return 'php70';
         } elseif (strpos($resolvedPath, 'php56') !== false) {
             return 'php56';

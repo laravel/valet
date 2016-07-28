@@ -36,7 +36,8 @@ class PhpFpm
      */
     public function install()
     {
-        if (! $this->brew->installed('php70') &&
+        if (! $this->brew->installed('php71') &&
+            ! $this->brew->installed('php70') &&
             ! $this->brew->installed('php56') &&
             ! $this->brew->installed('php55')) {
             $this->brew->ensureInstalled('php70', $this->taps);
@@ -83,7 +84,7 @@ class PhpFpm
      */
     public function stop()
     {
-        $this->brew->stopService('php55', 'php56', 'php70');
+        $this->brew->stopService('php55', 'php56', 'php70', 'php71');
     }
 
     /**
@@ -93,7 +94,9 @@ class PhpFpm
      */
     public function fpmConfigPath()
     {
-        if ($this->brew->linkedPhp() === 'php70') {
+        if ($this->brew->linkedPhp() === 'php71') {
+            return '/usr/local/etc/php/7.1/php-fpm.d/www.conf';
+        } elseif ($this->brew->linkedPhp() === 'php70') {
             return '/usr/local/etc/php/7.0/php-fpm.d/www.conf';
         } elseif ($this->brew->linkedPhp() === 'php56') {
             return '/usr/local/etc/php/5.6/php-fpm.conf';
