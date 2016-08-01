@@ -126,7 +126,7 @@ $app->command('secure [domain]', function ($domain = null) {
     Caddy::restart();
 
     info('The ['.$url.'] site has been secured with a fresh TLS certificate.');
-});
+})->descriptions('Create a TLS certificate for the specified site');
 
 $app->command('unsecure [domain]', function ($domain = null) {
     $url = ($domain ?: Site::host(getcwd())).'.'.Configuration::read()['domain'];
@@ -138,7 +138,7 @@ $app->command('unsecure [domain]', function ($domain = null) {
     Caddy::restart();
 
     info('The ['.$url.'] site will now serve traffic over HTTP.');
-});
+})->descriptions('Remove a TLS certificate from the specified site');
 
 /**
  * Determine which Valet driver the current directory is using.
