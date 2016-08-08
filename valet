@@ -32,7 +32,7 @@ fi
 # If the command is the "share" command we will need to resolve out any
 # symbolic links for the site. Before starting Ngrok, we will fire a
 # process to retrieve the live Ngrok tunnel URL in the background.
-elif [[ "$1" = "share" ]]
+if [[ "$1" = "share" ]]
 then
     HOST="${PWD##*/}"
     DOMAIN=$(php "$DIR/cli/valet.php" domain)
