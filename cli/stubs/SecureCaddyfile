@@ -6,11 +6,11 @@ https://VALET_SITE:443 {
     tls VALET_CERT VALET_KEY
 
     fastcgi / 127.0.0.1:9000 php {
-        index server.php
+        index VALET_HOME_PATH/server.php
     }
 
     rewrite {
-        to /server.php?{query}
+        to VALET_HOME_PATH/server.php?{query}
     }
 
     log VALET_HOME_PATH/Log/access.log {
