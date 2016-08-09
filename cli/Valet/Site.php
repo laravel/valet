@@ -211,7 +211,7 @@ class Site
         $path = $this->certificatesPath();
 
         return str_replace(
-            ['VALET_HOME_PATH', 'VALET_SITE', 'VALET_CERT', 'VALET_KEY'], [VALET_HOME_PATH, $url, $path.'/'.$url.'.crt', $path.'/'.$url.'.key'],
+            ['VALET_SERVER_PATH', 'VALET_SITE', 'VALET_CERT', 'VALET_KEY'], [VALET_SERVER_PATH, $url, $path.'/'.$url.'.crt', $path.'/'.$url.'.key'],
             $this->files->get(__DIR__.'/../stubs/SecureCaddyfile')
         );
     }

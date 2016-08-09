@@ -5,11 +5,11 @@ import VALET_HOME_PATH/Caddy/*
     internal /madeupfolder
 
     fastcgi / 127.0.0.1:9000 php {
-        index VALET_HOME_PATH/server.php
+        index VALET_SERVER_PATH
     }
 
     rewrite {
-        to VALET_HOME_PATH/server.php?{query}
+        to VALET_SERVER_PATH?{query}
     }
 
     log VALET_HOME_PATH/Log/access.log {
