@@ -2,7 +2,7 @@ import VALET_HOME_PATH/Caddy/*
 
 :80 {
     root /
-    internal /madeupfolder
+    internal /dev/null
 
     fastcgi / 127.0.0.1:9000 php {
         index VALET_SERVER_PATH

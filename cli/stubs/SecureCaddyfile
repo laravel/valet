@@ -4,7 +4,8 @@ http://VALET_SITE:80 {
 
 https://VALET_SITE:443 {
     root /
-    internal /madeupfolder
+    internal /dev/null
+
     tls VALET_CERT VALET_KEY
 
     fastcgi / 127.0.0.1:9000 php {
