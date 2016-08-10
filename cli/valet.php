@@ -73,20 +73,30 @@ $app->command('domain [domain]', function ($domain = null) {
 /**
  * Add the current working directory to the paths configuration.
  */
-$app->command('park', function () {
-    Configuration::addPath(getcwd());
+$app->command('park [path]', function ($path = null) {
+    $pathToPark = getcwd();
+    if ($path !== null) {
+        $pathToPark = $path;
+    }
 
-    info("This directory has been added to Valet's paths.");
-})->descriptions('Register the current working directory with Valet');
+    Configuration::addPath($pathToPark);
+
+    info(($path === null ? "This" : "The [{$path}]") . " directory has been added to Valet's paths.");
+})->descriptions('Register the current working (or specified) directory with Valet');
 
 /**
- * Remove the current working directory to the paths configuration.
+ * Remove the current working directory from the paths configuration.
  */
-$app->command('forget', function () {
-    Configuration::removePath(getcwd());
+$app->command('forget [path]', function ($path = null) {
+    $pathToForget = getcwd();
+    if ($path !== null) {
+        $pathToForget = $path;
+    }
 
-    info("This directory has been removed from Valet's paths.");
-})->descriptions('Remove the current working directory from Valet\'s list of paths');
+    Configuration::removePath($pathToForget);
+
+    info(($path === null ? "This" : "The [{$path}]") . " directory has been removed from Valet's paths.");
+})->descriptions('Remove the current working (or specified) directory from Valet\'s list of paths');
 
 /**
  * Register a symbolic link with Valet.
