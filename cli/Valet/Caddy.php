@@ -2,13 +2,12 @@
 
 namespace Valet;
 
-use Configuration as ConfigurationFacade;
-use Site as SiteFacade;
-
 class Caddy
 {
     var $cli;
     var $files;
+    var $configuration;
+    var $site;
     var $daemonPath = '/Library/LaunchDaemons/com.laravel.valetServer.plist';
 
     /**
@@ -17,10 +16,12 @@ class Caddy
      * @param  CommandLine  $cli
      * @param  Filesystem  $files
      */
-    function __construct(CommandLine $cli, Filesystem $files)
+    function __construct(CommandLine $cli, Filesystem $files, Configuration $configuration, Site $site)
     {
         $this->cli = $cli;
         $this->files = $files;
+        $this->configuration = $configuration;
+        $this->site = $site;
     }
 
     /**
@@ -77,8 +78,8 @@ class Caddy
      */
     function rewriteSecureCaddyFiles()
     {
-        $domain = ConfigurationFacade::read()['domain'];
-        SiteFacade::resecureForNewDomain($domain, $domain);
+        $domain = $this->configuration->read()['domain'];
+        $this->site->resecureForNewDomain('dev', 'dev');
     }
 
     /**
