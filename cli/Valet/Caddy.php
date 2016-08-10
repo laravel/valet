@@ -2,6 +2,9 @@
 
 namespace Valet;
 
+use Configuration as ConfigurationFacade;
+use Site as SiteFacade;
+
 class Caddy
 {
     var $cli;
@@ -61,6 +64,21 @@ class Caddy
         }
 
         $this->files->touchAsUser($caddyDirectory.'/.keep');
+
+        $this->rewriteSecureCaddyFiles();
+    }
+
+    /**
+     * Generate fresh Caddyfiles for existing secure sites.
+     *
+     * This simplifies upgrading when the Caddyfile structure changes.
+     *
+     * @return void
+     */
+    function rewriteSecureCaddyFiles()
+    {
+        $domain = ConfigurationFacade::read()['domain'];
+        SiteFacade::resecureForNewDomain($domain, $domain);
     }
 
     /**
