@@ -119,7 +119,7 @@ class Configuration
     }
 
     /**
-     * Add the given path to the configuration.
+     * Remove the given path from the configuration.
      *
      * @param  string  $path
      * @return void
