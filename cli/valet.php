@@ -174,12 +174,12 @@ $app->command('which', function () {
 $app->command('logs', function () {
     $files = Site::logs(Configuration::read()['paths']);
 
-    $files = collect($files)->transform(function ($file) {
+    $args = collect($files)->map(function ($file) {
         return escapeshellarg($file);
-    })->all();
+    })->implode(' ');
 
     if (count($files) > 0) {
-        passthru('tail -f '.implode(' ', $files));
+        passthru("tail -f {$args}");
     } else {
         warning('No log files were found.');
     }
@@ -191,12 +191,12 @@ $app->command('logs', function () {
 $app->command('server-log', function () {
     $files = Filesystem::scandir(VALET_HOME_PATH.'/Log');
 
-    $files = collect($files)->transform(function ($file) {
+    $args = collect($files)->map(function ($file) {
         return escapeshellarg(VALET_HOME_PATH.'/Log/'.$file);
-    })->all();
+    })->implode(' ');
 
     if (count($files) > 0) {
-        passthru('tail -f '.implode(' ', $files));
+        passthru("tail -f {$args}");
     } else {
         warning('No log files were found.');
     }
