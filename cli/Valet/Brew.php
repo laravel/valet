@@ -51,12 +51,13 @@ class Brew
      *
      * @param  string  $formula
      * @param  array  $taps
+     * @param  array  $options
      * @return void
      */
-    function ensureInstalled($formula, array $taps = [])
+    function ensureInstalled($formula, array $taps = [], array $options = array())
     {
         if (! $this->installed($formula)) {
-            $this->installOrFail($formula, $taps);
+            $this->installOrFail($formula, $taps, $options);
         }
     }
 
@@ -65,9 +66,10 @@ class Brew
      *
      * @param  string  $formula
      * @param  array  $taps
+     * @param  array  $options
      * @return void
      */
-    function installOrFail($formula, array $taps = [])
+    function installOrFail($formula, array $taps = [], array $options = array())
     {
         if (count($taps) > 0) {
             $this->tap($taps);
@@ -75,7 +77,13 @@ class Brew
 
         output('<info>['.$formula.'] is not installed, installing it now via Brew...</info> 🍻');
 
-        $this->cli->runAsUser('brew install '.$formula, function ($exitCode, $errorOutput) use ($formula) {
+        $options = collect($options)->reduce(function($carry, $item) {
+            return $carry.' --'.$item;
+        });
+
+        $command = 'brew install '.$formula.$options;
+
+        $this->cli->runAsUser($command, function ($exitCode, $errorOutput) use ($formula) {
             output($errorOutput);
 
             throw new DomainException('Brew was unable to install ['.$formula.'].');
