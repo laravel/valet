@@ -79,7 +79,7 @@ class Caddy
     function rewriteSecureCaddyFiles()
     {
         $domain = $this->configuration->read()['domain'];
-        $this->site->resecureForNewDomain('dev', 'dev');
+        $this->site->resecureForNewDomain($domain, $domain);
     }
 
     /**
