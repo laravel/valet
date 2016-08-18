@@ -2,6 +2,8 @@ import VALET_HOME_PATH/Caddy/*
 
 :80 {
     root /
+
+    # Slight hack, see: https://github.com/mholt/caddy/issues/1020
     internal /dev/null
 
     fastcgi / 127.0.0.1:9000 php {
