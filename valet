@@ -44,9 +44,17 @@ then
         fi
     done
 
+    # Determine which region to pass along to ngrok...
+    if [[ -z "$2" ]]
+    then
+        REGION="us"
+    else
+        REGION="$2"
+    fi
+
     # Fetch Ngrok URL In Background...
     bash "$DIR/cli/scripts/fetch-share-url.sh" &
-    sudo -u $(logname) "$DIR/bin/ngrok" http -host-header=rewrite "$HOST.$DOMAIN:80"
+    sudo -u $(logname) "$DIR/bin/ngrok" http -host-header=rewrite -region="$REGION" "$HOST.$DOMAIN:80"
     exit
 
 # Finally, for every other command we will just proxy into the PHP tool
