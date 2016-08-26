@@ -17,6 +17,38 @@ function show_valet_404()
 }
 
 /**
+ * http://stackoverflow.com/a/10473026/2098861
+ *
+ * @param $haystack
+ * @param $needle
+ *
+ * @return bool
+ */
+function ends_with($haystack, $needle)
+{
+    // search forward starting from end minus needle length characters
+    return $needle === '' || (($temp = strlen($haystack) - strlen($needle)) >= 0 && strpos($haystack, $needle, $temp) !== false);
+}
+
+/**
+ * @param $domain string Domain to filter
+ *
+ * @return string Filter domain (without xip.io feature)
+ */
+function support_xip_io($domain)
+{
+    if (ends_with($domain, ".xip.io")) {
+        // support only ip v4 for now
+        $domainPart = explode('.', $domain);
+        if (count($domainPart) > 6) {
+            $domain = implode('.', array_reverse(array_slice(array_reverse($domainPart), 6)));
+        }
+    }
+
+    return $domain;
+}
+
+/**
  * Load the Valet configuration.
  */
 $valetConfig = json_decode(
@@ -29,6 +61,11 @@ $valetConfig = json_decode(
 $uri = urldecode(
     parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)
 );
+
+/**
+ * Filter host to support xip.io feature
+ */
+$_SERVER['HTTP_HOST'] = support_xip_io($_SERVER['HTTP_HOST']);
 
 $siteName = basename(
     $_SERVER['HTTP_HOST'],
@@ -73,7 +110,8 @@ if (! $valetDriver) {
  * Overwrite the HTTP host for Ngrok.
  */
 if (isset($_SERVER['HTTP_X_ORIGINAL_HOST'])) {
-    $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_X_ORIGINAL_HOST'];
+    // Filter host to support xip.io feature
+    $_SERVER['HTTP_HOST'] = support_xip_io($_SERVER['HTTP_X_ORIGINAL_HOST']);
 }
 
 /**
