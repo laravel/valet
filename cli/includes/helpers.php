@@ -7,6 +7,7 @@ use Symfony\Component\Process\Process;
  * Define the ~/.valet path as a constant.
  */
 define('VALET_HOME_PATH', $_SERVER['HOME'].'/.valet');
+define('VALET_SERVER_PATH', realpath(__DIR__ . '/../../server.php'));
 
 /**
  * Output the given text to the console.
