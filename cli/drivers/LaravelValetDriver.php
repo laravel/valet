@@ -28,7 +28,7 @@ class LaravelValetDriver extends ValetDriver
     {
         $staticFilePath = $sitePath.'/public'.$uri;
         
-        if (file_exists($staticFilePath) AND is_file($staticFilePath)) {
+        if (file_exists($staticFilePath) && is_file($staticFilePath)) {
             return $staticFilePath;
         }
 
