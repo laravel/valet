@@ -67,6 +67,7 @@ abstract class ValetDriver
         $drivers[] = 'JoomlaValetDriver';
         $drivers[] = 'DrupalValetDriver';
         $drivers[] = 'Concrete5ValetDriver';
+        $drivers[] = 'Magento2ValetDriver';
 
         $drivers[] = 'BasicValetDriver';
 
