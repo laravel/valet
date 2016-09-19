@@ -141,21 +141,30 @@ $app->command('secure [domain]', function ($domain = null) {
 /**
  * Check if a given domain has a trusted TLS certificate.
  */
-$app->command('secured [domain]', function ($domain = null) {
-    if (!$domain) {
-        warning('Try the following syntax command: valet secured [domain]');
+$app->command('secured [domain]', function ($domain) {
+    $domain = $domain ?: Site::host(getcwd());
+
+    if (Site::isSecured($domain)) {
+        output('YES');
+    } else {
+        warning('NO');
+    }
+})->descriptions('Check if a given domain has a trusted TLS certificate');
+
+/**
+ * List all secured domains with a trusted TLS certificate.
+ */
+$app->command('secures', function () {
+    $items = Site::secured();
+
+    if ($items == null) {
+        warning('There are no secured domains with a TLS certificate.');
     }
 
-    $domains = Site::secured();
-
-    foreach ($domains as $item) {
-        $host = explode('.', $item)[0];
-
-        if ($domain && $host === $domain) {
-            info('The ['.$item.'] site has been secured with a TLS certificate.');
-        }
+    foreach ($items as $item) {
+        info('The ['.$item.'] site has been secured with a TLS certificate.');
     }
-})->descriptions('List all secured domain with a trusted TLS certificate');
+})->descriptions('List all secured domains with a trusted TLS certificate');
 
 /**
  * Stop serving the given domain over HTTPS and remove the trusted TLS certificate.

@@ -46,7 +46,7 @@ then
 
     COMMAND=$(php "$DIR/cli/valet.php" secured $HOST)
 
-    if [ -n "$COMMAND" ]; then
+    if [ "$COMMAND" == 'YES' ]; then
         HOST="valet.$HOST"
         echo $(php "$DIR/cli/valet.php" link $HOST)
     fi
@@ -55,7 +55,7 @@ then
     bash "$DIR/cli/scripts/fetch-share-url.sh" &
     sudo -u $(logname) "$DIR/bin/ngrok" http "$HOST.$DOMAIN:80" -host-header=rewrite ${*:2}
 
-    if [ -n "$COMMAND" ]; then
+    if [ "$COMMAND" == 'YES' ]; then
         echo $(php "$DIR/cli/valet.php" unlink $HOST)
     fi
 
