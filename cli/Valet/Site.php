@@ -122,6 +122,20 @@ class Site
     }
 
     /**
+     * Check if a given host has TLS.
+     *
+     * @param  string  $url
+     * @return bool
+     */
+    function isSecured($url)
+    {
+        $secured = $this->secured();
+        $site = $url.'.'.$this->config->read()['domain'];
+
+        return in_array($site, $secured);
+    }
+
+    /**
      * Secure the given host with TLS.
      *
      * @param  string  $url
