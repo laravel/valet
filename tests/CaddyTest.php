@@ -40,7 +40,7 @@ class CaddyTest extends PHPUnit_Framework_TestCase
         $files = Mockery::mock(Filesystem::class);
         $files->shouldReceive('isDir')->with(VALET_HOME_PATH.'/Caddy')->andReturn(false);
         $files->shouldReceive('mkdirAsUser')->with(VALET_HOME_PATH.'/Caddy');
-        $files->shouldReceive('touchAsUser')->with(VALET_HOME_PATH.'/Caddy/.keep');
+        $files->shouldReceive('putAsUser')->with(VALET_HOME_PATH.'/Caddy/.keep', "\n");
 
         swap(Filesystem::class, $files);
         $caddy = resolve(Caddy::class);
@@ -54,7 +54,7 @@ class CaddyTest extends PHPUnit_Framework_TestCase
         $files = Mockery::mock(Filesystem::class);
         $files->shouldReceive('isDir')->with(VALET_HOME_PATH.'/Caddy')->andReturn(true);
         $files->shouldReceive('mkdirAsUser')->never();
-        $files->shouldReceive('touchAsUser')->with(VALET_HOME_PATH.'/Caddy/.keep');
+        $files->shouldReceive('putAsUser')->with(VALET_HOME_PATH.'/Caddy/.keep', "\n");
 
         swap(Filesystem::class, $files);
         $caddy = resolve(Caddy::class);
