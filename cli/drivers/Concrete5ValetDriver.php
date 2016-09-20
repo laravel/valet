@@ -12,7 +12,7 @@ class Concrete5ValetDriver extends BasicValetDriver
      */
     public function serves($sitePath, $siteName, $uri)
     {
-        return file_exists($sitePath . "/concrete");
+        return file_exists($sitePath . "/concrete/config/install/base");
     }
 
     /**
@@ -25,6 +25,18 @@ class Concrete5ValetDriver extends BasicValetDriver
     {
         if (!getenv('CONCRETE5_ENV')) {
             putenv('CONCRETE5_ENV=valet');
+        }
+
+        $matches = [];
+        if (preg_match('/^\/(.*?)\.php/', $uri, $matches)) {
+            $filename = $matches[0];
+
+            if (file_exists($sitePath.$filename) && ! is_dir($sitePath.$filename)) {
+                $_SERVER['SCRIPT_FILENAME'] = $sitePath.$filename;
+                $_SERVER['SCRIPT_NAME'] = $filename;
+
+                return $sitePath . $filename;
+            }
         }
 
         $_SERVER['SCRIPT_FILENAME'] = $sitePath . '/index.php';
