@@ -152,21 +152,6 @@ $app->command('secured [domain]', function ($domain) {
 })->descriptions('Check if a given domain has a trusted TLS certificate');
 
 /**
- * List all secured domains with a trusted TLS certificate.
- */
-$app->command('secures', function () {
-    $items = Site::secured();
-
-    if ($items == null) {
-        warning('There are no secured domains with a TLS certificate.');
-    }
-
-    foreach ($items as $item) {
-        info('The ['.$item.'] site has been secured with a TLS certificate.');
-    }
-})->descriptions('List all secured domains with a trusted TLS certificate');
-
-/**
  * Stop serving the given domain over HTTPS and remove the trusted TLS certificate.
  */
 $app->command('unsecure [domain]', function ($domain = null) {
