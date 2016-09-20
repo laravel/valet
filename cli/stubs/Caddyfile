@@ -6,7 +6,7 @@ import VALET_HOME_PATH/Caddy/*
     # Slight hack, see: https://github.com/mholt/caddy/issues/1020
     internal /dev/null
 
-    fastcgi / 127.0.0.1:9000 php {
+    fastcgi / /var/run/valet/fpm.socket php {
         index VALET_SERVER_PATH
     }
 
