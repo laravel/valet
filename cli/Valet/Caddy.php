@@ -60,7 +60,7 @@ class Caddy
             $this->files->mkdirAsUser($caddyDirectory);
         }
 
-        $this->files->touchAsUser($caddyDirectory.'/.keep');
+        $this->files->putAsUser($caddyDirectory.'/.keep', "\n");
     }
 
     /**
