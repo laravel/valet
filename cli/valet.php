@@ -74,12 +74,7 @@ $app->command('domain [domain]', function ($domain = null) {
  * Add the current working directory to the paths configuration.
  */
 $app->command('park [path]', function ($path = null) {
-    $pathToPark = getcwd();
-    if ($path !== null) {
-        $pathToPark = $path;
-    }
-
-    Configuration::addPath($pathToPark);
+    Configuration::addPath($path ?: getcwd());
 
     info(($path === null ? "This" : "The [{$path}]") . " directory has been added to Valet's paths.");
 })->descriptions('Register the current working (or specified) directory with Valet');
@@ -88,12 +83,7 @@ $app->command('park [path]', function ($path = null) {
  * Remove the current working directory from the paths configuration.
  */
 $app->command('forget [path]', function ($path = null) {
-    $pathToForget = getcwd();
-    if ($path !== null) {
-        $pathToForget = $path;
-    }
-
-    Configuration::removePath($pathToForget);
+    Configuration::removePath($path ?: getcwd());
 
     info(($path === null ? "This" : "The [{$path}]") . " directory has been removed from Valet's paths.");
 })->descriptions('Remove the current working (or specified) directory from Valet\'s list of paths');
@@ -186,7 +176,7 @@ $app->command('logs', function () {
 })->descriptions('Stream all of the logs for all Laravel sites registered with Valet');
 
 /**
- * Stream Caddy access- and error-log.
+ * Stream Caddy access and error log.
  */
 $app->command('server-log', function () {
     $files = Filesystem::scandir(VALET_HOME_PATH.'/Log');
