@@ -159,23 +159,6 @@ $app->command('which', function () {
 })->descriptions('Determine which Valet driver serves the current working directory');
 
 /**
- * Stream all of the logs for all sites.
- */
-$app->command('logs', function () {
-    $files = Site::logs(Configuration::read()['paths']);
-
-    $args = collect($files)->map(function ($file) {
-        return escapeshellarg($file);
-    })->implode(' ');
-
-    if (count($files) > 0) {
-        passthru("tail -f {$args}");
-    } else {
-        warning('No log files were found.');
-    }
-})->descriptions('Stream all of the logs for all Laravel sites registered with Valet');
-
-/**
  * Stream the Caddy access and error logs.
  */
 $app->command('server-log', function () {
