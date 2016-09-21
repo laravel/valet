@@ -93,7 +93,7 @@ class Site
      */
     function resecureForNewDomain($oldDomain, $domain)
     {
-        if (!$this->files->exists($this->certificatesPath())) {
+        if (! $this->files->exists($this->certificatesPath())) {
             return;
         }
 
