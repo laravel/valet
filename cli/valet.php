@@ -176,7 +176,7 @@ $app->command('logs', function () {
 })->descriptions('Stream all of the logs for all Laravel sites registered with Valet');
 
 /**
- * Stream Caddy access and error log.
+ * Stream the Caddy access and error logs.
  */
 $app->command('server-log', function () {
     $files = Filesystem::scandir(VALET_HOME_PATH.'/Log');
