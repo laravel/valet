@@ -62,6 +62,8 @@ class Typo3ValetDriver extends ValetDriver
      */
     public function isStaticFile($sitePath, $siteName, $uri)
     {
+        $uri = $this->isVersionNumberInFilename($sitePath . $this->documentRoot . $uri, $uri);
+
         if (file_exists($filePath = $sitePath . $this->documentRoot . $uri)
             && ! is_dir($filePath)
             && pathinfo($filePath)['extension'] !== 'php')
@@ -84,6 +86,7 @@ class Typo3ValetDriver extends ValetDriver
      */
     public function frontControllerPath($sitePath, $siteName, $uri)
     {
+        $this->directLoginToInstallTool($uri);
         $this->authorizeAccess($uri);
         $uri = rtrim($uri, '/');
         $absoluteFilePath = $sitePath . $this->documentRoot . $uri;
@@ -154,6 +157,40 @@ class Typo3ValetDriver extends ValetDriver
                 header('HTTP/1.0 403 Forbidden');
                 die("You are forbidden to see $uri!");
             }
+        }
+    }
+
+
+    /**
+     * Rule for versioned static files, configured through:
+     * - $GLOBALS['TYPO3_CONF_VARS']['BE']['versionNumberInFilename']
+     * - $GLOBALS['TYPO3_CONF_VARS']['FE']['versionNumberInFilename']
+     *
+     * @param string $filePath
+     * @param string $uri
+     * @return string $uri
+     */
+    private function isVersionNumberInFilename($filePath, $uri) {
+        if ( ! file_exists($filePath) &&
+            preg_match("/^(.+)\.(\d+)\.(php|js|css|png|jpg|gif|gzip)$/", $uri)
+        ) {
+            return preg_replace("/^(.+)\.(\d+)\.(php|js|css|png|jpg|gif|gzip)$/", "$1.$3", $uri);
+        }
+
+        return $uri;
+    }
+
+    /**
+     * Direct access to installtool via domain.dev/typo3/install/
+     * Will be redirected to the sysext install script
+     *
+     * @param string $uri
+     */
+    private function directLoginToInstallTool($uri) {
+        if (preg_match("/^\/typo3\/install$/", rtrim($uri)))
+        {
+            header('Location: /typo3/sysext/install/Start/Install.php');
+            die();
         }
     }
 }
