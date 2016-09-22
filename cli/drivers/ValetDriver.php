@@ -59,6 +59,7 @@ abstract class ValetDriver
         $drivers[] = 'ContaoValetDriver';
         $drivers[] = 'KatanaValetDriver';
         $drivers[] = 'JoomlaValetDriver';
+        $drivers[] = 'Typo3ValetDriver';
 
         $drivers[] = 'BasicValetDriver';
 
