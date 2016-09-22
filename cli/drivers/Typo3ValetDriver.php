@@ -24,15 +24,17 @@ class Typo3ValetDriver extends ValetDriver
     | Forbidden URI Patterns
     |--------------------------------------------------------------------------
     |
-    | All of these patterns won't be publicly available from your web server.
-    | Instead, the server will throw a 403 forbidden response, if you try
-    | to access these files via the HTTP layer. Use regex syntax here.
+    | All of these patterns won't be accessible from your web server. Instead,
+    | the server will throw a 403 forbidden response, if you try to access
+    | these files via the HTTP layer. Use regex syntax here and escape @.
     |
     */
     protected $forbiddenUriPatterns = [
         '_(recycler|temp)_/',
         '^/(typo3conf/ext|typo3/sysext|typo3/ext)/[^/]+/(Resources/Private|Tests)/',
-        '\.(htaccess|gitkeep|gitignore)',
+        '^/typo3/.+\.map$',
+        '^/typo3temp/var/',
+        '\.(htaccess|gitkeep|gitignore)$',
     ];
 
     /**
@@ -62,14 +64,42 @@ class Typo3ValetDriver extends ValetDriver
      */
     public function isStaticFile($sitePath, $siteName, $uri)
     {
-        if (file_exists($filePath = $sitePath . $this->documentRoot . $uri)
-            && ! is_dir($filePath)
-            && pathinfo($filePath)['extension'] !== 'php')
+        // May the file contains a cache busting version string like filename.12345678.css
+        // If that is the case, the file cannot be found on disk, so remove the version
+        // identifier before retrying below. 
+        if (!$this->isActualFile($filePath = $sitePath . $this->documentRoot . $uri)) 
         {
-            $this->authorizeAccess($uri);
-            return $filePath;
+            $uri = preg_replace("@^(.+)\.(\d+)\.(js|css|png|jpg|gif|gzip)$@", "$1.$3", $uri);
         }
+
+        // Now that any possible version string is cleared from the filename, the resulting
+        // URI should be a valid file on disc. So assemble the absolut file name with the
+        // same schema as above and if it exists, authorize access and return its path.
+        if ($this->isActualFile($filePath = $sitePath . $this->documentRoot . $uri))
+        {
+            return $this->isAccessAuthorized($uri) ? $filePath : false;
+        }
+
+        // This file cannot be found in the current project and thus cannot be served.
         return false;
+    }
+
+    /**
+     * Determines if the given URI is blacklisted so that access is prevented.
+     *
+     * @param string $uri
+     * @return boolean
+     */
+    private function isAccessAuthorized($uri)
+    {
+        foreach ($this->forbiddenUriPatterns as $forbiddenUriPattern)
+        {
+            if (preg_match("@$forbiddenUriPattern@", $uri))
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -84,11 +114,14 @@ class Typo3ValetDriver extends ValetDriver
      */
     public function frontControllerPath($sitePath, $siteName, $uri)
     {
-        $this->authorizeAccess($uri);
-        $uri = rtrim($uri, '/');
-        $absoluteFilePath = $sitePath . $this->documentRoot . $uri;
+        // without modifying the URI, redirect if necessary
+        $this->handleRedirectBackendShorthandUris($uri);
 
-        if (file_exists($absoluteFilePath))
+        // from now on, remove trailing / for convenience for all the following join operations
+        $uri = rtrim($uri, '/');
+
+        // try to find the responsible script file for the requested folder / script URI
+        if (file_exists($absoluteFilePath = $sitePath . $this->documentRoot . $uri))
         {
             if (is_dir($absoluteFilePath))
             {
@@ -104,7 +137,7 @@ class Typo3ValetDriver extends ValetDriver
                     return $absoluteFilePath . '/index.html';
                 }
             }
-            else if (pathinfo($absoluteFilePath)['extension'] === 'php')
+            else if (pathinfo($absoluteFilePath, PATHINFO_EXTENSION) === 'php')
             {
                 // this file can be served directly
                 return $this->serveScript($sitePath, $siteName, $uri);
@@ -116,44 +149,49 @@ class Typo3ValetDriver extends ValetDriver
     }
 
     /**
+     * Direct access to installtool via domain.dev/typo3/install/ will be redirected to
+     * sysext install script. domain.dev/typo3 will be redirected to /typo3/, because
+     * the generated JavaScript URIs on the login screen would be broken on /typo3.
+     *
+     * @param string $uri
+     */
+    private function handleRedirectBackendShorthandUris($uri)
+    {
+        if (rtrim($uri, '/') === '/typo3/install')
+        {
+            header('Location: /typo3/sysext/install/Start/Install.php');
+            die();
+        }
+
+        if ($uri === '/typo3')
+        {
+            header('Location: /typo3/');
+            die();
+        }
+    }
+
+    /**
      * Configures the $_SERVER globals for serving the script at
      * the specified URI and returns it absolute file path.
      *
      * @param  string  $sitePath
      * @param  string  $siteName
      * @param  string  $uri
+     * @param  string  $script
      * @return string
      */
     private function serveScript($sitePath, $siteName, $uri)
     {
-        $absoluteDocumentRoot = $sitePath . $this->documentRoot;
-        $absoluteFilePath = $absoluteDocumentRoot . $uri;
+        $docroot = $sitePath . $this->documentRoot;
+        $abspath = $docroot . $uri;
 
         $_SERVER['SERVER_NAME'] = $siteName . '.dev';
-        $_SERVER['DOCUMENT_ROOT'] = $absoluteDocumentRoot;
+        $_SERVER['DOCUMENT_ROOT'] = $docroot;
         $_SERVER['DOCUMENT_URI'] = $uri;
-        $_SERVER['SCRIPT_FILENAME'] = $absoluteFilePath;
+        $_SERVER['SCRIPT_FILENAME'] = $abspath;
         $_SERVER['SCRIPT_NAME'] = $uri;
         $_SERVER['PHP_SELF'] = $uri;
 
-        return $absoluteFilePath;
-    }
-
-    /**
-     * Interrupts execution with a 403 FORBIDDEN if the requested URI is on
-     * the global blacklist of system files that should not be served.
-     *
-     * @param string $uri
-     */
-    private function authorizeAccess($uri)
-    {
-        foreach ($this->forbiddenUriPatterns as $forbiddenUri)
-        {
-            if (preg_match("@$forbiddenUri@", $uri))
-            {
-                header('HTTP/1.0 403 Forbidden');
-                die("You are forbidden to see $uri!");
-            }
-        }
+        return $abspath;
     }
 }
