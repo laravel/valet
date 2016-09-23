@@ -1,7 +1,9 @@
 <?php
 
+use Valet\Site;
 use Valet\Caddy;
 use Valet\Filesystem;
+use Valet\Configuration;
 use Illuminate\Container\Container;
 
 class CaddyTest extends PHPUnit_Framework_TestCase
@@ -27,7 +29,7 @@ class CaddyTest extends PHPUnit_Framework_TestCase
         $files->shouldReceive('putAsUser')->andReturnUsing(function ($path, $contents) {
             $this->assertSame(VALET_HOME_PATH.'/Caddyfile', $path);
             $this->assertTrue(strpos($contents, 'import '.VALET_HOME_PATH.'/Caddy/*') !== false);
-        });
+        })->once();
 
         swap(Filesystem::class, $files);
         $caddy = resolve(Caddy::class);
@@ -39,10 +41,12 @@ class CaddyTest extends PHPUnit_Framework_TestCase
     {
         $files = Mockery::mock(Filesystem::class);
         $files->shouldReceive('isDir')->with(VALET_HOME_PATH.'/Caddy')->andReturn(false);
-        $files->shouldReceive('mkdirAsUser')->with(VALET_HOME_PATH.'/Caddy');
-        $files->shouldReceive('putAsUser')->with(VALET_HOME_PATH.'/Caddy/.keep', "\n");
+        $files->shouldReceive('mkdirAsUser')->with(VALET_HOME_PATH.'/Caddy')->once();
+        $files->shouldReceive('putAsUser')->with(VALET_HOME_PATH.'/Caddy/.keep', "\n")->once();
 
         swap(Filesystem::class, $files);
+        swap(Configuration::class, Mockery::spy(Configuration::class));
+        swap(Site::class, Mockery::spy(Site::class));
         $caddy = resolve(Caddy::class);
 
         $caddy->installCaddyDirectory();
@@ -54,9 +58,11 @@ class CaddyTest extends PHPUnit_Framework_TestCase
         $files = Mockery::mock(Filesystem::class);
         $files->shouldReceive('isDir')->with(VALET_HOME_PATH.'/Caddy')->andReturn(true);
         $files->shouldReceive('mkdirAsUser')->never();
-        $files->shouldReceive('putAsUser')->with(VALET_HOME_PATH.'/Caddy/.keep', "\n");
+        $files->shouldReceive('putAsUser')->with(VALET_HOME_PATH.'/Caddy/.keep', "\n")->once();
 
         swap(Filesystem::class, $files);
+        swap(Configuration::class, Mockery::spy(Configuration::class));
+        swap(Site::class, Mockery::spy(Site::class));
         $caddy = resolve(Caddy::class);
 
         $caddy->installCaddyDirectory();
@@ -68,12 +74,14 @@ class CaddyTest extends PHPUnit_Framework_TestCase
         $files = Mockery::mock(Filesystem::class.'[put]');
 
         swap(Filesystem::class, $files);
+        swap(Configuration::class, Mockery::spy(Configuration::class));
+        swap(Site::class, Mockery::spy(Site::class));
         $caddy = resolve(Caddy::class);
 
         $files->shouldReceive('put')->andReturnUsing(function ($path, $contents) use ($caddy) {
             $this->assertSame($caddy->daemonPath, $path);
             $this->assertTrue(strpos($contents, VALET_HOME_PATH) !== false);
-        });
+        })->once();
 
         $caddy->installCaddyDaemon();
     }

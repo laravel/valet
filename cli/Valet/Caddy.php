@@ -6,6 +6,8 @@ class Caddy
 {
     var $cli;
     var $files;
+    var $configuration;
+    var $site;
     var $daemonPath = '/Library/LaunchDaemons/com.laravel.valetServer.plist';
 
     /**
@@ -14,10 +16,12 @@ class Caddy
      * @param  CommandLine  $cli
      * @param  Filesystem  $files
      */
-    function __construct(CommandLine $cli, Filesystem $files)
+    function __construct(CommandLine $cli, Filesystem $files, Configuration $configuration, Site $site)
     {
         $this->cli = $cli;
         $this->files = $files;
+        $this->configuration = $configuration;
+        $this->site = $site;
     }
 
     /**
@@ -61,6 +65,21 @@ class Caddy
         }
 
         $this->files->putAsUser($caddyDirectory.'/.keep', "\n");
+
+        $this->rewriteSecureCaddyFiles();
+    }
+
+    /**
+     * Generate fresh Caddyfiles for existing secure sites.
+     *
+     * This simplifies upgrading when the Caddyfile structure changes.
+     *
+     * @return void
+     */
+    function rewriteSecureCaddyFiles()
+    {
+        $domain = $this->configuration->read()['domain'];
+        $this->site->resecureForNewDomain($domain, $domain);
     }
 
     /**
