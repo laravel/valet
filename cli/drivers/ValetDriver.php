@@ -119,6 +119,7 @@ abstract class ValetDriver
      */
     public function serveStaticFile($staticFilePath, $sitePath, $siteName, $uri)
     {
+        ini_set('default_mimetype', '');
         header('X-Accel-Redirect: ' . $staticFilePath);
     }
 

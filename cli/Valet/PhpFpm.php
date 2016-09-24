@@ -46,7 +46,6 @@ class PhpFpm
         $this->files->ensureDirExists('/usr/local/var/log', user());
 
         $this->updateConfiguration();
-        $this->updateIni();
 
         $this->restart();
     }
@@ -65,16 +64,6 @@ class PhpFpm
         $contents = preg_replace('/^listen = .+$/m', 'listen = /var/run/fpm-valet.socket', $contents);
 
         $this->files->put($this->fpmConfigPath(), $contents);
-    }
-
-    /**
-     * Update the PHP FPM ini.
-     *
-     * @return void
-     */
-    function updateIni()
-    {
-        $this->files->copyAsUser(__DIR__.'/../stubs/valet.ini', $this->fpmIniPath());
     }
 
     /**
