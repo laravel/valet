@@ -119,7 +119,15 @@ abstract class ValetDriver
      */
     public function serveStaticFile($staticFilePath, $sitePath, $siteName, $uri)
     {
-        header('X-Accel-Redirect: ' . $staticFilePath);
+        $extension = strtolower(pathinfo($staticFilePath)['extension']);
+
+        $mimes = require(__DIR__.'/../mimes.php');
+
+        $mime = isset($mimes[$extension]) ? $mimes[$extension] : 'application/octet-stream';
+
+        header('Content-Type: '. $mime);
+
+        readfile($staticFilePath);
     }
 
     /**
