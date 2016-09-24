@@ -62,13 +62,9 @@ $uri = urldecode(
     parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)
 );
 
-/**
- * Filter host to support xip.io feature
- */
-$_SERVER['HTTP_HOST'] = support_xip_io($_SERVER['HTTP_HOST']);
-
 $siteName = basename(
-    $_SERVER['HTTP_HOST'],
+    // Filter host to support xip.io feature
+    support_xip_io($_SERVER['HTTP_HOST']),
     '.'.$valetConfig['domain']
 );
 
@@ -110,8 +106,7 @@ if (! $valetDriver) {
  * Overwrite the HTTP host for Ngrok.
  */
 if (isset($_SERVER['HTTP_X_ORIGINAL_HOST'])) {
-    // Filter host to support xip.io feature
-    $_SERVER['HTTP_HOST'] = support_xip_io($_SERVER['HTTP_X_ORIGINAL_HOST']);
+    $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_X_ORIGINAL_HOST'];
 }
 
 /**
