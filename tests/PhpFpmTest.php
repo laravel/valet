@@ -31,6 +31,14 @@ class PhpFpmTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(strpos($contents, "\ngroup = staff") !== false);
         $this->assertTrue(strpos($contents, "\nlisten = /var/run/fpm-valet.socket") !== false);
     }
+
+    public function test_default_mimetype_is_disabled_in_php_ini()
+    {
+        copy(__DIR__.'/files/ini.conf', __DIR__.'/output/ini.conf');
+        resolve(StubForUpdatingFpmConfigFiles::class)->updateIni();
+        $contents = file_get_contents(__DIR__.'/output/ini.conf');
+        $this->assertTrue(strpos($contents, 'default_mimetype = ""') !== false);
+    }
 }
 
 
@@ -39,5 +47,10 @@ class StubForUpdatingFpmConfigFiles extends PhpFpm
     function fpmConfigPath()
     {
         return __DIR__.'/output/fpm.conf';
+    }
+
+    function fpmIniPath()
+    {
+        return __DIR__.'/output/ini.conf';
     }
 }
