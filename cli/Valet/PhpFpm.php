@@ -74,11 +74,7 @@ class PhpFpm
      */
     function updateIni()
     {
-        $contents = $this->files->get($this->fpmIniPath());
-
-        $contents = preg_replace('/^default_mimetype = .+$/m', 'default_mimetype = ""', $contents);
-
-        $this->files->put($this->fpmIniPath(), $contents);
+        $this->files->copyAsUser(__DIR__.'/../stubs/valet.ini', $this->fpmIniPath());
     }
 
     /**
@@ -121,17 +117,17 @@ class PhpFpm
     }
 
     /**
-     * Get the path to the FPM ini file for the current PHP version.
+     * Get the path to Valet's PHP ini file for the current PHP version.
      *
      * @return string
      */
     function fpmIniPath()
     {
         $versionLookup = [
-            'php71' => '/usr/local/etc/php/7.1/php.ini',
-            'php70' => '/usr/local/etc/php/7.0/php.ini',
-            'php56' => '/usr/local/etc/php/5.6/php.ini',
-            'php55' => '/usr/local/etc/php/5.5/php.ini',
+            'php71' => '/usr/local/etc/php/7.1/conf.d/valet.ini',
+            'php70' => '/usr/local/etc/php/7.0/conf.d/valet.ini',
+            'php56' => '/usr/local/etc/php/5.6/conf.d/valet.ini',
+            'php55' => '/usr/local/etc/php/5.5/conf.d/valet.ini',
         ];
 
         return $versionLookup[$this->brew->linkedPhp()];
