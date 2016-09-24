@@ -46,12 +46,13 @@ class PhpFpm
         $this->files->ensureDirExists('/usr/local/var/log', user());
 
         $this->updateConfiguration();
+        $this->updateIni();
 
         $this->restart();
     }
 
     /**
-     * Update the PHP FPM configuration to use the current user.
+     * Update the PHP FPM configuration.
      *
      * @return void
      */
@@ -64,6 +65,20 @@ class PhpFpm
         $contents = preg_replace('/^listen = .+$/m', 'listen = /var/run/fpm-valet.socket', $contents);
 
         $this->files->put($this->fpmConfigPath(), $contents);
+    }
+
+    /**
+     * Update the PHP FPM ini.
+     *
+     * @return void
+     */
+    function updateIni()
+    {
+        $contents = $this->files->get($this->fpmIniPath());
+
+        $contents = preg_replace('/^default_mimetype = .+$/m', 'default_mimetype = ""', $contents);
+
+        $this->files->put($this->fpmIniPath(), $contents);
     }
 
     /**
@@ -95,16 +110,30 @@ class PhpFpm
      */
     function fpmConfigPath()
     {
-        if ($this->brew->linkedPhp() === 'php71') {
-            return '/usr/local/etc/php/7.1/php-fpm.d/www.conf';
-        } elseif ($this->brew->linkedPhp() === 'php70') {
-            return '/usr/local/etc/php/7.0/php-fpm.d/www.conf';
-        } elseif ($this->brew->linkedPhp() === 'php56') {
-            return '/usr/local/etc/php/5.6/php-fpm.conf';
-        } elseif ($this->brew->linkedPhp() === 'php55') {
-            return '/usr/local/etc/php/5.5/php-fpm.conf';
-        } else {
-            throw new DomainException('Unable to find php-fpm config.');
-        }
+        $confLookup = [
+            'php71' => '/usr/local/etc/php/7.1/php-fpm.d/www.conf',
+            'php70' => '/usr/local/etc/php/7.0/php-fpm.d/www.conf',
+            'php56' => '/usr/local/etc/php/5.6/php-fpm.conf',
+            'php55' => '/usr/local/etc/php/5.5/php-fpm.conf',
+        ];
+
+        return $confLookup[$this->brew->linkedPhp()];
+    }
+
+    /**
+     * Get the path to the FPM ini file for the current PHP version.
+     *
+     * @return string
+     */
+    function fpmIniPath()
+    {
+        $versionLookup = [
+            'php71' => '/usr/local/etc/php/7.1/php.ini',
+            'php70' => '/usr/local/etc/php/7.0/php.ini',
+            'php56' => '/usr/local/etc/php/5.6/php.ini',
+            'php55' => '/usr/local/etc/php/5.5/php.ini',
+        ];
+
+        return $versionLookup[$this->brew->linkedPhp()];
     }
 }

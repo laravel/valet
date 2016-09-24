@@ -3,6 +3,9 @@ http://VALET_SITE:80 {
 }
 
 https://VALET_SITE:443 {
+    root /
+    internal /dev/null
+
     tls VALET_CERT VALET_KEY
 
     fastcgi / /var/run/fpm-valet.socket php {
