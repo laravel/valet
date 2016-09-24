@@ -198,6 +198,13 @@ $app->command('paths', function () {
  })->descriptions('Open the site for the current directory in your browser');
 
 /**
+ * Generate a publicly accessible URL for your project.
+ */
+$app->command('share', function () {
+    warning("It looks like you are running `cli/valet.php` directly, please use the `valet` script in the project root instead.");
+})->descriptions('Generate a publicly accessible URL for your project');
+
+/**
  * Echo the currently tunneled URL.
  */
 $app->command('fetch-share-url', function () {
