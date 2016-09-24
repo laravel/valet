@@ -17,27 +17,13 @@ function show_valet_404()
 }
 
 /**
- * http://stackoverflow.com/a/10473026/2098861
- *
- * @param $haystack
- * @param $needle
- *
- * @return bool
- */
-function ends_with($haystack, $needle)
-{
-    // search forward starting from end minus needle length characters
-    return $needle === '' || (($temp = strlen($haystack) - strlen($needle)) >= 0 && strpos($haystack, $needle, $temp) !== false);
-}
-
-/**
  * @param $domain string Domain to filter
  *
- * @return string Filter domain (without xip.io feature)
+ * @return string Filtered domain (without xip.io feature)
  */
-function support_xip_io($domain)
+function valet_support_xip_io($domain)
 {
-    if (ends_with($domain, ".xip.io")) {
+    if (substr($domain, -7) === '.xip.io') {
         // support only ip v4 for now
         $domainPart = explode('.', $domain);
         if (count($domainPart) > 6) {
@@ -64,7 +50,7 @@ $uri = urldecode(
 
 $siteName = basename(
     // Filter host to support xip.io feature
-    support_xip_io($_SERVER['HTTP_HOST']),
+    valet_support_xip_io($_SERVER['HTTP_HOST']),
     '.'.$valetConfig['domain']
 );
 
