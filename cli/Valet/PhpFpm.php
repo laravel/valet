@@ -51,7 +51,7 @@ class PhpFpm
     }
 
     /**
-     * Update the PHP FPM configuration to use the current user.
+     * Update the PHP FPM configuration.
      *
      * @return void
      */
@@ -95,16 +95,13 @@ class PhpFpm
      */
     function fpmConfigPath()
     {
-        if ($this->brew->linkedPhp() === 'php71') {
-            return '/usr/local/etc/php/7.1/php-fpm.d/www.conf';
-        } elseif ($this->brew->linkedPhp() === 'php70') {
-            return '/usr/local/etc/php/7.0/php-fpm.d/www.conf';
-        } elseif ($this->brew->linkedPhp() === 'php56') {
-            return '/usr/local/etc/php/5.6/php-fpm.conf';
-        } elseif ($this->brew->linkedPhp() === 'php55') {
-            return '/usr/local/etc/php/5.5/php-fpm.conf';
-        } else {
-            throw new DomainException('Unable to find php-fpm config.');
-        }
+        $confLookup = [
+            'php71' => '/usr/local/etc/php/7.1/php-fpm.d/www.conf',
+            'php70' => '/usr/local/etc/php/7.0/php-fpm.d/www.conf',
+            'php56' => '/usr/local/etc/php/5.6/php-fpm.conf',
+            'php55' => '/usr/local/etc/php/5.5/php-fpm.conf',
+        ];
+
+        return $confLookup[$this->brew->linkedPhp()];
     }
 }
