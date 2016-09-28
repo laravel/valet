@@ -44,7 +44,6 @@ class PhpFpm
         }
 
         $this->files->ensureDirExists('/usr/local/var/log', user());
-        $this->files->ensureDirExists('/var/run/valet', user());
 
         $this->updateConfiguration();
 
@@ -62,7 +61,7 @@ class PhpFpm
 
         $contents = preg_replace('/^user = .+$/m', 'user = '.user(), $contents);
         $contents = preg_replace('/^group = .+$/m', 'group = staff', $contents);
-        $contents = preg_replace('/^listen = .+$/m', 'listen = /var/run/valet/fpm.socket', $contents);
+        $contents = preg_replace('/^listen = .+$/m', 'listen = /var/run/fpm-valet.socket', $contents);
 
         $this->files->put($this->fpmConfigPath(), $contents);
     }
