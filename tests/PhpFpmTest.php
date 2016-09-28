@@ -40,9 +40,4 @@ class StubForUpdatingFpmConfigFiles extends PhpFpm
     {
         return __DIR__.'/output/fpm.conf';
     }
-
-    function fpmIniPath()
-    {
-        return __DIR__.'/output/ini.conf';
-    }
 }

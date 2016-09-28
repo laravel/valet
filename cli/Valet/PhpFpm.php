@@ -104,21 +104,4 @@ class PhpFpm
 
         return $confLookup[$this->brew->linkedPhp()];
     }
-
-    /**
-     * Get the path to Valet's PHP ini file for the current PHP version.
-     *
-     * @return string
-     */
-    function fpmIniPath()
-    {
-        $versionLookup = [
-            'php71' => '/usr/local/etc/php/7.1/conf.d/valet.ini',
-            'php70' => '/usr/local/etc/php/7.0/conf.d/valet.ini',
-            'php56' => '/usr/local/etc/php/5.6/conf.d/valet.ini',
-            'php55' => '/usr/local/etc/php/5.5/conf.d/valet.ini',
-        ];
-
-        return $versionLookup[$this->brew->linkedPhp()];
-    }
 }
