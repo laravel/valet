@@ -1,7 +1,7 @@
 import VALET_HOME_PATH/Caddy/*
 
 :80 {
-    fastcgi / /var/run/valet/fpm.socket php {
+    fastcgi / /var/run/valet/fpm-valet.socket php {
         index VALET_SERVER_PATH
     }
 
