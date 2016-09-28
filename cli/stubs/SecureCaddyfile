@@ -4,6 +4,8 @@ http://VALET_SITE:80 {
 
 https://VALET_SITE:443 {
     root /
+
+     # Slight hack, see: https://github.com/mholt/caddy/issues/1020
     internal /dev/null
 
     tls VALET_CERT VALET_KEY
