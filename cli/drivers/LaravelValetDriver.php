@@ -12,8 +12,8 @@ class LaravelValetDriver extends ValetDriver
      */
     public function serves($sitePath, $siteName, $uri)
     {
-        return file_exists($sitePath.'/public/index.php') &&
-               file_exists($sitePath.'/artisan');
+        return (file_exists($sitePath.'/public/index.php') || file_exists($sitePath.'/public_html/index.php')) && 
+                file_exists($sitePath.'/artisan');
     }
 
     /**
@@ -27,6 +27,10 @@ class LaravelValetDriver extends ValetDriver
     public function isStaticFile($sitePath, $siteName, $uri)
     {
         if (file_exists($staticFilePath = $sitePath.'/public'.$uri)) {
+            return $staticFilePath;
+        }
+
+        if (file_exists($staticFilePath = $sitePath.'/public_html'.$uri)) {
             return $staticFilePath;
         }
 
@@ -53,6 +57,8 @@ class LaravelValetDriver extends ValetDriver
      */
     public function frontControllerPath($sitePath, $siteName, $uri)
     {
-        return $sitePath.'/public/index.php';
+        if (file_exists($sitePath.'/public/index.php')) return $sitePath.'/public/index.php';
+
+            else return $sitePath.'/public_html/index.php';
     }
 }
