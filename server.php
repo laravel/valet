@@ -17,6 +17,24 @@ function show_valet_404()
 }
 
 /**
+ * @param $domain string Domain to filter
+ *
+ * @return string Filtered domain (without xip.io feature)
+ */
+function valet_support_xip_io($domain)
+{
+    if (substr($domain, -7) === '.xip.io') {
+        // support only ip v4 for now
+        $domainPart = explode('.', $domain);
+        if (count($domainPart) > 6) {
+            $domain = implode('.', array_reverse(array_slice(array_reverse($domainPart), 6)));
+        }
+    }
+
+    return $domain;
+}
+
+/**
  * Load the Valet configuration.
  */
 $valetConfig = json_decode(
@@ -27,11 +45,12 @@ $valetConfig = json_decode(
  * Parse the URI and site / host for the incoming request.
  */
 $uri = urldecode(
-    parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)
+    explode("?", $_SERVER['REQUEST_URI'])[0]
 );
 
 $siteName = basename(
-    $_SERVER['HTTP_HOST'],
+    // Filter host to support xip.io feature
+    valet_support_xip_io($_SERVER['HTTP_HOST']),
     '.'.$valetConfig['domain']
 );
 

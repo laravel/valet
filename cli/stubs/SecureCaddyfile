@@ -3,14 +3,19 @@ http://VALET_SITE:80 {
 }
 
 https://VALET_SITE:443 {
+    root /
+
+     # Slight hack, see: https://github.com/mholt/caddy/issues/1020
+    internal /dev/null
+
     tls VALET_CERT VALET_KEY
 
-    fastcgi / 127.0.0.1:9000 php {
-        index server.php
+    fastcgi / /var/run/fpm-valet.socket php {
+        index VALET_SERVER_PATH
     }
 
     rewrite {
-        to /server.php?{query}
+        to VALET_SERVER_PATH?{query}
     }
 
     log VALET_HOME_PATH/Log/access.log {

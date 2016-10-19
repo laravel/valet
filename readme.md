@@ -16,7 +16,7 @@ In other words, a blazing fast Laravel development environment that uses roughly
 
 ## Official Documentation
 
-Documentation for Valet can be found on the [Laravel website](http://laravel.com/docs/5.2/valet).
+Documentation for Valet can be found on the [Laravel website](https://laravel.com/docs/valet).
 
 ## License
 

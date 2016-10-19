@@ -93,7 +93,7 @@ class Site
      */
     function resecureForNewDomain($oldDomain, $domain)
     {
-        if (!$this->files->exists($this->certificatesPath())) {
+        if (! $this->files->exists($this->certificatesPath())) {
             return;
         }
 
@@ -211,7 +211,7 @@ class Site
         $path = $this->certificatesPath();
 
         return str_replace(
-            ['VALET_HOME_PATH', 'VALET_SITE', 'VALET_CERT', 'VALET_KEY'], [VALET_HOME_PATH, $url, $path.'/'.$url.'.crt', $path.'/'.$url.'.key'],
+            ['VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_SITE', 'VALET_CERT', 'VALET_KEY'], [VALET_HOME_PATH, VALET_SERVER_PATH, $url, $path.'/'.$url.'.crt', $path.'/'.$url.'.key'],
             $this->files->get(__DIR__.'/../stubs/SecureCaddyfile')
         );
     }
@@ -233,29 +233,6 @@ class Site
 
             $this->cli->run(sprintf('sudo security delete-certificate -c "%s" -t', $url));
         }
-    }
-
-    /**
-     * Get all of the log files for all sites.
-     *
-     * @param  array  $paths
-     * @return array
-     */
-    function logs($paths)
-    {
-        $files = collect();
-
-        foreach ($paths as $path) {
-            $files = $files->merge(collect($this->files->scandir($path))->map(function ($directory) use ($path) {
-                $logPath = $path.'/'.$directory.'/storage/logs/laravel.log';
-
-                if ($this->files->isDir(dirname($logPath))) {
-                    return $this->files->touchAsUser($logPath);
-                }
-            })->filter());
-        }
-
-        return $files->values()->all();
     }
 
     /**

@@ -8,9 +8,9 @@ use Symfony\Component\Process\Process;
 
 class PhpFpm
 {
-    public $brew, $cli, $files;
+    var $brew, $cli, $files;
 
-    public $taps = [
+    var $taps = [
         'homebrew/dupes', 'homebrew/versions', 'homebrew/homebrew-php'
     ];
 
@@ -22,7 +22,7 @@ class PhpFpm
      * @param  Filesystem  $files
      * @return void
      */
-    public function __construct(Brew $brew, CommandLine $cli, Filesystem $files)
+    function __construct(Brew $brew, CommandLine $cli, Filesystem $files)
     {
         $this->cli = $cli;
         $this->brew = $brew;
@@ -34,7 +34,7 @@ class PhpFpm
      *
      * @return void
      */
-    public function install()
+    function install()
     {
         if (! $this->brew->installed('php71') &&
             ! $this->brew->installed('php70') &&
@@ -51,16 +51,17 @@ class PhpFpm
     }
 
     /**
-     * Update the PHP FPM configuration to use the current user.
+     * Update the PHP FPM configuration.
      *
      * @return void
      */
-    public function updateConfiguration()
+    function updateConfiguration()
     {
         $contents = $this->files->get($this->fpmConfigPath());
 
         $contents = preg_replace('/^user = .+$/m', 'user = '.user(), $contents);
         $contents = preg_replace('/^group = .+$/m', 'group = staff', $contents);
+        $contents = preg_replace('/^listen = .+$/m', 'listen = /var/run/fpm-valet.socket', $contents);
 
         $this->files->put($this->fpmConfigPath(), $contents);
     }
@@ -70,7 +71,7 @@ class PhpFpm
      *
      * @return void
      */
-    public function restart()
+    function restart()
     {
         $this->stop();
 
@@ -82,7 +83,7 @@ class PhpFpm
      *
      * @return void
      */
-    public function stop()
+    function stop()
     {
         $this->brew->stopService('php55', 'php56', 'php70', 'php71');
     }
@@ -92,18 +93,15 @@ class PhpFpm
      *
      * @return string
      */
-    public function fpmConfigPath()
+    function fpmConfigPath()
     {
-        if ($this->brew->linkedPhp() === 'php71') {
-            return '/usr/local/etc/php/7.1/php-fpm.d/www.conf';
-        } elseif ($this->brew->linkedPhp() === 'php70') {
-            return '/usr/local/etc/php/7.0/php-fpm.d/www.conf';
-        } elseif ($this->brew->linkedPhp() === 'php56') {
-            return '/usr/local/etc/php/5.6/php-fpm.conf';
-        } elseif ($this->brew->linkedPhp() === 'php55') {
-            return '/usr/local/etc/php/5.5/php-fpm.conf';
-        } else {
-            throw new DomainException('Unable to find php-fpm config.');
-        }
+        $confLookup = [
+            'php71' => '/usr/local/etc/php/7.1/php-fpm.d/www.conf',
+            'php70' => '/usr/local/etc/php/7.0/php-fpm.d/www.conf',
+            'php56' => '/usr/local/etc/php/5.6/php-fpm.conf',
+            'php55' => '/usr/local/etc/php/5.5/php-fpm.conf',
+        ];
+
+        return $confLookup[$this->brew->linkedPhp()];
     }
 }

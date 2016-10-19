@@ -18,7 +18,7 @@ use Illuminate\Container\Container;
  */
 Container::setInstance(new Container);
 
-$version = '1.1.19';
+$version = '1.2.0';
 
 $app = new Application('Laravel Valet', $version);
 
@@ -74,12 +74,7 @@ $app->command('domain [domain]', function ($domain = null) {
  * Add the current working directory to the paths configuration.
  */
 $app->command('park [path]', function ($path = null) {
-    $pathToPark = getcwd();
-    if ($path !== null) {
-        $pathToPark = $path;
-    }
-
-    Configuration::addPath($pathToPark);
+    Configuration::addPath($path ?: getcwd());
 
     info(($path === null ? "This" : "The [{$path}]") . " directory has been added to Valet's paths.");
 })->descriptions('Register the current working (or specified) directory with Valet');
@@ -88,12 +83,7 @@ $app->command('park [path]', function ($path = null) {
  * Remove the current working directory from the paths configuration.
  */
 $app->command('forget [path]', function ($path = null) {
-    $pathToForget = getcwd();
-    if ($path !== null) {
-        $pathToForget = $path;
-    }
-
-    Configuration::removePath($pathToForget);
+    Configuration::removePath($path ?: getcwd());
 
     info(($path === null ? "This" : "The [{$path}]") . " directory has been removed from Valet's paths.");
 })->descriptions('Remove the current working (or specified) directory from Valet\'s list of paths');
@@ -169,24 +159,7 @@ $app->command('which', function () {
 })->descriptions('Determine which Valet driver serves the current working directory');
 
 /**
- * Stream all of the logs for all sites.
- */
-$app->command('logs', function () {
-    $files = Site::logs(Configuration::read()['paths']);
-
-    $args = collect($files)->map(function ($file) {
-        return escapeshellarg($file);
-    })->implode(' ');
-
-    if (count($files) > 0) {
-        passthru("tail -f {$args}");
-    } else {
-        warning('No log files were found.');
-    }
-})->descriptions('Stream all of the logs for all Laravel sites registered with Valet');
-
-/**
- * Stream Caddy access- and error-log.
+ * Stream the Caddy access and error logs.
  */
 $app->command('server-log', function () {
     $files = Filesystem::scandir(VALET_HOME_PATH.'/Log');
@@ -223,6 +196,13 @@ $app->command('paths', function () {
 
      passthru("open ".escapeshellarg($url));
  })->descriptions('Open the site for the current directory in your browser');
+
+/**
+ * Generate a publicly accessible URL for your project.
+ */
+$app->command('share', function () {
+    warning("It looks like you are running `cli/valet.php` directly, please use the `valet` script in the project root instead.");
+})->descriptions('Generate a publicly accessible URL for your project');
 
 /**
  * Echo the currently tunneled URL.
