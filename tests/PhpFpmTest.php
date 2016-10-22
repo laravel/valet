@@ -22,14 +22,14 @@ class PhpFpmTest extends PHPUnit_Framework_TestCase
         Mockery::close();
     }
 
-    public function test_fpm_is_configured_with_the_correct_user_group_and_socket()
+    public function test_fpm_is_configured_with_the_correct_user_group_and_port()
     {
         copy(__DIR__.'/files/fpm.conf', __DIR__.'/output/fpm.conf');
         resolve(StubForUpdatingFpmConfigFiles::class)->updateConfiguration();
         $contents = file_get_contents(__DIR__.'/output/fpm.conf');
         $this->assertTrue(strpos($contents, sprintf("\nuser = %s", user())) !== false);
         $this->assertTrue(strpos($contents, "\ngroup = staff") !== false);
-        $this->assertTrue(strpos($contents, "\nlisten = /var/run/fpm-valet.socket") !== false);
+        $this->assertTrue(strpos($contents, "\nlisten = 127.0.0.1:9000") !== false);
     }
 }
 
