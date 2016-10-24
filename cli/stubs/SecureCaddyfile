@@ -10,7 +10,7 @@ https://VALET_SITE:443 {
 
     tls VALET_CERT VALET_KEY
 
-    fastcgi / /var/run/fpm-valet.socket php {
+    fastcgi / 127.0.0.1:9000 php {
         index VALET_SERVER_PATH
     }
 

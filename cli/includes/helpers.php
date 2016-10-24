@@ -69,31 +69,33 @@ function swap($class, $instance)
     Container::getInstance()->instance($class, $instance);
 }
 
-/**
- * Retry the given function N times.
- *
- * @param  int  $retries
- * @param  callable  $retries
- * @param  int  $sleep
- * @return mixed
- */
-function retry($retries, $fn, $sleep = 0)
-{
-    beginning:
-    try {
-        return $fn();
-    } catch (Exception $e) {
-        if (! $retries) {
-            throw $e;
+if (! function_exists('retry')) {
+    /**
+     * Retry the given function N times.
+     *
+     * @param  int  $retries
+     * @param  callable  $retries
+     * @param  int  $sleep
+     * @return mixed
+     */
+    function retry($retries, $fn, $sleep = 0)
+    {
+        beginning:
+        try {
+            return $fn();
+        } catch (Exception $e) {
+            if (! $retries) {
+                throw $e;
+            }
+
+            $retries--;
+
+            if ($sleep > 0) {
+                usleep($sleep * 1000);
+            }
+
+            goto beginning;
         }
-
-        $retries--;
-
-        if ($sleep > 0) {
-            usleep($sleep * 1000);
-        }
-
-        goto beginning;
     }
 }
 
