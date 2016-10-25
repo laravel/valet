@@ -61,7 +61,10 @@ class PhpFpm
 
         $contents = preg_replace('/^user = .+$/m', 'user = '.user(), $contents);
         $contents = preg_replace('/^group = .+$/m', 'group = staff', $contents);
-        $contents = preg_replace('/^listen = .+$/m', 'listen = 127.0.0.1:9000', $contents);
+        $contents = preg_replace('/^listen = .+$/m', 'listen = '.VALET_HOME_PATH.'/valet.sock', $contents);
+        $contents = preg_replace('/^;?listen\.owner = .+$/m', 'listen.owner = '.user(), $contents);
+        $contents = preg_replace('/^;?listen\.group = .+$/m', 'listen.group = staff', $contents);
+        $contents = preg_replace('/^;?listen\.mode = .+$/m', 'listen.mode = 0777', $contents);
 
         $this->files->put($this->fpmConfigPath(), $contents);
     }
