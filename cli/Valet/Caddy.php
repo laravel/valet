@@ -32,8 +32,8 @@ class Caddy
     function install()
     {
         $this->installCaddyFile();
-        $this->installCaddyDirectory();
-        $this->installCaddyDaemon();
+        // $this->installCaddyDirectory();
+        // $this->installCaddyDaemon();
     }
 
     /**
@@ -46,8 +46,8 @@ class Caddy
     function installCaddyFile()
     {
         $this->files->putAsUser(
-            VALET_HOME_PATH.'/Caddyfile',
-            str_replace(['VALET_HOME_PATH', 'VALET_SERVER_PATH'], [VALET_HOME_PATH, VALET_SERVER_PATH], $this->files->get(__DIR__.'/../stubs/Caddyfile'))
+            '/usr/local/etc/nginx/servers/valet.conf',
+            str_replace(['VALET_HOME_PATH', 'VALET_SERVER_PATH'], [VALET_HOME_PATH, VALET_SERVER_PATH], $this->files->get(__DIR__.'/../stubs/valet.conf'))
         );
     }
 
@@ -58,16 +58,16 @@ class Caddy
      *
      * @return void
      */
-    function installCaddyDirectory()
-    {
-        if (! $this->files->isDir($caddyDirectory = VALET_HOME_PATH.'/Caddy')) {
-            $this->files->mkdirAsUser($caddyDirectory);
-        }
+    // function installCaddyDirectory()
+    // {
+    //     if (! $this->files->isDir($caddyDirectory = VALET_HOME_PATH.'/Caddy')) {
+    //         $this->files->mkdirAsUser($caddyDirectory);
+    //     }
 
-        $this->files->putAsUser($caddyDirectory.'/.keep', "\n");
+    //     $this->files->putAsUser($caddyDirectory.'/.keep', "\n");
 
-        $this->rewriteSecureCaddyFiles();
-    }
+    //     $this->rewriteSecureCaddyFiles();
+    // }
 
     /**
      * Generate fresh Caddyfiles for existing secure sites.
@@ -76,29 +76,29 @@ class Caddy
      *
      * @return void
      */
-    function rewriteSecureCaddyFiles()
-    {
-        $domain = $this->configuration->read()['domain'];
+    // function rewriteSecureCaddyFiles()
+    // {
+    //     $domain = $this->configuration->read()['domain'];
 
-        $this->site->resecureForNewDomain($domain, $domain);
-    }
+    //     $this->site->resecureForNewDomain($domain, $domain);
+    // }
 
     /**
      * Install the Caddy daemon on a system level daemon.
      *
      * @return void
      */
-    function installCaddyDaemon()
-    {
-        $contents = str_replace(
-            'VALET_PATH', $this->files->realpath(__DIR__.'/../../'),
-            $this->files->get(__DIR__.'/../stubs/daemon.plist')
-        );
+    // function installCaddyDaemon()
+    // {
+    //     $contents = str_replace(
+    //         'VALET_PATH', $this->files->realpath(__DIR__.'/../../'),
+    //         $this->files->get(__DIR__.'/../stubs/daemon.plist')
+    //     );
 
-        $this->files->put(
-            $this->daemonPath, str_replace('VALET_HOME_PATH', VALET_HOME_PATH, $contents)
-        );
-    }
+    //     $this->files->put(
+    //         $this->daemonPath, str_replace('VALET_HOME_PATH', VALET_HOME_PATH, $contents)
+    //     );
+    // }
 
     /**
      * Restart the launch daemon.
@@ -107,9 +107,7 @@ class Caddy
      */
     function restart()
     {
-        $this->cli->quietly('sudo launchctl unload '.$this->daemonPath);
-        $this->files->unlink(VALET_HOME_PATH.'/Caddy/.DS_Store');
-        $this->cli->quietly('sudo launchctl load '.$this->daemonPath);
+        $this->cli->quietly('sudo brew services restart nginx');
     }
 
     /**
@@ -119,7 +117,7 @@ class Caddy
      */
     function stop()
     {
-        $this->cli->quietly('sudo launchctl unload '.$this->daemonPath);
+        $this->cli->quietly('sudo brew services stop nginx');
     }
 
     /**
@@ -131,6 +129,6 @@ class Caddy
     {
         $this->stop();
 
-        $this->files->unlink($this->daemonPath);
+        // $this->files->unlink($this->daemonPath);
     }
 }

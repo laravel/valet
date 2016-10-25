@@ -83,15 +83,14 @@ class Configuration
     }
 
     /**
-     * Create the directory for Caddy log.
+     * Create the directory for Nginx logs.
      *
      * @return void
      */
     function createLogDirectory()
     {
         $this->files->ensureDirExists(VALET_HOME_PATH.'/Log', user());
-        $this->files->touch(VALET_HOME_PATH.'/Log/access.log');
-        $this->files->touch(VALET_HOME_PATH.'/Log/error.log');
+        $this->files->touch(VALET_HOME_PATH.'/Log/nginx-error.log');
     }
 
     /**
