@@ -61,7 +61,7 @@ class PhpFpm
 
         $contents = preg_replace('/^user = .+$/m', 'user = '.user(), $contents);
         $contents = preg_replace('/^group = .+$/m', 'group = staff', $contents);
-        $contents = preg_replace('/^listen = .+$/m', 'listen = /var/run/fpm-valet.sock', $contents);
+        $contents = preg_replace('/^listen = .+$/m', 'listen = 127.0.0.1:9000', $contents);
 
         $this->files->put($this->fpmConfigPath(), $contents);
     }
@@ -74,7 +74,6 @@ class PhpFpm
     function restart()
     {
         $this->stop();
-
         $this->brew->restartLinkedPhp();
     }
 
