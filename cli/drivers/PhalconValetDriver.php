@@ -42,6 +42,7 @@ class PhalconValetDriver extends ValetDriver
      */
     public function frontControllerPath($sitePath, $siteName, $uri)
     {
+        $_GET['_url'] = $uri;
         return $sitePath.'/public/index.php';
     }
 }
