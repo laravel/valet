@@ -38,20 +38,20 @@ class NginxTest extends PHPUnit_Framework_TestCase
     // }
 
 
-    // public function test_install_caddy_directories_creates_location_for_site_specific_configuration()
-    // {
-    //     $files = Mockery::mock(Filesystem::class);
-    //     $files->shouldReceive('isDir')->with(VALET_HOME_PATH.'/Caddy')->andReturn(false);
-    //     $files->shouldReceive('mkdirAsUser')->with(VALET_HOME_PATH.'/Caddy')->once();
-    //     $files->shouldReceive('putAsUser')->with(VALET_HOME_PATH.'/Caddy/.keep', "\n")->once();
+    public function test_install_caddy_directories_creates_location_for_site_specific_configuration()
+    {
+        $files = Mockery::mock(Filesystem::class);
+        $files->shouldReceive('isDir')->with(VALET_HOME_PATH.'/Nginx')->andReturn(false);
+        $files->shouldReceive('mkdirAsUser')->with(VALET_HOME_PATH.'/Nginx')->once();
+        $files->shouldReceive('putAsUser')->with(VALET_HOME_PATH.'/Nginx/.keep', "\n")->once();
 
-    //     swap(Filesystem::class, $files);
-    //     swap(Configuration::class, Mockery::spy(Configuration::class));
-    //     swap(Site::class, Mockery::spy(Site::class));
+        swap(Filesystem::class, $files);
+        swap(Configuration::class, Mockery::spy(Configuration::class));
+        swap(Site::class, Mockery::spy(Site::class));
 
-    //     $caddy = resolve(Caddy::class);
-    //     $caddy->installCaddyDirectory();
-    // }
+        $nginx = resolve(Nginx::class);
+        $nginx->installNginxDirectory();
+    }
 
 
     public function test_nginx_directory_is_never_created_if_it_already_exists()
