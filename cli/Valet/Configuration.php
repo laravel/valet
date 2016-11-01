@@ -90,6 +90,7 @@ class Configuration
     function createLogDirectory()
     {
         $this->files->ensureDirExists(VALET_HOME_PATH.'/Log', user());
+
         $this->files->touch(VALET_HOME_PATH.'/Log/nginx-error.log');
     }
 
