@@ -22,20 +22,20 @@ class NginxTest extends PHPUnit_Framework_TestCase
     }
 
 
-    // public function test_install_caddy_file_places_stub_in_valet_home_directory()
-    // {
-    //     $files = Mockery::mock(Filesystem::class.'[putAsUser]');
+    public function test_install_nginx_configuration_places_nginx_base_configuration_in_proper_location()
+    {
+        $files = Mockery::mock(Filesystem::class.'[putAsUser]');
 
-    //     $files->shouldReceive('putAsUser')->andReturnUsing(function ($path, $contents) {
-    //         $this->assertSame(VALET_HOME_PATH.'/Caddyfile', $path);
-    //         $this->assertTrue(strpos($contents, 'import '.VALET_HOME_PATH.'/Caddy/*') !== false);
-    //     })->once();
+        $files->shouldReceive('putAsUser')->andReturnUsing(function ($path, $contents) {
+            $this->assertSame('/usr/local/etc/nginx/nginx.conf', $path);
+            $this->assertTrue(strpos($contents, 'include '.VALET_HOME_PATH.'/Nginx/*') !== false);
+        })->once();
 
-    //     swap(Filesystem::class, $files);
+        swap(Filesystem::class, $files);
 
-    //     $caddy = resolve(Caddy::class);
-    //     $caddy->installCaddyFile();
-    // }
+        $nginx = resolve(Nginx::class);
+        $nginx->installConfiguration();
+    }
 
 
     public function test_install_caddy_directories_creates_location_for_site_specific_configuration()
