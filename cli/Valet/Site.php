@@ -136,7 +136,7 @@ class Site
         $this->createCertificate($url);
 
         $this->files->putAsUser(
-            VALET_HOME_PATH.'/Caddy/'.$url, $this->buildSecureCaddyfile($url)
+            VALET_HOME_PATH.'/Nginx/'.$url, $this->buildSecureNginxServer($url)
         );
     }
 
@@ -201,18 +201,19 @@ class Site
     }
 
     /**
-     * Build the TLS secured Caddyfile for the given URL.
+     * Build the TLS secured Nginx server for the given URL.
      *
      * @param  string  $url
      * @return string
      */
-    function buildSecureCaddyfile($url)
+    function buildSecureNginxServer($url)
     {
         $path = $this->certificatesPath();
 
         return str_replace(
-            ['VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_SITE', 'VALET_CERT', 'VALET_KEY'], [VALET_HOME_PATH, VALET_SERVER_PATH, $url, $path.'/'.$url.'.crt', $path.'/'.$url.'.key'],
-            $this->files->get(__DIR__.'/../stubs/SecureCaddyfile')
+            ['VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_SITE', 'VALET_CERT', 'VALET_KEY'],
+            [VALET_HOME_PATH, VALET_SERVER_PATH, $url, $path.'/'.$url.'.crt', $path.'/'.$url.'.key'],
+            $this->files->get(__DIR__.'/../stubs/secure.valet.conf')
         );
     }
 
@@ -225,7 +226,7 @@ class Site
     function unsecure($url)
     {
         if ($this->files->exists($this->certificatesPath().'/'.$url.'.crt')) {
-            $this->files->unlink(VALET_HOME_PATH.'/Caddy/'.$url);
+            $this->files->unlink(VALET_HOME_PATH.'/Nginx/'.$url);
 
             $this->files->unlink($this->certificatesPath().'/'.$url.'.key');
             $this->files->unlink($this->certificatesPath().'/'.$url.'.csr');
