@@ -75,6 +75,8 @@ if (is_null($valetSitePath)) {
     show_valet_404();
 }
 
+$valetSitePath = realpath($valetSitePath);
+
 /**
  * Find the appropriate Valet driver for the request.
  */
