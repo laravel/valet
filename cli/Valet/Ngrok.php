@@ -36,7 +36,7 @@ class Ngrok
      * @param  array  $tunnels
      * @return string|null
      */
-    function findHttpTunnelUrl(array $tunnels)
+    function findHttpTunnelUrl($tunnels)
     {
         foreach ($tunnels as $tunnel) {
             if ($tunnel->proto === 'http') {

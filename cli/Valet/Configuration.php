@@ -196,7 +196,7 @@ class Configuration
      * @param  array  $config
      * @return void
      */
-    function write(array $config)
+    function write($config)
     {
         $this->files->putAsUser($this->path(), json_encode(
             $config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES

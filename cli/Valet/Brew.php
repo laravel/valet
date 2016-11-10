@@ -54,7 +54,7 @@ class Brew
      * @param  array  $taps
      * @return void
      */
-    function ensureInstalled($formula, array $options = [], array $taps = [])
+    function ensureInstalled($formula, $options = [], $taps = [])
     {
         if (! $this->installed($formula)) {
             $this->installOrFail($formula, $options, $taps);
@@ -69,7 +69,7 @@ class Brew
      * @param  array  $taps
      * @return void
      */
-    function installOrFail($formula, array $options = [], array $taps = [])
+    function installOrFail($formula, $options = [], $taps = [])
     {
         if (count($taps) > 0) {
             $this->tap($taps);
