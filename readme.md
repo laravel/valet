@@ -23,7 +23,7 @@ Documentation for Valet can be found on the [Laravel website](http://laravel.com
  - Ubuntu >= 15.04
  - Dependencies: `sudo apt-get install libnss3-tools jq xsel`
  - PHP >= 5.6
- - PHP Packages: `php*-cli php*-common php*-curl php*-json php*-mbstring php*-mcrypt php*-mysql php*-opcache php*-readline php*-xml php*-zip`
+ - PHP Packages: `php*-cli php*-common php*-curl php*-json php*-mbstring php*-mcrypt php*-opcache php*-readline php*-xml php*-zip`
  - Optional PHP Packages: `php*-sqlite3 php*-mysql php*-pgsql`
 
 **Replace the star _(*)_ with your php version**
