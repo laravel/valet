@@ -108,7 +108,7 @@ class Caddy
     function restart()
     {
         $this->cli->quietly('sudo launchctl unload '.$this->daemonPath);
-
+        $this->files->unlink(VALET_HOME_PATH.'/Caddy/.DS_Store');
         $this->cli->quietly('sudo launchctl load '.$this->daemonPath);
     }
 
