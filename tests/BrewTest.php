@@ -176,6 +176,13 @@ php7');
         $brew->installOrFail('dnsmasq', ['test/tap']);
     }
 
+    public function test_install_or_fail_will_install_with_options()
+    {
+        $cli = Mockery::mock(CommandLine::class);
+        $cli->shouldReceive('runAsUser')->once()->with('brew install dnsmasq --with-option1 --with-option2', Mockery::type('Closure'));
+        swap(CommandLine::class, $cli);
+        resolve(Brew::class)->installOrFail('dnsmasq', [], ['with-option1', 'with-option2']);
+    }
 
     /**
      * @expectedException DomainException
