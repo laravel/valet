@@ -30,12 +30,12 @@ class BrewTest extends PHPUnit_Framework_TestCase
     public function test_installed_returns_true_when_given_formula_is_installed()
     {
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('run')->once()->with('brew list | grep php70')->andReturn('php70');
+        $cli->shouldReceive('runAsUser')->once()->with('brew list | grep php70')->andReturn('php70');
         swap(CommandLine::class, $cli);
         $this->assertTrue(resolve(Brew::class)->installed('php70'));
 
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('run')->once()->with('brew list | grep php70')->andReturn('php70-mcrypt
+        $cli->shouldReceive('runAsUser')->once()->with('brew list | grep php70')->andReturn('php70-mcrypt
 php70');
         swap(CommandLine::class, $cli);
         $this->assertTrue(resolve(Brew::class)->installed('php70'));
@@ -45,17 +45,17 @@ php70');
     public function test_installed_returns_false_when_given_formula_is_not_installed()
     {
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('run')->once()->with('brew list | grep php70')->andReturn('');
+        $cli->shouldReceive('runAsUser')->once()->with('brew list | grep php70')->andReturn('');
         swap(CommandLine::class, $cli);
         $this->assertFalse(resolve(Brew::class)->installed('php70'));
 
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('run')->once()->with('brew list | grep php70')->andReturn('php70-mcrypt');
+        $cli->shouldReceive('runAsUser')->once()->with('brew list | grep php70')->andReturn('php70-mcrypt');
         swap(CommandLine::class, $cli);
         $this->assertFalse(resolve(Brew::class)->installed('php70'));
 
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('run')->once()->with('brew list | grep php70')->andReturn('php70-mcrypt
+        $cli->shouldReceive('runAsUser')->once()->with('brew list | grep php70')->andReturn('php70-mcrypt
 php70-something-else
 php7');
         swap(CommandLine::class, $cli);
