@@ -1,6 +1,6 @@
 # Laravel Valet
 
-[![Build Status](https://travis-ci.org/laravel/valet.svg)](https://travis-ci.org/laravel/valet)
+[![Build Status](https://travis-ci.org/laravel/valet.svg?branch=master)](https://travis-ci.org/laravel/valet)
 [![Total Downloads](https://poser.pugx.org/laravel/valet/d/total.svg)](https://packagist.org/packages/laravel/valet)
 [![Latest Stable Version](https://poser.pugx.org/laravel/valet/v/stable.svg)](https://packagist.org/packages/laravel/valet)
 [![Latest Unstable Version](https://poser.pugx.org/laravel/valet/v/unstable.svg)](https://packagist.org/packages/laravel/valet)
