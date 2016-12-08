@@ -132,11 +132,12 @@ class Site
         $this->unsecure($url);
 
         $this->files->ensureDirExists($this->certificatesPath(), user());
+        $this->files->ensureDirExists($this->caddyFilesPath(), user());
 
         $this->createCertificate($url);
 
         $this->files->putAsUser(
-            VALET_HOME_PATH.'/Caddy/'.$url, $this->buildSecureCaddyfile($url)
+            $this->caddyFilesPath().'/'.$url, $this->buildSecureCaddyfile($url)
         );
     }
 
@@ -225,7 +226,7 @@ class Site
     function unsecure($url)
     {
         if ($this->files->exists($this->certificatesPath().'/'.$url.'.crt')) {
-            $this->files->unlink(VALET_HOME_PATH.'/Caddy/'.$url);
+            $this->files->unlink($this->caddyFilesPath().'/'.$url);
 
             $this->files->unlink($this->certificatesPath().'/'.$url.'.key');
             $this->files->unlink($this->certificatesPath().'/'.$url.'.csr');
@@ -253,5 +254,15 @@ class Site
     function certificatesPath()
     {
         return VALET_HOME_PATH.'/Certificates';
+    }
+    
+    /**
+     * Get the path to the Caddyfiles.
+     *
+     * @return string
+     */
+    function caddyFilesPath()
+    {
+        return VALET_HOME_PATH.'/Caddy';
     }
 }
