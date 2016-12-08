@@ -20,7 +20,7 @@ Documentation for Valet can be found on the [Laravel website](https://laravel.co
 
 ## Upgrading To Valet 2.0
 
-Valet 2.0 transitions the underlying web server from Caddy to Nginx. Before upgrading to this version you should run the following commands to stop and uninstall the existing Caddy daemon:
+Valet 2.0 transitions Valet's underlying web server from Caddy to Nginx. Before upgrading to this version you should run the following commands to stop and uninstall the existing Caddy daemon:
 
 ```
 valet stop
