@@ -27,9 +27,9 @@ class PhpFpmTest extends PHPUnit_Framework_TestCase
         copy(__DIR__.'/files/fpm.conf', __DIR__.'/output/fpm.conf');
         resolve(StubForUpdatingFpmConfigFiles::class)->updateConfiguration();
         $contents = file_get_contents(__DIR__.'/output/fpm.conf');
-        $this->assertTrue(strpos($contents, sprintf("\nuser = %s", user())) !== false);
-        $this->assertTrue(strpos($contents, "\ngroup = staff") !== false);
-        $this->assertTrue(strpos($contents, "\nlisten = /Users/".user()."/.valet/valet.sock") !== false);
+        $this->assertContains(sprintf("\nuser = %s", user()), $contents);
+        $this->assertContains("\ngroup = staff", $contents);
+        $this->assertContains("\nlisten = /Users/".user()."/.valet/valet.sock", $contents);
     }
 }
 
