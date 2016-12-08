@@ -29,7 +29,7 @@ class PhpFpmTest extends PHPUnit_Framework_TestCase
         $contents = file_get_contents(__DIR__.'/output/fpm.conf');
         $this->assertContains(sprintf("\nuser = %s", user()), $contents);
         $this->assertContains("\ngroup = staff", $contents);
-        $this->assertContains("\nlisten = /Users/".user()."/.valet/valet.sock", $contents);
+        $this->assertContains("\nlisten = ".VALET_HOME_PATH."/valet.sock", $contents);
     }
 }
 
