@@ -40,7 +40,7 @@ class PhpFpm
             ! $this->brew->installed('php70') &&
             ! $this->brew->installed('php56') &&
             ! $this->brew->installed('php55')) {
-            $this->brew->ensureInstalled('php70', [], $this->taps);
+            $this->brew->ensureInstalled('php71', [], $this->taps);
         }
 
         $this->files->ensureDirExists('/usr/local/var/log', user());
