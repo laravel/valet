@@ -173,7 +173,7 @@ php7');
         swap(CommandLine::class, $cli);
         $brew = Mockery::mock(Brew::class.'[tap]', [$cli, new Filesystem]);
         $brew->shouldReceive('tap')->once()->with(['test/tap']);
-        $brew->installOrFail('dnsmasq', ['test/tap']);
+        $brew->installOrFail('dnsmasq', [], ['test/tap']);
     }
 
 

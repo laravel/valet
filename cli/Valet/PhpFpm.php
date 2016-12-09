@@ -40,7 +40,7 @@ class PhpFpm
             ! $this->brew->installed('php70') &&
             ! $this->brew->installed('php56') &&
             ! $this->brew->installed('php55')) {
-            $this->brew->ensureInstalled('php70', $this->taps);
+            $this->brew->ensureInstalled('php70', [], $this->taps);
         }
 
         $this->files->ensureDirExists('/usr/local/var/log', user());
@@ -61,7 +61,10 @@ class PhpFpm
 
         $contents = preg_replace('/^user = .+$/m', 'user = '.user(), $contents);
         $contents = preg_replace('/^group = .+$/m', 'group = staff', $contents);
-        $contents = preg_replace('/^listen = .+$/m', 'listen = 127.0.0.1:9000', $contents);
+        $contents = preg_replace('/^listen = .+$/m', 'listen = '.VALET_HOME_PATH.'/valet.sock', $contents);
+        $contents = preg_replace('/^;?listen\.owner = .+$/m', 'listen.owner = '.user(), $contents);
+        $contents = preg_replace('/^;?listen\.group = .+$/m', 'listen.group = staff', $contents);
+        $contents = preg_replace('/^;?listen\.mode = .+$/m', 'listen.mode = 0777', $contents);
 
         $this->files->put($this->fpmConfigPath(), $contents);
     }

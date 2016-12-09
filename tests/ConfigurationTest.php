@@ -43,7 +43,7 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase
     {
         $files = Mockery::mock(Filesystem::class.'[ensureDirExists,touch]');
         $files->shouldReceive('ensureDirExists')->with(VALET_HOME_PATH.'/Log', user());
-        $files->shouldReceive('touch')->twice();
+        $files->shouldReceive('touch')->once();
         swap(Filesystem::class, $files);
         resolve(Configuration::class)->createLogDirectory();
     }

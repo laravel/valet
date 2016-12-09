@@ -46,15 +46,17 @@ function output($output)
     (new Symfony\Component\Console\Output\ConsoleOutput)->writeln($output);
 }
 
-/**
- * Resolve the given class from the container.
- *
- * @param  string  $class
- * @return mixed
- */
-function resolve($class)
-{
-    return Container::getInstance()->make($class);
+if (! function_exists('resolve')) {
+    /**
+     * Resolve the given class from the container.
+     *
+     * @param  string  $class
+     * @return mixed
+     */
+    function resolve($class)
+    {
+        return Container::getInstance()->make($class);
+    }
 }
 
 /**

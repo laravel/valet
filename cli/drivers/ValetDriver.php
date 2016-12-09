@@ -60,6 +60,7 @@ abstract class ValetDriver
         $drivers[] = 'KatanaValetDriver';
         $drivers[] = 'JoomlaValetDriver';
         $drivers[] = 'DrupalValetDriver';
+        $drivers[] = 'Concrete5ValetDriver';
 
         $drivers[] = 'BasicValetDriver';
 
@@ -137,10 +138,7 @@ abstract class ValetDriver
         header('Content-Type: text/html');
         header_remove('Content-Type');
 
-        /**
-         * Tell Caddy to handle the static file itself, using it's `internal` feature.
-         */
-        header('X-Accel-Redirect: ' . $staticFilePath);
+        header('X-Accel-Redirect: /static' . $staticFilePath);
     }
 
     /**
