@@ -101,7 +101,7 @@ $app->command('link [name]', function ($name) {
  * Display all of the registered symbolic links.
  */
 $app->command('links', function () {
-    passthru('ls -la '.VALET_HOME_PATH.'/Sites');
+    passthru('ls -lA '.VALET_HOME_PATH.'/Sites');
 })->descriptions('Display all of the registered Valet links');
 
 /**
