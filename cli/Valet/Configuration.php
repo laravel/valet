@@ -111,7 +111,15 @@ class Configuration
     function writeBaseConfiguration()
     {
         if (! $this->files->exists($this->path())) {
-            $this->write(['domain' => 'test', 'paths' => []]);
+            $this->write(['tld' => 'test', 'paths' => []]);
+        }
+
+        /**
+         *  For upgrades, change config key 'domain' to 'tld'
+         */
+        $config = $this->read();
+        if (isset($config['domain']) && !isset($config['tld'])) {
+            $this->updateKey('tld', $config['domain']);
         }
     }
 
