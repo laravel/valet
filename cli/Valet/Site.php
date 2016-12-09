@@ -136,13 +136,13 @@ class Site
     }
 
     /**
-     * Resecure all currently secured sites with a fresh domain.
+     * Resecure all currently secured sites with a fresh tld.
      *
-     * @param  string  $oldDomain
-     * @param  string  $domain
+     * @param  string  $oldTld
+     * @param  string  $tld
      * @return void
      */
-    function resecureForNewDomain($oldDomain, $domain)
+    function resecureForNewTld($oldTld, $tld)
     {
         if (! $this->files->exists($this->certificatesPath())) {
             return;
@@ -155,7 +155,7 @@ class Site
         }
 
         foreach ($secured as $url) {
-            $this->secure(str_replace('.'.$oldDomain, '.'.$domain, $url));
+            $this->secure(str_replace('.'.$oldTld, '.'.$tld, $url));
         }
     }
 

@@ -120,7 +120,7 @@ class DnsMasq
     }
 
     /**
-     * Update the domain used by DnsMasq.
+     * Update the domain (TLD) used by DnsMasq.
      *
      * @param  string  $oldDomain
      * @param  string  $newDomain
