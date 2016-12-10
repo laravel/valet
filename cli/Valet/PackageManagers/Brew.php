@@ -140,6 +140,17 @@ class Brew implements PackageManager
     }
 
     /**
+     * Return full path to etc configuration.
+     *
+     * @param  string $path
+     * @return string
+     */
+    function etcDir($path)
+    {
+        return '/usr/local/etc' . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+    }
+
+    /**
      * Configure package manager on valet install.
      *
      * @return void

@@ -33,6 +33,14 @@ interface PackageManager
     function installOrFail($formula, $options = [], $taps = []);
 
     /**
+     * Return full path to etc configuration.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    function etcDir($path);
+
+    /**
      * Configure package manager on valet install.
      *
      * @return void

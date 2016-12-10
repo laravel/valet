@@ -140,3 +140,14 @@ function user()
 
     return $_SERVER['SUDO_USER'];
 }
+
+/**
+ * Return full path to etc configuration.
+ *
+ * @param  string  $path
+ * @return string
+ */
+function etc_dir($path)
+{
+    return PackageManager::etcDir($path);
+}

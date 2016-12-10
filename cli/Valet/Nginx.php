@@ -57,7 +57,7 @@ class Nginx
         $contents = $this->files->get(__DIR__.'/../stubs/nginx.conf');
 
         $this->files->putAsUser(
-            '/usr/local/etc/nginx/nginx.conf',
+            $this->pm->etcDir('nginx/nginx.conf'),
             str_replace(['VALET_USER', 'VALET_HOME_PATH'], [user(), VALET_HOME_PATH], $contents)
         );
     }
@@ -69,10 +69,10 @@ class Nginx
      */
     function installServer()
     {
-        $this->files->ensureDirExists('/usr/local/etc/nginx/valet');
+        $this->files->ensureDirExists($this->pm->etcDir('nginx/valet'));
 
         $this->files->putAsUser(
-            '/usr/local/etc/nginx/valet/valet.conf',
+            $this->pm->etcDir('nginx/valet/valet.conf'),
             str_replace(
                 ['VALET_HOME_PATH', 'VALET_SERVER_PATH'],
                 [VALET_HOME_PATH, VALET_SERVER_PATH],
@@ -81,7 +81,7 @@ class Nginx
         );
 
         $this->files->putAsUser(
-            '/usr/local/etc/nginx/fastcgi_params',
+            $this->pm->etcDir('nginx/fastcgi_params'),
             $this->files->get(__DIR__.'/../stubs/fastcgi_params')
         );
     }
