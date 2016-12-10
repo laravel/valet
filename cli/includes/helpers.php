@@ -149,7 +149,7 @@ function user()
  */
 function etc_dir($path = '')
 {
-    return resolve(\Valet\Contracts\PackageManager::class)->etcDir($path);
+    return PackageManager::etcDir($path);
 }
 
 /**
@@ -160,7 +160,7 @@ function etc_dir($path = '')
  */
 function log_dir($path = '')
 {
-    return resolve(\Valet\Contracts\PackageManager::class)->logDir($path);
+    return PackageManager::logDir($path);
 }
 
 /**
@@ -171,5 +171,5 @@ function log_dir($path = '')
  */
 function opt_dir($path = '')
 {
-    return resolve(\Valet\Contracts\PackageManager::class)->optDir($path);
+    return PackageManager::optDir($path);
 }

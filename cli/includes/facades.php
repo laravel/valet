@@ -13,7 +13,7 @@ class Facade
     {
         $className = basename(str_replace('\\', '/', get_called_class()));
 
-        return class_exists('Valet\\Contracts\\'.$className) ? 'Valet\\Contracts\\'.$className : 'Valet\\'.$className;
+        return interface_exists('Valet\\Contracts\\'.$className) ? 'Valet\\Contracts\\'.$className : 'Valet\\'.$className;
     }
 
     /**
