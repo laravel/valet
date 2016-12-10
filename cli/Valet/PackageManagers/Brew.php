@@ -1,11 +1,14 @@
 <?php
 
-namespace Valet;
+namespace Valet\PackageManagers;
 
 use Exception;
 use DomainException;
+use Valet\CommandLine;
+use Valet\Contracts\PackageManager;
+use Valet\Filesystem;
 
-class Brew
+class Brew implements PackageManager
 {
     var $cli, $files;
 
@@ -164,6 +167,16 @@ class Brew
     }
 
     /**
+     * Configure package manager on valet install.
+     *
+     * @return void
+     */
+    function setup()
+    {
+        $this->createSudoersEntry();
+    }
+
+    /**
      * Create the "sudoers.d" entry for running Brew.
      *
      * @return void
@@ -174,5 +187,15 @@ class Brew
 
         $this->files->put('/etc/sudoers.d/brew', 'Cmnd_Alias BREW = /usr/local/bin/brew *
 %admin ALL=(root) NOPASSWD: BREW'.PHP_EOL);
+    }
+
+    /**
+     * Determine if package manager is available on the system.
+     *
+     * @return bool
+     */
+    function isAvailable()
+    {
+        return exec('which brew') != '';
     }
 }

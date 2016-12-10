@@ -2,6 +2,12 @@
 
 namespace Valet;
 
+use DomainException;
+use Illuminate\Container\Container;
+use Valet\Contracts\PackageManager;
+use Valet\PackageManagers\Apt;
+use Valet\PackageManagers\Brew;
+
 class Valet
 {
     var $cli, $files;
@@ -77,5 +83,42 @@ class Valet
         $response = \Httpful\Request::get('https://api.github.com/repos/laravel/valet/releases/latest')->send();
 
         return version_compare($currentVersion, trim($response->body->tag_name, 'v'), '>=');
+    }
+
+    /**
+     * Determine current environment
+     *
+     * @return void
+     */
+    function environmentSetup()
+    {
+        $this->packageManagerSetup();
+    }
+
+    /**
+     * Configure package manager
+     *
+     * @return void
+     */
+    function packageManagerSetup()
+    {
+        Container::getInstance()->bind(PackageManager::class, $this->getAvailablePackageManager());
+    }
+
+    /**
+     * Determine the first available package manager
+     *
+     * @return string
+     */
+    function getAvailablePackageManager()
+    {
+        return collect([
+            Brew::class,
+            Apt::class,
+        ])->first(function ($pm) {
+            return resolve($pm)->isAvailable();
+        }, function () {
+            throw new DomainException("No compatible package manager found.");
+        });
     }
 }

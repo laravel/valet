@@ -11,7 +11,9 @@ class Facade
      */
     public static function containerKey()
     {
-        return 'Valet\\'.basename(str_replace('\\', '/', get_called_class()));
+        $className = basename(str_replace('\\', '/', get_called_class()));
+
+        return class_exists('Valet\\Contracts\\'.$className) ? 'Valet\\Contracts\\'.$className : 'Valet\\'.$className;
     }
 
     /**
@@ -29,7 +31,7 @@ class Facade
     }
 }
 
-class Brew extends Facade {}
+class PackageManager extends Facade {}
 class Nginx extends Facade {}
 class CommandLine extends Facade {}
 class Configuration extends Facade {}

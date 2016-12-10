@@ -23,6 +23,11 @@ $version = '2.0.1';
 $app = new Application('Laravel Valet', $version);
 
 /**
+ * Detect environment
+ */
+Valet::environmentSetup();
+
+/**
  * Prune missing directories and symbolic links on every command.
  */
 if (is_dir(VALET_HOME_PATH)) {
@@ -43,7 +48,7 @@ $app->command('install', function () {
     DnsMasq::install();
     Nginx::restart();
     Valet::symlinkToUsersBin();
-    Brew::createSudoersEntry();
+    PackageManager::setup();
     Valet::createSudoersEntry();
 
     output(PHP_EOL.'<info>Valet installed successfully!</info>');
