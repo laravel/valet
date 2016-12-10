@@ -162,3 +162,14 @@ function log_dir($path = '')
 {
     return resolve(\Valet\Contracts\PackageManager::class)->logDir($path);
 }
+
+/**
+ * Return full path to opt.
+ *
+ * @param  string $path
+ * @return string
+ */
+function opt_dir($path = '')
+{
+    return resolve(\Valet\Contracts\PackageManager::class)->optDir($path);
+}

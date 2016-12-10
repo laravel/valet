@@ -45,6 +45,14 @@ interface PackageManager
     function logDir($path);
 
     /**
+     * Return full path to opt.
+     *
+     * @param  string $path
+     * @return string
+     */
+    function optDir($path = '');
+
+    /**
      * Configure package manager on valet install.
      *
      * @return void

@@ -2,29 +2,31 @@
 
 namespace Valet;
 
-use Exception;
-use Symfony\Component\Process\Process;
+use Valet\Contracts\PackageManager;
+use Valet\Contracts\ServiceManager;
 
 class DnsMasq
 {
-    var $brew, $cli, $files;
+    var $pm, $sm, $cli, $files;
 
-    var $resolverPath = '/etc/resolver';
-    var $configPath = '/usr/local/etc/dnsmasq.conf';
-    var $exampleConfigPath = '/usr/local/opt/dnsmasq/dnsmasq.conf.example';
+    var $resolverPath = 'resolver';
+    var $configPath = 'dnsmasq.conf';
+    var $exampleConfigPath = 'dnsmasq/dnsmasq.conf.example';
 
     /**
      * Create a new DnsMasq instance.
      *
-     * @param  Brew  $brew
+     * @param  PackageManager  $pm
+     * @param  ServiceManager  $sm
      * @param  CommandLine  $cli
      * @param  Filesystem  $files
      * @return void
      */
-    function __construct(Brew $brew, CommandLine $cli, Filesystem $files)
+    function __construct(PackageManager $pm, ServiceManager $sm, CommandLine $cli, Filesystem $files)
     {
         $this->cli = $cli;
-        $this->brew = $brew;
+        $this->pm = $pm;
+        $this->sm = $sm;
         $this->files = $files;
     }
 
@@ -35,7 +37,7 @@ class DnsMasq
      */
     function install($domain = 'dev')
     {
-        $this->brew->ensureInstalled('dnsmasq');
+        $this->pm->ensureInstalled('dnsmasq');
 
         // For DnsMasq, we create our own custom configuration file which will be imported
         // in the main DnsMasq file. This allows Valet to make changes to our own files
@@ -44,7 +46,7 @@ class DnsMasq
 
         $this->createDomainResolver($domain);
 
-        $this->brew->restartService('dnsmasq');
+        $this->sm->restart('dnsmasq');
     }
 
     /**
@@ -71,10 +73,10 @@ class DnsMasq
      */
     function copyExampleConfig()
     {
-        if (! $this->files->exists($this->configPath)) {
+        if (! $this->files->exists($this->configFilePath())) {
             $this->files->copyAsUser(
-                $this->exampleConfigPath,
-                $this->configPath
+                opt_dir($this->exampleConfigPath),
+                $this->configFilePath()
             );
         }
     }
@@ -89,7 +91,7 @@ class DnsMasq
     {
         if (! $this->customConfigIsBeingImported($customConfigPath)) {
             $this->files->appendAsUser(
-                $this->configPath,
+                $this->configFilePath(),
                 PHP_EOL.'conf-file='.$customConfigPath.PHP_EOL
             );
         }
@@ -103,7 +105,7 @@ class DnsMasq
      */
     function customConfigIsBeingImported($customConfigPath)
     {
-        return strpos($this->files->get($this->configPath), $customConfigPath) !== false;
+        return strpos($this->files->get($this->configFilePath()), $customConfigPath) !== false;
     }
 
     /**
@@ -114,9 +116,9 @@ class DnsMasq
      */
     function createDomainResolver($domain)
     {
-        $this->files->ensureDirExists($this->resolverPath);
+        $this->files->ensureDirExists($this->resolverDirPath());
 
-        $this->files->put($this->resolverPath.'/'.$domain, 'nameserver 127.0.0.1'.PHP_EOL);
+        $this->files->put($this->resolverDirPath().'/'.$domain, 'nameserver 127.0.0.1'.PHP_EOL);
     }
 
     /**
@@ -128,7 +130,7 @@ class DnsMasq
      */
     function updateDomain($oldDomain, $newDomain)
     {
-        $this->files->unlink($this->resolverPath.'/'.$oldDomain);
+        $this->files->unlink($this->resolverDirPath().'/'.$oldDomain);
 
         $this->install($newDomain);
     }
@@ -141,5 +143,23 @@ class DnsMasq
     function customConfigPath()
     {
         return $_SERVER['HOME'].'/.valet/dnsmasq.conf';
+    }
+
+    /**
+     * Return config file path
+     *
+     * @return string
+     */
+    function configFilePath() {
+        return etc_dir($this->configPath);
+    }
+
+    /**
+     * Return resolver dir path
+     *
+     * @return string
+     */
+    function resolverDirPath() {
+        return etc_dir($this->resolverPath);
     }
 }

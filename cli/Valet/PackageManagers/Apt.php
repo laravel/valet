@@ -85,6 +85,17 @@ class Apt implements PackageManager
     }
 
     /**
+     * Return full path to opt.
+     *
+     * @param  string $path
+     * @return string
+     */
+    function optDir($path = '')
+    {
+        return '/opt' . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+    }
+
+    /**
      * Configure package manager on valet install.
      *
      * @return void
