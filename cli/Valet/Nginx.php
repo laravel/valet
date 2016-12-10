@@ -2,10 +2,13 @@
 
 namespace Valet;
 
+use Valet\Contracts\ServiceManager;
+use Valet\Contracts\PackageManager;
+
 class Nginx
 {
-    var $brew;
-    var $cli;
+    var $pm;
+    var $sm;
     var $files;
     var $configuration;
     var $site;
@@ -13,18 +16,18 @@ class Nginx
     /**
      * Create a new Nginx instance.
      *
-     * @param  Brew  $brew
-     * @param  CommandLine  $cli
+     * @param  PackageManager  $pm
+     * @param  ServiceManager  $sm
      * @param  Filesystem  $files
      * @param  Configuration  $configuration
      * @param  Site  $site
      * @return void
      */
-    function __construct(Brew $brew, CommandLine $cli, Filesystem $files,
+    function __construct(PackageManager $pm, ServiceManager $sm, Filesystem $files,
                          Configuration $configuration, Site $site)
     {
-        $this->cli = $cli;
-        $this->brew = $brew;
+        $this->pm = $pm;
+        $this->sm = $sm;
         $this->site = $site;
         $this->files = $files;
         $this->configuration = $configuration;
@@ -37,7 +40,7 @@ class Nginx
      */
     function install()
     {
-        $this->brew->ensureInstalled('nginx', ['--with-http2']);
+        $this->pm->ensureInstalled('nginx', ['--with-http2']);
 
         $this->installConfiguration();
         $this->installServer();
@@ -120,7 +123,7 @@ class Nginx
      */
     function restart()
     {
-        $this->cli->quietly('sudo brew services restart nginx');
+        $this->sm->restart('nginx');
     }
 
     /**
@@ -130,7 +133,7 @@ class Nginx
      */
     function stop()
     {
-        $this->cli->quietly('sudo brew services stop nginx');
+        $this->sm->stop('nginx');
     }
 
     /**

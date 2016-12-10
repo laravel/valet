@@ -32,6 +32,7 @@ class Facade
 }
 
 class PackageManager extends Facade {}
+class ServiceManager extends Facade {}
 class Nginx extends Facade {}
 class CommandLine extends Facade {}
 class Configuration extends Facade {}

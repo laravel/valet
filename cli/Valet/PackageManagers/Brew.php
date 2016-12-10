@@ -4,6 +4,7 @@ namespace Valet\PackageManagers;
 
 use Exception;
 use DomainException;
+use ServiceManager;
 use Valet\CommandLine;
 use Valet\Contracts\PackageManager;
 use Valet\Filesystem;
@@ -103,34 +104,6 @@ class Brew implements PackageManager
     }
 
     /**
-     * Restart the given Homebrew services.
-     *
-     * @param
-     */
-    function restartService($services)
-    {
-        $services = is_array($services) ? $services : func_get_args();
-
-        foreach ($services as $service) {
-            $this->cli->quietly('sudo brew services restart '.$service);
-        }
-    }
-
-    /**
-     * Stop the given Homebrew services.
-     *
-     * @param
-     */
-    function stopService($services)
-    {
-        $services = is_array($services) ? $services : func_get_args();
-
-        foreach ($services as $service) {
-            $this->cli->quietly('sudo brew services stop '.$service);
-        }
-    }
-
-    /**
      * Determine which version of PHP is linked in Homebrew.
      *
      * @return string
@@ -163,7 +136,7 @@ class Brew implements PackageManager
      */
     function restartLinkedPhp()
     {
-        $this->restartService($this->linkedPhp());
+        ServiceManager::restart($this->linkedPhp());
     }
 
     /**

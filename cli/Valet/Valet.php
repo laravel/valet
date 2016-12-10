@@ -5,8 +5,11 @@ namespace Valet;
 use DomainException;
 use Illuminate\Container\Container;
 use Valet\Contracts\PackageManager;
+use Valet\Contracts\ServiceManager;
 use Valet\PackageManagers\Apt;
 use Valet\PackageManagers\Brew;
+use Valet\ServiceManagers\BrewService;
+use Valet\ServiceManagers\LinuxService;
 
 class Valet
 {
@@ -93,6 +96,7 @@ class Valet
     function environmentSetup()
     {
         $this->packageManagerSetup();
+        $this->serviceManagerSetup();
     }
 
     /**
@@ -119,6 +123,33 @@ class Valet
             return resolve($pm)->isAvailable();
         }, function () {
             throw new DomainException("No compatible package manager found.");
+        });
+    }
+
+    /**
+     * Configure service manager
+     *
+     * @return void
+     */
+    function serviceManagerSetup()
+    {
+        Container::getInstance()->bind(ServiceManager::class, $this->getAvailableServiceManager());
+    }
+
+    /**
+     * Determine the first available service manager
+     *
+     * @return string
+     */
+    function getAvailableServiceManager()
+    {
+        return collect([
+            BrewService::class,
+            LinuxService::class,
+        ])->first(function ($pm) {
+            return resolve($pm)->isAvailable();
+        }, function () {
+            throw new DomainException("No compatible service manager found.");
         });
     }
 }
