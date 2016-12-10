@@ -14,6 +14,37 @@ class Brew implements PackageManager
     var $cli, $files;
 
     /**
+     * Compatibility map for installed package.
+     * If any of this is installed the main package
+     * will be considered installed.
+     *
+     * @var array
+     */
+    var $installedCompatibleMap = [
+        'php' => ['php71', 'php70', 'php56', 'php55'],
+    ];
+
+    /**
+     * Map meta-packages to correct name.
+     *
+     * @var array
+     */
+    var $installMap = [
+        'php' => 'php70',
+    ];
+
+    /**
+     * Taps needed for specific packages
+     *
+     * @var array
+     */
+    var $taps = [
+        'php70' => [
+            'homebrew/dupes', 'homebrew/versions', 'homebrew/homebrew-php'
+        ],
+    ];
+
+    /**
      * Create a new Brew instance.
      *
      * @param  CommandLine  $cli
@@ -28,40 +59,41 @@ class Brew implements PackageManager
 
     /**
      * Determine if the given formula is installed.
+     * Uses compatibility map.
      *
      * @param  string  $formula
      * @return bool
      */
     function installed($formula)
     {
-        return in_array($formula, explode(PHP_EOL, $this->cli->runAsUser('brew list | grep '.$formula)));
+        return collect($this->installedCompatibleMap[$formula] ?: [$formula])->contains(function ($f) {
+            return $this->installedCheck($f);
+        });
     }
 
     /**
-     * Determine if a compatible PHP version is Homebrewed.
+     * Determine if the given formula is installed.
      *
+     * @param  string  $formula
      * @return bool
      */
-    function hasInstalledPhp()
+    function installedCheck($formula)
     {
-        return $this->installed('php71')
-            || $this->installed('php70')
-            || $this->installed('php56')
-            || $this->installed('php55');
+        return in_array($formula, explode(PHP_EOL, $this->cli->runAsUser('brew list | grep '.$formula)));
     }
 
     /**
      * Ensure that the given formula is installed.
      *
      * @param  string  $formula
-     * @param  array  $options
-     * @param  array  $taps
      * @return void
      */
-    function ensureInstalled($formula, $options = [], $taps = [])
+    function ensureInstalled($formula)
     {
         if (! $this->installed($formula)) {
-            $this->installOrFail($formula, $options, $taps);
+            $formula = $this->installMap[$formula] ?: $formula;
+
+            $this->installOrFail($formula);
         }
     }
 
@@ -69,19 +101,19 @@ class Brew implements PackageManager
      * Install the given formula and throw an exception on failure.
      *
      * @param  string  $formula
-     * @param  array  $options
-     * @param  array  $taps
      * @return void
      */
-    function installOrFail($formula, $options = [], $taps = [])
+    function installOrFail($formula)
     {
+        $taps = $this->taps[$formula] ?: [];
+
         if (count($taps) > 0) {
             $this->tap($taps);
         }
 
         output('<info>['.$formula.'] is not installed, installing it now via Brew...</info> 🍻');
 
-        $this->cli->runAsUser(trim('brew install '.$formula.' '.implode(' ', $options)), function ($exitCode, $errorOutput) use ($formula) {
+        $this->cli->runAsUser(trim('brew install '.$formula), function ($exitCode, $errorOutput) use ($formula) {
             output($errorOutput);
 
             throw new DomainException('Brew was unable to install ['.$formula.'].');
@@ -104,50 +136,25 @@ class Brew implements PackageManager
     }
 
     /**
-     * Determine which version of PHP is linked in Homebrew.
-     *
-     * @return string
-     */
-    function linkedPhp()
-    {
-        if (! $this->files->isLink('/usr/local/bin/php')) {
-            throw new DomainException("Unable to determine linked PHP.");
-        }
-
-        $resolvedPath = $this->files->readLink('/usr/local/bin/php');
-
-        if (strpos($resolvedPath, 'php71') !== false) {
-            return 'php71';
-        } elseif (strpos($resolvedPath, 'php70') !== false) {
-            return 'php70';
-        } elseif (strpos($resolvedPath, 'php56') !== false) {
-            return 'php56';
-        } elseif (strpos($resolvedPath, 'php55') !== false) {
-            return 'php55';
-        } else {
-            throw new DomainException("Unable to determine linked PHP.");
-        }
-    }
-
-    /**
-     * Restart the linked PHP-FPM Homebrew service.
-     *
-     * @return void
-     */
-    function restartLinkedPhp()
-    {
-        ServiceManager::restart($this->linkedPhp());
-    }
-
-    /**
      * Return full path to etc configuration.
      *
      * @param  string $path
      * @return string
      */
-    function etcDir($path)
+    function etcDir($path = '')
     {
         return '/usr/local/etc' . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+    }
+
+    /**
+     * Return full path to log.
+     *
+     * @param  string $path
+     * @return string
+     */
+    function logDir($path = '')
+    {
+        return '/usr/local/var/log' . ($path ? DIRECTORY_SEPARATOR . $path : $path);
     }
 
     /**

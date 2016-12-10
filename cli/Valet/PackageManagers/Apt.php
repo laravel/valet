@@ -22,11 +22,9 @@ class Apt implements PackageManager
      * Ensure that the given formula is installed.
      *
      * @param  string $formula
-     * @param  array $options
-     * @param  array $taps
      * @return void
      */
-    function ensureInstalled($formula, $options = [], $taps = [])
+    function ensureInstalled($formula)
     {
         // TODO: Implement ensureInstalled() method.
     }
@@ -35,11 +33,9 @@ class Apt implements PackageManager
      * Install the given formula and throw an exception on failure.
      *
      * @param  string $formula
-     * @param  array $options
-     * @param  array $taps
      * @return void
      */
-    function installOrFail($formula, $options = [], $taps = [])
+    function installOrFail($formula)
     {
         // TODO: Implement installOrFail() method.
     }
@@ -50,9 +46,20 @@ class Apt implements PackageManager
      * @param  string $path
      * @return string
      */
-    function etcDir($path)
+    function etcDir($path = '')
     {
         return '/etc' . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+    }
+
+    /**
+     * Return full path to log.
+     *
+     * @param  string $path
+     * @return string
+     */
+    function logDir($path = '')
+    {
+        return '/var/log' . ($path ? DIRECTORY_SEPARATOR . $path : $path);
     }
 
     /**

@@ -73,4 +73,19 @@ class LinuxService implements ServiceManager
     {
         return exec('which service') != '';
     }
+
+    /**
+     * Determine real service name
+     *
+     * @param string $service
+     * @return string
+     */
+    function getRealService($service)
+    {
+        if ($service == 'php') {
+            return 'php' . substr(PHP_VERSION, 0, 3) . '-fpm';
+        }
+
+        return $service;
+    }
 }

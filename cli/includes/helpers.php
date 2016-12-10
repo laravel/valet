@@ -147,7 +147,18 @@ function user()
  * @param  string  $path
  * @return string
  */
-function etc_dir($path)
+function etc_dir($path = '')
 {
-    return PackageManager::etcDir($path);
+    return resolve(\Valet\Contracts\PackageManager::class)->etcDir($path);
+}
+
+/**
+ * Return full path to log.
+ *
+ * @param  string  $path
+ * @return string
+ */
+function log_dir($path = '')
+{
+    return resolve(\Valet\Contracts\PackageManager::class)->logDir($path);
 }

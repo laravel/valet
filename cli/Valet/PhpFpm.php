@@ -2,48 +2,41 @@
 
 namespace Valet;
 
-use Exception;
 use DomainException;
-use Symfony\Component\Process\Process;
+use Valet\Contracts\PackageManager;
+use Valet\Contracts\ServiceManager;
 
 class PhpFpm
 {
-    var $brew, $cli, $files;
-
-    var $taps = [
-        'homebrew/dupes', 'homebrew/versions', 'homebrew/homebrew-php'
-    ];
+    var $pm, $cli, $files;
 
     /**
      * Create a new PHP FPM class instance.
      *
-     * @param  Brew  $brew
-     * @param  CommandLine  $cli
-     * @param  Filesystem  $files
+     * @param  PackageManager $pm
+     * @param  ServiceManager $sm
+     * @param  CommandLine $cli
+     * @param  Filesystem $files
      * @return void
      */
-    function __construct(Brew $brew, CommandLine $cli, Filesystem $files)
+    function __construct(PackageManager $pm, ServiceManager $sm, CommandLine $cli, Filesystem $files)
     {
         $this->cli = $cli;
-        $this->brew = $brew;
+        $this->pm = $pm;
+        $this->sm = $sm;
         $this->files = $files;
     }
 
     /**
-     * Install and configure DnsMasq.
+     * Install and configure PHP-FPM.
      *
      * @return void
      */
     function install()
     {
-        if (! $this->brew->installed('php71') &&
-            ! $this->brew->installed('php70') &&
-            ! $this->brew->installed('php56') &&
-            ! $this->brew->installed('php55')) {
-            $this->brew->ensureInstalled('php70', [], $this->taps);
-        }
+        $this->pm->ensureInstalled('php');
 
-        $this->files->ensureDirExists('/usr/local/var/log', user());
+        $this->files->ensureDirExists(log_dir(), user());
 
         $this->updateConfiguration();
 
@@ -76,19 +69,7 @@ class PhpFpm
      */
     function restart()
     {
-        $this->stop();
-
-        $this->brew->restartLinkedPhp();
-    }
-
-    /**
-     * Stop the PHP FPM process.
-     *
-     * @return void
-     */
-    function stop()
-    {
-        $this->brew->stopService('php55', 'php56', 'php70', 'php71');
+        $this->sm->restart('php');
     }
 
     /**
@@ -98,13 +79,17 @@ class PhpFpm
      */
     function fpmConfigPath()
     {
-        $confLookup = [
-            'php71' => '/usr/local/etc/php/7.1/php-fpm.d/www.conf',
-            'php70' => '/usr/local/etc/php/7.0/php-fpm.d/www.conf',
-            'php56' => '/usr/local/etc/php/5.6/php-fpm.conf',
-            'php55' => '/usr/local/etc/php/5.5/php-fpm.conf',
-        ];
+        $phpVersion = substr(PHP_VERSION, 0, 3);
 
-        return $confLookup[$this->brew->linkedPhp()];
+        return collect([
+            etc_dir('php/' . $phpVersion . '/php-fpm.d/www.conf'), // OSX >=7.0
+            etc_dir('php/' . $phpVersion . '/php-fpm.conf'), // OSX <=5.6
+            etc_dir('php/' . $phpVersion . '/fpm/php-fpm.conf'), // Ubuntu
+            etc_dir('php-fpm.conf'), // Fedora
+        ])->first(function ($path) {
+            return file_exists($path);
+        }, function () {
+            throw new DomainException("Unable to determine PHP-FPM configuration file.");
+        });
     }
 }

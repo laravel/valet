@@ -16,21 +16,17 @@ interface PackageManager
      * Ensure that the given formula is installed.
      *
      * @param  string  $formula
-     * @param  array  $options
-     * @param  array  $taps
      * @return void
      */
-    function ensureInstalled($formula, $options = [], $taps = []);
+    function ensureInstalled($formula);
 
     /**
      * Install the given formula and throw an exception on failure.
      *
      * @param  string  $formula
-     * @param  array  $options
-     * @param  array  $taps
      * @return void
      */
-    function installOrFail($formula, $options = [], $taps = []);
+    function installOrFail($formula);
 
     /**
      * Return full path to etc configuration.
@@ -39,6 +35,14 @@ interface PackageManager
      * @return string
      */
     function etcDir($path);
+
+    /**
+     * Return full path to log.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    function logDir($path);
 
     /**
      * Configure package manager on valet install.
