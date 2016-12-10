@@ -83,9 +83,23 @@ class LinuxService implements ServiceManager
     function getRealService($service)
     {
         if ($service == 'php') {
-            return 'php' . substr(PHP_VERSION, 0, 3) . '-fpm';
+            return $this->getPhpServiceName();
         }
 
         return $service;
+    }
+
+    /**
+     * Determine php service name
+     *
+     * @return string
+     */
+    function getPhpServiceName() {
+        return collect([
+            'php-fpm',
+            'php' . substr(PHP_VERSION, 0, 3) . '-fpm',
+        ])->first(function ($service) {
+            return !strpos($this->cli->run('service ' . $service . ' status'), 'not-found');
+        });
     }
 }
