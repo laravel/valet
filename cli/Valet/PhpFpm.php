@@ -84,8 +84,8 @@ class PhpFpm
         return collect([
             etc_dir('php/' . $phpVersion . '/php-fpm.d/www.conf'), // OSX >=7.0
             etc_dir('php/' . $phpVersion . '/php-fpm.conf'), // OSX <=5.6
-            etc_dir('php/' . $phpVersion . '/fpm/php-fpm.conf'), // Ubuntu
-            etc_dir('php-fpm.conf'), // Fedora
+            etc_dir('php/' . $phpVersion . '/fpm/pool.d/www.conf'), // Ubuntu
+            etc_dir('php-fpm.d/www.conf'), // Fedora
         ])->first(function ($path) {
             return file_exists($path);
         }, function () {

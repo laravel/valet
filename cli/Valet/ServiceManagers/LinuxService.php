@@ -30,7 +30,7 @@ class LinuxService implements ServiceManager
         $services = is_array($services) ? $services : func_get_args();
 
         foreach ($services as $service) {
-            $this->cli->quietly('sudo service ' . $service . ' start');
+            $this->cli->quietly('sudo service ' . $this->getRealService($service) . ' start');
         }
     }
 
@@ -45,7 +45,7 @@ class LinuxService implements ServiceManager
         $services = is_array($services) ? $services : func_get_args();
 
         foreach ($services as $service) {
-            $this->cli->quietly('sudo service ' . $service . ' stop');
+            $this->cli->quietly('sudo service ' . $this->getRealService($service) . ' stop');
         }
     }
 
@@ -60,7 +60,7 @@ class LinuxService implements ServiceManager
         $services = is_array($services) ? $services : func_get_args();
 
         foreach ($services as $service) {
-            $this->cli->quietly('sudo service ' . $service . ' restart');
+            $this->cli->quietly('sudo service ' . $this->getRealService($service) . ' restart');
         }
     }
 
