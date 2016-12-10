@@ -40,7 +40,7 @@ class Nginx
      */
     function install()
     {
-        $this->pm->ensureInstalled('nginx', ['--with-http2']);
+        $this->pm->ensureInstalled('nginx');
 
         $this->installConfiguration();
         $this->installServer();

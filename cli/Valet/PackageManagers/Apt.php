@@ -2,10 +2,24 @@
 
 namespace Valet\PackageManagers;
 
+use DomainException;
+use Valet\CommandLine;
 use Valet\Contracts\PackageManager;
 
 class Apt implements PackageManager
 {
+    var $cli;
+
+    /**
+     * Create a new Apt instance.
+     *
+     * @param  CommandLine  $cli
+     * @return void
+     */
+    function __construct(CommandLine $cli)
+    {
+        $this->cli = $cli;
+    }
 
     /**
      * Determine if the given formula is installed.
@@ -15,7 +29,7 @@ class Apt implements PackageManager
      */
     function installed($formula)
     {
-        // TODO: Implement installed() method.
+        return !strpos($this->cli->run('dpkg -l '.$formula), 'no packages found');
     }
 
     /**
@@ -26,7 +40,9 @@ class Apt implements PackageManager
      */
     function ensureInstalled($formula)
     {
-        // TODO: Implement ensureInstalled() method.
+        if (! $this->installed($formula)) {
+            $this->installOrFail($formula);
+        }
     }
 
     /**
@@ -37,7 +53,13 @@ class Apt implements PackageManager
      */
     function installOrFail($formula)
     {
-        // TODO: Implement installOrFail() method.
+        output('<info>['.$formula.'] is not installed, installing it now via Apt...</info> 🍻');
+
+        $this->cli->run(trim('apt-get install -y '.$formula), function ($exitCode, $errorOutput) use ($formula) {
+            output($errorOutput);
+
+            throw new DomainException('Apt was unable to install ['.$formula.'].');
+        });
     }
 
     /**
@@ -69,7 +91,7 @@ class Apt implements PackageManager
      */
     function setup()
     {
-        // TODO: Implement setup() method.
+        // Nothing to do
     }
 
     /**
