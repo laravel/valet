@@ -36,7 +36,7 @@ class PhpFpmTest extends PHPUnit_Framework_TestCase
         resolve(StubForUpdatingFpmConfigFiles::class)->updateConfiguration();
         $contents = file_get_contents(__DIR__.'/output/fpm.conf');
         $this->assertContains(sprintf("\nuser = %s", user()), $contents);
-        $this->assertContains("\ngroup = staff", $contents);
+        $this->assertContains(sprintf("\ngroup = %s", group()), $contents);
         $this->assertContains("\nlisten = ".VALET_HOME_PATH."/valet.sock", $contents);
     }
 }

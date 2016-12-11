@@ -142,6 +142,14 @@ function user()
 }
 
 /**
+ * Get the user's primary group
+ */
+function group()
+{
+    return exec('id -gn '.user());
+}
+
+/**
  * Return full path to etc configuration.
  *
  * @param  string  $path

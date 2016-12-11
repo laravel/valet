@@ -58,7 +58,7 @@ class Nginx
 
         $this->files->putAsUser(
             $this->pm->etcDir('nginx/nginx.conf'),
-            str_replace(['VALET_USER', 'VALET_HOME_PATH'], [user(), VALET_HOME_PATH], $contents)
+            str_replace(['VALET_USER', 'VALET_GROUP', 'VALET_HOME_PATH'], [user(), group(), VALET_HOME_PATH], $contents)
         );
     }
 
