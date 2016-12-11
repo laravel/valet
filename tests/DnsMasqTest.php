@@ -46,16 +46,6 @@ class DnsMasqTest extends PHPUnit_Framework_TestCase
 conf-file='.__DIR__.'/output/custom-dnsmasq.conf
 ', file_get_contents(__DIR__.'/output/dnsmasq.conf'));
     }
-
-
-    // public function test_update_domain_removes_old_resolver_and_reinstalls()
-    // {
-    //     $cli = Mockery::mock(CommandLine::class);
-    //     $cli->shouldReceive('quietly')->with('rm /etc/resolver/old');
-    //     $dnsMasq = Mockery::mock(DnsMasq::class.'[install]', [resolve(Ubuntu::class), $cli, new Filesystem]);
-    //     $dnsMasq->shouldReceive('install')->with('new');
-    //     $dnsMasq->updateDomain('old', 'new');
-    // }
 }
 
 

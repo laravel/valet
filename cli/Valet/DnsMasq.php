@@ -74,10 +74,10 @@ class DnsMasq
         // lets remove the Dnsmasq control from NetworkManager.
         if ( $this->cli->run('grep \'^dns=dnsmasq\' /etc/NetworkManager/NetworkManager.conf') ) {
             $this->cli->run('sudo sed -i \'s/^dns=/#dns=/g\' /etc/NetworkManager/NetworkManager.conf');
-            $this->ubuntu->stopService('network-manager');
+            $this->cli->run('sudo service network-manager stop');
             $this->cli->run('sudo pkill dnsmasq');
-            $this->ubuntu->startService('network-manager');
-            $this->ubuntu->restartService('dnsmasq');
+            $this->cli->run('sudo service network-manager start');
+            $this->cli->run('sudo service dnsmasq restart');
         }
     }
 
