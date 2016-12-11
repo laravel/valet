@@ -89,9 +89,7 @@ class Brew implements PackageManager
     function ensureInstalled($formula)
     {
         if (! $this->installed($formula)) {
-            $formula = $this->installMap[$formula] ?: $formula;
-
-            $this->installOrFail($formula);
+            $this->installOrFail(collect($this->installMap)->get($formula, $formula));
         }
     }
 
