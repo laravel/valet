@@ -1,5 +1,7 @@
 <?php
 
+use Valet\Contracts\PackageManager;
+use Valet\Contracts\ServiceManager;
 use Valet\Site;
 use Valet\Nginx;
 use Valet\Filesystem;
@@ -8,11 +10,19 @@ use Illuminate\Container\Container;
 
 class NginxTest extends PHPUnit_Framework_TestCase
 {
+    protected $pm, $sm;
+
     public function setUp()
     {
         $_SERVER['SUDO_USER'] = user();
 
         Container::setInstance(new Container);
+
+        $this->pm = Mockery::mock(PackageManager::class);
+        swap(PackageManager::class, $this->pm);
+
+        $this->sm = Mockery::mock(ServiceManager::class);
+        swap(ServiceManager::class, $this->sm);
     }
 
 
@@ -24,10 +34,14 @@ class NginxTest extends PHPUnit_Framework_TestCase
 
     public function test_install_nginx_configuration_places_nginx_base_configuration_in_proper_location()
     {
+        $this->pm->shouldReceive('etcDir')->once()->andReturnUsing(function ($path) {
+            return '/etc' . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+        });
+
         $files = Mockery::mock(Filesystem::class.'[putAsUser]');
 
         $files->shouldReceive('putAsUser')->andReturnUsing(function ($path, $contents) {
-            $this->assertSame('/usr/local/etc/nginx/nginx.conf', $path);
+            $this->assertSame('/etc/nginx/nginx.conf', $path);
             $this->assertTrue(strpos($contents, 'include '.VALET_HOME_PATH.'/Nginx/*') !== false);
         })->once();
 

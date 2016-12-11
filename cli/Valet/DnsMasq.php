@@ -73,7 +73,8 @@ class DnsMasq
      */
     function copyExampleConfig()
     {
-        if (! $this->files->exists($this->configFilePath())) {
+        // FIXME: Linux doesn't always have an example configuration file
+        if (! $this->files->exists($this->configFilePath()) && $this->files->exists(opt_dir($this->exampleConfigPath))) {
             $this->files->copyAsUser(
                 opt_dir($this->exampleConfigPath),
                 $this->configFilePath()
