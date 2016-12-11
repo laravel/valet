@@ -130,6 +130,27 @@ php7');
     }
 
 
+    public function test_etc_dir_is_correct()
+    {
+        $this->assertEquals('/usr/local/etc', resolve(PackageManager::class)->etcDir());
+        $this->assertEquals('/usr/local/etc/nginx/nginx.conf', resolve(PackageManager::class)->etcDir('nginx/nginx.conf'));
+    }
+
+
+    public function test_log_dir_is_correct()
+    {
+        $this->assertEquals('/usr/local/var/log', resolve(PackageManager::class)->logDir());
+        $this->assertEquals('/usr/local/var/log/nginx/error.log', resolve(PackageManager::class)->logDir('nginx/error.log'));
+    }
+
+
+    public function test_opt_dir_is_correct()
+    {
+        $this->assertEquals('/usr/local/opt', resolve(PackageManager::class)->optDir());
+        $this->assertEquals('/usr/local/opt/something.conf', resolve(PackageManager::class)->optDir('something.conf'));
+    }
+
+
     /**
      * @expectedException DomainException
      */
