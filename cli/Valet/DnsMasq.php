@@ -33,6 +33,7 @@ class DnsMasq
     /**
      * Install and configure DnsMasq.
      *
+     * @param string $domain
      * @return void
      */
     function install($domain = 'dev')
@@ -73,13 +74,25 @@ class DnsMasq
      */
     function copyExampleConfig()
     {
-        // FIXME: Linux doesn't always have an example configuration file
-        if (! $this->files->exists($this->configFilePath()) && $this->files->exists(opt_dir($this->exampleConfigPath))) {
+        if (! $this->files->exists($this->configFilePath())) {
             $this->files->copyAsUser(
-                opt_dir($this->exampleConfigPath),
+                $this->exampleConfigPath(),
                 $this->configFilePath()
             );
         }
+    }
+
+    /**
+     * Determine dnsmasq example config file location.
+     * If system does not provide one we can use the one
+     * available with valet.
+     *
+     * @return string
+     */
+    function exampleConfigPath() {
+        return $this->files->exists(opt_dir($this->exampleConfigPath)) ?
+            opt_dir($this->exampleConfigPath) :
+            __DIR__.'/../stubs/dnsmasq.conf.example';
     }
 
     /**
