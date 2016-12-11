@@ -2,6 +2,7 @@
 
 namespace Valet\ServiceManagers;
 
+use DomainException;
 use Valet\CommandLine;
 use Valet\Contracts\ServiceManager;
 
@@ -100,6 +101,8 @@ class LinuxService implements ServiceManager
             'php' . substr(PHP_VERSION, 0, 3) . '-fpm',
         ])->first(function ($service) {
             return !strpos($this->cli->run('service ' . $service . ' status'), 'not-found');
+        }, function () {
+            throw new DomainException("Unable to determine PHP service name.");
         });
     }
 }
