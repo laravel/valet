@@ -32,16 +32,17 @@ class PhpFpm
      */
     public function install()
     {
-        if (! $this->ubuntu->installed(get_config('php71')['name']) &&
-            ! $this->ubuntu->installed(get_config('php70')['name']) &&
-            ! $this->ubuntu->installed(get_config('php56')['name']) &&
-            ! $this->ubuntu->installed(get_config('php55')['name'])) {
-            $this->ubuntu->ensureInstalled(get_config('php70')['name']);
+        if (! $this->ubuntu->installed(get_config('php71')['fpm']) &&
+            ! $this->ubuntu->installed(get_config('php70')['fpm']) &&
+            ! $this->ubuntu->installed(get_config('php56')['fpm']) &&
+            ! $this->ubuntu->installed(get_config('php55')['fpm']) &&
+            ! $this->ubuntu->installed(get_config('php5')['fpm'])) {
+            $this->ubuntu->ensureInstalled(get_config('php70')['fpm']);
         }
 
         $this->files->ensureDirExists('/var/log', user());
 
-        $this->updateConfiguration();
+        $this->installConfiguration();
 
         $this->restart();
     }
@@ -51,15 +52,14 @@ class PhpFpm
      *
      * @return void
      */
-    public function updateConfiguration()
+    public function installConfiguration()
     {
-        $contents = $this->files->get($this->fpmConfigPath());
+        $contents = $this->files->get(__DIR__.'/../stubs/fpm.conf');
 
-        $contents = preg_replace('/^user = .+$/m', 'user = '.user(), $contents);
-        $contents = preg_replace('/^listen.owner = .+$/m', 'listen.owner = '.user(), $contents);
-        $contents = preg_replace('/^listen = .+$/m', 'listen = '.VALET_HOME_PATH.'/valet.sock', $contents);
-
-        $this->files->put($this->fpmConfigPath(), $contents);
+        $this->files->putAsUser(
+            $this->fpmConfigPath(),
+            str_replace(['VALET_USER', 'VALET_HOME_PATH'], [user(), VALET_HOME_PATH], $contents)
+        );
     }
 
     /**
@@ -81,7 +81,7 @@ class PhpFpm
      */
     public function stop()
     {
-        $this->ubuntu->stopService($this->ubuntu->linkedPhp()['service']);
+        $this->ubuntu->stopService($this->ubuntu->linkedPhp()['fpm']);
     }
 
     /**

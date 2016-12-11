@@ -37,7 +37,7 @@ class Nginx
      */
     function install()
     {
-        $this->ubuntu->ensureInstalled('nginx');
+        $this->ubuntu->ensureInstalled('nginx-core');
 
         $this->installConfiguration();
         $this->installServer();
@@ -66,16 +66,22 @@ class Nginx
      */
     function installServer()
     {
-        $this->files->ensureDirExists('/etc/nginx/valet');
+        // $this->files->ensureDirExists('/etc/nginx/valet');
 
         $this->files->putAsUser(
-            '/etc/nginx/valet/valet.conf',
+            '/etc/nginx/sites-available/valet.conf',
             str_replace(
                 ['VALET_HOME_PATH', 'VALET_SERVER_PATH'],
                 [VALET_HOME_PATH, VALET_SERVER_PATH],
                 $this->files->get(__DIR__.'/../stubs/valet.conf')
             )
         );
+
+        if ($this->files->exists('/etc/nginx/sites-enabled/default')) {
+            $this->cli->run('rm -f /etc/nginx/sites-enabled/default');
+        }
+
+        $this->cli->run('ln -snf /etc/nginx/sites-available/valet.conf /etc/nginx/sites-enabled/valet.conf');
 
         $this->files->putAsUser(
             '/etc/nginx/fastcgi_params',

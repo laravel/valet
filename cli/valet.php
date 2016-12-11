@@ -92,15 +92,9 @@ $app->command('forget [path]', function ($path = null) {
  * Remove the current working directory to the paths configuration.
  */
 $app->command('status', function () {
-    passthru('systemctl status nginx.service php*-fpm.service');
+    passthru('service nginx status');
+    passthru('service php*-fpm status');
 })->descriptions('View Valet service status');
-
-/**
- * Reload systemd services
- */
-$app->command('reload', function () {
-    passthru('systemctl daemon-reload');
-})->descriptions('Reload Valet services');
 
 /**
  * Register a symbolic link with Valet.

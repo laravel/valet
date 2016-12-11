@@ -41,10 +41,11 @@ class Ubuntu
      */
     function hasInstalledPhp()
     {
-        return $this->installed(get_config('php71')['name'])
-            || $this->installed(get_config('php70')['name'])
-            || $this->installed(get_config('php56')['name'])
-            || $this->installed(get_config('php55')['name']);
+        return $this->installed(get_config('php71')['cli'])
+            || $this->installed(get_config('php70')['cli'])
+            || $this->installed(get_config('php56')['cli'])
+            || $this->installed(get_config('php55')['cli'])
+            || $this->installed(get_config('php5')['cli']);
     }
 
     /**
@@ -133,14 +134,16 @@ class Ubuntu
 
         $resolvedPath = $this->files->readLink(get_config('php-bin'));
 
-        if (strpos($resolvedPath, get_config('php71')['name']) !== false) {
+        if (strpos($resolvedPath, get_config('php71')['bin']) !== false) {
             return get_config('php71');
-        } elseif (strpos($resolvedPath, get_config('php70')['name']) !== false) {
+        } elseif (strpos($resolvedPath, get_config('php70')['bin']) !== false) {
             return get_config('php70');
-        } elseif (strpos($resolvedPath, get_config('php56')['name']) !== false) {
+        } elseif (strpos($resolvedPath, get_config('php56')['bin']) !== false) {
             return get_config('php56');
-        } elseif (strpos($resolvedPath, get_config('php55')['name']) !== false) {
+        } elseif (strpos($resolvedPath, get_config('php55')['bin']) !== false) {
             return get_config('php55');
+        } elseif (strpos($resolvedPath, get_config('php5')['bin']) !== false) {
+            return get_config('php5');
         } else {
             throw new DomainException("Unable to determine linked PHP.");
         }
@@ -153,6 +156,6 @@ class Ubuntu
      */
     function restartLinkedPhp()
     {
-        $this->restartService($this->linkedPhp()['service']);
+        $this->restartService($this->linkedPhp()['fpm']);
     }
 }

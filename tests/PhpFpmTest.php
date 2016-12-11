@@ -23,13 +23,14 @@ class PhpFpmTest extends PHPUnit_Framework_TestCase
     }
 
 
-    public function test_update_configuration_replaces_user_and_group_in_config_file()
+    public function test_install_configuration_replaces_user_and_sock_in_config_file()
     {
         copy(__DIR__.'/files/fpm.conf', __DIR__.'/output/fpm.conf');
-        resolve(StubForUpdatingFpmConfigFiles::class)->updateConfiguration();
+        resolve(StubForUpdatingFpmConfigFiles::class)->installConfiguration();
         $contents = file_get_contents(__DIR__.'/output/fpm.conf');
-        $this->assertTrue(strpos($contents, 'user = '.user()) !== false);
-        $this->assertTrue(strpos($contents, 'listen.owner = '.user()) !== false);
+        $this->assertContains(sprintf("\nuser = %s", user()), $contents);
+        $this->assertContains(sprintf("\nlisten.owner = %s", user()), $contents);
+        $this->assertContains("\nlisten = ".VALET_HOME_PATH."/valet.sock", $contents);
     }
 }
 
