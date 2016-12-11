@@ -8,6 +8,7 @@ use Valet\Contracts\PackageManager;
 use Valet\Contracts\ServiceManager;
 use Valet\PackageManagers\Apt;
 use Valet\PackageManagers\Brew;
+use Valet\PackageManagers\Dnf;
 use Valet\ServiceManagers\BrewService;
 use Valet\ServiceManagers\LinuxService;
 
@@ -119,6 +120,7 @@ class Valet
         return collect([
             Brew::class,
             Apt::class,
+            Dnf::class,
         ])->first(function ($pm) {
             return resolve($pm)->isAvailable();
         }, function () {
