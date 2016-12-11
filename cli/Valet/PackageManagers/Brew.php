@@ -2,9 +2,7 @@
 
 namespace Valet\PackageManagers;
 
-use Exception;
 use DomainException;
-use ServiceManager;
 use Valet\CommandLine;
 use Valet\Contracts\PackageManager;
 use Valet\Filesystem;
@@ -39,7 +37,7 @@ class Brew implements PackageManager
      * @var array
      */
     var $taps = [
-        'php70' => [
+        'php*' => [
             'homebrew/dupes', 'homebrew/versions', 'homebrew/homebrew-php'
         ],
     ];
@@ -66,7 +64,7 @@ class Brew implements PackageManager
      */
     function installed($formula)
     {
-        return collect($this->installedCompatibleMap[$formula] ?: [$formula])->contains(function ($f) {
+        return collect(collect($this->installedCompatibleMap)->get($formula, [$formula]))->contains(function ($f) {
             return $this->installedCheck($f);
         });
     }
@@ -105,7 +103,7 @@ class Brew implements PackageManager
      */
     function installOrFail($formula)
     {
-        $taps = $this->taps[$formula] ?: [];
+        $taps = $this->getTapsForFormula($formula);
 
         if (count($taps) > 0) {
             $this->tap($taps);
@@ -118,6 +116,18 @@ class Brew implements PackageManager
 
             throw new DomainException('Brew was unable to install ['.$formula.'].');
         });
+    }
+
+    /**
+     * Determine taps for given formula
+     *
+     * @param string $formula
+     * @return array
+     */
+    function getTapsForFormula($formula) {
+        return collect($this->taps)->first(function ($value, $key) use ($formula) {
+            return fnmatch($key, $formula);
+        }, []);
     }
 
     /**
