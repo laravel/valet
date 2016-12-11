@@ -43,8 +43,6 @@ class DnsMasq
         // without needing to modify the "primary" DnsMasq configuration files again.
         $this->createCustomConfigFile($domain);
 
-        // $this->createDomainResolver($domain);
-
         $this->ubuntu->restartService('dnsmasq');
     }
 
@@ -76,10 +74,10 @@ class DnsMasq
         // lets remove the Dnsmasq control from NetworkManager.
         if ( $this->cli->run('grep \'^dns=dnsmasq\' /etc/NetworkManager/NetworkManager.conf') ) {
             $this->cli->run('sudo sed -i \'s/^dns=/#dns=/g\' /etc/NetworkManager/NetworkManager.conf');
-            $this->cli->run('sudo service network-manager stop');
+            $this->ubuntu->stopService('network-manager');
             $this->cli->run('sudo pkill dnsmasq');
-            $this->cli->run('sudo service network-manager start');
-            $this->cli->run('sudo service dnsmasq restart');
+            $this->ubuntu->startService('network-manager');
+            $this->ubuntu->restartService('dnsmasq');
         }
     }
 
@@ -132,10 +130,8 @@ class DnsMasq
      * @param  string  $newDomain
      * @return void
      */
-    function updateDomain($oldDomain, $newDomain)
+    function updateDomain($newDomain)
     {
-        // $this->files->unlink($this->resolverPath.'/'.$oldDomain);
-
         $this->install($newDomain);
     }
 

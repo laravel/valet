@@ -6,7 +6,7 @@
 $inTestingEnvironment = strpos($_SERVER['SCRIPT_NAME'], 'phpunit') !== false;
 
 if (PHP_OS != 'Linux' && ! $inTestingEnvironment) {
-    echo 'Valet only supports the Ubuntu operating system.'.PHP_EOL;
+    echo 'Valet only supports the Ubuntu distro.'.PHP_EOL;
 
     exit(1);
 }

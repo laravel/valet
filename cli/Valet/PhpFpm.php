@@ -32,10 +32,11 @@ class PhpFpm
      */
     public function install()
     {
-        if (! $this->ubuntu->installed(get_config('php-latest')) &&
-            ! $this->ubuntu->installed(get_config('php-56')) &&
-            ! $this->ubuntu->installed(get_config('php-55'))) {
-            $this->ubuntu->ensureInstalled(get_config('php-latest'));
+        if (! $this->ubuntu->installed(get_config('php71')['name']) &&
+            ! $this->ubuntu->installed(get_config('php70')['name']) &&
+            ! $this->ubuntu->installed(get_config('php56')['name']) &&
+            ! $this->ubuntu->installed(get_config('php55')['name'])) {
+            $this->ubuntu->ensureInstalled(get_config('php70')['name']);
         }
 
         $this->files->ensureDirExists('/var/log', user());
@@ -56,6 +57,7 @@ class PhpFpm
 
         $contents = preg_replace('/^user = .+$/m', 'user = '.user(), $contents);
         $contents = preg_replace('/^listen.owner = .+$/m', 'listen.owner = '.user(), $contents);
+        $contents = preg_replace('/^listen = .+$/m', 'listen = '.VALET_HOME_PATH.'/valet.sock', $contents);
 
         $this->files->put($this->fpmConfigPath(), $contents);
     }
@@ -69,7 +71,7 @@ class PhpFpm
     {
         $this->stop();
 
-        $this->ubuntu->restartService(get_config('fpm-service'));
+        $this->ubuntu->restartLinkedPhp();
     }
 
     /**
@@ -79,11 +81,7 @@ class PhpFpm
      */
     public function stop()
     {
-        $this->ubuntu->stopService(
-            get_config('fpm55-service'),
-            get_config('fpm56-service'),
-            get_config('fpm-service')
-        );
+        $this->ubuntu->stopService($this->ubuntu->linkedPhp()['service']);
     }
 
     /**
@@ -93,14 +91,6 @@ class PhpFpm
      */
     public function fpmConfigPath()
     {
-        if ($this->ubuntu->linkedPhp() === get_config('php-latest')) {
-            return get_config('fpm-config');
-        } elseif ($this->ubuntu->linkedPhp() === get_config('php-56')) {
-            return get_config('fpm56-config');
-        } elseif ($this->ubuntu->linkedPhp() === get_config('php-55')) {
-            return get_config('fpm55-config');
-        } else {
-            throw new DomainException('Unable to find php-fpm config.');
-        }
+        return $this->ubuntu->linkedPhp()['fpm-config'];
     }
 }

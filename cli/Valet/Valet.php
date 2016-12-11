@@ -27,9 +27,7 @@ class Valet
      */
     function symlinkToUsersBin()
     {
-        $this->cli->quietly('rm '.$this->valetBin);
-
-        $this->cli->run('ln -s '.realpath(__DIR__.'/../../valet').' '.$this->valetBin);
+        $this->cli->run('ln -snf '.realpath(__DIR__.'/../../valet').' '.$this->valetBin);
     }
 
     /**

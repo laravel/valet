@@ -27,6 +27,7 @@ class Configuration
         $this->createDriversDirectory();
         $this->createSitesDirectory();
         $this->createExtensionsDirectory();
+        $this->createLogDirectory();
         $this->writeBaseConfiguration();
 
         $this->files->chown($this->path(), user());
@@ -79,6 +80,18 @@ class Configuration
     function createExtensionsDirectory()
     {
         $this->files->ensureDirExists(VALET_HOME_PATH.'/Extensions', user());
+    }
+
+    /**
+     * Create the directory for Nginx logs.
+     *
+     * @return void
+     */
+    function createLogDirectory()
+    {
+        $this->files->ensureDirExists(VALET_HOME_PATH.'/Log', user());
+
+        $this->files->touch(VALET_HOME_PATH.'/Log/nginx-error.log');
     }
 
     /**

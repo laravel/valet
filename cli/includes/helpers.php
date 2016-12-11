@@ -7,6 +7,7 @@ use Symfony\Component\Process\Process;
  * Define the ~/.valet path as a constant.
  */
 define('VALET_HOME_PATH', $_SERVER['HOME'].'/.valet');
+define('VALET_SERVER_PATH', realpath(__DIR__ . '/../../server.php'));
 
 /**
  * Output the given text to the console.
@@ -45,15 +46,17 @@ function output($output)
     (new Symfony\Component\Console\Output\ConsoleOutput)->writeln($output);
 }
 
-/**
- * Resolve the given class from the container.
- *
- * @param  string  $class
- * @return mixed
- */
-function resolve($class)
-{
-    return Container::getInstance()->make($class);
+if (! function_exists('resolve')) {
+    /**
+     * Resolve the given class from the container.
+     *
+     * @param  string  $class
+     * @return mixed
+     */
+    function resolve($class)
+    {
+        return Container::getInstance()->make($class);
+    }
 }
 
 /**
@@ -68,31 +71,33 @@ function swap($class, $instance)
     Container::getInstance()->instance($class, $instance);
 }
 
-/**
- * Retry the given function N times.
- *
- * @param  int  $retries
- * @param  callable  $retries
- * @param  int  $sleep
- * @return mixed
- */
-function retry($retries, $fn, $sleep = 0)
-{
-    beginning:
-    try {
-        return $fn();
-    } catch (Exception $e) {
-        if (! $retries) {
-            throw $e;
+if (! function_exists('retry')) {
+    /**
+     * Retry the given function N times.
+     *
+     * @param  int  $retries
+     * @param  callable  $retries
+     * @param  int  $sleep
+     * @return mixed
+     */
+    function retry($retries, $fn, $sleep = 0)
+    {
+        beginning:
+        try {
+            return $fn();
+        } catch (Exception $e) {
+            if (! $retries) {
+                throw $e;
+            }
+
+            $retries--;
+
+            if ($sleep > 0) {
+                usleep($sleep * 1000);
+            }
+
+            goto beginning;
         }
-
-        $retries--;
-
-        if ($sleep > 0) {
-            usleep($sleep * 1000);
-        }
-
-        goto beginning;
     }
 }
 

@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Container\Container;
+
 class Facade
 {
     /**
@@ -21,13 +23,14 @@ class Facade
      */
     public static function __callStatic($method, $parameters)
     {
-        return call_user_func_array([resolve(static::containerKey()), $method], $parameters);
+        $resolvedInstance = Container::getInstance()->make(static::containerKey());
+
+        return call_user_func_array([$resolvedInstance, $method], $parameters);
     }
 }
 
-class Brew extends Facade {}
 class Ubuntu extends Facade {}
-class Caddy extends Facade {}
+class Nginx extends Facade {}
 class CommandLine extends Facade {}
 class Configuration extends Facade {}
 class DnsMasq extends Facade {}

@@ -93,7 +93,7 @@ class Site
      */
     function resecureForNewDomain($oldDomain, $domain)
     {
-        if (!$this->files->exists($this->certificatesPath())) {
+        if (! $this->files->exists($this->certificatesPath())) {
             return;
         }
 
@@ -136,7 +136,7 @@ class Site
         $this->createCertificate($url);
 
         $this->files->putAsUser(
-            VALET_HOME_PATH.'/Caddy/'.$url, $this->buildSecureCaddyfile($url)
+            VALET_HOME_PATH.'/Nginx/'.$url, $this->buildSecureNginxServer($url)
         );
     }
 
@@ -205,19 +205,19 @@ class Site
     }
 
     /**
-     * Build the TLS secured Caddyfile for the given URL.
+     * Build the TLS secured Nginx server for the given URL.
      *
      * @param  string  $url
      * @return string
      */
-    function buildSecureCaddyfile($url)
+    function buildSecureNginxServer($url)
     {
         $path = $this->certificatesPath();
 
         return str_replace(
-            ['VALET_SITE', 'VALET_CERT', 'VALET_KEY', 'FPM_ADDRESS'],
-            [$url, $path.'/'.$url.'.crt', $path.'/'.$url.'.key', get_config('systemd-caddy-fpm')],
-            $this->files->get(__DIR__.'/../stubs/SecureCaddyfile')
+            ['VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_SITE', 'VALET_CERT', 'VALET_KEY'],
+            [VALET_HOME_PATH, VALET_SERVER_PATH, $url, $path.'/'.$url.'.crt', $path.'/'.$url.'.key'],
+            $this->files->get(__DIR__.'/../stubs/secure.valet.conf')
         );
     }
 
@@ -230,7 +230,7 @@ class Site
     function unsecure($url)
     {
         if ($this->files->exists($this->certificatesPath().'/'.$url.'.crt')) {
-            $this->files->unlink(VALET_HOME_PATH.'/Caddy/'.$url);
+            $this->files->unlink(VALET_HOME_PATH.'/Nginx/'.$url);
 
             $this->files->unlink($this->certificatesPath().'/'.$url.'.key');
             $this->files->unlink($this->certificatesPath().'/'.$url.'.csr');
@@ -239,29 +239,6 @@ class Site
             $this->cli->run(sprintf('certutil -d sql:$HOME/.pki/nssdb -D -n "%s"', $url));
             $this->cli->run(sprintf('certutil -d $HOME/.mozilla/firefox/*.default -D -n "%s"', $url));
         }
-    }
-
-    /**
-     * Get all of the log files for all sites.
-     *
-     * @param  array  $paths
-     * @return array
-     */
-    function logs($paths)
-    {
-        $files = collect();
-
-        foreach ($paths as $path) {
-            $files = $files->merge(collect($this->files->scandir($path))->map(function ($directory) use ($path) {
-                $logPath = $path.'/'.$directory.'/storage/logs/laravel.log';
-
-                if ($this->files->isDir(dirname($logPath))) {
-                    return $this->files->touchAsUser($logPath);
-                }
-            })->filter());
-        }
-
-        return $files->values()->all();
     }
 
     /**

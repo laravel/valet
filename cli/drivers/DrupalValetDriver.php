@@ -1,4 +1,5 @@
 <?php
+
 class DrupalValetDriver extends ValetDriver
 {
     /**
@@ -20,6 +21,7 @@ class DrupalValetDriver extends ValetDriver
             return true;
         }
     }
+
     /**
      * Determine if the incoming request is for a static file.
      *
@@ -35,8 +37,10 @@ class DrupalValetDriver extends ValetDriver
             pathinfo($sitePath.$uri)['extension'] != 'php') {
             return $sitePath.$uri;
         }
+
         return false;
     }
+
     /**
      * Get the fully resolved path to the application's front controller.
      *
@@ -50,6 +54,7 @@ class DrupalValetDriver extends ValetDriver
         if (!empty($uri) && $uri !== '/') {
           $_GET['q'] = $uri;
         }
+
         $matches = [];
         if (preg_match('/^\/(.*?)\.php/', $uri, $matches)) {
             $filename = $matches[0];
@@ -59,6 +64,7 @@ class DrupalValetDriver extends ValetDriver
                 return $sitePath.$filename;
             }
         }
+
         // Fallback
         $_SERVER['SCRIPT_FILENAME'] = $sitePath.'/index.php';
         $_SERVER['SCRIPT_NAME'] = '/index.php';

@@ -31,6 +31,7 @@ class Ubuntu
     function installed($package)
     {
         return in_array($package, explode(PHP_EOL, $this->cli->run('dpkg -l | grep '.$package.' | sed \'s_  _\t_g\' | cut -f 2')));
+        // die(var_dump($package, in_array($package, explode(PHP_EOL, $this->cli->run('dpkg -l | grep '.$package.' | sed \'s_  _\t_g\' | cut -f 2')))));
     }
 
     /**
@@ -40,9 +41,10 @@ class Ubuntu
      */
     function hasInstalledPhp()
     {
-        return $this->installed(get_config('php-latest'))
-            || $this->installed(get_config('php-56'))
-            || $this->installed(get_config('php-55'));
+        return $this->installed(get_config('php71')['name'])
+            || $this->installed(get_config('php70')['name'])
+            || $this->installed(get_config('php56')['name'])
+            || $this->installed(get_config('php55')['name']);
     }
 
     /**
@@ -68,7 +70,8 @@ class Ubuntu
     {
         output('<info>['.$package.'] is not installed, installing it now via Ubuntu...</info> 🍻');
 
-        $this->cli->run('apt-get install '.$package, function ($errorOutput) use ($package) {
+
+        $this->cli->run('apt-get install -y '.$package, function ($exitCode, $errorOutput) use ($package) {
             output($errorOutput);
 
             throw new DomainException('Ubuntu was unable to install ['.$package.'].');
@@ -76,7 +79,21 @@ class Ubuntu
     }
 
     /**
-     * Restart the given Homebrew services.
+     * Start the given Ubuntu services.
+     *
+     * @param
+     */
+    function startService($services)
+    {
+        $services = is_array($services) ? $services : func_get_args();
+
+        foreach ($services as $service) {
+            $this->cli->quietly('sudo service '.$service.' start');
+        }
+    }
+
+    /**
+     * Restart the given Ubuntu services.
      *
      * @param
      */
@@ -90,7 +107,7 @@ class Ubuntu
     }
 
     /**
-     * Stop the given Homebrew services.
+     * Stop the given Ubuntu services.
      *
      * @param
      */
@@ -104,7 +121,7 @@ class Ubuntu
     }
 
     /**
-     * Determine which version of PHP is linked in Homebrew.
+     * Determine which version of PHP is linked in Ubuntu.
      *
      * @return string
      */
@@ -116,14 +133,26 @@ class Ubuntu
 
         $resolvedPath = $this->files->readLink(get_config('php-bin'));
 
-        if (strpos($resolvedPath, get_config('php-latest')) !== false) {
-            return get_config('php-latest');
-        } elseif (strpos($resolvedPath, get_config('php-56')) !== false) {
-            return get_config('php-56');
-        } elseif (strpos($resolvedPath, get_config('php-55')) !== false) {
-            return get_config('php-55');
+        if (strpos($resolvedPath, get_config('php71')['name']) !== false) {
+            return get_config('php71');
+        } elseif (strpos($resolvedPath, get_config('php70')['name']) !== false) {
+            return get_config('php70');
+        } elseif (strpos($resolvedPath, get_config('php56')['name']) !== false) {
+            return get_config('php56');
+        } elseif (strpos($resolvedPath, get_config('php55')['name']) !== false) {
+            return get_config('php55');
         } else {
             throw new DomainException("Unable to determine linked PHP.");
         }
+    }
+
+    /**
+     * Restart the linked PHP-FPM Homebrew service.
+     *
+     * @return void
+     */
+    function restartLinkedPhp()
+    {
+        $this->restartService($this->linkedPhp()['service']);
     }
 }

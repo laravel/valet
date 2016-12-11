@@ -11,25 +11,37 @@ function get_config($value)
     $config = [
         // PHP binary path
         "php-bin" => "/usr/bin/php",
-        
-        // Latest PHP
-        "php-latest" => "php7.0",
-        "fpm-service" => "php7.0-fpm",
-        "fpm-config" => "/etc/php/7.0/fpm/pool.d/www.conf",
-        
-        // Caddy/Systemd
-        "systemd-caddy" => "/lib/systemd/system/caddy.service",
-        "systemd-caddy-fpm" => "/var/run/php/php7.0-fpm.sock",
-        
+
+        // Systemd
+        "systemd-fpm" => "/var/run/php/php7.0-fpm.sock",
+
+        // PHP 7.1
+        "php71" => [
+            "name" => "php7.1",
+            "service" => "php7.1-fpm",
+            "fpm-config" => "/etc/php/7.1/fpm/pool.d/www.conf",
+        ],
+
+        // PHP 7.0
+        "php70" => [
+            "name" => "php7.0",
+            "service" => "php7.0-fpm",
+            "fpm-config" => "/etc/php/7.0/fpm/pool.d/www.conf"
+        ],
+
         // PHP 5.6
-        "php-56" => "php5.6",
-        "fpm56-service" => "php5.6-fpm",
-        "fpm56-config" => "/etc/php/5.6/php-fpm.conf",
-        
+        "php56" => [
+            "name" => "php5.6",
+            "service" => "php5.6-fpm",
+            "fpm-config" => "/etc/php/5.6/php-fpm.conf"
+        ],
+
         // PHP 5.5
-        "php-55" => "php5.5",
-        "fpm55-service" => "php5.5-fpm",
-        "fpm55-config" => "/etc/php/5.5/php-fpm.conf",
+        "php55" => [
+            "name" => "php5.5",
+            "service" => "php5.5-fpm",
+            "fpm-config" => "/etc/php/5.5/php-fpm.conf"
+        ],
     ];
 
     return $config[$value];
