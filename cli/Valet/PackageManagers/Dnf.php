@@ -59,7 +59,7 @@ class Dnf implements PackageManager
      */
     function installOrFail($formula)
     {
-        output('<info>[' . $formula . '] is not installed, installing it now via Apt...</info> 🍻');
+        output('<info>[' . $formula . '] is not installed, installing it now via Dnf...</info> 🍻');
 
         $this->cli->run(trim('dnf install -y ' . $formula), function ($exitCode, $errorOutput) use ($formula) {
             output($errorOutput);
@@ -118,6 +118,14 @@ class Dnf implements PackageManager
      */
     function isAvailable()
     {
-        return exec('which dnf') != '';
+        try {
+            $output = $this->cli->run('which dnf', function ($exitCode, $output) {
+                throw new DomainException('Dnf not available');
+            });
+
+            return $output != '';
+        } catch (DomainException $e) {
+            return false;
+        }
     }
 }

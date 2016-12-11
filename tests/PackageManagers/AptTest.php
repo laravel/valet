@@ -30,6 +30,32 @@ class AptTest extends PHPUnit_Framework_TestCase
     }
 
 
+    public function test_apt_is_available()
+    {
+        $cli = Mockery::mock(CommandLine::class);
+        $cli->shouldReceive('run')->once()->with('which apt', Mockery::type('Closure'))->andReturn('/usr/bin/apt');
+        swap(CommandLine::class, $cli);
+        $this->assertTrue(resolve(PackageManager::class)->isAvailable());
+    }
+
+
+    public function test_apt_is_not_available()
+    {
+        $cli = Mockery::mock(CommandLine::class);
+        $cli->shouldReceive('run')->once()->with('which apt', Mockery::type('Closure'))->andReturn('');
+        swap(CommandLine::class, $cli);
+        $this->assertFalse(resolve(PackageManager::class)->isAvailable());
+
+        $cli = Mockery::mock(CommandLine::class);
+        $cli->shouldReceive('run')->once()->with('which apt', Mockery::type('Closure'))
+            ->andReturnUsing(function ($command, $onError) {
+                $onError(1, 'no apt');
+            });
+        swap(CommandLine::class, $cli);
+        $this->assertFalse(resolve(PackageManager::class)->isAvailable());
+    }
+
+
     public function test_installed_returns_true_when_given_formula_is_installed()
     {
         $cli = Mockery::mock(CommandLine::class);

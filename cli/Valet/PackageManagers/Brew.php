@@ -208,6 +208,14 @@ class Brew implements PackageManager
      */
     function isAvailable()
     {
-        return exec('which brew') != '';
+        try {
+            $output = $this->cli->run('which brew', function ($exitCode, $output) {
+                throw new DomainException('Brew not available');
+            });
+
+            return $output != '';
+        } catch (DomainException $e) {
+            return false;
+        }
     }
 }

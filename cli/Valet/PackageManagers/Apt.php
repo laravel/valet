@@ -112,6 +112,14 @@ class Apt implements PackageManager
      */
     function isAvailable()
     {
-        return exec('which apt') != '';
+        try {
+            $output = $this->cli->run('which apt', function ($exitCode, $output) {
+                throw new DomainException('Apt not available');
+            });
+
+            return $output != '';
+        } catch (DomainException $e) {
+            return false;
+        }
     }
 }
