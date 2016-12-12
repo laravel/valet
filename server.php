@@ -5,6 +5,7 @@
  */
 
 define('VALET_HOME_PATH', posix_getpwuid(fileowner(__FILE__))['dir'].'/.valet');
+define('VALET_STATIC_PREFIX', '41c270e4-5535-4daa-b23e-c269744c2f45');
 
 /**
  * Show the Valet 404 "Not Found" page.
