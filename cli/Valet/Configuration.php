@@ -91,7 +91,7 @@ class Configuration
     {
         $this->files->ensureDirExists(VALET_HOME_PATH.'/Log', user());
 
-        $this->files->touch(VALET_HOME_PATH.'/Log/nginx-error.log');
+        $this->files->touch(VALET_HOME_PATH.'/Log/nginx-error.log', user());
     }
 
     /**

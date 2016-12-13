@@ -2,6 +2,16 @@
 
 namespace Valet;
 
+use DomainException;
+use Illuminate\Container\Container;
+use Valet\Contracts\PackageManager;
+use Valet\Contracts\ServiceManager;
+use Valet\PackageManagers\Apt;
+use Valet\PackageManagers\Brew;
+use Valet\PackageManagers\Dnf;
+use Valet\ServiceManagers\BrewService;
+use Valet\ServiceManagers\LinuxService;
+
 class Valet
 {
     var $cli, $files;
@@ -77,5 +87,71 @@ class Valet
         $response = \Httpful\Request::get('https://api.github.com/repos/laravel/valet/releases/latest')->send();
 
         return version_compare($currentVersion, trim($response->body->tag_name, 'v'), '>=');
+    }
+
+    /**
+     * Determine current environment
+     *
+     * @return void
+     */
+    function environmentSetup()
+    {
+        $this->packageManagerSetup();
+        $this->serviceManagerSetup();
+    }
+
+    /**
+     * Configure package manager
+     *
+     * @return void
+     */
+    function packageManagerSetup()
+    {
+        Container::getInstance()->bind(PackageManager::class, $this->getAvailablePackageManager());
+    }
+
+    /**
+     * Determine the first available package manager
+     *
+     * @return string
+     */
+    function getAvailablePackageManager()
+    {
+        return collect([
+            Brew::class,
+            Apt::class,
+            Dnf::class,
+        ])->first(function ($pm) {
+            return resolve($pm)->isAvailable();
+        }, function () {
+            throw new DomainException("No compatible package manager found.");
+        });
+    }
+
+    /**
+     * Configure service manager
+     *
+     * @return void
+     */
+    function serviceManagerSetup()
+    {
+        Container::getInstance()->bind(ServiceManager::class, $this->getAvailableServiceManager());
+    }
+
+    /**
+     * Determine the first available service manager
+     *
+     * @return string
+     */
+    function getAvailableServiceManager()
+    {
+        return collect([
+            BrewService::class,
+            LinuxService::class,
+        ])->first(function ($pm) {
+            return resolve($pm)->isAvailable();
+        }, function () {
+            throw new DomainException("No compatible service manager found.");
+        });
     }
 }

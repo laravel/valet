@@ -6,7 +6,7 @@ use Symfony\Component\Process\Process;
 /**
  * Define the ~/.valet path as a constant.
  */
-define('VALET_HOME_PATH', $_SERVER['HOME'].'/.valet');
+define('VALET_HOME_PATH', exec('eval echo ~'.user()).'/.valet');
 define('VALET_SERVER_PATH', realpath(__DIR__ . '/../../server.php'));
 define('VALET_STATIC_PREFIX', '41c270e4-5535-4daa-b23e-c269744c2f45');
 
@@ -140,4 +140,45 @@ function user()
     }
 
     return $_SERVER['SUDO_USER'];
+}
+
+/**
+ * Get the user's primary group
+ */
+function group()
+{
+    return exec('id -gn '.user());
+}
+
+/**
+ * Return full path to etc configuration.
+ *
+ * @param  string  $path
+ * @return string
+ */
+function etc_dir($path = '')
+{
+    return PackageManager::etcDir($path);
+}
+
+/**
+ * Return full path to log.
+ *
+ * @param  string  $path
+ * @return string
+ */
+function log_dir($path = '')
+{
+    return PackageManager::logDir($path);
+}
+
+/**
+ * Return full path to opt.
+ *
+ * @param  string $path
+ * @return string
+ */
+function opt_dir($path = '')
+{
+    return PackageManager::optDir($path);
 }

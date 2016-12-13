@@ -1,6 +1,7 @@
 <?php
 
-use Valet\Brew;
+use Valet\Contracts\PackageManager;
+use Valet\Contracts\ServiceManager;
 use Valet\DnsMasq;
 use Valet\Filesystem;
 use Valet\CommandLine;
@@ -28,16 +29,22 @@ class DnsMasqTest extends PHPUnit_Framework_TestCase
 
     public function test_install_installs_and_places_configuration_files_in_proper_locations()
     {
-        $brew = Mockery::mock(Brew::class);
-        $brew->shouldReceive('ensureInstalled')->once()->with('dnsmasq');
-        $brew->shouldReceive('restartService')->once()->with('dnsmasq');
-        swap(Brew::class, $brew);
+        $pm = Mockery::mock(PackageManager::class);
+        $pm->shouldReceive('ensureInstalled')->once()->with('dnsmasq');
+        $pm->shouldReceive('optDir')->twice()->andReturnUsing(function ($path) {
+            return __DIR__ . ($path ? DIRECTORY_SEPARATOR . $path : $path);
+        });
+        swap(PackageManager::class, $pm);
+
+        $sm = Mockery::mock(ServiceManager::class);
+        $sm->shouldReceive('restart')->once()->with('dnsmasq');
+        swap(ServiceManager::class, $sm);
 
         $dnsMasq = resolve(StubForCreatingCustomDnsMasqConfigFiles::class);
 
-        $dnsMasq->exampleConfigPath = __DIR__.'/files/dnsmasq.conf';
-        $dnsMasq->configPath = __DIR__.'/output/dnsmasq.conf';
-        $dnsMasq->resolverPath = __DIR__.'/output/resolver';
+        $dnsMasq->exampleConfigPath = 'files/dnsmasq.conf';
+        $dnsMasq->configPath = 'output/dnsmasq.conf';
+        $dnsMasq->resolverPath = 'output/resolver';
 
         $dnsMasq->install('dev');
 
@@ -52,9 +59,15 @@ conf-file='.__DIR__.'/output/custom-dnsmasq.conf
 
     public function test_update_domain_removes_old_resolver_and_reinstalls()
     {
+        $pm = Mockery::mock(PackageManager::class);
+        $pm->shouldReceive('etcDir')->once();
+        swap(PackageManager::class, $pm);
+        $sm = Mockery::mock(ServiceManager::class);
+        swap(ServiceManager::class, $sm);
+
         $cli = Mockery::mock(CommandLine::class);
         $cli->shouldReceive('quietly')->with('rm /etc/resolver/old');
-        $dnsMasq = Mockery::mock(DnsMasq::class.'[install]', [resolve(Brew::class), $cli, new Filesystem]);
+        $dnsMasq = Mockery::mock(DnsMasq::class.'[install]', [$pm, $sm, $cli, new Filesystem]);
         $dnsMasq->shouldReceive('install')->with('new');
         $dnsMasq->updateDomain('old', 'new');
     }
@@ -66,5 +79,13 @@ class StubForCreatingCustomDnsMasqConfigFiles extends DnsMasq
     public function customConfigPath()
     {
         return __DIR__.'/output/custom-dnsmasq.conf';
+    }
+
+    function configFilePath() {
+        return __DIR__.'/'.$this->configPath;
+    }
+
+    function resolverDirPath() {
+        return __DIR__.'/'.$this->resolverPath;
     }
 }
