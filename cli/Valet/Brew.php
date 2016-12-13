@@ -85,7 +85,7 @@ class Brew
     }
 
     /**
-     * Tag the given formulas.
+     * Tap the given formulas.
      *
      * @param  dynamic[string]  $formula
      * @return void
