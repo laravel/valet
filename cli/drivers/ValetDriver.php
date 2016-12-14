@@ -43,11 +43,11 @@ abstract class ValetDriver
     public static function assign($sitePath, $siteName, $uri)
     {
         $drivers = [];
-        
+
         if ($customSiteDriver = static::customSiteDriver($sitePath)) {
             $drivers[] = $customSiteDriver;
         }
-        
+
         $drivers = array_merge($drivers, static::driversIn(VALET_HOME_PATH.'/Drivers'));
 
         $drivers[] = 'LaravelValetDriver';
@@ -78,7 +78,7 @@ abstract class ValetDriver
             }
         }
     }
-    
+
     /**
      * Get the custom driver class from the site path, if one exists.
      *
@@ -87,13 +87,13 @@ abstract class ValetDriver
      */
     public static function customSiteDriver($sitePath)
     {
-        if (! file_exists($sitePath.'/SiteValetDriver.php')) {
+        if (! file_exists($sitePath.'/LocalValetDriver.php')) {
             return;
         }
-        
-        require_once $sitePath.'/SiteValetDriver.php';
-        
-        return 'SiteValetDriver';
+
+        require_once $sitePath.'/LocalValetDriver.php';
+
+        return 'LocalValetDriver';
     }
 
     /**
