@@ -248,6 +248,21 @@ $app->command('on-latest-version', function () use ($version) {
 })->descriptions('Determine if this is the latest version of Valet');
 
 /**
+ * Create a new database on your local machine.
+ */
+$app->command('db [name]', function ($name) {
+    if(!$name) {
+        warning('Please specify a database name');
+        return;
+    }
+    if($error = CommandLine::run('mysql -uroot -e "create database '.$name.'"')) {
+        warning($error);
+    } else {
+        info('The database '.$name.' has been created');
+    }
+})->descriptions('Create a new database');
+
+/**
  * Load all of the Valet extensions.
  */
 foreach (Valet::extensions() as $extension) {
