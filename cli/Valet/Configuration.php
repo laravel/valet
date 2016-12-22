@@ -121,6 +121,26 @@ class Configuration
     }
 
     /**
+     * Add a host to the host list in the config file
+     * 
+     * @param string $host
+     * @param string $ip
+     * @param boolean $prepend
+     */
+    function addHost ($host, $ip, $prepend = false) {
+        $this->write(tap($this->read(), function (&$config) use ($host, $ip, $prepend) {
+            $method = $prepend ? 'prepend' : 'push';
+
+            $hosts = $config['hosts'] ?? [];
+
+            $config['hosts'] = collect($hosts)->{$method}([
+                'host' => $host,
+                'ip' => $ip
+            ])->all();
+        }));
+    }
+
+    /**
      * Prepend the given path to the configuration.
      *
      * @param  string  $path
@@ -142,6 +162,20 @@ class Configuration
         $this->write(tap($this->read(), function (&$config) use ($path) {
             $config['paths'] = collect($config['paths'])->reject(function ($value) use ($path) {
                 return $value === $path;
+            })->values()->all();
+        }));
+    }
+
+    /**
+     * Remove the host
+     * 
+     * @param  string $host
+     */
+    function removeHost ($host) {
+        $this->write(tap($this->read(), function (&$config) use ($host) {
+            $hosts = $config['hosts'] ?? [];
+            $config['hosts'] = collect($hosts)->reject(function ($value) use ($host) {
+                return $value['host'] === $host;
             })->values()->all();
         }));
     }

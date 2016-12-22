@@ -97,6 +97,18 @@ $app->command('link [name]', function ($name) {
     info('A ['.$name.'] symbolic link has been created in ['.$linkPath.'].');
 })->descriptions('Link the current working directory to Valet');
 
+$app->command('host name ip', function ($name, $ip) {
+    DnsMasq::addHost ($name, $ip);
+
+    info('Added host ['.$name.'] with ip ['.$ip.'].');
+})->descriptions('Add a new host');
+
+$app->command('rmhost name', function ($name) {
+    DnsMasq::removeHost ($name);
+
+    info('Removed host ['.$name.'].');
+})->descriptions('Remove a host');
+
 /**
  * Display all of the registered symbolic links.
  */
