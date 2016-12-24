@@ -67,6 +67,15 @@ class PhpFpm
         $contents = preg_replace('/^;?listen\.mode = .+$/m', 'listen.mode = 0777', $contents);
 
         $this->files->put($this->fpmConfigPath(), $contents);
+
+
+        $contents = $this->files->get(__DIR__.'/../stubs/php-memory-limits.ini');
+
+        $destFile = dirname($this->fpmConfigPath());
+        $destFile = str_replace('php-fpm.d', '', $destFile);
+        $destFile .= '/conf.d/php-memory-limits.ini';
+
+        $this->files->putAsUser($destFile, $contents);
     }
 
     /**
