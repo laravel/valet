@@ -5,6 +5,7 @@
  */
 
 define('VALET_HOME_PATH', posix_getpwuid(fileowner(__FILE__))['dir'].'/.valet');
+define('VALET_STATIC_PREFIX', '41c270e4-5535-4daa-b23e-c269744c2f45');
 
 /**
  * Show the Valet 404 "Not Found" page.
@@ -14,6 +15,24 @@ function show_valet_404()
     http_response_code(404);
     require __DIR__.'/cli/templates/404.html';
     exit;
+}
+
+/**
+ * @param $domain string Domain to filter
+ *
+ * @return string Filtered domain (without xip.io feature)
+ */
+function valet_support_xip_io($domain)
+{
+    if (substr($domain, -7) === '.xip.io') {
+        // support only ip v4 for now
+        $domainPart = explode('.', $domain);
+        if (count($domainPart) > 6) {
+            $domain = implode('.', array_reverse(array_slice(array_reverse($domainPart), 6)));
+        }
+    }
+
+    return $domain;
 }
 
 /**
@@ -27,11 +46,12 @@ $valetConfig = json_decode(
  * Parse the URI and site / host for the incoming request.
  */
 $uri = urldecode(
-    parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)
+    explode("?", $_SERVER['REQUEST_URI'])[0]
 );
 
 $siteName = basename(
-    $_SERVER['HTTP_HOST'],
+    // Filter host to support xip.io feature
+    valet_support_xip_io($_SERVER['HTTP_HOST']),
     '.'.$valetConfig['domain']
 );
 
@@ -55,6 +75,8 @@ foreach ($valetConfig['paths'] as $path) {
 if (is_null($valetSitePath)) {
     show_valet_404();
 }
+
+$valetSitePath = realpath($valetSitePath);
 
 /**
  * Find the appropriate Valet driver for the request.

@@ -54,20 +54,22 @@ class BasicValetDriver extends ValetDriver
             if ($this->isActualFile($candidate)) {
                 $_SERVER['SCRIPT_FILENAME'] = $candidate;
                 $_SERVER['SCRIPT_NAME'] = str_replace($sitePath, '', $candidate);
+                $_SERVER['DOCUMENT_ROOT'] = $sitePath;
                 return $candidate;
             }
         }
 
-        $fixedCandidates = [
-            $this->asRootPhpIndexFile($sitePath),
-            $this->asPublicPhpIndexFile($sitePath),
-            $this->asPublicHtmlIndexFile($sitePath),
+        $fixedCandidatesAndDocroots = [
+            $this->asRootPhpIndexFile($sitePath) => $sitePath,
+            $this->asPublicPhpIndexFile($sitePath) => $sitePath . '/public',
+            $this->asPublicHtmlIndexFile($sitePath) => $sitePath . '/public',
         ];
 
-        foreach ($fixedCandidates as $candidate) {
+        foreach ($fixedCandidatesAndDocroots as $candidate => $docroot) {
             if ($this->isActualFile($candidate)) {
                 $_SERVER['SCRIPT_FILENAME'] = $candidate;
                 $_SERVER['SCRIPT_NAME'] = '/index.php';
+                $_SERVER['DOCUMENT_ROOT'] = $docroot;
                 return $candidate;
             }
         }

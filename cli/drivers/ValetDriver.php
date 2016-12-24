@@ -42,7 +42,13 @@ abstract class ValetDriver
      */
     public static function assign($sitePath, $siteName, $uri)
     {
-        $drivers = static::driversIn(VALET_HOME_PATH.'/Drivers');
+        $drivers = [];
+
+        if ($customSiteDriver = static::customSiteDriver($sitePath)) {
+            $drivers[] = $customSiteDriver;
+        }
+
+        $drivers = array_merge($drivers, static::driversIn(VALET_HOME_PATH.'/Drivers'));
 
         $drivers[] = 'LaravelValetDriver';
 
@@ -59,6 +65,8 @@ abstract class ValetDriver
         $drivers[] = 'ContaoValetDriver';
         $drivers[] = 'KatanaValetDriver';
         $drivers[] = 'JoomlaValetDriver';
+        $drivers[] = 'DrupalValetDriver';
+        $drivers[] = 'Concrete5ValetDriver';
         $drivers[] = 'Typo3ValetDriver';
 
         $drivers[] = 'BasicValetDriver';
@@ -70,6 +78,23 @@ abstract class ValetDriver
                 return $driver;
             }
         }
+    }
+
+    /**
+     * Get the custom driver class from the site path, if one exists.
+     *
+     * @param  string  $sitePath
+     * @return string
+     */
+    public static function customSiteDriver($sitePath)
+    {
+        if (! file_exists($sitePath.'/LocalValetDriver.php')) {
+            return;
+        }
+
+        require_once $sitePath.'/LocalValetDriver.php';
+
+        return 'LocalValetDriver';
     }
 
     /**
@@ -119,15 +144,25 @@ abstract class ValetDriver
      */
     public function serveStaticFile($staticFilePath, $sitePath, $siteName, $uri)
     {
-        $extension = strtolower(pathinfo($staticFilePath)['extension']);
+        /**
+         * Back story...
+         *
+         * PHP docs *claim* you can set default_mimetype = "" to disable the default
+         * Content-Type header. This works in PHP 7+, but in PHP 5.* it sends an
+         * *empty* Content-Type header, which is significantly different than
+         * sending *no* Content-Type header.
+         *
+         * However, if you explicitly set a Content-Type header, then explicitly
+         * remove that Content-Type header, PHP seems to not re-add the default.
+         *
+         * I have a hard time believing this is by design and not coincidence.
+         *
+         * Burn. it. all.
+         */
+        header('Content-Type: text/html');
+        header_remove('Content-Type');
 
-        $mimes = require(__DIR__.'/../mimes.php');
-
-        $mime = isset($mimes[$extension]) ? $mimes[$extension] : 'application/octet-stream';
-
-        header('Content-Type: '. $mime);
-
-        readfile($staticFilePath);
+        header('X-Accel-Redirect: /' . VALET_STATIC_PREFIX . $staticFilePath);
     }
 
     /**

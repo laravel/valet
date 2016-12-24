@@ -30,7 +30,7 @@ class Brew
      */
     function installed($formula)
     {
-        return in_array($formula, explode(PHP_EOL, $this->cli->run('brew list | grep '.$formula)));
+        return in_array($formula, explode(PHP_EOL, $this->cli->runAsUser('brew list | grep '.$formula)));
     }
 
     /**
@@ -40,7 +40,8 @@ class Brew
      */
     function hasInstalledPhp()
     {
-        return $this->installed('php70')
+        return $this->installed('php71')
+            || $this->installed('php70')
             || $this->installed('php56')
             || $this->installed('php55');
     }
@@ -49,13 +50,14 @@ class Brew
      * Ensure that the given formula is installed.
      *
      * @param  string  $formula
+     * @param  array  $options
      * @param  array  $taps
      * @return void
      */
-    function ensureInstalled($formula, array $taps = [])
+    function ensureInstalled($formula, $options = [], $taps = [])
     {
         if (! $this->installed($formula)) {
-            $this->installOrFail($formula, $taps);
+            $this->installOrFail($formula, $options, $taps);
         }
     }
 
@@ -63,10 +65,11 @@ class Brew
      * Install the given formula and throw an exception on failure.
      *
      * @param  string  $formula
+     * @param  array  $options
      * @param  array  $taps
      * @return void
      */
-    function installOrFail($formula, array $taps = [])
+    function installOrFail($formula, $options = [], $taps = [])
     {
         if (count($taps) > 0) {
             $this->tap($taps);
@@ -74,7 +77,7 @@ class Brew
 
         output('<info>['.$formula.'] is not installed, installing it now via Brew...</info> 🍻');
 
-        $this->cli->runAsUser('brew install '.$formula, function ($exitCode, $errorOutput) use ($formula) {
+        $this->cli->runAsUser(trim('brew install '.$formula.' '.implode(' ', $options)), function ($exitCode, $errorOutput) use ($formula) {
             output($errorOutput);
 
             throw new DomainException('Brew was unable to install ['.$formula.'].');
@@ -82,7 +85,7 @@ class Brew
     }
 
     /**
-     * Tag the given formulas.
+     * Tap the given formulas.
      *
      * @param  dynamic[string]  $formula
      * @return void
@@ -137,7 +140,9 @@ class Brew
 
         $resolvedPath = $this->files->readLink('/usr/local/bin/php');
 
-        if (strpos($resolvedPath, 'php70') !== false) {
+        if (strpos($resolvedPath, 'php71') !== false) {
+            return 'php71';
+        } elseif (strpos($resolvedPath, 'php70') !== false) {
             return 'php70';
         } elseif (strpos($resolvedPath, 'php56') !== false) {
             return 'php56';

@@ -51,10 +51,25 @@ class BedrockValetDriver extends BasicValetDriver
 
         if (strpos($uri, '/wp/') === 0) {
             return is_dir($sitePath.'/web'.$uri)
-                            ? $sitePath.'/web'.$uri.'/index.php'
+                            ? $sitePath.'/web'.$this->forceTrailingSlash($uri).'/index.php'
                             : $sitePath.'/web'.$uri;
         }
 
         return $sitePath.'/web/index.php';
+    }
+
+    /**
+     * Redirect to uri with trailing slash.
+     *
+     * @param  string $uri
+     * @return string
+     */
+    private function forceTrailingSlash($uri)
+    {
+        if (substr($uri, -1 * strlen('/wp/wp-admin')) == '/wp/wp-admin') {
+            header('Location: '.$uri.'/'); die;
+        }
+
+        return $uri;
     }
 }

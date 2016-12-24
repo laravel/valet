@@ -64,14 +64,6 @@ class SiteTest extends PHPUnit_Framework_TestCase
         $site->pruneLinks();
         $this->assertFileNotExists(__DIR__.'/output/link');
     }
-
-
-    public function test_logs_method_returns_array_of_log_files()
-    {
-        $logs = resolve(Site::class)->logs([__DIR__.'/test-directory-for-logs']);
-        $this->assertSame(__DIR__.'/test-directory-for-logs/project/storage/logs/laravel.log', $logs[0]);
-        unlink(__DIR__.'/test-directory-for-logs/project/storage/logs/laravel.log');
-    }
 }
 
 

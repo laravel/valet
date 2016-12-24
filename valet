@@ -29,18 +29,10 @@ then
     exit
 fi
 
-# If the command is to run the updater we'll run the updater script and
-# let it handle this entire update. It will download a fresh copy of
-# Valet and replace the current install with the "fresh" download.
-if [[ "$1" = "update" ]]
-then
-    bash $DIR/cli/scripts/update.sh
-    exit
-
 # If the command is the "share" command we will need to resolve out any
 # symbolic links for the site. Before starting Ngrok, we will fire a
 # process to retrieve the live Ngrok tunnel URL in the background.
-elif [[ "$1" = "share" ]]
+if [[ "$1" = "share" ]]
 then
     HOST="${PWD##*/}"
     DOMAIN=$(php "$DIR/cli/valet.php" domain)
@@ -54,7 +46,7 @@ then
 
     # Fetch Ngrok URL In Background...
     bash "$DIR/cli/scripts/fetch-share-url.sh" &
-    sudo -u $(logname) "$DIR/bin/ngrok" http -host-header=rewrite "$HOST.$DOMAIN:80"
+    sudo -u $(logname) "$DIR/bin/ngrok" http "$HOST.$DOMAIN:80" -host-header=rewrite ${*:2}
     exit
 
 # Finally, for every other command we will just proxy into the PHP tool
