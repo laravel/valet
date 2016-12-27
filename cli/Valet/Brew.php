@@ -42,8 +42,7 @@ class Brew
     {
         return $this->installed('php71')
             || $this->installed('php70')
-            || $this->installed('php56')
-            || $this->installed('php55');
+            || $this->installed('php56');
     }
 
     /**
@@ -146,8 +145,6 @@ class Brew
             return 'php70';
         } elseif (strpos($resolvedPath, 'php56') !== false) {
             return 'php56';
-        } elseif (strpos($resolvedPath, 'php55') !== false) {
-            return 'php55';
         } else {
             throw new DomainException("Unable to determine linked PHP.");
         }
