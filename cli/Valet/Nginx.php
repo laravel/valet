@@ -4,11 +4,11 @@ namespace Valet;
 
 class Nginx
 {
-    var $brew;
-    var $cli;
-    var $files;
-    var $configuration;
-    var $site;
+    public $brew;
+    public $cli;
+    public $files;
+    public $configuration;
+    public $site;
 
     /**
      * Create a new Nginx instance.

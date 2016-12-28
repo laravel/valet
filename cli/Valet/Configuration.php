@@ -4,7 +4,7 @@ namespace Valet;
 
 class Configuration
 {
-    var $files;
+    public $files;
 
     /**
      * Create a new Valet configuration class instance.

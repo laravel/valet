@@ -2,11 +2,13 @@
 
 namespace Valet;
 
+use Httpful\Request;
+
 class Valet
 {
-    var $cli, $files;
+    public $cli, $files;
 
-    var $valetBin = '/usr/local/bin/valet';
+    public $valetBin = '/usr/local/bin/valet';
 
     /**
      * Create a new Valet instance.
@@ -74,7 +76,7 @@ class Valet
      */
     function onLatestVersion($currentVersion)
     {
-        $response = \Httpful\Request::get('https://api.github.com/repos/laravel/valet/releases/latest')->send();
+        $response = Request::get('https://api.github.com/repos/laravel/valet/releases/latest')->send();
 
         return version_compare($currentVersion, trim($response->body->tag_name, 'v'), '>=');
     }

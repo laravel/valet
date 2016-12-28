@@ -2,11 +2,9 @@
 
 namespace Valet;
 
-use DomainException;
-
 class Site
 {
-    var $config, $cli, $files;
+    public $config, $cli, $files;
 
     /**
      * Create a new Site instance.

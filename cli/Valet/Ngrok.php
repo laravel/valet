@@ -7,7 +7,7 @@ use DomainException;
 
 class Ngrok
 {
-    var $tunnelsEndpoint = 'http://127.0.0.1:4040/api/tunnels';
+    public $tunnelsEndpoint = 'http://127.0.0.1:4040/api/tunnels';
 
     /**
      * Get the current tunnel URL from the Ngrok API.

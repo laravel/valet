@@ -7,11 +7,11 @@ use Symfony\Component\Process\Process;
 
 class DnsMasq
 {
-    var $brew, $cli, $files;
+    public $brew, $cli, $files;
 
-    var $resolverPath = '/etc/resolver';
-    var $configPath = '/usr/local/etc/dnsmasq.conf';
-    var $exampleConfigPath = '/usr/local/opt/dnsmasq/dnsmasq.conf.example';
+    public $resolverPath = '/etc/resolver';
+    public $configPath = '/usr/local/etc/dnsmasq.conf';
+    public $exampleConfigPath = '/usr/local/opt/dnsmasq/dnsmasq.conf.example';
 
     /**
      * Create a new DnsMasq instance.

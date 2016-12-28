@@ -8,9 +8,9 @@ use Symfony\Component\Process\Process;
 
 class PhpFpm
 {
-    var $brew, $cli, $files;
+    public $brew, $cli, $files;
 
-    var $taps = [
+    public $taps = [
         'homebrew/dupes', 'homebrew/versions', 'homebrew/homebrew-php'
     ];
 
