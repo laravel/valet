@@ -19,24 +19,6 @@ In other words, a blazing fast Laravel development environment that uses roughly
 
 Documentation for Valet can be found on the [Laravel website](https://laravel.com/docs/valet).
 
-## Upgrading To Valet 2.0
-
-Valet 2.0 transitions Valet's underlying web server from Caddy to Nginx. Before upgrading to this version you should run the following commands to stop and uninstall the existing Caddy daemon:
-
-```
-valet stop
-valet uninstall
-```
-
-Next, you should upgrade to the latest version of Valet. Depending on how you installed Valet, this is typically done through Git or Composer. Once the fresh Valet source code has been downloaded, you should run the `install` command:
-
-```
-valet install
-valet restart
-```
-
-After upgrading, it may be necessary to re-park or re-link your sites.
-
 ## License
 
 Laravel Valet is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT)
