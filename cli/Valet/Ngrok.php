@@ -14,7 +14,7 @@ class Ngrok
      *
      * @return string
      */
-    function currentTunnelUrl()
+    public function currentTunnelUrl()
     {
         return retry(20, function () {
             $body = Request::get($this->tunnelsEndpoint)->send()->body;
@@ -36,7 +36,7 @@ class Ngrok
      * @param  array  $tunnels
      * @return string|null
      */
-    function findHttpTunnelUrl($tunnels)
+    public function findHttpTunnelUrl($tunnels)
     {
         foreach ($tunnels as $tunnel) {
             if ($tunnel->proto === 'http') {

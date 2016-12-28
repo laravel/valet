@@ -22,7 +22,7 @@ class PhpFpm
      * @param  Filesystem  $files
      * @return void
      */
-    function __construct(Brew $brew, CommandLine $cli, Filesystem $files)
+    public function __construct(Brew $brew, CommandLine $cli, Filesystem $files)
     {
         $this->cli = $cli;
         $this->brew = $brew;
@@ -34,7 +34,7 @@ class PhpFpm
      *
      * @return void
      */
-    function install()
+    public function install()
     {
         if (! $this->brew->installed('php71') &&
             ! $this->brew->installed('php70') &&
@@ -54,7 +54,7 @@ class PhpFpm
      *
      * @return void
      */
-    function updateConfiguration()
+    public function updateConfiguration()
     {
         $contents = $this->files->get($this->fpmConfigPath());
 
@@ -73,7 +73,7 @@ class PhpFpm
      *
      * @return void
      */
-    function restart()
+    public function restart()
     {
         $this->stop();
 
@@ -85,7 +85,7 @@ class PhpFpm
      *
      * @return void
      */
-    function stop()
+    public function stop()
     {
         $this->brew->stopService('php56', 'php70', 'php71');
     }
@@ -95,7 +95,7 @@ class PhpFpm
      *
      * @return string
      */
-    function fpmConfigPath()
+    public function fpmConfigPath()
     {
         $confLookup = [
             'php71' => '/usr/local/etc/php/7.1/php-fpm.d/www.conf',
