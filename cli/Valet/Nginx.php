@@ -71,8 +71,8 @@ class Nginx
         $this->files->putAsUser(
             '/usr/local/etc/nginx/valet/valet.conf',
             str_replace(
-                ['VALET_HOME_PATH', 'VALET_SERVER_PATH'],
-                [VALET_HOME_PATH, VALET_SERVER_PATH],
+                ['VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_STATIC_PREFIX'],
+                [VALET_HOME_PATH, VALET_SERVER_PATH, VALET_STATIC_PREFIX],
                 $this->files->get(__DIR__.'/../stubs/valet.conf')
             )
         );

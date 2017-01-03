@@ -42,7 +42,13 @@ abstract class ValetDriver
      */
     public static function assign($sitePath, $siteName, $uri)
     {
-        $drivers = static::driversIn(VALET_HOME_PATH.'/Drivers');
+        $drivers = [];
+
+        if ($customSiteDriver = static::customSiteDriver($sitePath)) {
+            $drivers[] = $customSiteDriver;
+        }
+
+        $drivers = array_merge($drivers, static::driversIn(VALET_HOME_PATH.'/Drivers'));
 
         $drivers[] = 'LaravelValetDriver';
 
@@ -71,6 +77,23 @@ abstract class ValetDriver
                 return $driver;
             }
         }
+    }
+
+    /**
+     * Get the custom driver class from the site path, if one exists.
+     *
+     * @param  string  $sitePath
+     * @return string
+     */
+    public static function customSiteDriver($sitePath)
+    {
+        if (! file_exists($sitePath.'/LocalValetDriver.php')) {
+            return;
+        }
+
+        require_once $sitePath.'/LocalValetDriver.php';
+
+        return 'LocalValetDriver';
     }
 
     /**
@@ -138,7 +161,7 @@ abstract class ValetDriver
         header('Content-Type: text/html');
         header_remove('Content-Type');
 
-        header('X-Accel-Redirect: /static' . $staticFilePath);
+        header('X-Accel-Redirect: /' . VALET_STATIC_PREFIX . $staticFilePath);
     }
 
     /**
