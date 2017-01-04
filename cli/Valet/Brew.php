@@ -57,6 +57,16 @@ class Brew
     }
 
     /**
+     * Return name of the nginx service installed via Homebrewed.
+     *
+     * @return string
+     */
+    function nginxServiceName()
+    {
+        return $this->installed('nginx-full') ? 'nginx-full' : 'nginx';
+    }
+
+    /**
      * Ensure that the given formula is installed.
      *
      * @param  string  $formula
