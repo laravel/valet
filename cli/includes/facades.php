@@ -29,7 +29,6 @@ class Facade
     }
 }
 
-class Ubuntu extends Facade {}
 class Nginx extends Facade {}
 class CommandLine extends Facade {}
 class Configuration extends Facade {}

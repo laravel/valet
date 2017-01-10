@@ -20,7 +20,12 @@ Container::setInstance(new Container);
 
 $version = '2.0.1';
 
-$app = new Application('Valet Ubuntu', $version);
+$app = new Application('Valet', $version);
+
+/**
+ * Detect environment
+ */
+Valet::environmentSetup();
 
 /**
  * Prune missing directories and symbolic links on every command.
@@ -44,7 +49,7 @@ $app->command('install', function () {
     Valet::symlinkToUsersBin();
     Valet::createSudoersEntry();
 
-    passthru('/bin/bash '.__DIR__.'/scripts/install-packages.sh');
+    // passthru('/bin/bash '.__DIR__.'/scripts/install-packages.sh');
 
     output(PHP_EOL.'<info>Valet installed successfully!</info>');
 })->descriptions('Install the Valet services');
@@ -93,7 +98,7 @@ $app->command('forget [path]', function ($path = null) {
  */
 $app->command('status', function () {
     passthru('service nginx status');
-    passthru('service php*-fpm status');
+    passthru('service '.PhpFpm::fpmServiceName().' status');
 })->descriptions('View Valet service status');
 
 /**

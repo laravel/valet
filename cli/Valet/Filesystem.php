@@ -122,11 +122,13 @@ class Filesystem
      */
     function put($path, $contents, $owner = null)
     {
-        file_put_contents($path, $contents);
+        $status = file_put_contents($path, $contents);
 
         if ($owner) {
             $this->chown($path, $owner);
         }
+
+        return $status;
     }
 
     /**

@@ -21,8 +21,7 @@
         "files": [
             "cli/includes/compatibility.php",
             "cli/includes/facades.php",
-            "cli/includes/helpers.php",
-            "config.php"
+            "cli/includes/helpers.php"
         ],
         "psr-4": {
             "Valet\\": "cli/Valet/"
