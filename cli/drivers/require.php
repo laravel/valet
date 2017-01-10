@@ -26,3 +26,4 @@ require_once __DIR__.'/JoomlaValetDriver.php';
 require_once __DIR__.'/DrupalValetDriver.php';
 require_once __DIR__.'/Concrete5ValetDriver.php';
 require_once __DIR__.'/Typo3ValetDriver.php';
+require_once __DIR__.'/NeosValetDriver.php';

@@ -68,6 +68,7 @@ abstract class ValetDriver
         $drivers[] = 'DrupalValetDriver';
         $drivers[] = 'Concrete5ValetDriver';
         $drivers[] = 'Typo3ValetDriver';
+        $drivers[] = 'NeosValetDriver';
 
         $drivers[] = 'BasicValetDriver';
 
