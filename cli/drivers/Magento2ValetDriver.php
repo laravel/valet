@@ -35,6 +35,7 @@ class Magento2ValetDriver extends ValetDriver
     {
         $this->checkMageMode($sitePath);
 
+        $uri = $this->handleForVersions($uri);
         $route = parse_url(substr($uri, 1))['path'];
 
         $pub = '';
@@ -70,6 +71,17 @@ class Magento2ValetDriver extends ValetDriver
         }
 
         return false;
+    }
+
+    /**
+     * Rewrite URLs that look like "versions12345/" to remove
+     * the versions12345/ part
+     *
+     * @param  string $route
+     */
+    private function handleForVersions($route)
+    {
+        return preg_replace('/version\d*\//', '', $route);
     }
 
     /**
