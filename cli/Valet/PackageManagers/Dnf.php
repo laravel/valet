@@ -87,6 +87,14 @@ class Dnf implements PackageManager
     }
 
     /**
+     * Restart dnsmasq in Fedora.
+     */
+    function dnsmasqRestart($sm)
+    {
+        $sm->restart('NetworkManager');
+    }
+
+    /**
      * Determine if package manager is available on the system.
      *
      * @return bool
@@ -102,43 +110,5 @@ class Dnf implements PackageManager
         } catch (DomainException $e) {
             return false;
         }
-    }
-
-    /**
-     * Setup dnsmasq in Fedora.
-     */
-    function dnsmasqSetup($sm)
-    {
-        $this->ensureInstalled('dnsmasq');
-
-        $conf = '/etc/NetworkManager/NetworkManager.conf';
-
-        $inControlOfNetworkManager = !empty($this->cli->run("grep '^dns=dnsmasq' $conf"));
-
-        if (! $inControlOfNetworkManager) {
-            $this->cli->run("sudo sed -i '/^\[main\]/adns=dnsmasq' $conf");
-
-            $sm->stop('NetworkManager');
-            $this->cli->run('sudo pkill dnsmasq');
-            $sm->start('NetworkManager');
-        }
-    }
-
-    /**
-     * Restart dnsmasq in Fedora.
-     */
-    function dnsmasqRestart($sm)
-    {
-        $sm->restart('NetworkManager');
-    }
-
-    /**
-     * Dnsmasq config path distro.
-     *
-     * @return string
-     */
-    function dnsmasqConfigPath()
-    {
-        return '/etc/NetworkManager/dnsmasq.d/valet';
     }
 }

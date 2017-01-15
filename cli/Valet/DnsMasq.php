@@ -23,8 +23,7 @@ class DnsMasq
         $this->sm = $sm;
         $this->cli = $cli;
         $this->files = $files;
-        $this->configPath = $this->pm->dnsmasqConfigPath();
-        // $this->exampleConfigPath = $this->files->get(__DIR__.'/../stubs/dnsmasq.conf');
+        $this->configPath = '/etc/NetworkManager/dnsmasq.d/valet';
     }
 
     /**
@@ -34,12 +33,9 @@ class DnsMasq
      */
     function install($domain = 'dev')
     {
-        // $this->pm->ensureInstalled('dnsmasq');
-        $this->pm->dnsmasqSetup($this->sm);
+        $this->dnsmasqSetup();
         $this->createCustomConfigFile($domain);
         $this->pm->dnsmasqRestart($this->sm);
-
-        // $this->sm->restart('dnsmasq');
     }
 
     /**
@@ -50,81 +46,31 @@ class DnsMasq
      */
     function createCustomConfigFile($domain)
     {
-        // $customConfigPath = $this->configPath;
-
-        // $this->copyExampleConfig();
-
-        // $this->appendCustomConfigImport($customConfigPath);
-        // $this->cli->run('rm '.$this->configPath);
         $this->files->put($this->configPath, 'address=/.'.$domain.'/127.0.0.1'.PHP_EOL);
     }
 
     /**
-     * Configure standalone Dnsmasq
-     *
-     * @return void
+     * Setup dnsmasq with Network Manager.
      */
-    function manageDnsmasqManually()
+    function dnsmasqSetup()
     {
-        /* I don't want you to lose your network connection
-         * everytime we update the domain so lets remove
-         * the Dnsmasq control from NetworkManager
-         */
+        $this->pm->ensureInstalled('dnsmasq');
+
         $conf = '/etc/NetworkManager/NetworkManager.conf';
 
-        $inControlOfNetworkManager = !empty($this->cli->run("grep '^dns=dnsmasq' $conf"));
+        $notInControlOfNetworkManager = empty($this->cli->run("grep '^dns=dnsmasq' $conf"));
 
-        if ( $inControlOfNetworkManager ) {
-            $this->cli->run("sudo sed -i 's/^dns=/#dns=/g' $conf");
+        if ($notInControlOfNetworkManager) {
+            $sed = "sudo sed -i 's/#dns=/dns=/g' {$conf}";
 
-            $this->sm->stop('network-manager');
+            if (empty($this->cli->run("grep '#dns=dnsmasq' $conf"))) {
+                $sed = "sudo sed -i '/^\[main\]/adns=dnsmasq' {$conf}";
+            }
+
+            $this->cli->run($sed);
             $this->cli->run('sudo pkill dnsmasq');
-            $this->sm->start('network-manager');
-            $this->sm->restart('dnsmasq');
         }
     }
-
-    // /**
-    //  * Copy the Homebrew installed example DnsMasq configuration file.
-    //  *
-    //  * @return void
-    //  */
-    // function copyExampleConfig()
-    // {
-    //     if (! $this->files->exists($this->configPath)) {
-    //         $this->files->copyAsUser(
-    //             $this->exampleConfigPath,
-    //             $this->configPath
-    //         );
-    //     }
-    // }
-
-    // /**
-    //  * Append import command for our custom configuration to DnsMasq file.
-    //  *
-    //  * @param  string  $customConfigPath
-    //  * @return void
-    //  */
-    // function appendCustomConfigImport($customConfigPath)
-    // {
-    //     if (! $this->customConfigIsBeingImported($customConfigPath)) {
-    //         $this->files->appendAsUser(
-    //             $this->configPath,
-    //             PHP_EOL.'conf-file='.$customConfigPath.PHP_EOL
-    //         );
-    //     }
-    // }
-
-    // /**
-    //  * Determine if Valet's custom DnsMasq configuration is being imported.
-    //  *
-    //  * @param  string  $customConfigPath
-    //  * @return bool
-    //  */
-    // function customConfigIsBeingImported($customConfigPath)
-    // {
-    //     return strpos($this->files->get($this->configPath), $customConfigPath) !== false;
-    // }
 
     /**
      * Update the domain used by DnsMasq.
@@ -137,13 +83,16 @@ class DnsMasq
         $this->install($newDomain);
     }
 
-    // /**
-    //  * Get the custom configuration path.
-    //  *
-    //  * @return string
-    //  */
-    // function customConfigPath()
-    // {
-    //     return $_SERVER['HOME'].'/.valet/dnsmasq.conf';
-    // }
+    /**
+     * Delete the DnsMasq config file.
+     *
+     * @return void
+     */
+    function uninstall()
+    {
+        if ($this->files->exists($this->configPath)) {
+            $this->files->unlink($this->configPath);
+            $this->pm->dnsmasqRestart($this->sm);
+        }
+    }
 }

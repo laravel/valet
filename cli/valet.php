@@ -32,7 +32,6 @@ Valet::environmentSetup();
  */
 if (is_dir(VALET_HOME_PATH)) {
     Configuration::prune();
-
     Site::pruneLinks();
 }
 
@@ -40,8 +39,8 @@ if (is_dir(VALET_HOME_PATH)) {
  * Allow Valet to be run more conveniently by allowing the Node proxy to run password-less sudo.
  */
 $app->command('install', function () {
-    Nginx::stop();
     Configuration::install();
+    Nginx::stop();
     Nginx::install();
     PhpFpm::install();
     DnsMasq::install();
@@ -67,7 +66,6 @@ $app->command('domain [domain]', function ($domain = null) {
     );
 
     Configuration::updateKey('domain', $domain);
-
     Site::resecureForNewDomain($oldDomain, $domain);
     PhpFpm::restart();
     Nginx::restart();
@@ -133,9 +131,7 @@ $app->command('secure [domain]', function ($domain = null) {
     $url = ($domain ?: Site::host(getcwd())).'.'.Configuration::read()['domain'];
 
     Site::secure($url);
-
     PhpFpm::restart();
-
     Nginx::restart();
 
     info('The ['.$url.'] site has been secured with a fresh TLS certificate.');
@@ -148,9 +144,7 @@ $app->command('unsecure [domain]', function ($domain = null) {
     $url = ($domain ?: Site::host(getcwd())).'.'.Configuration::read()['domain'];
 
     Site::unsecure($url);
-
     PhpFpm::restart();
-
     Nginx::restart();
 
     info('The ['.$url.'] site will now serve traffic over HTTP.');
@@ -212,7 +206,6 @@ $app->command('fetch-share-url', function () {
  */
 $app->command('start', function () {
     PhpFpm::restart();
-
     Nginx::restart();
 
     info('Valet services have been started.');
@@ -223,7 +216,6 @@ $app->command('start', function () {
  */
 $app->command('restart', function () {
     PhpFpm::restart();
-
     Nginx::restart();
 
     info('Valet services have been restarted.');
@@ -234,7 +226,6 @@ $app->command('restart', function () {
  */
 $app->command('stop', function () {
     PhpFpm::stop();
-
     Nginx::stop();
 
     info('Valet services have been stopped.');
@@ -245,6 +236,11 @@ $app->command('stop', function () {
  */
 $app->command('uninstall', function () {
     Nginx::uninstall();
+    PhpFpm::uninstall();
+    DnsMasq::uninstall();
+    Configuration::uninstall();
+    Valet::unlinkFromUsersBin();
+    Valet::removeSudoersEntry();
 
     info('Valet has been uninstalled.');
 })->descriptions('Uninstall the Valet services');

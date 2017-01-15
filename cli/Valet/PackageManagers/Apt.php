@@ -102,46 +102,11 @@ class Apt implements PackageManager
     }
 
     /**
-     * Setup dnsmasq in Ubuntu.
-     */
-    function dnsmasqSetup($sm)
-    {
-        $this->ensureInstalled('dnsmasq');
-
-        /* I don't want you to lose your network connection
-         * everytime we update the domain so lets remove
-         * the Dnsmasq control from NetworkManager
-         */
-        $conf = '/etc/NetworkManager/NetworkManager.conf';
-
-        $inControlOfNetworkManager = !empty($this->cli->run("grep '^dns=dnsmasq' $conf"));
-
-        if ($inControlOfNetworkManager) {
-            $this->cli->run("sudo sed -i 's/^dns=/#dns=/g' $conf");
-
-            $sm->stop('network-manager');
-            $this->cli->run('sudo pkill dnsmasq');
-            $sm->start('network-manager');
-            $this->dnsmasqRestart($sm);
-        }
-    }
-
-    /**
      * Restart dnsmasq in Ubuntu.
      */
     function dnsmasqRestart($sm)
     {
-        $sm->restart('dnsmasq');
-    }
-
-    /**
-     * Dnsmasq config path distro.
-     *
-     * @return string
-     */
-    function dnsmasqConfigPath()
-    {
-        return '/etc/dnsmasq.d/valet';
+        $sm->restart('network-manager');
     }
 
     /**

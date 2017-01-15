@@ -29,7 +29,7 @@ class PhpFpm
     }
 
     /**
-     * Install and configure DnsMasq.
+     * Install and configure PHP FPM.
      *
      * @return void
      */
@@ -43,7 +43,20 @@ class PhpFpm
 
         $this->installConfiguration();
 
-        $this->restart($this->fpmServiceName());
+        $this->restart();
+    }
+
+    /**
+     * Uninstall PHP FPM valet config.
+     *
+     * @return void
+     */
+    public function uninstall()
+    {
+        if ($this->files->exists($this->fpmConfigPath().'valet.conf')) {
+            $this->files->unlink($this->fpmConfigPath().'valet.conf');
+            $this->restart();
+        }
     }
 
     /**
@@ -68,8 +81,6 @@ class PhpFpm
      */
     public function restart()
     {
-        $this->stop();
-
         $this->sm->restart($this->fpmServiceName());
     }
 
@@ -114,17 +125,5 @@ class PhpFpm
         }, function () {
             throw new DomainException('Unable to determine PHP-FPM configuration folder.');
         });
-
-        // $this->files->touchAsUser($folder);
-
-        // return collect([
-        //     '/etc/php/'.$this->version.'/fpm/pool.d/valet.conf', // Ubuntu
-        //     '/etc/php'.$this->version.'/fpm/pool.d/valet.conf', // Ubuntu
-        //     '/etc/php-fpm.d/valet.conf', // Fedora
-        // ])->first(function ($path) {
-        //     return file_exists($path);
-        // }, function () {
-        //     throw new DomainException('Unable to determine PHP-FPM configuration file.');
-        // });
     }
 }

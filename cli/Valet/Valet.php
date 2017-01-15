@@ -15,6 +15,8 @@ class Valet
     var $cli, $files;
 
     var $valetBin = '/usr/local/bin/valet';
+    var $sudoers  = '/etc/sudoers.d/valet';
+    var $github   = 'https://api.github.com/repos/cpriego/valet-ubuntu/releases/latest';
 
     /**
      * Create a new Valet instance.
@@ -39,6 +41,22 @@ class Valet
     }
 
     /**
+     * Unlink the Valet Bash script from the user's local bin
+     * and the sudoers.d entry
+     *
+     * @return void
+     */
+    function uninstall()
+    {
+        if ($this->files->exists($this->valetBin)) {
+            $this->files->unlink($this->valetBin);
+        }
+        if ($this->files->exists($this->sudoers)) {
+            $this->files->unlink($this->sudoers);
+        }
+    }
+
+    /**
      * Create the "sudoers.d" entry for running Valet.
      *
      * @return void
@@ -47,11 +65,11 @@ class Valet
     {
         $this->files->ensureDirExists('/etc/sudoers.d');
 
-        $this->files->put('/etc/sudoers.d/valet', 'Cmnd_Alias VALET = /usr/local/bin/valet *
+        $this->files->put($this->sudoers, 'Cmnd_Alias VALET = '.$this->valetBin.' *
 %sudo ALL=(root) NOPASSWD: VALET'.PHP_EOL.'
 %wheel ALL=(root) NOPASSWD: VALET'.PHP_EOL);
 
-        $this->cli->quietly('chmod 0440 /etc/sudoers.d/valet');
+        $this->cli->quietly('chmod 0440 '.$this->sudoers);
     }
 
     /**
@@ -83,7 +101,7 @@ class Valet
      */
     function onLatestVersion($currentVersion)
     {
-        $response = \Httpful\Request::get('https://api.github.com/repos/cpriego/valet-ubuntu/releases/latest')->send();
+        $response = \Httpful\Request::get($this->github)->send();
 
         return version_compare($currentVersion, trim($response->body->tag_name, 'v'), '>=');
     }
