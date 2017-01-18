@@ -41,15 +41,23 @@ After upgrading, it may be necessary to re-park or re-link your sites.
  - PHP Packages: `php*-cli php*-curl php*-mbstring php*-mcrypt php*-xml php*-zip`
  - Optional PHP Packages: `php*-sqlite3 php*-mysql php*-pgsql`
 
+**Replace the star _(*)_ with your php version**
+
 ### Ubuntu
  - Ubuntu >= 14.04
+ - Ubuntu 
  - Dependencies: `sudo apt-get install libnss3-tools jq xsel`
 
+Regarding the **supported** Ubuntu version:
+ - LTS. Will get 4 year support (meaning only the latest 2 releases).
+ - Non-LTS. Only get 9 months. You *should* update anyway.
+ - Development. Only if I have the time. Development version are extremely unstable and prone to change. It is **very** difficult to isolate any issue.
+
 ### Fedora
- - Fedora >= 20
+ - Fedora >= 24
  - Dependencies: `dnf install nss-tools jq xsel`
 
-Valet *Linux* expects a `sudo` user with the `$HOME` environment variable set. Fedora users are *expected* to have knowledge of SELinux, how to configure it or disable it while Valet makes changes to the configuration files.
+Valet *Linux* expects a `sudo` user with the `$HOME` environment variable set. Fedora users are *expected* to have knowledge of SELinux and how to configure it or disable it while Valet makes changes to the configuration files.
 
 To set the `$HOME` environment variable when using `sudo` in Fedora: 
  - Open your sudoers file with `visudo`
@@ -57,8 +65,8 @@ To set the `$HOME` environment variable when using `sudo` in Fedora:
  - Append `Defaults    env_keep += "HOME"` after those lines
  - Save your changes
 
-
-**Replace the star _(*)_ with your php version**
+Permissive Mode
+`setenforce Permissive`
 
 ## Installation
 
@@ -81,7 +89,7 @@ Valet 2.0 will overwrite the Nginx, PhpFPM config files. If you've previously co
 
 ### DnsMasq and NetworkManager
 
-**NetworkManager** loves being involved in everything network-related including DNS. We configure **DnsMasq** through **NetworkManager** so your network connection _**might**_ drop whenever you **install** Valet or change de domain. To solve this simply reconnect to your network.
+**NetworkManager** loves being involved in everything network-related including DNS. We configure **DnsMasq** through **NetworkManager** so your network connection _**might**_ drop whenever you **install** Valet or change the domain. To solve this simply reconnect to your network.
 
 ## Usage
 
