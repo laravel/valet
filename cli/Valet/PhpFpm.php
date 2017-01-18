@@ -53,8 +53,8 @@ class PhpFpm
      */
     public function uninstall()
     {
-        if ($this->files->exists($this->fpmConfigPath().'valet.conf')) {
-            $this->files->unlink($this->fpmConfigPath().'valet.conf');
+        if ($this->files->exists($this->fpmConfigPath().'/valet.conf')) {
+            $this->files->unlink($this->fpmConfigPath().'/valet.conf');
             $this->restart();
         }
     }
@@ -69,7 +69,7 @@ class PhpFpm
         $contents = $this->files->get(__DIR__.'/../stubs/fpm.conf');
 
         $this->files->putAsUser(
-            $this->fpmConfigPath().'valet.conf',
+            $this->fpmConfigPath().'/valet.conf',
             str_replace(['VALET_USER', 'VALET_HOME_PATH'], [user(), VALET_HOME_PATH], $contents)
         );
     }
