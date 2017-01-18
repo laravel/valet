@@ -43,26 +43,14 @@ interface PackageManager
     function getPHPVersion();
 
     /**
-     * Determine if package manager is available on the system.
-     *
-     * @return bool
-     */
-    function isAvailable();
-
-    /**
-     * Setup dnsmasq in distro.
-     */
-    function dnsmasqSetup($sm);
-
-    /**
      * Restart dnsmasq in distro.
      */
     function dnsmasqRestart($sm);
 
     /**
-     * Dnsmasq config path distro.
+     * Determine if package manager is available on the system.
      *
-     * @return string
+     * @return bool
      */
-    function dnsmasqConfigPath();
+    function isAvailable();
 }
