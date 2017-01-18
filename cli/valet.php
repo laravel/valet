@@ -239,8 +239,7 @@ $app->command('uninstall', function () {
     PhpFpm::uninstall();
     DnsMasq::uninstall();
     Configuration::uninstall();
-    Valet::unlinkFromUsersBin();
-    Valet::removeSudoersEntry();
+    Valet::uninstall();
 
     info('Valet has been uninstalled.');
 })->descriptions('Uninstall the Valet services');
