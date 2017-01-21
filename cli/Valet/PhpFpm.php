@@ -75,8 +75,6 @@ class PhpFpm
      */
     function restart()
     {
-        $this->stop();
-
         $this->brew->restartLinkedPhp();
     }
 
