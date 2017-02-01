@@ -40,7 +40,11 @@ if (is_dir(VALET_HOME_PATH)) {
  */
 $app->command('install', function () {
     Configuration::install();
-    Nginx::stop();
+    try {
+        Nginx::stop();
+    } catch (DomainException $e) {
+        // Ignore if nginx is not installed
+    }
     Nginx::install();
     PhpFpm::install();
     DnsMasq::install();
