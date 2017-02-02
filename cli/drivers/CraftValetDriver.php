@@ -12,7 +12,18 @@ class CraftValetDriver extends ValetDriver
      */
     public function serves($sitePath, $siteName, $uri)
     {
-        return is_dir($sitePath.'/craft');
+        return file_exists($sitePath.'/craft');
+    }
+
+    /**
+     * Determine the name of the directory where the front controller lives.
+     *
+     * @param  string  $sitePath
+     * @return string
+     */
+    public function frontControllerDirectory($sitePath)
+    {
+        return is_file($sitePath.'/craft') ? 'web' : 'public';
     }
 
     /**
@@ -25,7 +36,9 @@ class CraftValetDriver extends ValetDriver
      */
     public function isStaticFile($sitePath, $siteName, $uri)
     {
-        if ($this->isActualFile($staticFilePath = $sitePath.'/public'.$uri)) {
+        $frontControllerDir = $this->frontControllerDirectory($sitePath);
+
+        if ($this->isActualFile($staticFilePath = $sitePath.'/'.$frontControllerDir.$uri)) {
             return $staticFilePath;
         }
 
@@ -42,8 +55,10 @@ class CraftValetDriver extends ValetDriver
      */
     public function frontControllerPath($sitePath, $siteName, $uri)
     {
+        $frontControllerDirectory = $this->frontControllerDirectory($sitePath);
+
         // Default index path
-        $indexPath = $sitePath.'/public/index.php';
+        $indexPath = $sitePath.'/'.$frontControllerDirectory.'/index.php';
         $scriptName = '/index.php';
 
         // Check if the first URL segment matches any of the defined locales
