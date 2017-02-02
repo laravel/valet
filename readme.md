@@ -65,8 +65,13 @@ To set the `$HOME` environment variable when using `sudo` in Fedora:
  - Append `Defaults    env_keep += "HOME"` after those lines
  - Save your changes
 
-Permissive Mode
-`setenforce Permissive`
+#### SELinux Permissive Mode
+Temporarily (until reboot): `sudo setenforce 0`
+
+Permanent:
+ - Open `/etc/selinux/config`
+ - Change `SELINUX=enforcing` to `SELINUX=permissive`
+ - Reboot
 
 ## Installation
 
