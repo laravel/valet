@@ -39,7 +39,7 @@ if (is_dir(VALET_HOME_PATH)) {
  * Allow Valet to be run more conveniently by allowing the Node proxy to run password-less sudo.
  */
 $app->command('install [--ignore-selinux]', function ($ignoreSELinux) {
-    Warning::setIgnoreSELinux($ignoreSELinux)->check();
+    Requirements::setIgnoreSELinux($ignoreSELinux)->check();
     Configuration::install();
     try {
         Nginx::stop();

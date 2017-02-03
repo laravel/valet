@@ -2,9 +2,9 @@
 
 use Illuminate\Container\Container;
 use Valet\CommandLine;
-use Valet\Warning;
+use Valet\Requirements;
 
-class WarningTest extends PHPUnit_Framework_TestCase
+class RequirementsTest extends PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
@@ -46,8 +46,8 @@ Max kernel policy version:      30
 ');
         swap(CommandLine::class, $cli);
 
-        $warning = resolve(Warning::class);
-        $warning->seLinuxIsEnabled();
+        $requirements = resolve(Requirements::class);
+        $requirements->seLinuxIsEnabled();
     }
 
     public function test_selinux_is_in_permissive_mode()
@@ -65,8 +65,8 @@ Max kernel policy version:      30
 ');
         swap(CommandLine::class, $cli);
 
-        $warning = resolve(Warning::class);
-        $warning->seLinuxIsEnabled();
+        $requirements = resolve(Requirements::class);
+        $requirements->seLinuxIsEnabled();
     }
 
     public function test_selinux_is_disabled()
@@ -75,8 +75,8 @@ Max kernel policy version:      30
         $cli->shouldReceive('run')->once()->with('sestatus')->andReturn('SELinux status:                 disabled' . PHP_EOL);
         swap(CommandLine::class, $cli);
 
-        $warning = resolve(Warning::class);
-        $warning->seLinuxIsEnabled();
+        $requirements = resolve(Requirements::class);
+        $requirements->seLinuxIsEnabled();
     }
 
     public function test_selinux_is_enabled_but_ignore_flag_is_set()
@@ -85,8 +85,8 @@ Max kernel policy version:      30
         $cli->shouldNotReceive('run');
         swap(CommandLine::class, $cli);
 
-        $warning = resolve(Warning::class);
-        $warning->setIgnoreSELinux(true);
-        $warning->seLinuxIsEnabled();
+        $requirements = resolve(Requirements::class);
+        $requirements->setIgnoreSELinux(true);
+        $requirements->seLinuxIsEnabled();
     }
 }

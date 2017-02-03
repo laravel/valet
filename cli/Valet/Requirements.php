@@ -4,7 +4,7 @@ namespace Valet;
 
 use RuntimeException;
 
-class Warning
+class Requirements
 {
     var $cli;
 
