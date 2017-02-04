@@ -7,7 +7,7 @@ use Valet\Contracts\ServiceManager;
 
 class DnsMasq
 {
-    var $pm, $sm, $cli, $files, $configPath;
+    var $pm, $sm, $cli, $files, $configPath, $nmConfigPath;
 
     /**
      * Create a new DnsMasq instance.
@@ -24,6 +24,7 @@ class DnsMasq
         $this->cli = $cli;
         $this->files = $files;
         $this->configPath = '/etc/NetworkManager/dnsmasq.d/valet';
+        $this->nmConfigPath = '/etc/NetworkManager/NetworkManager.conf';
     }
 
     /**
@@ -56,19 +57,19 @@ class DnsMasq
     {
         $this->pm->ensureInstalled('dnsmasq');
 
-        $conf = '/etc/NetworkManager/NetworkManager.conf';
+        $conf = $this->nmConfigPath;
 
         $notInControlOfNetworkManager = empty($this->cli->run("grep '^dns=dnsmasq' $conf"));
 
         if ($notInControlOfNetworkManager) {
-            $sed = "sudo sed -i 's/#dns=/dns=/g' {$conf}";
+            $sed = "sed -i 's/#dns=/dns=/g' {$conf}";
 
             if (empty($this->cli->run("grep '#dns=dnsmasq' $conf"))) {
-                $sed = "sudo sed -i '/^\[main\]/adns=dnsmasq' {$conf}";
+                $sed = "sed -i '/^\[main\]/adns=dnsmasq' {$conf}";
             }
 
             $this->cli->run($sed);
-            $this->cli->run('sudo pkill dnsmasq');
+            $this->cli->run('pkill dnsmasq');
         }
     }
 

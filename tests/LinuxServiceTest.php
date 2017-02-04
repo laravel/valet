@@ -1,8 +1,8 @@
 <?php
 
-use Valet\ServiceManagers\LinuxService;
 use Valet\CommandLine;
 use Illuminate\Container\Container;
+use Valet\ServiceManagers\LinuxService;
 
 class LinuxServiceTest extends PHPUnit_Framework_TestCase
 {
@@ -31,7 +31,7 @@ class LinuxServiceTest extends PHPUnit_Framework_TestCase
         $cli = Mockery::mock(CommandLine::class);
         $cli->shouldReceive('quietly')->once()->with('sudo service nginx restart');
         swap(CommandLine::class, $cli);
-        resolve(LinuxService::class)->restart('nginx');
+        resolve(StubForGetRealService::class)->restart('nginx');
     }
 
 
@@ -40,7 +40,7 @@ class LinuxServiceTest extends PHPUnit_Framework_TestCase
         $cli = Mockery::mock(CommandLine::class);
         $cli->shouldReceive('quietly')->once()->with('sudo service nginx start');
         swap(CommandLine::class, $cli);
-        resolve(LinuxService::class)->start('nginx');
+        resolve(StubForGetRealService::class)->start('nginx');
     }
 
 
@@ -49,6 +49,14 @@ class LinuxServiceTest extends PHPUnit_Framework_TestCase
         $cli = Mockery::mock(CommandLine::class);
         $cli->shouldReceive('quietly')->once()->with('sudo service nginx stop');
         swap(CommandLine::class, $cli);
-        resolve(LinuxService::class)->stop('nginx');
+        resolve(StubForGetRealService::class)->stop('nginx');
+    }
+}
+
+class StubForGetRealService extends LinuxService
+{
+    public function getRealService($service)
+    {
+        return $service;
     }
 }

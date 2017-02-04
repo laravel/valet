@@ -141,7 +141,11 @@ class Nginx
      */
     function stop()
     {
-        $this->sm->stop('nginx');
+        try {
+            $this->sm->stop('nginx');
+        } catch (DomainException $e) {
+            // Ignore if nginx is not installed
+        }
     }
 
     /**

@@ -41,11 +41,7 @@ if (is_dir(VALET_HOME_PATH)) {
 $app->command('install [--ignore-selinux]', function ($ignoreSELinux) {
     Requirements::setIgnoreSELinux($ignoreSELinux)->check();
     Configuration::install();
-    try {
-        Nginx::stop();
-    } catch (DomainException $e) {
-        // Ignore if nginx is not installed
-    }
+    Nginx::stop();
     Nginx::install();
     PhpFpm::install();
     DnsMasq::install();
