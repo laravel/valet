@@ -38,9 +38,14 @@ if (is_dir(VALET_HOME_PATH)) {
 /**
  * Allow Valet to be run more conveniently by allowing the Node proxy to run password-less sudo.
  */
-$app->command('install', function () {
+$app->command('install [--ignore-selinux]', function ($ignoreSELinux) {
+    Requirements::setIgnoreSELinux($ignoreSELinux)->check();
     Configuration::install();
-    Nginx::stop();
+    try {
+        Nginx::stop();
+    } catch (DomainException $e) {
+        // Ignore if nginx is not installed
+    }
     Nginx::install();
     PhpFpm::install();
     DnsMasq::install();
@@ -51,7 +56,9 @@ $app->command('install', function () {
     // passthru('/bin/bash '.__DIR__.'/scripts/install-packages.sh');
 
     output(PHP_EOL.'<info>Valet installed successfully!</info>');
-})->descriptions('Install the Valet services');
+})->descriptions('Install the Valet services', [
+    '--ignore-selinux' => 'Skip SELinux checks'
+]);
 
 /**
  * Get or set the domain currently being used by Valet.
