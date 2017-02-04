@@ -53,10 +53,6 @@ class Apt implements PackageManager
      */
     function ensureInstalled($package)
     {
-        if ($package === 'nginx') {
-            $package = 'nginx-core';
-        }
-
         if (! $this->installed($package)) {
             $this->installOrFail($package);
         }
