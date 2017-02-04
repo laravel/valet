@@ -34,6 +34,18 @@ class Configuration
     }
 
     /**
+     * Uninstall the Valet configuration folder.
+     *
+     * @return void
+     */
+    function uninstall()
+    {
+        if ($this->files->isDir(VALET_HOME_PATH, user())) {
+            $this->files->unlink(VALET_HOME_PATH, user());
+        }
+    }
+
+    /**
      * Create the Valet configuration directory.
      *
      * @return void

@@ -2,9 +2,13 @@
 
 namespace Valet;
 
+use Valet\Contracts\ServiceManager;
+use Valet\Contracts\PackageManager;
+
 class Nginx
 {
-    var $ubuntu;
+    var $pm;
+    var $sm;
     var $cli;
     var $files;
     var $configuration;
@@ -13,18 +17,19 @@ class Nginx
     /**
      * Create a new Nginx instance.
      *
-     * @param  Ubuntu  $ubuntu
+     * @param  PackageManager  $pm
+     * @param  ServiceManager  $sm
      * @param  CommandLine  $cli
      * @param  Filesystem  $files
      * @param  Configuration  $configuration
      * @param  Site  $site
      * @return void
      */
-    function __construct(Ubuntu $ubuntu, CommandLine $cli, Filesystem $files,
-                         Configuration $configuration, Site $site)
+    function __construct(PackageManager $pm, ServiceManager $sm, CommandLine $cli, Filesystem $files, Configuration $configuration, Site $site)
     {
         $this->cli = $cli;
-        $this->ubuntu = $ubuntu;
+        $this->pm = $pm;
+        $this->sm = $sm;
         $this->site = $site;
         $this->files = $files;
         $this->configuration = $configuration;
@@ -37,7 +42,9 @@ class Nginx
      */
     function install()
     {
-        $this->ubuntu->ensureInstalled('nginx-core');
+        $this->pm->ensureInstalled('nginx');
+        $this->files->ensureDirExists('/etc/nginx/sites-available');
+        $this->files->ensureDirExists('/etc/nginx/sites-enabled');
 
         $this->installConfiguration();
         $this->installServer();
@@ -66,8 +73,6 @@ class Nginx
      */
     function installServer()
     {
-        // $this->files->ensureDirExists('/etc/nginx/valet');
-
         $this->files->putAsUser(
             '/etc/nginx/sites-available/valet.conf',
             str_replace(
@@ -126,7 +131,7 @@ class Nginx
      */
     function restart()
     {
-        $this->ubuntu->restartService('nginx');
+        $this->sm->restart('nginx');
     }
 
     /**
@@ -136,7 +141,11 @@ class Nginx
      */
     function stop()
     {
-        $this->ubuntu->stopService('nginx');
+        try {
+            $this->sm->stop('nginx');
+        } catch (DomainException $e) {
+            // Ignore if nginx is not installed
+        }
     }
 
     /**

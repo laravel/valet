@@ -1,24 +1,24 @@
-# Valet *for Ubuntu*
+# Valet *Linux*
 
-[![Build Status](https://travis-ci.org/cpriego/valet-ubuntu.svg?branch=master)](https://travis-ci.org/cpriego/valet-ubuntu)
-[![Total Downloads](https://poser.pugx.org/cpriego/valet-ubuntu/downloads.svg)](https://packagist.org/packages/cpriego/valet-ubuntu)
-[![Latest Stable Version](https://poser.pugx.org/cpriego/valet-ubuntu/v/stable.svg)](https://packagist.org/packages/cpriego/valet-ubuntu)
-[![Latest Unstable Version](https://poser.pugx.org/cpriego/valet-ubuntu/v/unstable.svg)](https://packagist.org/packages/cpriego/valet-ubuntu)
-[![License](https://poser.pugx.org/cpriego/valet-ubuntu/license.svg)](https://packagist.org/packages/cpriego/valet-ubuntu)
+[![Build Status](https://travis-ci.org/cpriego/valet-linux.svg?branch=master)](https://travis-ci.org/cpriego/valet-linux)
+[![Total Downloads](https://poser.pugx.org/cpriego/valet-linux/downloads.svg)](https://packagist.org/packages/cpriego/valet-linux)
+[![Latest Stable Version](https://poser.pugx.org/cpriego/valet-linux/v/stable.svg)](https://packagist.org/packages/cpriego/valet-linux)
+[![Latest Unstable Version](https://poser.pugx.org/cpriego/valet-linux/v/unstable.svg)](https://packagist.org/packages/cpriego/valet-linux)
+[![License](https://poser.pugx.org/cpriego/valet-linux/license.svg)](https://packagist.org/packages/cpriego/valet-linux)
 
 ## Introduction
 
-Valet *for Ubuntu* is a Laravel development environment for Ubuntu minimalists. No Vagrant, no `/etc/hosts` file. You can even share your sites publicly using local tunnels. _Yeah, we like it too._
+Valet *Linux* is a Laravel development environment for Linux minimalists. No Vagrant, no `/etc/hosts` file. You can even share your sites publicly using local tunnels. _Yeah, we like it too._
 
-Valet *for Ubuntu* configures your system to always run Nginx in the background when your machine starts. Then, using [DnsMasq](https://en.wikipedia.org/wiki/Dnsmasq), Valet proxies all requests on the `*.dev` domain to point to sites installed on your local machine.
+Valet *Linux* configures your system to always run Nginx in the background when your machine starts. Then, using [DnsMasq](https://en.wikipedia.org/wiki/Dnsmasq), Valet proxies all requests on the `*.dev` domain to point to sites installed on your local machine.
 
-In other words, a blazing fast Laravel development environment that uses roughly 7mb of RAM. Valet *for Ubuntu* isn't a complete replacement for Vagrant or Homestead, but provides a great alternative if you want flexible basics, prefer extreme speed, or are working on a machine with a limited amount of RAM.
+In other words, a blazing fast Laravel development environment that uses roughly 7mb of RAM. Valet *Linux* isn't a complete replacement for Vagrant or Homestead, but provides a great alternative if you want flexible basics, prefer extreme speed, or are working on a machine with a limited amount of RAM.
 
 ## Official Documentation
 
 Documentation for Valet can be found on the [Laravel website](https://laravel.com/docs/valet).
 
-## Upgrading To Valet 2.0
+## Upgrading To Valet 2.0.*
 
 Valet 2.0 transitions Valet's underlying web server from Caddy to Nginx. Before upgrading to this version you should run the following commands to stop and uninstall the existing Caddy daemon:
 
@@ -37,21 +37,50 @@ valet restart
 After upgrading, it may be necessary to re-park or re-link your sites.
 
 ## Requirements
-
- - Ubuntu >= 14.04
- - Dependencies: `sudo apt-get install libnss3-tools jq xsel`
  - PHP >= 5.6
  - PHP Packages: `php*-cli php*-curl php*-mbstring php*-mcrypt php*-xml php*-zip`
  - Optional PHP Packages: `php*-sqlite3 php*-mysql php*-pgsql`
 
 **Replace the star _(*)_ with your php version**
 
+### Ubuntu
+ - Ubuntu >= 14.04
+ - Ubuntu 
+ - Dependencies: `sudo apt-get install libnss3-tools jq xsel`
+
+Regarding the **supported** Ubuntu version:
+ - LTS. Will get 4 year support (meaning only the latest 2 releases).
+ - Non-LTS. Only get 9 months. You *should* update anyway.
+ - Development. Only if I have the time. Development version are extremely unstable and prone to change. It is **very** difficult to isolate any issue.
+
+### Fedora
+ - Fedora >= 24
+ - Dependencies: `dnf install nss-tools jq xsel`
+
+Valet *Linux* expects a `sudo` user with the `$HOME` environment variable set. Fedora users are *expected* to have knowledge of SELinux and how to configure it or disable it while Valet makes changes to the configuration files.
+
+To set the `$HOME` environment variable when using `sudo` in Fedora: 
+ - Open your sudoers file with `visudo`
+ - Find the lines with the text `Defaults    env_keep += `
+ - Append `Defaults    env_keep += "HOME"` after those lines
+ - Save your changes
+
+#### SELinux Permissive Mode
+Temporarily (until reboot): `sudo setenforce 0`
+
+Permanent:
+ - Open `/etc/selinux/config`
+ - Change `SELINUX=enforcing` to `SELINUX=permissive`
+ - Reboot
+
 ## Installation
 
-1. `composer global require cpriego/valet-ubuntu`
+1. `composer global require cpriego/valet-linux`
 2. `valet install`
 
 ## Caveats
+
+### SSL
 
 Because of the way Firefox and Chrome/Chromium/Opera/Any.Other.Blink.Based.Browser manages certificates in Linux the experience when **securing** a site might not be as smooth as it is in OSX.
 
@@ -59,7 +88,13 @@ Whenever you secure a site you'll need to restart your testing browser so that i
 
 If you have **secured** a domain you will not be able to share it through Ngrok.
 
-Valet 2.0 will overwrite the Nginx and PhpFPM config files. If you've previously configured Nginx please backup your files before upgrading.
+### Nginx, PHP-FPM
+
+Valet 2.0 will overwrite the Nginx, PhpFPM config files. If you've previously configured Nginx please backup your files before upgrading.
+
+### DnsMasq and NetworkManager
+
+**NetworkManager** loves being involved in everything network-related including DNS. We configure **DnsMasq** through **NetworkManager** so your network connection _**might**_ drop whenever you **install** Valet or change the domain. To solve this simply reconnect to your network.
 
 ## Usage
 
@@ -73,7 +108,7 @@ If you just want to serve a single site you can use `valet link [your-desired-ur
 
 **`valet status`**
 
-To check the status of the **Valet _for Ubuntu_** services.
+To check the status of the **Valet _for Linux_** services.
 
 ## Update
 

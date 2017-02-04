@@ -20,23 +20,28 @@ Container::setInstance(new Container);
 
 $version = '2.0.1';
 
-$app = new Application('Valet Ubuntu', $version);
+$app = new Application('Valet', $version);
+
+/**
+ * Detect environment
+ */
+Valet::environmentSetup();
 
 /**
  * Prune missing directories and symbolic links on every command.
  */
 if (is_dir(VALET_HOME_PATH)) {
     Configuration::prune();
-
     Site::pruneLinks();
 }
 
 /**
  * Allow Valet to be run more conveniently by allowing the Node proxy to run password-less sudo.
  */
-$app->command('install', function () {
-    Nginx::stop();
+$app->command('install [--ignore-selinux]', function ($ignoreSELinux) {
+    Requirements::setIgnoreSELinux($ignoreSELinux)->check();
     Configuration::install();
+    Nginx::stop();
     Nginx::install();
     PhpFpm::install();
     DnsMasq::install();
@@ -44,10 +49,12 @@ $app->command('install', function () {
     Valet::symlinkToUsersBin();
     Valet::createSudoersEntry();
 
-    passthru('/bin/bash '.__DIR__.'/scripts/install-packages.sh');
+    // passthru('/bin/bash '.__DIR__.'/scripts/install-packages.sh');
 
     output(PHP_EOL.'<info>Valet installed successfully!</info>');
-})->descriptions('Install the Valet services');
+})->descriptions('Install the Valet services', [
+    '--ignore-selinux' => 'Skip SELinux checks'
+]);
 
 /**
  * Get or set the domain currently being used by Valet.
@@ -62,7 +69,6 @@ $app->command('domain [domain]', function ($domain = null) {
     );
 
     Configuration::updateKey('domain', $domain);
-
     Site::resecureForNewDomain($oldDomain, $domain);
     PhpFpm::restart();
     Nginx::restart();
@@ -93,7 +99,7 @@ $app->command('forget [path]', function ($path = null) {
  */
 $app->command('status', function () {
     passthru('service nginx status');
-    passthru('service php*-fpm status');
+    passthru('service '.PhpFpm::fpmServiceName().' status');
 })->descriptions('View Valet service status');
 
 /**
@@ -128,9 +134,7 @@ $app->command('secure [domain]', function ($domain = null) {
     $url = ($domain ?: Site::host(getcwd())).'.'.Configuration::read()['domain'];
 
     Site::secure($url);
-
     PhpFpm::restart();
-
     Nginx::restart();
 
     info('The ['.$url.'] site has been secured with a fresh TLS certificate.');
@@ -143,9 +147,7 @@ $app->command('unsecure [domain]', function ($domain = null) {
     $url = ($domain ?: Site::host(getcwd())).'.'.Configuration::read()['domain'];
 
     Site::unsecure($url);
-
     PhpFpm::restart();
-
     Nginx::restart();
 
     info('The ['.$url.'] site will now serve traffic over HTTP.');
@@ -207,7 +209,6 @@ $app->command('fetch-share-url', function () {
  */
 $app->command('start', function () {
     PhpFpm::restart();
-
     Nginx::restart();
 
     info('Valet services have been started.');
@@ -218,7 +219,6 @@ $app->command('start', function () {
  */
 $app->command('restart', function () {
     PhpFpm::restart();
-
     Nginx::restart();
 
     info('Valet services have been restarted.');
@@ -229,7 +229,6 @@ $app->command('restart', function () {
  */
 $app->command('stop', function () {
     PhpFpm::stop();
-
     Nginx::stop();
 
     info('Valet services have been stopped.');
@@ -240,6 +239,10 @@ $app->command('stop', function () {
  */
 $app->command('uninstall', function () {
     Nginx::uninstall();
+    PhpFpm::uninstall();
+    DnsMasq::uninstall();
+    Configuration::uninstall();
+    Valet::uninstall();
 
     info('Valet has been uninstalled.');
 })->descriptions('Uninstall the Valet services');

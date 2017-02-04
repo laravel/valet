@@ -4,6 +4,9 @@ use Valet\Site;
 use Valet\Nginx;
 use Valet\Filesystem;
 use Valet\Configuration;
+use Valet\CommandLine;
+use Valet\Contracts\PackageManager;
+use Valet\Contracts\ServiceManager;
 use Illuminate\Container\Container;
 
 class NginxTest extends PHPUnit_Framework_TestCase
@@ -22,19 +25,81 @@ class NginxTest extends PHPUnit_Framework_TestCase
     }
 
 
+    public function test_install_calls_the_right_methods()
+    {
+        $site = Mockery::mock(Site::class);
+        $conf = Mockery::mock(Configuration::class);
+        $cli = Mockery::mock(CommandLine::class);
+        $sm = Mockery::mock(ServiceManager::class);
+
+        $files = Mockery::mock(Filesystem::class);
+        $files->shouldReceive('ensureDirExists')->with('/etc/nginx/sites-available')->once();
+        $files->shouldReceive('ensureDirExists')->with('/etc/nginx/sites-enabled')->once();
+
+        $pm = Mockery::mock(PackageManager::class);
+        $pm->shouldReceive('ensureInstalled')->with('nginx')->once();
+
+        $nginx = Mockery::mock(Nginx::class.'[installConfiguration,installServer,installNginxDirectory]', [$pm, $sm, $cli, $files, $conf, $site]);
+
+        $nginx->shouldReceive('installConfiguration')->once();
+        $nginx->shouldReceive('installServer')->once();
+        $nginx->shouldReceive('installNginxDirectory')->once();
+
+        $nginx->install();
+    }
+
+
     public function test_install_nginx_configuration_places_nginx_base_configuration_in_proper_location()
     {
         $files = Mockery::mock(Filesystem::class.'[putAsUser]');
 
         $files->shouldReceive('putAsUser')->andReturnUsing(function ($path, $contents) {
             $this->assertSame('/etc/nginx/nginx.conf', $path);
+            $this->assertTrue(strpos($contents, 'user '.user()) !== false);
             $this->assertTrue(strpos($contents, 'include '.VALET_HOME_PATH.'/Nginx/*') !== false);
         })->once();
 
         swap(Filesystem::class, $files);
+        swap(PackageManager::class, Mockery::mock(PackageManager::class));
+        swap(ServiceManager::class, Mockery::mock(ServiceManager::class));
 
         $nginx = resolve(Nginx::class);
         $nginx->installConfiguration();
+    }
+
+
+    public function test_install_nginx_server_places_nginx_base_configuration_in_proper_location()
+    {
+
+        $files = Mockery::mock(Filesystem::class.'[putAsUser,exists]');
+        $cli = Mockery::mock(CommandLine::class.'[run]');
+
+        $files->shouldReceive('putAsUser')->andReturnUsing(function ($path, $contents) {
+            $this->assertSame('/etc/nginx/sites-available/valet.conf', $path);
+            $this->assertTrue(strpos($contents, 'rewrite ^ '.VALET_SERVER_PATH.'?$query_string last') !== false);
+            $this->assertTrue(strpos($contents, 'error_page 404 '.VALET_SERVER_PATH) !== false);
+            $this->assertTrue(strpos($contents, 'fastcgi_index '.VALET_SERVER_PATH) !== false);
+            $this->assertTrue(strpos($contents, 'fastcgi_param SCRIPT_FILENAME '.VALET_SERVER_PATH) !== false);
+            $this->assertTrue(strpos($contents, 'error_log '.VALET_HOME_PATH.'/Log/nginx-error.log') !== false);
+            $this->assertTrue(strpos($contents, 'fastcgi_pass unix:'.VALET_HOME_PATH.'/valet.sock') !== false);
+        })->once();
+
+        $files->shouldReceive('exists')->with('/etc/nginx/sites-enabled/default')->andReturn(true)->once();
+        $cli->shouldReceive('run')->with('rm -f /etc/nginx/sites-enabled/default')->once();
+
+        $cli->shouldReceive('run')->with('ln -snf /etc/nginx/sites-available/valet.conf /etc/nginx/sites-enabled/valet.conf')->once();
+
+        $files->shouldReceive('putAsUser')->andReturnUsing(function ($path, $contents) {
+            $this->assertSame('/etc/nginx/fastcgi_params', $path);
+        })->once();
+
+        swap(Filesystem::class, $files);
+        swap(CommandLine::class, $cli);
+        swap(PackageManager::class, Mockery::mock(PackageManager::class));
+        swap(ServiceManager::class, Mockery::mock(ServiceManager::class));
+
+        $nginx = resolve(Nginx::class);
+        $nginx->installServer();
     }
 
 
@@ -48,6 +113,8 @@ class NginxTest extends PHPUnit_Framework_TestCase
         swap(Filesystem::class, $files);
         swap(Configuration::class, Mockery::spy(Configuration::class));
         swap(Site::class, Mockery::spy(Site::class));
+        swap(PackageManager::class, Mockery::mock(PackageManager::class));
+        swap(ServiceManager::class, Mockery::mock(ServiceManager::class));
 
         $nginx = resolve(Nginx::class);
         $nginx->installNginxDirectory();
@@ -64,6 +131,8 @@ class NginxTest extends PHPUnit_Framework_TestCase
         swap(Filesystem::class, $files);
         swap(Configuration::class, Mockery::spy(Configuration::class));
         swap(Site::class, Mockery::spy(Site::class));
+        swap(PackageManager::class, Mockery::mock(PackageManager::class));
+        swap(ServiceManager::class, Mockery::mock(ServiceManager::class));
 
         $nginx = resolve(Nginx::class);
         $nginx->installNginxDirectory();
@@ -80,11 +149,12 @@ class NginxTest extends PHPUnit_Framework_TestCase
         swap(Filesystem::class, $files);
         swap(Configuration::class, $config = Mockery::spy(Configuration::class, ['read' => ['domain' => 'dev']]));
         swap(Site::class, $site = Mockery::spy(Site::class));
+        swap(PackageManager::class, Mockery::mock(PackageManager::class));
+        swap(ServiceManager::class, Mockery::mock(ServiceManager::class));
 
         $nginx = resolve(Nginx::class);
         $nginx->installNginxDirectory();
 
         $site->shouldHaveReceived('resecureForNewDomain', ['dev', 'dev']);
     }
-
 }

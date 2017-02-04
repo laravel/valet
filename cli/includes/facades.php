@@ -29,8 +29,12 @@ class Facade
     }
 }
 
-class Ubuntu extends Facade {}
 class Nginx extends Facade {}
+class PackageManager extends Facade {}
+class Apt extends Facade {}
+class Dnf extends Facade {}
+class ServiceManager extends Facade {}
+class LinuxService extends Facade {}
 class CommandLine extends Facade {}
 class Configuration extends Facade {}
 class DnsMasq extends Facade {}
@@ -39,3 +43,4 @@ class Ngrok extends Facade {}
 class PhpFpm extends Facade {}
 class Site extends Facade {}
 class Valet extends Facade {}
+class Requirements extends Facade {}
