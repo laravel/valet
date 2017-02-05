@@ -1,7 +1,7 @@
 {
     "name": "cpriego/valet-linux",
-    "description": "A more enjoyable local development experience for Ubuntu.",
-    "keywords": ["laravel", "zonda", "wwdhhd", "ubuntu", "xenial", "16.04"],
+    "description": "A more enjoyable local development experience for Linux.",
+    "keywords": ["laravel", "zonda", "wwdhhd", "ubuntu", "fedora"],
     "license": "MIT",
     "authors": [
         {
@@ -15,6 +15,10 @@
         {
             "name": "Carlos Priego",
             "email": "carlos.enrique.priego@gmail.com"
+        },
+        {
+            "name": "Leonardo Nodari",
+            "email": "nodarileonardo@gmail.com"
         }
     ],
     "autoload": {
@@ -28,16 +32,16 @@
         }
     },
     "require": {
-        "php": ">=5.5.9",
+        "php": ">=5.6",
         "illuminate/container": "~5.1",
         "mnapoli/silly": "~1.0",
         "symfony/process": "~2.7|~3.0",
         "nategood/httpful": "~0.2",
-        "tightenco/collect": "^5.2"
+        "tightenco/collect": "~5.2"
     },
     "require-dev": {
         "mockery/mockery": "0.9.*",
-        "phpunit/phpunit": ">=4.8.24"
+        "phpunit/phpunit": ">=5.4"
     },
     "bin": [
         "valet"

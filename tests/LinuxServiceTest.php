@@ -3,8 +3,9 @@
 use Valet\CommandLine;
 use Illuminate\Container\Container;
 use Valet\ServiceManagers\LinuxService;
+use PHPUnit\Framework\TestCase;
 
-class LinuxServiceTest extends PHPUnit_Framework_TestCase
+class LinuxServiceTest extends TestCase
 {
     public function setUp()
     {

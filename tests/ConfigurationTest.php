@@ -3,8 +3,9 @@
 use Valet\Filesystem;
 use Valet\Configuration;
 use Illuminate\Container\Container;
+use PHPUnit\Framework\TestCase;
 
-class ConfigurationTest extends PHPUnit_Framework_TestCase
+class ConfigurationTest extends TestCase
 {
     public function setUp()
     {

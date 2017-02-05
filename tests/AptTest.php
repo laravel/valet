@@ -1,10 +1,11 @@
 <?php
 
-use Valet\PackageManagers\Apt;
 use Valet\CommandLine;
+use Valet\PackageManagers\Apt;
 use Illuminate\Container\Container;
+use PHPUnit\Framework\TestCase;
 
-class AptTest extends PHPUnit_Framework_TestCase
+class AptTest extends TestCase
 {
     public function setUp()
     {

@@ -3,8 +3,9 @@
 use Illuminate\Container\Container;
 use Valet\CommandLine;
 use Valet\Requirements;
+use PHPUnit\Framework\TestCase;
 
-class RequirementsTest extends PHPUnit_Framework_TestCase
+class RequirementsTest extends TestCase
 {
     public function setUp()
     {

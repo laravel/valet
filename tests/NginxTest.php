@@ -8,8 +8,9 @@ use Valet\CommandLine;
 use Valet\Contracts\PackageManager;
 use Valet\Contracts\ServiceManager;
 use Illuminate\Container\Container;
+use PHPUnit\Framework\TestCase;
 
-class NginxTest extends PHPUnit_Framework_TestCase
+class NginxTest extends TestCase
 {
     public function setUp()
     {

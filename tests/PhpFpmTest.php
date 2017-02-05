@@ -4,8 +4,9 @@ use Valet\PhpFpm;
 use Valet\Contracts\PackageManager;
 use Valet\Contracts\ServiceManager;
 use Illuminate\Container\Container;
+use PHPUnit\Framework\TestCase;
 
-class PhpFpmTest extends PHPUnit_Framework_TestCase
+class PhpFpmTest extends TestCase
 {
     public function setUp()
     {

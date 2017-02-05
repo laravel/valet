@@ -4,8 +4,9 @@ use Valet\Site;
 use Valet\Filesystem;
 use Valet\Configuration;
 use Illuminate\Container\Container;
+use PHPUnit\Framework\TestCase;
 
-class SiteTest extends PHPUnit_Framework_TestCase
+class SiteTest extends TestCase
 {
     public function setUp()
     {

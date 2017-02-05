@@ -6,8 +6,9 @@ use Valet\CommandLine;
 use Valet\Contracts\PackageManager;
 use Valet\Contracts\ServiceManager;
 use Illuminate\Container\Container;
+use PHPUnit\Framework\TestCase;
 
-class DnsMasqTest extends PHPUnit_Framework_TestCase
+class DnsMasqTest extends TestCase
 {
     public function setUp()
     {

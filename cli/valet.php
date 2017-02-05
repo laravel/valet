@@ -18,7 +18,7 @@ use Illuminate\Container\Container;
  */
 Container::setInstance(new Container);
 
-$version = '2.0.1';
+$version = '2.0.3';
 
 $app = new Application('Valet', $version);
 
@@ -48,8 +48,6 @@ $app->command('install [--ignore-selinux]', function ($ignoreSELinux) {
     Nginx::restart();
     Valet::symlinkToUsersBin();
     Valet::createSudoersEntry();
-
-    // passthru('/bin/bash '.__DIR__.'/scripts/install-packages.sh');
 
     output(PHP_EOL.'<info>Valet installed successfully!</info>');
 })->descriptions('Install the Valet services', [
