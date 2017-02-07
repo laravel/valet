@@ -248,6 +248,17 @@ $app->command('on-latest-version', function () use ($version) {
 })->descriptions('Determine if this is the latest version of Valet');
 
 /**
+ * Switch between versions of PHP
+ */
+$app->command('switch-to [php_version]', function ($php_version) {
+
+    PhpFpm::switchTo($php_version);
+    PhpFpm::restart();
+    Nginx::restart();
+    info('Your PHP Version link has been switched to php'.$php_version.'.');
+})->descriptions('Switch between versions of PHP');
+
+/**
  * Load all of the Valet extensions.
  */
 foreach (Valet::extensions() as $extension) {
