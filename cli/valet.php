@@ -18,7 +18,7 @@ use Illuminate\Container\Container;
  */
 Container::setInstance(new Container);
 
-$version = '2.0.3';
+$version = '2.0.4';
 
 $app = new Application('Valet', $version);
 
@@ -41,7 +41,6 @@ if (is_dir(VALET_HOME_PATH)) {
 $app->command('install [--ignore-selinux]', function ($ignoreSELinux) {
     Requirements::setIgnoreSELinux($ignoreSELinux)->check();
     Configuration::install();
-    Nginx::stop();
     Nginx::install();
     PhpFpm::install();
     DnsMasq::install();
@@ -113,7 +112,7 @@ $app->command('link [name]', function ($name) {
  * Display all of the registered symbolic links.
  */
 $app->command('links', function () {
-    passthru('ls -la '.VALET_HOME_PATH.'/Sites');
+    passthru('ls -lh '.VALET_HOME_PATH.'/Sites');
 })->descriptions('Display all of the registered Valet links');
 
 /**

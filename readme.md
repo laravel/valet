@@ -38,6 +38,7 @@ After upgrading, it may be necessary to re-park or re-link your sites.
 
 ## Requirements
  - PHP >= 5.6
+ - Ubuntu (and derivates) OR Fedora (and derivates)
  - PHP Packages: `php*-cli php*-curl php*-mbstring php*-mcrypt php*-xml php*-zip`
  - Optional PHP Packages: `php*-sqlite3 php*-mysql php*-pgsql`
 
@@ -45,7 +46,6 @@ After upgrading, it may be necessary to re-park or re-link your sites.
 
 ### Ubuntu
  - Ubuntu >= 14.04
- - Ubuntu 
  - Dependencies: `sudo apt-get install libnss3-tools jq xsel`
 
 Regarding the **supported** Ubuntu version:

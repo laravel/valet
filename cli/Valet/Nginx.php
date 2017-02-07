@@ -46,6 +46,7 @@ class Nginx
         $this->files->ensureDirExists('/etc/nginx/sites-available');
         $this->files->ensureDirExists('/etc/nginx/sites-enabled');
 
+        $this->stop();
         $this->installConfiguration();
         $this->installServer();
         $this->installNginxDirectory();
@@ -141,11 +142,7 @@ class Nginx
      */
     function stop()
     {
-        try {
-            $this->sm->stop('nginx');
-        } catch (DomainException $e) {
-            // Ignore if nginx is not installed
-        }
+        $this->sm->stop('nginx');
     }
 
     /**

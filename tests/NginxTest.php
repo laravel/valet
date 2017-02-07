@@ -31,7 +31,6 @@ class NginxTest extends TestCase
         $site = Mockery::mock(Site::class);
         $conf = Mockery::mock(Configuration::class);
         $cli = Mockery::mock(CommandLine::class);
-        $sm = Mockery::mock(ServiceManager::class);
 
         $files = Mockery::mock(Filesystem::class);
         $files->shouldReceive('ensureDirExists')->with('/etc/nginx/sites-available')->once();
@@ -39,6 +38,9 @@ class NginxTest extends TestCase
 
         $pm = Mockery::mock(PackageManager::class);
         $pm->shouldReceive('ensureInstalled')->with('nginx')->once();
+
+        $sm = Mockery::mock(ServiceManager::class);
+        $sm->shouldReceive('stop')->with('nginx')->once();
 
         $nginx = Mockery::mock(Nginx::class.'[installConfiguration,installServer,installNginxDirectory]', [$pm, $sm, $cli, $files, $conf, $site]);
 
