@@ -112,6 +112,7 @@ class PhpFpm
      */
     function switchTo($version)
     {
+        $version = preg_replace('/[.]/','',$version);
         if (! $this->brew->installed('php'.$version)) {
             throw new DomainException("This version of PHP not installed.");
         }
