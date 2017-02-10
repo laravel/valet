@@ -31,7 +31,7 @@ class AptTest extends TestCase
     {
         $cli = Mockery::mock(CommandLine::class);
         $cli->shouldReceive('run')->once()
-            ->with("dpkg -l php7.0-cli | grep '^ii' | sed 's_  _\\t_g' | cut -f 2")
+            ->with("dpkg -l php7.0-cli | grep '^ii' | sed 's/\s\+/ /g' | cut -d' ' -f2")
             ->andReturn('php7.0-cli');
         swap(CommandLine::class, $cli);
         $this->assertTrue(resolve(Apt::class)->installed('php7.0-cli'));
@@ -42,14 +42,14 @@ class AptTest extends TestCase
     {
         $cli = Mockery::mock(CommandLine::class);
         $cli->shouldReceive('run')->once()
-            ->with("dpkg -l php7.0-cli | grep '^ii' | sed 's_  _\\t_g' | cut -f 2")
+            ->with("dpkg -l php7.0-cli | grep '^ii' | sed 's/\s\+/ /g' | cut -d' ' -f2")
             ->andReturn('');
         swap(CommandLine::class, $cli);
         $this->assertFalse(resolve(Apt::class)->installed('php7.0-cli'));
 
         $cli = Mockery::mock(CommandLine::class);
         $cli->shouldReceive('run')->once()
-            ->with("dpkg -l php7.0-cli | grep '^ii' | sed 's_  _\\t_g' | cut -f 2")
+            ->with("dpkg -l php7.0-cli | grep '^ii' | sed 's/\s\+/ /g' | cut -d' ' -f2")
             ->andReturn('php7.0-mcrypt');
         swap(CommandLine::class, $cli);
         $this->assertFalse(resolve(Apt::class)->installed('php7.0-cli'));

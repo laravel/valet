@@ -29,7 +29,7 @@ class Apt implements PackageManager
      */
     function packages($package)
     {
-        $query = "dpkg -l {$package} | grep '^ii' | sed 's_  _\\t_g' | cut -f 2";
+        $query = "dpkg -l {$package} | grep '^ii' | sed 's/\s\+/ /g' | cut -d' ' -f2";
 
         return explode(PHP_EOL, $this->cli->run($query));
     }
