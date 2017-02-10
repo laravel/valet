@@ -92,7 +92,7 @@ class Apt implements PackageManager
      */
     function getPHPVersion()
     {
-        $packages = $this->packages('php*cli');
+        $packages = $this->packages('php[0-9]*cli');
 
         return explode('php', strtok($packages[0], '-'))[1];
     }
