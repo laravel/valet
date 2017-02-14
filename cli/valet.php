@@ -95,8 +95,8 @@ $app->command('forget [path]', function ($path = null) {
  * Remove the current working directory to the paths configuration.
  */
 $app->command('status', function () {
-    ServiceManager::status('nginx');
-    ServiceManager::status(PhpFpm::fpmServiceName());
+    PhpFpm::status();
+    Nginx::status();
 })->descriptions('View Valet service status');
 
 /**

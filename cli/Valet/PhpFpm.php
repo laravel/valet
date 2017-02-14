@@ -99,13 +99,23 @@ class PhpFpm
     }
 
     /**
+     * PHP-FPM service status.
+     *
+     * @return void
+     */
+    public function status()
+    {
+        $this->sm->status($this->fpmServiceName());
+    }
+
+    /**
      * Get installed PHP version.
      *
      * @return string
      */
     public function getVersion()
     {
-        return explode('php', basename($this->$files->readLink('/usr/bin/php')))[1];
+        return explode('php', basename($this->files->readLink('/usr/bin/php')))[1];
     }
 
     /**

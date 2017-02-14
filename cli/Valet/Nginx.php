@@ -146,6 +146,16 @@ class Nginx
     }
 
     /**
+     * Nginx service status.
+     *
+     * @return void
+     */
+    function status()
+    {
+        $this->sm->status('nginx');
+    }
+
+    /**
      * Prepare Nginx for uninstallation.
      *
      * @return void
