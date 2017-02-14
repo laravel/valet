@@ -56,18 +56,6 @@ class AptTest extends TestCase
     }
 
 
-    public function test_get_php_version_indicates_installed_php_version()
-    {
-        $apt = Mockery::mock(Apt::class.'[getPHPVersion]', [new CommandLine]);
-        $apt->shouldReceive('getPHPVersion')->once()->andReturn('7.1');
-        $this->assertSame($apt->getPHPVersion(), '7.1');
-
-        $apt = Mockery::mock(Apt::class.'[getPHPVersion]', [new CommandLine]);
-        $apt->shouldReceive('getPHPVersion')->once()->andReturn('7.0');
-        $this->assertNotSame($apt->getPHPVersion(), '7.1');
-    }
-
-
     public function test_install_or_fail_will_install_packages()
     {
         $cli = Mockery::mock(CommandLine::class);

@@ -18,7 +18,7 @@ use Illuminate\Container\Container;
  */
 Container::setInstance(new Container);
 
-$version = '2.0.4';
+$version = '2.0.7';
 
 $app = new Application('Valet', $version);
 
@@ -95,8 +95,8 @@ $app->command('forget [path]', function ($path = null) {
  * Remove the current working directory to the paths configuration.
  */
 $app->command('status', function () {
-    passthru('service nginx status');
-    passthru('service '.PhpFpm::fpmServiceName().' status');
+    ServiceManager::status('nginx');
+    ServiceManager::status(PhpFpm::fpmServiceName());
 })->descriptions('View Valet service status');
 
 /**

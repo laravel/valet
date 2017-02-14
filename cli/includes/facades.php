@@ -33,8 +33,10 @@ class Nginx extends Facade {}
 class PackageManager extends Facade {}
 class Apt extends Facade {}
 class Dnf extends Facade {}
+class Pacman extends Facade {}
 class ServiceManager extends Facade {}
 class LinuxService extends Facade {}
+class Systemd extends Facade {}
 class CommandLine extends Facade {}
 class Configuration extends Facade {}
 class DnsMasq extends Facade {}

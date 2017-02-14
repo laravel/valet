@@ -137,6 +137,7 @@ class Valet
         return collect([
             Apt::class,
             Dnf::class,
+            Pacman::class,
         ])->first(function ($pm) {
             return resolve($pm)->isAvailable();
         }, function () {
@@ -163,6 +164,7 @@ class Valet
     {
         return collect([
             LinuxService::class,
+            Systemd::class,
         ])->first(function ($pm) {
             return resolve($pm)->isAvailable();
         }, function () {

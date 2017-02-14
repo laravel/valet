@@ -8,7 +8,11 @@ use Valet\Contracts\ServiceManager;
 
 class PhpFpm
 {
-    public $pm, $sm, $cli, $files, $version;
+    public $pm;
+    public $sm;
+    public $cli;
+    public $files;
+    public $version;
 
     /**
      * Create a new PHP FPM class instance.
@@ -24,8 +28,8 @@ class PhpFpm
         $this->cli = $cli;
         $this->pm = $pm;
         $this->sm = $sm;
-        $this->version = $this->pm->getPHPVersion();
         $this->files = $files;
+        $this->version = $this->getVersion($files);
     }
 
     /**
@@ -95,11 +99,22 @@ class PhpFpm
     }
 
     /**
+     * Get installed PHP version.
+     *
+     * @return string
+     */
+    public function getVersion()
+    {
+        return explode('php', basename($this->$files->readLink('/usr/bin/php')))[1];
+    }
+
+    /**
      * Determine php service name
      *
      * @return string
      */
-    function fpmServiceName() {
+    public function fpmServiceName()
+    {
         $service = 'php'.$this->version.'-fpm';
 
         if (strpos($this->cli->run('service ' . $service . ' status'), 'not-found')) {
