@@ -105,7 +105,7 @@ class PhpFpm
      */
     public function status()
     {
-        $this->sm->status($this->fpmServiceName());
+        $this->sm->printStatus($this->fpmServiceName());
     }
 
     /**
@@ -126,8 +126,9 @@ class PhpFpm
     public function fpmServiceName()
     {
         $service = 'php'.$this->version.'-fpm';
+        $status = $this->sm->status($service);
 
-        if (strpos($this->cli->run('service ' . $service . ' status'), 'not-found')) {
+        if (strpos($status, 'not-found') || strpos($status, 'not be found')) {
             return new DomainException("Unable to determine PHP service name.");
         }
 

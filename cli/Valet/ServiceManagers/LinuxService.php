@@ -74,7 +74,7 @@ class LinuxService implements ServiceManager
      * @param
      * @return void
      */
-    public function status($services)
+    public function printStatus($services)
     {
         $services = is_array($services) ? $services : func_get_args();
 
@@ -88,6 +88,17 @@ class LinuxService implements ServiceManager
                 warning(ucfirst($service).' is stopped...');
             }
         }
+    }
+
+    /**
+     * Status of the given services.
+     *
+     * @param
+     * @return void
+     */
+    public function status($service)
+    {
+        return $this->cli->run('service '.$this->getRealService($service).' status');
     }
 
     /**

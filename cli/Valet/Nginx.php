@@ -152,7 +152,7 @@ class Nginx
      */
     function status()
     {
-        $this->sm->status('nginx');
+        $this->sm->printStatus('nginx');
     }
 
     /**
