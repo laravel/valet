@@ -161,16 +161,4 @@ class Brew
         $this->restartService($this->linkedPhp());
     }
 
-    /**
-     * Create the "sudoers.d" entry for running Brew.
-     *
-     * @return void
-     */
-    function createSudoersEntry()
-    {
-        $this->files->ensureDirExists('/etc/sudoers.d');
-
-        $this->files->put('/etc/sudoers.d/brew', 'Cmnd_Alias BREW = /usr/local/bin/brew *
-%admin ALL=(root) NOPASSWD: BREW'.PHP_EOL);
-    }
 }
