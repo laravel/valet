@@ -7,14 +7,14 @@ use DomainException;
 
 class Ngrok
 {
-    var $tunnelsEndpoint = 'http://127.0.0.1:4040/api/tunnels';
+    public $tunnelsEndpoint = 'http://127.0.0.1:4040/api/tunnels';
 
     /**
      * Get the current tunnel URL from the Ngrok API.
      *
      * @return string
      */
-    function currentTunnelUrl()
+    public function currentTunnelUrl()
     {
         return retry(20, function () {
             $body = Request::get($this->tunnelsEndpoint)->send()->body;
@@ -36,7 +36,7 @@ class Ngrok
      * @param  array  $tunnels
      * @return string|null
      */
-    function findHttpTunnelUrl($tunnels)
+    public function findHttpTunnelUrl($tunnels)
     {
         foreach ($tunnels as $tunnel) {
             if ($tunnel->proto === 'http') {

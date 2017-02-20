@@ -2,11 +2,13 @@
 
 namespace Valet;
 
+use Httpful\Request;
+
 class Valet
 {
-    var $cli, $files;
+    public $cli, $files;
 
-    var $valetBin = '/usr/local/bin/valet';
+    public $valetBin = '/usr/local/bin/valet';
 
     /**
      * Create a new Valet instance.
@@ -14,7 +16,7 @@ class Valet
      * @param  CommandLine  $cli
      * @param  Filesystem  $files
      */
-    function __construct(CommandLine $cli, Filesystem $files)
+    public function __construct(CommandLine $cli, Filesystem $files)
     {
         $this->cli = $cli;
         $this->files = $files;
@@ -25,7 +27,7 @@ class Valet
      *
      * @return void
      */
-    function symlinkToUsersBin()
+    public function symlinkToUsersBin()
     {
         $this->cli->quietlyAsUser('rm '.$this->valetBin);
 
@@ -37,7 +39,7 @@ class Valet
      *
      * @return void
      */
-    function createSudoersEntry()
+    public function createSudoersEntry()
     {
         $this->files->ensureDirExists('/etc/sudoers.d');
 
@@ -50,7 +52,7 @@ class Valet
      *
      * @return array
      */
-    function extensions()
+    public function extensions()
     {
         if (! $this->files->isDir(VALET_HOME_PATH.'/Extensions')) {
             return [];
@@ -72,9 +74,9 @@ class Valet
      * @param  string  $currentVersion
      * @return bool
      */
-    function onLatestVersion($currentVersion)
+    public function onLatestVersion($currentVersion)
     {
-        $response = \Httpful\Request::get('https://api.github.com/repos/laravel/valet/releases/latest')->send();
+        $response = Request::get('https://api.github.com/repos/laravel/valet/releases/latest')->send();
 
         return version_compare($currentVersion, trim($response->body->tag_name, 'v'), '>=');
     }

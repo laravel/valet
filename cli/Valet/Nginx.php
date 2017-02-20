@@ -4,11 +4,11 @@ namespace Valet;
 
 class Nginx
 {
-    var $brew;
-    var $cli;
-    var $files;
-    var $configuration;
-    var $site;
+    public $brew;
+    public $cli;
+    public $files;
+    public $configuration;
+    public $site;
 
     /**
      * Create a new Nginx instance.
@@ -20,7 +20,7 @@ class Nginx
      * @param  Site  $site
      * @return void
      */
-    function __construct(Brew $brew, CommandLine $cli, Filesystem $files,
+    public function __construct(Brew $brew, CommandLine $cli, Filesystem $files,
                          Configuration $configuration, Site $site)
     {
         $this->cli = $cli;
@@ -35,7 +35,7 @@ class Nginx
      *
      * @return void
      */
-    function install()
+    public function install()
     {
         $this->brew->ensureInstalled('nginx', ['--with-http2']);
 
@@ -49,7 +49,7 @@ class Nginx
      *
      * @return void
      */
-    function installConfiguration()
+    public function installConfiguration()
     {
         $contents = $this->files->get(__DIR__.'/../stubs/nginx.conf');
 
@@ -64,7 +64,7 @@ class Nginx
      *
      * @return void
      */
-    function installServer()
+    public function installServer()
     {
         $this->files->ensureDirExists('/usr/local/etc/nginx/valet');
 
@@ -90,7 +90,7 @@ class Nginx
      *
      * @return void
      */
-    function installNginxDirectory()
+    public function installNginxDirectory()
     {
         if (! $this->files->isDir($nginxDirectory = VALET_HOME_PATH.'/Nginx')) {
             $this->files->mkdirAsUser($nginxDirectory);
@@ -106,7 +106,7 @@ class Nginx
      *
      * @return void
      */
-    function rewriteSecureNginxFiles()
+    public function rewriteSecureNginxFiles()
     {
         $domain = $this->configuration->read()['domain'];
 
@@ -118,7 +118,7 @@ class Nginx
      *
      * @return void
      */
-    function restart()
+    public function restart()
     {
         $this->brew->restartService('nginx');
     }
@@ -128,7 +128,7 @@ class Nginx
      *
      * @return void
      */
-    function stop()
+    public function stop()
     {
         $this->cli->quietly('sudo brew services stop nginx');
     }
@@ -138,7 +138,7 @@ class Nginx
      *
      * @return void
      */
-    function uninstall()
+    public function uninstall()
     {
         $this->stop();
     }
