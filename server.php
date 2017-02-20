@@ -65,9 +65,11 @@ if (strpos($siteName, 'www.') === 0) {
 $valetSitePath = null;
 
 foreach ($valetConfig['paths'] as $path) {
-    if (is_dir($path.'/'.$siteName)) {
-        $valetSitePath = $path.'/'.$siteName;
-
+    $domain = ($pos = strrpos($siteName, '.')) !== false
+                ? substr($siteName, $pos+1)
+                : null;
+    if (is_dir($path.'/'.$siteName) || is_dir($path.'/'.$domain)) {
+        $valetSitePath = $path.'/'.($domain ?: $siteName);
         break;
     }
 }
