@@ -46,6 +46,17 @@ class Brew
     }
 
     /**
+     * Determine if a compatible nginx version is Homebrewed.
+     *
+     * @return bool
+     */
+    function hasInstalledNginx()
+    {
+        return $this->installed('nginx')
+            || $this->installed('nginx-full');
+    }
+
+    /**
      * Ensure that the given formula is installed.
      *
      * @param  string  $formula

@@ -37,7 +37,9 @@ class Nginx
      */
     function install()
     {
-        $this->brew->ensureInstalled('nginx', ['--with-http2']);
+        if (!$this->brew->hasInstalledNginx()) {
+            $this->brew->installOrFail('nginx', ['--with-http2']);
+        }
 
         $this->installConfiguration();
         $this->installServer();
