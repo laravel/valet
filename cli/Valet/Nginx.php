@@ -122,7 +122,7 @@ class Nginx
      */
     function restart()
     {
-        $this->cli->quietly('sudo brew services restart '. $this->brew->nginxServiceName());
+        $this->brew->restartService($this->brew->nginxServiceName());
     }
 
     /**

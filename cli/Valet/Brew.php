@@ -129,7 +129,8 @@ class Brew
         $services = is_array($services) ? $services : func_get_args();
 
         foreach ($services as $service) {
-            $this->cli->quietly('sudo brew services restart '.$service);
+            $this->cli->quietly('sudo brew services stop '.$service);
+            $this->cli->quietly('sudo brew services start '.$service);
         }
     }
 
