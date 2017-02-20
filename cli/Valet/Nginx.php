@@ -37,7 +37,9 @@ class Nginx
      */
     function install()
     {
-        $this->brew->ensureInstalled('nginx', ['--with-http2']);
+        if (!$this->brew->hasInstalledNginx()) {
+            $this->brew->installOrFail('nginx', ['--with-http2']);
+        }
 
         $this->installConfiguration();
         $this->installServer();
@@ -120,7 +122,7 @@ class Nginx
      */
     function restart()
     {
-        $this->brew->restartService('nginx');
+        $this->brew->restartService($this->brew->nginxServiceName());
     }
 
     /**
@@ -130,7 +132,7 @@ class Nginx
      */
     function stop()
     {
-        $this->cli->quietly('sudo brew services stop nginx');
+        $this->cli->quietly('sudo brew services stop '. $this->brew->nginxServiceName());
     }
 
     /**
