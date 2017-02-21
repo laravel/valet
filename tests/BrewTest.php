@@ -99,6 +99,7 @@ php7');
     public function test_restart_restarts_the_service_using_homebrew_services()
     {
         $cli = Mockery::mock(CommandLine::class);
+        $cli->shouldReceive('runAsUser')->once()->with('brew list | grep dnsmasq')->andReturn('dnsmasq');
         $cli->shouldReceive('quietly')->once()->with('sudo brew services stop dnsmasq');
         $cli->shouldReceive('quietly')->once()->with('sudo brew services start dnsmasq');
         swap(CommandLine::class, $cli);
@@ -109,6 +110,7 @@ php7');
     public function test_stop_stops_the_service_using_homebrew_services()
     {
         $cli = Mockery::mock(CommandLine::class);
+        $cli->shouldReceive('runAsUser')->once()->with('brew list | grep dnsmasq')->andReturn('dnsmasq');
         $cli->shouldReceive('quietly')->once()->with('sudo brew services stop dnsmasq');
         swap(CommandLine::class, $cli);
         resolve(Brew::class)->stopService('dnsmasq');

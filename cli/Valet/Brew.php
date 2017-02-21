@@ -91,6 +91,8 @@ class Brew
      */
     function installOrFail($formula, $options = [], $taps = [])
     {
+        info("Installing $formula...");
+
         if (count($taps) > 0) {
             $this->tap($taps);
         }
@@ -129,8 +131,12 @@ class Brew
         $services = is_array($services) ? $services : func_get_args();
 
         foreach ($services as $service) {
-            $this->cli->quietly('sudo brew services stop '.$service);
-            $this->cli->quietly('sudo brew services start '.$service);
+            if ($this->installed($service)) {
+                info("Restarting $service...");
+
+                $this->cli->quietly('sudo brew services stop '.$service);
+                $this->cli->quietly('sudo brew services start '.$service);
+            }
         }
     }
 
@@ -144,7 +150,11 @@ class Brew
         $services = is_array($services) ? $services : func_get_args();
 
         foreach ($services as $service) {
-            $this->cli->quietly('sudo brew services stop '.$service);
+            if ($this->installed($service)) {
+                info("Stopping $service...");
+
+                $this->cli->quietly('sudo brew services stop '.$service);
+            }
         }
     }
 

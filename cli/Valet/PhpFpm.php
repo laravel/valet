@@ -54,6 +54,8 @@ class PhpFpm
      */
     function updateConfiguration()
     {
+        info('Updating php configuration...');
+
         $contents = $this->files->get($this->fpmConfigPath());
 
         $contents = preg_replace('/^user = .+$/m', 'user = '.user(), $contents);
