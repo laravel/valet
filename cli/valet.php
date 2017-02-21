@@ -250,12 +250,12 @@ $app->command('on-latest-version', function () use ($version) {
 /**
  * Switch between versions of PHP
  */
-$app->command('switch-to [php_version]', function ($php_version) {
+$app->command('switch-to [phpVersion]', function ($phpVersion) {
 
-    PhpFpm::switchTo($php_version);
-    PhpFpm::restart();
+    PhpFpm::switchTo($phpVersion);
+    PhpFpm::install();
     Nginx::restart();
-    info('Your PHP Version link has been switched to php'.$php_version.'.');
+    info('Valet is now using php'.$phpVersion.'.');
 })->descriptions('Switch between versions of PHP');
 
 /**
