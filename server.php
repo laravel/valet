@@ -63,13 +63,16 @@ if (strpos($siteName, 'www.') === 0) {
  * Determine the fully qualified path to the site.
  */
 $valetSitePath = null;
+$domain = array_slice(explode('.', $siteName), -1)[0];
 
 foreach ($valetConfig['paths'] as $path) {
-    $domain = ($pos = strrpos($siteName, '.')) !== false
-                ? substr($siteName, $pos+1)
-                : null;
-    if (is_dir($path.'/'.$siteName) || is_dir($path.'/'.$domain)) {
-        $valetSitePath = $path.'/'.($domain ?: $siteName);
+    if (is_dir($path.'/'.$siteName)) {
+        $valetSitePath = $path.'/'.$siteName;
+        break;
+    }
+
+    if (is_dir($path.'/'.$domain)) {
+        $valetSitePath = $path.'/'.$domain;
         break;
     }
 }
