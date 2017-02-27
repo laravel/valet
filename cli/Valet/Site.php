@@ -68,7 +68,7 @@ class Site
         $certsPath = VALET_HOME_PATH.'/Certificates';
 
         $this->files->ensureDirExists($certsPath, user());
-        
+
         $certs = $this->getCertificates($certsPath);
 
         return $this->getLinks(VALET_HOME_PATH.'/Sites', $certs);
@@ -100,9 +100,9 @@ class Site
     {
         $config = $this->config->read();
 
-        return collect($this->files->scanDir($path))->mapWithKeys(function ($site) use($path) {
+        return collect($this->files->scanDir($path))->mapWithKeys(function ($site) use ($path) {
             return [$site => $this->files->readLink($path.'/'.$site)];
-        })->map(function ($path, $site) use($certs, $config) {
+        })->map(function ($path, $site) use ($certs, $config) {
             $secured = $certs->has($site);
             $url = ($secured ? 'https': 'http').'://'.$site.'.'.$config['domain'];
 
