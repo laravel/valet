@@ -79,7 +79,7 @@ class NginxTest extends TestCase
 
         $files->shouldReceive('putAsUser')->andReturnUsing(function ($path, $contents) {
             $this->assertSame('/etc/nginx/sites-available/valet.conf', $path);
-            $this->assertTrue(strpos($contents, 'rewrite ^ '.VALET_SERVER_PATH.'?$query_string last') !== false);
+            $this->assertTrue(strpos($contents, 'rewrite ^ '.VALET_SERVER_PATH.' last') !== false);
             $this->assertTrue(strpos($contents, 'error_page 404 '.VALET_SERVER_PATH) !== false);
             $this->assertTrue(strpos($contents, 'fastcgi_index '.VALET_SERVER_PATH) !== false);
             $this->assertTrue(strpos($contents, 'fastcgi_param SCRIPT_FILENAME '.VALET_SERVER_PATH) !== false);
