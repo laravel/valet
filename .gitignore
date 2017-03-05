@@ -1,4 +1,5 @@
 vendor/
+composer.lock
 error.log
 *.sublime-project
 *.sublime-workspace

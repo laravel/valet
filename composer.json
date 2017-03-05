@@ -33,15 +33,15 @@
     },
     "require": {
         "php": ">=5.6",
-        "illuminate/container": "~5.1",
-        "mnapoli/silly": "~1.0",
+        "illuminate/container": "~5.3",
+        "mnapoli/silly": "~1.1",
         "symfony/process": "~2.7|~3.0",
         "nategood/httpful": "~0.2",
-        "tightenco/collect": "~5.2"
+        "tightenco/collect": "~5.3"
     },
     "require-dev": {
-        "mockery/mockery": "0.9.*",
-        "phpunit/phpunit": "<5.7.x-dev"
+        "mockery/mockery": "~0.9.4",
+        "phpunit/phpunit": "~5.5"
     },
     "bin": [
         "valet"
