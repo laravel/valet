@@ -96,8 +96,8 @@ if (is_dir(VALET_HOME_PATH)) {
      * Remove the current working directory to the paths configuration.
      */
     $app->command('status', function () {
-        passthru('service nginx status');
-        passthru('service '.PhpFpm::fpmServiceName().' status');
+        PhpFpm::status();
+        Nginx::status();
     })->descriptions('View Valet service status');
 
     /**
