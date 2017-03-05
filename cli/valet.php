@@ -46,7 +46,6 @@ $app->command('install [--ignore-selinux]', function ($ignoreSELinux) {
     DnsMasq::install();
     Nginx::restart();
     Valet::symlinkToUsersBin();
-    Valet::createSudoersEntry();
 
     output(PHP_EOL.'<info>Valet installed successfully!</info>');
 })->descriptions('Install the Valet services', [
@@ -181,11 +180,11 @@ $app->command('paths', function () {
 /**
  * Open the current directory in the browser.
  */
- $app->command('open', function () {
-     $url = "http://".Site::host(getcwd()).'.'.Configuration::read()['domain'].'/';
+ $app->command('open [domain]', function ($domain = null) {
+    $url = 'http://'.($domain ?: Site::host(getcwd())).'.'.Configuration::read()['domain'].'/';
 
-     passthru("xdg-open ".escapeshellarg($url));
- })->descriptions('Open the site for the current directory in your browser');
+    passthru('xdg-open '.escapeshellarg($url));
+ })->descriptions('Open the site for the current (or specified) directory in your browser');
 
 /**
  * Generate a publicly accessible URL for your project.

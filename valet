@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 SOURCE="${BASH_SOURCE[0]}"
+SUDOCMDS="install uninstall start srestart top secure share"
 
 # If the current source is a symbolic link, we need to resolve it to an
 # actual directory name. We'll use PHP to do this easier than we can
@@ -23,10 +24,13 @@ fi
 # If the command is one of the commands that requires "sudo" privileges
 # then we'll proxy the incoming CLI request using sudo, which allows
 # us to never require the end users to manually specify each sudo.
-if [[ "$EUID" -ne 0 ]]
+if [[ -n $1 && $SUDOCMDS =~ $1 ]]
 then
-    sudo $SOURCE "$@"
-    exit
+    if [[ "$EUID" -ne 0 ]]
+    then
+        sudo $SOURCE "$@"
+        exit
+    fi
 fi
 
 # If the command is to run the updater we'll run the updater script and

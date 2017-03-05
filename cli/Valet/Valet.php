@@ -61,16 +61,16 @@ class Valet
      *
      * @return void
      */
-    function createSudoersEntry()
-    {
-        $this->files->ensureDirExists('/etc/sudoers.d');
+//     function createSudoersEntry()
+//     {
+//         $this->files->ensureDirExists('/etc/sudoers.d');
 
-        $this->files->put($this->sudoers, 'Cmnd_Alias VALET = '.$this->valetBin.' *
-%sudo ALL=(root) NOPASSWD: VALET'.PHP_EOL.'
-%wheel ALL=(root) NOPASSWD: VALET'.PHP_EOL);
+//         $this->files->put($this->sudoers, 'Cmnd_Alias VALET = '.$this->valetBin.' *
+// %sudo ALL=(root) NOPASSWD: VALET'.PHP_EOL.'
+// %wheel ALL=(root) NOPASSWD: VALET'.PHP_EOL);
 
-        $this->cli->quietly('chmod 0440 '.$this->sudoers);
-    }
+//         $this->cli->quietly('chmod 0440 '.$this->sudoers);
+//     }
 
     /**
      * Get the paths to all of the Valet extensions.
