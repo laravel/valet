@@ -28,14 +28,6 @@ $app = new Application('Valet', $version);
 Valet::environmentSetup();
 
 /**
- * Prune missing directories and symbolic links on every command.
- */
-if (is_dir(VALET_HOME_PATH)) {
-    Configuration::prune();
-    Site::pruneLinks();
-}
-
-/**
  * Allow Valet to be run more conveniently by allowing the Node proxy to run password-less sudo.
  */
 $app->command('install [--ignore-selinux]', function ($ignoreSELinux) {
@@ -53,208 +45,219 @@ $app->command('install [--ignore-selinux]', function ($ignoreSELinux) {
 ]);
 
 /**
- * Get or set the domain currently being used by Valet.
+ * Most commands are available only if valet is installed.
  */
-$app->command('domain [domain]', function ($domain = null) {
-    if ($domain === null) {
-        return info(Configuration::read()['domain']);
-    }
+if (is_dir(VALET_HOME_PATH)) {
+    /**
+     * Prune missing directories and symbolic links on every command.
+     */
+    Configuration::prune();
+    Site::pruneLinks();
 
-    DnsMasq::updateDomain(
-        $oldDomain = Configuration::read()['domain'], $domain = trim($domain, '.')
-    );
+    /**
+     * Get or set the domain currently being used by Valet.
+     */
+    $app->command('domain [domain]', function ($domain = null) {
+        if ($domain === null) {
+            return info(Configuration::read()['domain']);
+        }
 
-    Configuration::updateKey('domain', $domain);
-    Site::resecureForNewDomain($oldDomain, $domain);
-    PhpFpm::restart();
-    Nginx::restart();
+        DnsMasq::updateDomain(
+            $oldDomain = Configuration::read()['domain'], $domain = trim($domain, '.')
+        );
 
-    info('Your Valet domain has been updated to ['.$domain.'].');
-})->descriptions('Get or set the domain used for Valet sites');
+        Configuration::updateKey('domain', $domain);
+        Site::resecureForNewDomain($oldDomain, $domain);
+        PhpFpm::restart();
+        Nginx::restart();
 
-/**
- * Add the current working directory to the paths configuration.
- */
-$app->command('park [path]', function ($path = null) {
-    Configuration::addPath($path ?: getcwd());
+        info('Your Valet domain has been updated to ['.$domain.'].');
+    })->descriptions('Get or set the domain used for Valet sites');
 
-    info(($path === null ? "This" : "The [{$path}]") . " directory has been added to Valet's paths.");
-})->descriptions('Register the current working (or specified) directory with Valet');
+    /**
+     * Add the current working directory to the paths configuration.
+     */
+    $app->command('park [path]', function ($path = null) {
+        Configuration::addPath($path ?: getcwd());
 
-/**
- * Remove the current working directory from the paths configuration.
- */
-$app->command('forget [path]', function ($path = null) {
-    Configuration::removePath($path ?: getcwd());
+        info(($path === null ? "This" : "The [{$path}]") . " directory has been added to Valet's paths.");
+    })->descriptions('Register the current working (or specified) directory with Valet');
 
-    info(($path === null ? "This" : "The [{$path}]") . " directory has been removed from Valet's paths.");
-})->descriptions('Remove the current working (or specified) directory from Valet\'s list of paths');
+    /**
+     * Remove the current working directory from the paths configuration.
+     */
+    $app->command('forget [path]', function ($path = null) {
+        Configuration::removePath($path ?: getcwd());
 
-/**
- * Remove the current working directory to the paths configuration.
- */
-$app->command('status', function () {
-    passthru('service nginx status');
-    passthru('service '.PhpFpm::fpmServiceName().' status');
-})->descriptions('View Valet service status');
+        info(($path === null ? "This" : "The [{$path}]") . " directory has been removed from Valet's paths.");
+    })->descriptions('Remove the current working (or specified) directory from Valet\'s list of paths');
 
-/**
- * Register a symbolic link with Valet.
- */
-$app->command('link [name]', function ($name) {
-    $linkPath = Site::link(getcwd(), $name = $name ?: basename(getcwd()));
+    /**
+     * Remove the current working directory to the paths configuration.
+     */
+    $app->command('status', function () {
+        passthru('service nginx status');
+        passthru('service '.PhpFpm::fpmServiceName().' status');
+    })->descriptions('View Valet service status');
 
-    info('A ['.$name.'] symbolic link has been created in ['.$linkPath.'].');
-})->descriptions('Link the current working directory to Valet');
+    /**
+     * Register a symbolic link with Valet.
+     */
+    $app->command('link [name]', function ($name) {
+        $linkPath = Site::link(getcwd(), $name = $name ?: basename(getcwd()));
 
-/**
- * Display all of the registered symbolic links.
- */
-$app->command('links', function () {
-    $links = Site::links();
+        info('A ['.$name.'] symbolic link has been created in ['.$linkPath.'].');
+    })->descriptions('Link the current working directory to Valet');
 
-    table(['Site', 'SSL', 'URL', 'Path'], $links->all());
-})->descriptions('Display all of the registered Valet links');
+    /**
+     * Display all of the registered symbolic links.
+     */
+    $app->command('links', function () {
+        $links = Site::links();
 
-/**
- * Unlink a link from the Valet links directory.
- */
-$app->command('unlink [name]', function ($name) {
-    Site::unlink($name = $name ?: basename(getcwd()));
+        table(['Site', 'SSL', 'URL', 'Path'], $links->all());
+    })->descriptions('Display all of the registered Valet links');
 
-    info('The ['.$name.'] symbolic link has been removed.');
-})->descriptions('Remove the specified Valet link');
+    /**
+     * Unlink a link from the Valet links directory.
+     */
+    $app->command('unlink [name]', function ($name) {
+        Site::unlink($name = $name ?: basename(getcwd()));
 
-/**
- * Secure the given domain with a trusted TLS certificate.
- */
-$app->command('secure [domain]', function ($domain = null) {
-    $url = ($domain ?: Site::host(getcwd())).'.'.Configuration::read()['domain'];
+        info('The ['.$name.'] symbolic link has been removed.');
+    })->descriptions('Remove the specified Valet link');
 
-    Site::secure($url);
-    PhpFpm::restart();
-    Nginx::restart();
+    /**
+     * Secure the given domain with a trusted TLS certificate.
+     */
+    $app->command('secure [domain]', function ($domain = null) {
+        $url = ($domain ?: Site::host(getcwd())).'.'.Configuration::read()['domain'];
 
-    info('The ['.$url.'] site has been secured with a fresh TLS certificate.');
-})->descriptions('Secure the given domain with a trusted TLS certificate');
+        Site::secure($url);
+        PhpFpm::restart();
+        Nginx::restart();
 
-/**
- * Stop serving the given domain over HTTPS and remove the trusted TLS certificate.
- */
-$app->command('unsecure [domain]', function ($domain = null) {
-    $url = ($domain ?: Site::host(getcwd())).'.'.Configuration::read()['domain'];
+        info('The ['.$url.'] site has been secured with a fresh TLS certificate.');
+    })->descriptions('Secure the given domain with a trusted TLS certificate');
 
-    Site::unsecure($url);
-    PhpFpm::restart();
-    Nginx::restart();
+    /**
+     * Stop serving the given domain over HTTPS and remove the trusted TLS certificate.
+     */
+    $app->command('unsecure [domain]', function ($domain = null) {
+        $url = ($domain ?: Site::host(getcwd())).'.'.Configuration::read()['domain'];
 
-    info('The ['.$url.'] site will now serve traffic over HTTP.');
-})->descriptions('Stop serving the given domain over HTTPS and remove the trusted TLS certificate');
+        Site::unsecure($url);
+        PhpFpm::restart();
+        Nginx::restart();
 
-/**
- * Determine which Valet driver the current directory is using.
- */
-$app->command('which', function () {
-    require __DIR__.'/drivers/require.php';
+        info('The ['.$url.'] site will now serve traffic over HTTP.');
+    })->descriptions('Stop serving the given domain over HTTPS and remove the trusted TLS certificate');
 
-    $driver = ValetDriver::assign(getcwd(), basename(getcwd()), '/');
+    /**
+     * Determine which Valet driver the current directory is using.
+     */
+    $app->command('which', function () {
+        require __DIR__.'/drivers/require.php';
 
-    if ($driver) {
-        info('This site is served by ['.get_class($driver).'].');
-    } else {
-        warning('Valet could not determine which driver to use for this site.');
-    }
-})->descriptions('Determine which Valet driver serves the current working directory');
+        $driver = ValetDriver::assign(getcwd(), basename(getcwd()), '/');
 
-/**
- * Display all of the registered paths.
- */
-$app->command('paths', function () {
-    $paths = Configuration::read()['paths'];
+        if ($driver) {
+            info('This site is served by ['.get_class($driver).'].');
+        } else {
+            warning('Valet could not determine which driver to use for this site.');
+        }
+    })->descriptions('Determine which Valet driver serves the current working directory');
 
-    if (count($paths) > 0) {
-        output(json_encode($paths, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
-    } else {
-        info('No paths have been registered.');
-    }
-})->descriptions('Get all of the paths registered with Valet');
+    /**
+     * Display all of the registered paths.
+     */
+    $app->command('paths', function () {
+        $paths = Configuration::read()['paths'];
 
-/**
- * Open the current directory in the browser.
- */
- $app->command('open [domain]', function ($domain = null) {
-    $url = 'http://'.($domain ?: Site::host(getcwd())).'.'.Configuration::read()['domain'].'/';
+        if (count($paths) > 0) {
+            output(json_encode($paths, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+        } else {
+            info('No paths have been registered.');
+        }
+    })->descriptions('Get all of the paths registered with Valet');
 
-    passthru('xdg-open '.escapeshellarg($url));
- })->descriptions('Open the site for the current (or specified) directory in your browser');
+    /**
+     * Open the current directory in the browser.
+     */
+     $app->command('open [domain]', function ($domain = null) {
+        $url = 'http://'.($domain ?: Site::host(getcwd())).'.'.Configuration::read()['domain'].'/';
 
-/**
- * Generate a publicly accessible URL for your project.
- */
-$app->command('share', function () {
-    warning("It looks like you are running `cli/valet.php` directly, please use the `valet` script in the project root instead.");
-})->descriptions('Generate a publicly accessible URL for your project');
+        passthru('xdg-open '.escapeshellarg($url));
+     })->descriptions('Open the site for the current (or specified) directory in your browser');
 
-/**
- * Echo the currently tunneled URL.
- */
-$app->command('fetch-share-url', function () {
-    output(Ngrok::currentTunnelUrl());
-})->descriptions('Get the URL to the current Ngrok tunnel');
+    /**
+     * Generate a publicly accessible URL for your project.
+     */
+    $app->command('share', function () {
+        warning("It looks like you are running `cli/valet.php` directly, please use the `valet` script in the project root instead.");
+    })->descriptions('Generate a publicly accessible URL for your project');
 
-/**
- * Start the daemon services.
- */
-$app->command('start', function () {
-    PhpFpm::restart();
-    Nginx::restart();
+    /**
+     * Echo the currently tunneled URL.
+     */
+    $app->command('fetch-share-url', function () {
+        output(Ngrok::currentTunnelUrl());
+    })->descriptions('Get the URL to the current Ngrok tunnel');
 
-    info('Valet services have been started.');
-})->descriptions('Start the Valet services');
+    /**
+     * Start the daemon services.
+     */
+    $app->command('start', function () {
+        PhpFpm::restart();
+        Nginx::restart();
 
-/**
- * Restart the daemon services.
- */
-$app->command('restart', function () {
-    PhpFpm::restart();
-    Nginx::restart();
+        info('Valet services have been started.');
+    })->descriptions('Start the Valet services');
 
-    info('Valet services have been restarted.');
-})->descriptions('Restart the Valet services');
+    /**
+     * Restart the daemon services.
+     */
+    $app->command('restart', function () {
+        PhpFpm::restart();
+        Nginx::restart();
 
-/**
- * Stop the daemon services.
- */
-$app->command('stop', function () {
-    PhpFpm::stop();
-    Nginx::stop();
+        info('Valet services have been restarted.');
+    })->descriptions('Restart the Valet services');
 
-    info('Valet services have been stopped.');
-})->descriptions('Stop the Valet services');
+    /**
+     * Stop the daemon services.
+     */
+    $app->command('stop', function () {
+        PhpFpm::stop();
+        Nginx::stop();
 
-/**
- * Uninstall Valet entirely.
- */
-$app->command('uninstall', function () {
-    Nginx::uninstall();
-    PhpFpm::uninstall();
-    DnsMasq::uninstall();
-    Configuration::uninstall();
-    Valet::uninstall();
+        info('Valet services have been stopped.');
+    })->descriptions('Stop the Valet services');
 
-    info('Valet has been uninstalled.');
-})->descriptions('Uninstall the Valet services');
+    /**
+     * Uninstall Valet entirely.
+     */
+    $app->command('uninstall', function () {
+        Nginx::uninstall();
+        PhpFpm::uninstall();
+        DnsMasq::uninstall();
+        Configuration::uninstall();
+        Valet::uninstall();
 
-/**
- * Determine if this is the latest release of Valet.
- */
-$app->command('on-latest-version', function () use ($version) {
-    if (Valet::onLatestVersion($version)) {
-        output('YES');
-    } else {
-        output('NO');
-    }
-})->descriptions('Determine if this is the latest version of Valet');
+        info('Valet has been uninstalled.');
+    })->descriptions('Uninstall the Valet services');
+
+    /**
+     * Determine if this is the latest release of Valet.
+     */
+    $app->command('on-latest-version', function () use ($version) {
+        if (Valet::onLatestVersion($version)) {
+            output('YES');
+        } else {
+            output('NO');
+        }
+    })->descriptions('Determine if this is the latest version of Valet');
+}
 
 /**
  * Load all of the Valet extensions.
