@@ -42,7 +42,7 @@ class Configuration
     function uninstall()
     {
         if ($this->files->isDir(VALET_HOME_PATH, user())) {
-            $this->files->unlink(VALET_HOME_PATH, user());
+            $this->files->remove(VALET_HOME_PATH);
         }
     }
 
