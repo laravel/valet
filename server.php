@@ -49,10 +49,12 @@ $uri = urldecode(
     explode("?", $_SERVER['REQUEST_URI'])[0]
 );
 
+$domain = ($_SERVER['SERVER_PORT'] != 80) ? $valetConfig['domain'] . ':' . $_SERVER['SERVER_PORT'] : $valetConfig['domain'];
+
 $siteName = basename(
     // Filter host to support xip.io feature
     valet_support_xip_io($_SERVER['HTTP_HOST']),
-    '.'.$valetConfig['domain']
+    '.'.$domain
 );
 
 if (strpos($siteName, 'www.') === 0) {
