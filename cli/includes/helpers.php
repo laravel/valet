@@ -2,6 +2,8 @@
 
 use Illuminate\Container\Container;
 use Symfony\Component\Process\Process;
+use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console\Helper\Table;
 
 /**
  * Define the ~/.valet path as a constant.
@@ -32,6 +34,22 @@ function warning($output)
 }
 
 /**
+ * Output a table to the console.
+ *
+ * @param array $headers
+ * @param array $rows
+ * @return void
+ */
+function table(array $headers = [], array $rows = [])
+{
+    $table = new Table(new ConsoleOutput);
+
+    $table->setHeaders($headers)->setRows($rows);
+
+    $table->render();
+}
+
+/**
  * Output the given text to the console.
  *
  * @param  string  $output
@@ -43,7 +61,7 @@ function output($output)
         return;
     }
 
-    (new Symfony\Component\Console\Output\ConsoleOutput)->writeln($output);
+    (new ConsoleOutput)->writeln($output);
 }
 
 if (! function_exists('resolve')) {
@@ -126,6 +144,24 @@ if (! function_exists('tap')) {
         $callback($value);
 
         return $value;
+    }
+}
+
+if (! function_exists('ends_with')) {
+    /**
+     * Determine if a given string ends with a given substring.
+     *
+     * @param  string  $haystack
+     * @param  string|array  $needles
+     * @return bool
+     */
+    function ends_with($haystack, $needles) {
+        foreach ((array) $needles as $needle) {
+            if (substr($haystack, -strlen($needle)) === (string) $needle) {
+                return true;
+            }
+        }
+        return false;
     }
 }
 
