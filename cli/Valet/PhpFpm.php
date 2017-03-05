@@ -146,6 +146,7 @@ class PhpFpm
             '/etc/php/'.$this->version.'/fpm/pool.d', // Ubuntu
             '/etc/php'.$this->version.'/fpm/pool.d', // Ubuntu
             '/etc/php-fpm.d', // Fedora
+            '/etc/php/php-fpm.d', // Arch
         ])->first(function ($path) {
             return is_dir($path);
         }, function () {

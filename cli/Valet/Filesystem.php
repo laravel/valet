@@ -297,9 +297,9 @@ class Filesystem
      */
     function readLink($path)
     {
-        $link = readlink($path);
+        $link = $path;
 
-        while ( is_link($link) ) {
+        while (is_link($link)) {
             $link = readlink($link);
         }
 
