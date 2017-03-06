@@ -108,7 +108,15 @@ class LinuxService implements ServiceManager
      */
     public function isAvailable()
     {
-        return $this->cli->run('which service') != '';
+        try {
+            $output = $this->cli->run('which service', function ($exitCode, $output) {
+                throw new DomainException('Service not available');
+            });
+
+            return $output != '';
+        } catch (DomainException $e) {
+            return false;
+        }
     }
 
     /**

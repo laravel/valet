@@ -108,7 +108,15 @@ class Systemd implements ServiceManager
      */
     function isAvailable()
     {
-        return $this->cli->run('which systemctl') != '';
+        try {
+            $output = $this->cli->run('which systemctl', function ($exitCode, $output) {
+                throw new DomainException('Systemd not available');
+            });
+
+            return $output != '';
+        } catch (DomainException $e) {
+            return false;
+        }
     }
 
     /**
