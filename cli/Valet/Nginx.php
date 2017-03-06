@@ -61,19 +61,17 @@ class Nginx
     {
         $contents = $this->files->get(__DIR__.'/../stubs/nginx.conf');
 
-        $this->files->putAsUser(
-            '/etc/nginx/nginx.conf',
-            str_replace(['VALET_USER', 'VALET_HOME_PATH'], [user(), VALET_HOME_PATH], $contents)
-        );
-
+        $pid_string = 'pid /run/nginx.pid;';
         $hasPIDoption = strpos($this->cli->run('systemctl status nginx | grep ExecStart='), ' pid /');
 
         if ($hasPIDoption) {
-            $this->files->putAsUser(
-                '/etc/nginx/nginx.conf',
-                str_replace('pid /run/nginx.pid;', '# pid /run/nginx.pid;', $contents)
-            );
+            $pid_string = '# pid /run/nginx.pid;';
         }
+
+        $this->files->putAsUser(
+            '/etc/nginx/nginx.conf',
+            str_replace(['VALET_USER', 'VALET_HOME_PATH', 'VALET_PID'], [user(), VALET_HOME_PATH, $pid_string], $contents)
+        );
     }
 
     /**
