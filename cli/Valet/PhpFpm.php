@@ -69,8 +69,9 @@ class PhpFpm
         $contents = $this->files->get(__DIR__.'/../stubs/php-memory-limits.ini');
 
         $destFile = dirname($this->fpmConfigPath());
-        $destFile = str_replace('php-fpm.d', '', $destFile);
+        $destFile = str_replace('/php-fpm.d', '', $destFile);
         $destFile .= '/conf.d/php-memory-limits.ini';
+        $this->files->ensureDirExists(dirname($destFile), user());
 
         $this->files->putAsUser($destFile, $contents);
     }
