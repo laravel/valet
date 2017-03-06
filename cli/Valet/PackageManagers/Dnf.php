@@ -77,16 +77,6 @@ class Dnf implements PackageManager
     }
 
     /**
-     * Get installed PHP version.
-     *
-     * @return string
-     */
-    function getPHPVersion()
-    {
-        return '';
-    }
-
-    /**
      * Restart dnsmasq in Fedora.
      */
     function dnsmasqRestart($sm)

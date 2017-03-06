@@ -28,12 +28,11 @@ class PhpFpmTest extends TestCase
 
     public function test_install_configuration_replaces_user_and_sock_in_config_file()
     {
-        $pm = Mockery::mock(PackageManager::class);
-        $pm->shouldReceive('getPHPVersion')->once()->andReturn('7.1');
-        swap(PackageManager::class, $pm);
-
+        swap(PackageManager::class, Mockery::mock(PackageManager::class));
         swap(ServiceManager::class, Mockery::mock(ServiceManager::class));
+
         copy(__DIR__.'/files/fpm.conf', __DIR__.'/output/valet.conf');
+
         resolve(StubForUpdatingFpmConfigFiles::class)->installConfiguration();
         $contents = file_get_contents(__DIR__.'/output/valet.conf');
         $this->assertContains(sprintf("\nuser = %s", user()), $contents);
@@ -45,8 +44,13 @@ class PhpFpmTest extends TestCase
 
 class StubForUpdatingFpmConfigFiles extends PhpFpm
 {
-    function fpmConfigPath()
+    public function fpmConfigPath()
     {
         return __DIR__.'/output';
+    }
+
+    public function getVersion()
+    {
+        return '7.1';
     }
 }

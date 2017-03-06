@@ -36,13 +36,6 @@ interface PackageManager
     function setup();
 
     /**
-     * Get installed PHP version.
-     *
-     * @return string
-     */
-    function getPHPVersion();
-
-    /**
      * Restart dnsmasq in distro.
      */
     function dnsmasqRestart($sm);

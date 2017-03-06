@@ -6,9 +6,9 @@ use DomainException;
 use Valet\CommandLine;
 use Valet\Contracts\ServiceManager;
 
-class LinuxService implements ServiceManager
+class Systemd implements ServiceManager
 {
-    public $cli;
+    var $cli;
 
     /**
      * Create a new Brew instance.
@@ -26,13 +26,13 @@ class LinuxService implements ServiceManager
      * @param
      * @return void
      */
-    public function start($services)
+    function start($services)
     {
         $services = is_array($services) ? $services : func_get_args();
 
         foreach ($services as $service) {
             info("Starting $service...");
-            $this->cli->quietly('sudo service ' . $this->getRealService($service) . ' start');
+            $this->cli->quietly('sudo systemctl start ' . $this->getRealService($service));
         }
     }
 
@@ -42,13 +42,13 @@ class LinuxService implements ServiceManager
      * @param
      * @return void
      */
-    public function stop($services)
+    function stop($services)
     {
         $services = is_array($services) ? $services : func_get_args();
 
         foreach ($services as $service) {
             info("Stopping $service...");
-            $this->cli->quietly('sudo service ' . $this->getRealService($service) . ' stop');
+            $this->cli->quietly('sudo systemctl stop ' . $this->getRealService($service));
         }
     }
 
@@ -58,13 +58,13 @@ class LinuxService implements ServiceManager
      * @param
      * @return void
      */
-    public function restart($services)
+    function restart($services)
     {
         $services = is_array($services) ? $services : func_get_args();
 
         foreach ($services as $service) {
             info("Restarting $service...");
-            $this->cli->quietly('sudo service ' . $this->getRealService($service) . ' restart');
+            $this->cli->quietly('sudo systemctl restart ' . $this->getRealService($service));
         }
     }
 
@@ -79,7 +79,7 @@ class LinuxService implements ServiceManager
         $services = is_array($services) ? $services : func_get_args();
 
         foreach ($services as $service) {
-            $status = $this->cli->run('service '.$this->getRealService($service).' status | grep "Active:"');
+            $status = $this->cli->run('systemctl status '.$this->getRealService($service).' | grep "Active:"');
             $running = strpos(trim($status), 'running');
 
             if ($running) {
@@ -98,7 +98,7 @@ class LinuxService implements ServiceManager
      */
     public function status($service)
     {
-        return $this->cli->run('service '.$this->getRealService($service).' status');
+        return $this->cli->run('systemctl status '.$this->getRealService($service));
     }
 
     /**
@@ -106,11 +106,11 @@ class LinuxService implements ServiceManager
      *
      * @return bool
      */
-    public function isAvailable()
+    function isAvailable()
     {
         try {
-            $output = $this->cli->run('which service', function ($exitCode, $output) {
-                throw new DomainException('Service not available');
+            $output = $this->cli->run('which systemctl', function ($exitCode, $output) {
+                throw new DomainException('Systemd not available');
             });
 
             return $output != '';
@@ -125,10 +125,10 @@ class LinuxService implements ServiceManager
      * @param string $service
      * @return string
      */
-    public function getRealService($service)
+    function getRealService($service)
     {
         return collect($service)->first(function ($service) {
-            return !strpos($this->cli->run('service ' . $service . ' status'), 'not-found');
+            return !strpos($this->cli->run('systemctl status ' . $service), 'could not be found');
         }, function () {
             throw new DomainException("Unable to determine service name.");
         });

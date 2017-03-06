@@ -10,7 +10,7 @@ interface ServiceManager
      * @param
      * @return void
      */
-    function start($services);
+    public function start($services);
 
     /**
      * Stop the given services.
@@ -18,7 +18,7 @@ interface ServiceManager
      * @param
      * @return void
      */
-    function stop($services);
+    public function stop($services);
 
     /**
      * Restart the given services.
@@ -26,12 +26,20 @@ interface ServiceManager
      * @param
      * @return void
      */
-    function restart($services);
+    public function restart($services);
+
+    /**
+     * Status the given services.
+     *
+     * @param
+     * @return void
+     */
+    public function status($services);
 
     /**
      * Determine if service manager is available on the system.
      *
      * @return bool
      */
-    function isAvailable();
+    public function isAvailable();
 }

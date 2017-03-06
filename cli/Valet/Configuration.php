@@ -28,6 +28,7 @@ class Configuration
         $this->createSitesDirectory();
         $this->createExtensionsDirectory();
         $this->createLogDirectory();
+        $this->createCertificatesDirectory();
         $this->writeBaseConfiguration();
 
         $this->files->chown($this->path(), user());
@@ -41,7 +42,7 @@ class Configuration
     function uninstall()
     {
         if ($this->files->isDir(VALET_HOME_PATH, user())) {
-            $this->files->unlink(VALET_HOME_PATH, user());
+            $this->files->remove(VALET_HOME_PATH);
         }
     }
 
@@ -104,6 +105,16 @@ class Configuration
         $this->files->ensureDirExists(VALET_HOME_PATH.'/Log', user());
 
         $this->files->touch(VALET_HOME_PATH.'/Log/nginx-error.log');
+    }
+
+    /**
+     * Create the directory for SSL certificates.
+     *
+     * @return void
+     */
+    function createCertificatesDirectory()
+    {
+        $this->files->ensureDirExists(VALET_HOME_PATH.'/Certificates', user());
     }
 
     /**

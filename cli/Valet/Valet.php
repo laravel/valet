@@ -8,6 +8,8 @@ use Valet\Contracts\PackageManager;
 use Valet\Contracts\ServiceManager;
 use Valet\PackageManagers\Apt;
 use Valet\PackageManagers\Dnf;
+use Valet\PackageManagers\Pacman;
+use Valet\ServiceManagers\Systemd;
 use Valet\ServiceManagers\LinuxService;
 
 class Valet
@@ -61,16 +63,16 @@ class Valet
      *
      * @return void
      */
-    function createSudoersEntry()
-    {
-        $this->files->ensureDirExists('/etc/sudoers.d');
+//     function createSudoersEntry()
+//     {
+//         $this->files->ensureDirExists('/etc/sudoers.d');
 
-        $this->files->put($this->sudoers, 'Cmnd_Alias VALET = '.$this->valetBin.' *
-%sudo ALL=(root) NOPASSWD: VALET'.PHP_EOL.'
-%wheel ALL=(root) NOPASSWD: VALET'.PHP_EOL);
+//         $this->files->put($this->sudoers, 'Cmnd_Alias VALET = '.$this->valetBin.' *
+// %sudo ALL=(root) NOPASSWD: VALET'.PHP_EOL.'
+// %wheel ALL=(root) NOPASSWD: VALET'.PHP_EOL);
 
-        $this->cli->quietly('chmod 0440 '.$this->sudoers);
-    }
+//         $this->cli->quietly('chmod 0440 '.$this->sudoers);
+//     }
 
     /**
      * Get the paths to all of the Valet extensions.
@@ -137,6 +139,7 @@ class Valet
         return collect([
             Apt::class,
             Dnf::class,
+            Pacman::class,
         ])->first(function ($pm) {
             return resolve($pm)->isAvailable();
         }, function () {
@@ -163,6 +166,7 @@ class Valet
     {
         return collect([
             LinuxService::class,
+            Systemd::class,
         ])->first(function ($pm) {
             return resolve($pm)->isAvailable();
         }, function () {
