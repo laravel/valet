@@ -26,11 +26,40 @@ class Brew
      * Determine if the given formula is installed.
      *
      * @param  string  $formula
+     * @param  array  $options
      * @return bool
      */
-    function installed($formula)
+    function installed($formula, $options = [])
     {
-        return in_array($formula, explode(PHP_EOL, $this->cli->runAsUser('brew list | grep '.$formula)));
+        if (! in_array($formula, explode(PHP_EOL, $this->cli->runAsUser('brew list | grep '.$formula)))) {
+            return false;
+        }
+
+        if (! $this->optionsInstalled($formula, $options)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Determine if the given formula's options are installed.
+     *
+     * @param  string  $formula
+     * @param  array  $options
+     * @return bool
+     */
+    function optionsInstalled($formula, $options = [])
+    {
+        foreach ($options as $option) {
+            $processOutput = $this->cli->runAsUser("brew info {$formula} | grep -- \"{$option}\"");
+
+            if (! in_array($option, (explode(PHP_EOL, $processOutput)))) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -76,7 +105,7 @@ class Brew
      */
     function ensureInstalled($formula, $options = [], $taps = [])
     {
-        if (! $this->installed($formula)) {
+        if (! $this->installed($formula, $options)) {
             $this->installOrFail($formula, $options, $taps);
         }
     }
