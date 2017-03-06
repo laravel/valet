@@ -38,7 +38,7 @@ After upgrading, it may be necessary to re-park or re-link your sites.
 
 ## Requirements
  - PHP >= 5.6
- - Ubuntu (and derivates) OR Fedora (and derivates)
+ - Ubuntu (and derivates), Fedora (and derivates) or Arch Linux (and derivates)
  - PHP Packages: `php*-cli php*-curl php*-mbstring php*-mcrypt php*-xml php*-zip`
  - Optional PHP Packages: `php*-sqlite3 php*-mysql php*-pgsql`
 
