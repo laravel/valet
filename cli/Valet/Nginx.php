@@ -66,9 +66,9 @@ class Nginx
             str_replace(['VALET_USER', 'VALET_HOME_PATH'], [user(), VALET_HOME_PATH], $contents)
         );
 
-        $hasPIDoption = strpos($cli->run('systemctl status nginx | grep ExecStart='), ' pid /');
+        $hasPIDoption = strpos($this->cli->run('systemctl status nginx | grep ExecStart='), ' pid /');
 
-        if ($hasPidoption) {
+        if ($hasPIDoption) {
             $this->files->putAsUser(
                 '/etc/nginx/nginx.conf',
                 str_replace('pid /run/nginx.pid;', '# pid /run/nginx.pid;', $contents)
