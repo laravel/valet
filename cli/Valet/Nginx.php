@@ -61,11 +61,11 @@ class Nginx
     {
         $contents = $this->files->get(__DIR__.'/../stubs/nginx.conf');
 
-        $pid_string = 'pid /run/nginx.pid;';
+        $pid_string = 'pid /run/nginx.pid';
         $hasPIDoption = strpos($this->cli->run('systemctl status nginx | grep ExecStart='), ' pid /');
 
         if ($hasPIDoption) {
-            $pid_string = '# pid /run/nginx.pid;';
+            $pid_string = '# pid /run/nginx.pid';
         }
 
         $this->files->putAsUser(
