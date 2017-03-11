@@ -2,6 +2,8 @@
 
 namespace Valet;
 
+use DomainException;
+
 class Nginx
 {
     var $brew;
@@ -9,6 +11,7 @@ class Nginx
     var $files;
     var $configuration;
     var $site;
+    const NGINX_CONF = '/usr/local/etc/nginx/nginx.conf';
 
     /**
      * Create a new Nginx instance.
@@ -56,7 +59,7 @@ class Nginx
         $contents = $this->files->get(__DIR__.'/../stubs/nginx.conf');
 
         $this->files->putAsUser(
-            '/usr/local/etc/nginx/nginx.conf',
+            static::NGINX_CONF,
             str_replace(['VALET_USER', 'VALET_HOME_PATH'], [user(), VALET_HOME_PATH], $contents)
         );
     }
@@ -104,6 +107,19 @@ class Nginx
     }
 
     /**
+     * Check nginx.conf for errors.
+     */
+    private function lint()
+    {
+        $this->cli->quietly(
+            'sudo nginx -c '.static::NGINX_CONF.' -t',
+            function($exitCode, $outputMessage) {
+                throw new DomainException("Nginx cannot start, please check your nginx.conf [$exitCode: $outputMessage].");
+            }
+        );
+    }
+
+    /**
      * Generate fresh Nginx servers for existing secure sites.
      *
      * @return void
@@ -122,6 +138,8 @@ class Nginx
      */
     function restart()
     {
+        $this->lint();
+
         $this->brew->restartService($this->brew->nginxServiceName());
     }
 
