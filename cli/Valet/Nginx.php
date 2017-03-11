@@ -113,7 +113,7 @@ class Nginx
     {
         $this->cli->quietly(
             'sudo nginx -c '.static::NGINX_CONF.' -t',
-            function($exitCode, $outputMessage) {
+            function ($exitCode, $outputMessage) {
                 throw new DomainException("Nginx cannot start, please check your nginx.conf [$exitCode: $outputMessage].");
             }
         );
