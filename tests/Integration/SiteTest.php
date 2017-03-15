@@ -19,8 +19,8 @@ class SiteTest extends TestCase
     public function tearDown()
     {
         exec('rm -rf '.__DIR__.'/output');
-        mkdir(__DIR__.'/output');
-        touch(__DIR__.'/output/.gitkeep');
+        mkdir(__DIR__ . '/output');
+        touch(__DIR__ . '/output/.gitkeep');
 
         Mockery::close();
     }
@@ -44,26 +44,26 @@ class SiteTest extends TestCase
 
     public function test_unlink_removes_existing_symlink()
     {
-        file_put_contents(__DIR__.'/output/file.out', 'test');
-        symlink(__DIR__.'/output/file.out', __DIR__.'/output/link');
+        file_put_contents(__DIR__ . '/output/file.out', 'test');
+        symlink(__DIR__ . '/output/file.out', __DIR__ . '/output/link');
         $site = resolve(StubForRemovingLinks::class);
         $site->unlink('link');
-        $this->assertFileNotExists(__DIR__.'/output/link');
+        $this->assertFileNotExists(__DIR__ . '/output/link');
 
         $site = resolve(StubForRemovingLinks::class);
         $site->unlink('link');
-        $this->assertFileNotExists(__DIR__.'/output/link');
+        $this->assertFileNotExists(__DIR__ . '/output/link');
     }
 
 
     public function test_prune_links_removes_broken_symlinks_in_sites_path()
     {
-        file_put_contents(__DIR__.'/output/file.out', 'test');
-        symlink(__DIR__.'/output/file.out', __DIR__.'/output/link');
-        unlink(__DIR__.'/output/file.out');
+        file_put_contents(__DIR__ . '/output/file.out', 'test');
+        symlink(__DIR__ . '/output/file.out', __DIR__ . '/output/link');
+        unlink(__DIR__ . '/output/file.out');
         $site = resolve(StubForRemovingLinks::class);
         $site->pruneLinks();
-        $this->assertFileNotExists(__DIR__.'/output/link');
+        $this->assertFileNotExists(__DIR__ . '/output/link');
     }
 }
 
@@ -72,6 +72,6 @@ class StubForRemovingLinks extends Site
 {
     function sitesPath()
     {
-        return __DIR__.'/output';
+        return __DIR__ . '/output';
     }
 }
