@@ -1,11 +1,11 @@
 <?php
 
-use PHPUnit\Framework\TestCase;
+use Valet\Tests\Functional\FunctionalTestCase;
 
 /**
  * @group functional
  */
-class InstallTest extends TestCase
+class InstallTest extends FunctionalTestCase
 {
     public function test_valet_is_running_after_install()
     {
