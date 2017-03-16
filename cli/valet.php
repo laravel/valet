@@ -129,6 +129,19 @@ $app->command('secure [domain]', function ($domain = null) {
 })->descriptions('Secure the given domain with a trusted TLS certificate');
 
 /**
+ * Check if a given domain has a trusted TLS certificate.
+ */
+$app->command('secured [domain]', function ($domain) {
+    $domain = $domain ?: Site::host(getcwd());
+
+    if (Site::isSecured($domain)) {
+        output('YES');
+    } else {
+        warning('NO');
+    }
+})->descriptions('Check if a given domain has a trusted TLS certificate');
+
+/**
  * Stop serving the given domain over HTTPS and remove the trusted TLS certificate.
  */
 $app->command('unsecure [domain]', function ($domain = null) {
