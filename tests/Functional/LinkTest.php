@@ -17,6 +17,7 @@ class LinkTest extends FunctionalTestCase
     protected function tearDown()
     {
         Filesystem::remove($_SERVER['HOME'] . '/linked-directory');
+        Filesystem::removeBrokenLinksAt(VALET_HOME_PATH . '/Sites');
     }
 
     public function test_valet_site_is_linked()
@@ -42,5 +43,18 @@ class LinkTest extends FunctionalTestCase
 
         $this->assertEquals(404, $response->code);
         $this->assertContains('Valet - Not Found', $response->body);
+    }
+
+    public function test_valet_links()
+    {
+        // Link site
+        $this->valetCommand('link linked', $_SERVER['HOME'] . '/linked-directory');
+
+        $response = $this->valetCommand('links');
+
+        $this->assertContains('linked', $response);
+        $this->assertContains('http://linked.dev', $response);
+        $this->assertContains($_SERVER['HOME'] . '/linked-directory', $response);
+        // TODO: Test SSL output
     }
 }
