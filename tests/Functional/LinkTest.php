@@ -19,7 +19,7 @@ class LinkTest extends FunctionalTestCase
         Filesystem::remove($_SERVER['HOME'] . '/linked-directory');
     }
 
-    public function test_valet_site_is_linked_correctly()
+    public function test_valet_site_is_linked()
     {
         // Call valet link command
         $this->valetCommand('link linked', $_SERVER['HOME'] . '/linked-directory');
@@ -28,5 +28,19 @@ class LinkTest extends FunctionalTestCase
 
         $this->assertEquals(200, $response->code);
         $this->assertContains('Valet linked site', $response->body);
+    }
+
+    public function test_valet_site_is_unlinked()
+    {
+        // Link site
+        $this->valetCommand('link linked', $_SERVER['HOME'] . '/linked-directory');
+
+        // Call valet unlink command
+        $this->valetCommand('unlink linked', $_SERVER['HOME'] . '/linked-directory');
+
+        $response = \Httpful\Request::get('http://linked.dev')->send();
+
+        $this->assertEquals(404, $response->code);
+        $this->assertContains('Valet - Not Found', $response->body);
     }
 }
