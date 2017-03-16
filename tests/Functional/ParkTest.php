@@ -3,6 +3,7 @@
 namespace Valet\Tests\Functional;
 
 use Filesystem;
+use Configuration;
 
 /**
  * @group functional
@@ -27,6 +28,7 @@ class ParkTest extends FunctionalTestCase
     protected function tearDown()
     {
         Filesystem::remove($_SERVER['HOME'] . '/Code');
+        Configuration::prune();
     }
 
     public function test_valet_can_be_parked()
@@ -44,5 +46,17 @@ class ParkTest extends FunctionalTestCase
         $spaces = \Httpful\Request::get('http://with-spaces.dev')->send();
         $this->assertEquals(200, $spaces->code);
         $this->assertContains('With Spaces', $spaces->body);
+    }
+
+    public function test_valet_can_forget_directory()
+    {
+        $this->valetCommand('park', $_SERVER['HOME'] . '/Code');
+
+        $this->valetCommand('forget', $_SERVER['HOME'] . '/Code');
+
+        $response = \Httpful\Request::get('http://one.dev')->send();
+
+        $this->assertEquals(404, $response->code);
+        $this->assertContains('Valet - Not Found', $response->body);
     }
 }
