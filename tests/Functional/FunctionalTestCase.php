@@ -40,7 +40,10 @@ class FunctionalTestCase extends TestCase
         });
 
         if ($process->getExitCode() > 0) {
-            throw new RuntimeException('Command "' . $command . '" exited with exit code ' . $process->getExitCode());
+            throw new RuntimeException(
+                'Command "' . $command . '" exited with exit code ' . $process->getExitCode() . PHP_EOL .
+                $processOutput
+            );
         }
 
         return $processOutput;
