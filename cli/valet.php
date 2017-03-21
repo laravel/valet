@@ -47,8 +47,6 @@ $app->command('install', function () {
     output(PHP_EOL.'<info>Valet installed successfully!</info>');
 })->descriptions('Install the Valet services');
 
-var_dump(VALET_HOME_PATH);
-
 /**
  * Most commands are available only if valet is installed.
  */
