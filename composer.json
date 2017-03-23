@@ -1,7 +1,7 @@
 {
     "name": "cpriego/valet-linux",
     "description": "A more enjoyable local development experience for Linux.",
-    "keywords": ["laravel", "zonda", "wwdhhd", "ubuntu", "fedora"],
+    "keywords": ["laravel", "zonda", "wwdhhd", "ubuntu", "fedora", "arch", "linux", "valet"],
     "license": "MIT",
     "authors": [
         {
