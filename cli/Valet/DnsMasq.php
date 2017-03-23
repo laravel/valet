@@ -7,7 +7,7 @@ use Symfony\Component\Process\Process;
 
 class DnsMasq
 {
-    var $brew, $cli, $files;
+    var $brew, $cli, $files, $config;
 
     var $resolverPath = '/etc/resolver';
     var $configPath = '/usr/local/etc/dnsmasq.conf';
@@ -21,11 +21,12 @@ class DnsMasq
      * @param  Filesystem  $files
      * @return void
      */
-    function __construct(Brew $brew, CommandLine $cli, Filesystem $files)
+    function __construct(Brew $brew, CommandLine $cli, Filesystem $files, Configuration $config)
     {
         $this->cli = $cli;
         $this->brew = $brew;
         $this->files = $files;
+        $this->config = $config;
     }
 
     /**
@@ -61,7 +62,13 @@ class DnsMasq
 
         $this->appendCustomConfigImport($customConfigPath);
 
-        $this->files->putAsUser($customConfigPath, 'address=/.'.$domain.'/127.0.0.1'.PHP_EOL);
+        $configContent = collect($this->config->read()['hosts'])->map (function ($value) use ($domain) {
+            return 'address=/'.$value['host'].'.'.$domain.'/'.$value['ip'].PHP_EOL;
+        })->implode ('');
+
+        $configContent .= 'address=/.'.$domain.'/127.0.0.1'.PHP_EOL;
+
+        $this->files->putAsUser($customConfigPath, $configContent);
     }
 
     /**
@@ -131,6 +138,18 @@ class DnsMasq
         $this->files->unlink($this->resolverPath.'/'.$oldDomain);
 
         $this->install($newDomain);
+    }
+
+    function addHost ($name, $ip) {
+        $this->config->addHost ($name, $ip);
+        $this->createCustomConfigFile ($this->config->read ()['domain']);
+        $this->brew->restartService('dnsmasq');
+    }
+
+    function removeHost ($host) {
+        $this->config->removeHost($host);
+        $this->createCustomConfigFile ($this->config->read ()['domain']);
+        $this->brew->restartService('dnsmasq');
     }
 
     /**
