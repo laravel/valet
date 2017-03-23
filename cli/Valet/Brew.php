@@ -91,7 +91,7 @@ class Brew
      */
     function installOrFail($formula, $options = [], $taps = [])
     {
-        info("Installing $formula...");
+        info("Installing {$formula}...");
 
         if (count($taps) > 0) {
             $this->tap($taps);
@@ -132,7 +132,7 @@ class Brew
 
         foreach ($services as $service) {
             if ($this->installed($service)) {
-                info("Restarting $service...");
+                info("Restarting {$service}...");
 
                 $this->cli->quietly('sudo brew services stop '.$service);
                 $this->cli->quietly('sudo brew services start '.$service);
@@ -151,7 +151,7 @@ class Brew
 
         foreach ($services as $service) {
             if ($this->installed($service)) {
-                info("Stopping $service...");
+                info("Stopping {$service}...");
 
                 $this->cli->quietly('sudo brew services stop '.$service);
             }
