@@ -54,7 +54,7 @@ class PhpFpm
      */
     function updateConfiguration()
     {
-        info('Updating php configuration...');
+        info('Updating PHP configuration...');
 
         $contents = $this->files->get($this->fpmConfigPath());
 
