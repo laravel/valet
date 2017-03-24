@@ -66,8 +66,8 @@ script:
       );
     fi
 
-  # Wait for entrypoint script to complete
-  - if [[ -n $distro ]]; then docker exec -it $CONTAINER_ID bash -c 'echo "Waiting for entrypoint script..."; while [ ! -f /tmp/entrypoint_done ]; do sleep 1; done; echo "Entrypoint ready."'; fi
+  # Prepare the container
+  - if [[ -n $distro ]]; then docker exec -it $CONTAINER_ID /prepare.sh; fi
 
   # Run functional tests
   - if [[ -n $distro ]]; then docker exec -it -u valet $CONTAINER_ID /workspace/tests/Functional/run.sh; fi
