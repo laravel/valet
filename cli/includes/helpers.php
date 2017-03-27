@@ -12,57 +12,65 @@ define('VALET_HOME_PATH', $_SERVER['HOME'].'/.valet');
 define('VALET_SERVER_PATH', realpath(__DIR__ . '/../../server.php'));
 define('VALET_STATIC_PREFIX', '41c270e4-5535-4daa-b23e-c269744c2f45');
 
-/**
- * Output the given text to the console.
- *
- * @param  string  $output
- * @return void
- */
-function info($output)
-{
-    output('<info>'.$output.'</info>');
-}
-
-/**
- * Output the given text to the console.
- *
- * @param  string  $output
- * @return void
- */
-function warning($output)
-{
-    output('<fg=red>'.$output.'</>');
-}
-
-/**
- * Output a table to the console.
- *
- * @param array $headers
- * @param array $rows
- * @return void
- */
-function table(array $headers = [], array $rows = [])
-{
-    $table = new Table(new ConsoleOutput);
-
-    $table->setHeaders($headers)->setRows($rows);
-
-    $table->render();
-}
-
-/**
- * Output the given text to the console.
- *
- * @param  string  $output
- * @return void
- */
-function output($output)
-{
-    if (isset($_ENV['APP_ENV']) && $_ENV['APP_ENV'] === 'testing') {
-        return;
+if (! function_exists('info')) {
+    /**
+     * Output the given text to the console.
+     *
+     * @param  string  $output
+     * @return void
+     */
+    function info($output)
+    {
+        output('<info>'.$output.'</info>');
     }
+}
 
-    (new ConsoleOutput)->writeln($output);
+if (! function_exists('warning')) {
+    /**
+     * Output the given text to the console.
+     *
+     * @param  string  $output
+     * @return void
+     */
+    function warning($output)
+    {
+        output('<fg=red>'.$output.'</>');
+    }
+}
+
+if (! function_exists('table')) {
+    /**
+     * Output a table to the console.
+     *
+     * @param array $headers
+     * @param array $rows
+     * @return void
+     */
+    function table(array $headers = [], array $rows = [])
+    {
+        $table = new Table(new ConsoleOutput);
+
+        $table->setHeaders($headers)->setRows($rows);
+
+        $table->render();
+    }
+}
+
+if (! function_exists('output')) {
+    /**
+     * Output the given text to the console.
+     *
+     * @param  string  $output
+     * @return void
+     */
+    function output($output)
+    {
+        if (isset($_ENV['APP_ENV']) && $_ENV['APP_ENV'] === 'testing') {
+            return;
+        }
+
+        (new ConsoleOutput)->writeln($output);
+    }
 }
 
 if (! function_exists('resolve')) {
@@ -78,16 +86,18 @@ if (! function_exists('resolve')) {
     }
 }
 
-/**
- * Swap the given class implementation in the container.
- *
- * @param  string  $class
- * @param  mixed  $instance
- * @return void
- */
-function swap($class, $instance)
-{
-    Container::getInstance()->instance($class, $instance);
+if (! function_exists('swap')) {
+    /**
+     * Swap the given class implementation in the container.
+     *
+     * @param  string  $class
+     * @param  mixed  $instance
+     * @return void
+     */
+    function swap($class, $instance)
+    {
+        Container::getInstance()->instance($class, $instance);
+    }
 }
 
 if (! function_exists('retry')) {
@@ -120,15 +130,17 @@ if (! function_exists('retry')) {
     }
 }
 
-/**
- * Verify that the script is currently running as "sudo".
- *
- * @return void
- */
-function should_be_sudo()
-{
-    if (! isset($_SERVER['SUDO_USER'])) {
-        throw new Exception('This command must be run with sudo.');
+if (! function_exists('should_be_sudo')) {
+    /**
+     * Verify that the script is currently running as "sudo".
+     *
+     * @return void
+     */
+    function should_be_sudo()
+    {
+        if (! isset($_SERVER['SUDO_USER'])) {
+            throw new Exception('This command must be run with sudo.');
+        }
     }
 }
 
@@ -166,14 +178,16 @@ if (! function_exists('ends_with')) {
     }
 }
 
-/**
- * Get the user
- */
-function user()
-{
-    if (! isset($_SERVER['SUDO_USER'])) {
-        return $_SERVER['USER'];
-    }
+if (! function_exists('user')) {
+    /**
+     * Get the user
+     */
+    function user()
+    {
+        if (! isset($_SERVER['SUDO_USER'])) {
+            return $_SERVER['USER'];
+        }
 
-    return $_SERVER['SUDO_USER'];
+        return $_SERVER['SUDO_USER'];
+    }
 }
