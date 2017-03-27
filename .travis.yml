@@ -20,6 +20,11 @@ matrix:
     - php: 7.0
       env:
         phpunit: false
+        distro: arch
+        run_opts: "'--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro'"
+    - php: 7.0
+      env:
+        phpunit: false
         distro: fedora24
         run_opts: "'--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro'"
     - php: 7.0
