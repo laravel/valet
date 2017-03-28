@@ -20,8 +20,8 @@ class DnsMasqTest extends TestCase
     public function tearDown()
     {
         exec('rm -rf '.__DIR__.'/output');
-        mkdir(__DIR__.'/output');
-        touch(__DIR__.'/output/.gitkeep');
+        mkdir(__DIR__ . '/output');
+        touch(__DIR__ . '/output/.gitkeep');
 
         Mockery::close();
     }
@@ -49,7 +49,7 @@ class DnsMasqTest extends TestCase
 
     public function test_dnsmasqSetup_correctly_installs_and_configures_dnsmasq_control_to_networkmanager()
     {
-        copy(__DIR__.'/files/NetworkManager.conf', __DIR__.'/output/NetworkManager.conf');
+        copy(__DIR__ . '/files/NetworkManager.conf', __DIR__ . '/output/NetworkManager.conf');
 
         $pm = Mockery::mock(PackageManager::class);
         $pm->shouldReceive('ensureInstalled')->once()->with('dnsmasq');
@@ -59,14 +59,14 @@ class DnsMasqTest extends TestCase
         swap(ServiceManager::class, $sm);
 
         $dnsMasq = resolve(DnsMasq::class);
-        $dnsMasq->nmConfigPath = __DIR__.'/output/NetworkManager.conf';
+        $dnsMasq->nmConfigPath = __DIR__ . '/output/NetworkManager.conf';
 
         $dnsMasq->dnsmasqSetup();
 
         $this->assertSame('[main]
 dns=dnsmasq
 test-contents
-', file_get_contents(__DIR__.'/output/NetworkManager.conf'));
+', file_get_contents(__DIR__ . '/output/NetworkManager.conf'));
     }
 
     public function test_createCustomConfigFile_correctly_creates_valet_dns_config_file()
@@ -78,11 +78,11 @@ test-contents
         swap(ServiceManager::class, $sm);
 
         $dnsMasq = resolve(DnsMasq::class);
-        $dnsMasq->configPath = __DIR__.'/output/valet';
+        $dnsMasq->configPath = __DIR__ . '/output/valet';
 
         $dnsMasq->createCustomConfigFile('test');
 
-        $this->assertSame('address=/.test/127.0.0.1'.PHP_EOL, file_get_contents(__DIR__.'/output/valet'));
+        $this->assertSame('address=/.test/127.0.0.1'.PHP_EOL, file_get_contents(__DIR__ . '/output/valet'));
     }
 
     public function test_update_domain_removes_old_resolver_and_reinstalls()

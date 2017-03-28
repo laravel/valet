@@ -11,9 +11,9 @@ class Site
     /**
      * Create a new Site instance.
      *
-     * @param  Configuration  $config
-     * @param  CommandLine  $cli
-     * @param  Filesystem  $files
+     * @param  Configuration $config
+     * @param  CommandLine $cli
+     * @param  Filesystem $files
      */
     function __construct(Configuration $config, CommandLine $cli, Filesystem $files)
     {
@@ -25,13 +25,13 @@ class Site
     /**
      * Get the real hostname for the given path, checking links.
      *
-     * @param  string  $path
+     * @param  string $path
      * @return string|null
      */
     function host($path)
     {
         foreach ($this->files->scandir($this->sitesPath()) as $link) {
-            if ($resolved = realpath($this->sitesPath().'/'.$link) === $path) {
+            if ($resolved = realpath($this->sitesPath() . '/' . $link) === $path) {
                 return $link;
             }
         }
@@ -42,8 +42,8 @@ class Site
     /**
      * Link the current working directory with the given name.
      *
-     * @param  string  $target
-     * @param  string  $link
+     * @param  string $target
+     * @param  string $link
      * @return string
      */
     function link($target, $link)
@@ -54,71 +54,72 @@ class Site
 
         $this->config->prependPath($linkPath);
 
-        $this->files->symlinkAsUser($target, $linkPath.'/'.$link);
+        $this->files->symlinkAsUser($target, $linkPath . '/' . $link);
 
-        return $linkPath.'/'.$link;
+        return $linkPath . '/' . $link;
     }
 
     /**
-         * Pretty print out all links in Valet.
-         *
-         * @return \Illuminate\Support\Collection
-         */
-        function links() {
-            $certsPath = VALET_HOME_PATH.'/Certificates';
+     * Pretty print out all links in Valet.
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    function links()
+    {
+        $certsPath = VALET_HOME_PATH . '/Certificates';
 
-            $this->files->ensureDirExists($certsPath, user());
+        $this->files->ensureDirExists($certsPath, user());
 
-            $certs = $this->getCertificates($certsPath);
+        $certs = $this->getCertificates($certsPath);
 
-            return $this->getLinks(VALET_HOME_PATH.'/Sites', $certs);
-        }
+        return $this->getLinks(VALET_HOME_PATH . '/Sites', $certs);
+    }
 
-        /**
-         * Get all certificates from config folder.
-         *
-         * @param string $path
-         * @return \Illuminate\Support\Collection
-         */
-        function getCertificates(string $path)
-        {
-            return collect($this->files->scanDir($path))->filter(function ($value, $key) {
-                return ends_with($value, '.crt');
-            })->map(function ($cert) {
-                return substr($cert, 0, -8);
-            })->flip();
-        }
+    /**
+     * Get all certificates from config folder.
+     *
+     * @param string $path
+     * @return \Illuminate\Support\Collection
+     */
+    function getCertificates($path)
+    {
+        return collect($this->files->scanDir($path))->filter(function ($value, $key) {
+            return ends_with($value, '.crt');
+        })->map(function ($cert) {
+            return substr($cert, 0, -8);
+        })->flip();
+    }
 
-        /**
-         * Get list of links and present them formatted.
-         *
-         * @param string $path
-         * @param \Illuminate\Support\Collection $certs
-         * @return \Illuminate\Support\Collection
-         */
-        function getLinks(string $path, \Illuminate\Support\Collection $certs)
-        {
-            $config = $this->config->read();
+    /**
+     * Get list of links and present them formatted.
+     *
+     * @param string $path
+     * @param \Illuminate\Support\Collection $certs
+     * @return \Illuminate\Support\Collection
+     */
+    function getLinks($path, \Illuminate\Support\Collection $certs)
+    {
+        $config = $this->config->read();
 
-            return collect($this->files->scanDir($path))->mapWithKeys(function ($site) use($path) {
-                return [$site => $this->files->readLink($path.'/'.$site)];
-            })->map(function ($path, $site) use($certs, $config) {
-                $secured = $certs->has($site);
-                $url = ($secured ? 'https': 'http').'://'.$site.'.'.$config['domain'];
+        return collect($this->files->scanDir($path))->mapWithKeys(function ($site) use ($path) {
+            return [$site => $this->files->readLink($path . '/' . $site)];
+        })->map(function ($path, $site) use ($certs, $config) {
+            $secured = $certs->has($site);
+            $url = ($secured ? 'https' : 'http') . '://' . $site . '.' . $config['domain'];
 
-                return [$site, $secured ? ' X': '', $url, $path];
-            });
-        }
+            return [$site, $secured ? ' X' : '', $url, $path];
+        });
+    }
 
     /**
      * Unlink the given symbolic link.
      *
-     * @param  string  $name
+     * @param  string $name
      * @return void
      */
     function unlink($name)
     {
-        if ($this->files->exists($path = $this->sitesPath().'/'.$name)) {
+        if ($this->files->exists($path = $this->sitesPath() . '/' . $name)) {
             $this->files->unlink($path);
         }
     }
@@ -138,13 +139,13 @@ class Site
     /**
      * Resecure all currently secured sites with a fresh domain.
      *
-     * @param  string  $oldDomain
-     * @param  string  $domain
+     * @param  string $oldDomain
+     * @param  string $domain
      * @return void
      */
     function resecureForNewDomain($oldDomain, $domain)
     {
-        if (! $this->files->exists($this->certificatesPath())) {
+        if (!$this->files->exists($this->certificatesPath())) {
             return;
         }
 
@@ -155,7 +156,7 @@ class Site
         }
 
         foreach ($secured as $url) {
-            $this->secure(str_replace('.'.$oldDomain, '.'.$domain, $url));
+            $this->secure(str_replace('.' . $oldDomain, '.' . $domain, $url));
         }
     }
 
@@ -167,15 +168,15 @@ class Site
     function secured()
     {
         return collect($this->files->scandir($this->certificatesPath()))
-                    ->map(function ($file) {
-                        return str_replace(['.key', '.csr', '.crt'], '', $file);
-                    })->unique()->values()->all();
+            ->map(function ($file) {
+                return str_replace(['.key', '.csr', '.crt'], '', $file);
+            })->unique()->values()->all();
     }
 
     /**
      * Secure the given host with TLS.
      *
-     * @param  string  $url
+     * @param  string $url
      * @return void
      */
     function secure($url)
@@ -187,21 +188,21 @@ class Site
         $this->createCertificate($url);
 
         $this->files->putAsUser(
-            VALET_HOME_PATH.'/Nginx/'.$url, $this->buildSecureNginxServer($url)
+            VALET_HOME_PATH . '/Nginx/' . $url, $this->buildSecureNginxServer($url)
         );
     }
 
     /**
      * Create and trust a certificate for the given URL.
      *
-     * @param  string  $url
+     * @param  string $url
      * @return void
      */
     function createCertificate($url)
     {
-        $keyPath = $this->certificatesPath().'/'.$url.'.key';
-        $csrPath = $this->certificatesPath().'/'.$url.'.csr';
-        $crtPath = $this->certificatesPath().'/'.$url.'.crt';
+        $keyPath = $this->certificatesPath() . '/' . $url . '.key';
+        $csrPath = $this->certificatesPath() . '/' . $url . '.csr';
+        $crtPath = $this->certificatesPath() . '/' . $url . '.crt';
 
         $this->createPrivateKey($keyPath);
         $this->createSigningRequest($url, $keyPath, $csrPath);
@@ -216,7 +217,7 @@ class Site
     /**
      * Create the private key for the TLS certificate.
      *
-     * @param  string  $keyPath
+     * @param  string $keyPath
      * @return void
      */
     function createPrivateKey($keyPath)
@@ -227,7 +228,7 @@ class Site
     /**
      * Create the signing request for the TLS certificate.
      *
-     * @param  string  $keyPath
+     * @param  string $keyPath
      * @return void
      */
     function createSigningRequest($url, $keyPath, $csrPath)
@@ -241,7 +242,7 @@ class Site
     /**
      * Trust the given certificate file in the Mac Keychain.
      *
-     * @param  string  $crtPath
+     * @param  string $crtPath
      * @return void
      */
     function trustCertificate($crtPath, $url)
@@ -258,7 +259,7 @@ class Site
     /**
      * Build the TLS secured Nginx server for the given URL.
      *
-     * @param  string  $url
+     * @param  string $url
      * @return string
      */
     function buildSecureNginxServer($url)
@@ -267,25 +268,25 @@ class Site
 
         return str_replace(
             ['VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_SITE', 'VALET_CERT', 'VALET_KEY'],
-            [VALET_HOME_PATH, VALET_SERVER_PATH, $url, $path.'/'.$url.'.crt', $path.'/'.$url.'.key'],
-            $this->files->get(__DIR__.'/../stubs/secure.valet.conf')
+            [VALET_HOME_PATH, VALET_SERVER_PATH, $url, $path . '/' . $url . '.crt', $path . '/' . $url . '.key'],
+            $this->files->get(__DIR__ . '/../stubs/secure.valet.conf')
         );
     }
 
     /**
      * Unsecure the given URL so that it will use HTTP again.
      *
-     * @param  string  $url
+     * @param  string $url
      * @return void
      */
     function unsecure($url)
     {
-        if ($this->files->exists($this->certificatesPath().'/'.$url.'.crt')) {
-            $this->files->unlink(VALET_HOME_PATH.'/Nginx/'.$url);
+        if ($this->files->exists($this->certificatesPath() . '/' . $url . '.crt')) {
+            $this->files->unlink(VALET_HOME_PATH . '/Nginx/' . $url);
 
-            $this->files->unlink($this->certificatesPath().'/'.$url.'.key');
-            $this->files->unlink($this->certificatesPath().'/'.$url.'.csr');
-            $this->files->unlink($this->certificatesPath().'/'.$url.'.crt');
+            $this->files->unlink($this->certificatesPath() . '/' . $url . '.key');
+            $this->files->unlink($this->certificatesPath() . '/' . $url . '.csr');
+            $this->files->unlink($this->certificatesPath() . '/' . $url . '.crt');
 
             $this->cli->run(sprintf('certutil -d sql:$HOME/.pki/nssdb -D -n "%s"', $url));
             $this->cli->run(sprintf('certutil -d $HOME/.mozilla/firefox/*.default -D -n "%s"', $url));
@@ -299,7 +300,7 @@ class Site
      */
     function sitesPath()
     {
-        return VALET_HOME_PATH.'/Sites';
+        return VALET_HOME_PATH . '/Sites';
     }
 
     /**
@@ -309,6 +310,6 @@ class Site
      */
     function certificatesPath()
     {
-        return VALET_HOME_PATH.'/Certificates';
+        return VALET_HOME_PATH . '/Certificates';
     }
 }
