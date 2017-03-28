@@ -47,7 +47,7 @@ class DnsMasq
      */
     function createCustomConfigFile($domain)
     {
-        $this->files->put($this->configPath, 'address=/.'.$domain.'/127.0.0.1'.PHP_EOL);
+        $this->files->putAsUser($this->configPath, 'address=/.'.$domain.'/127.0.0.1'.PHP_EOL);
     }
 
     /**
