@@ -75,6 +75,24 @@ if (is_dir(VALET_HOME_PATH)) {
     })->descriptions('Get or set the domain used for Valet sites');
 
     /**
+     * Get or set the port number currently being used by Valet.
+     */
+    $app->command('port [port]', function ($port = null) {
+        if ($port === null) {
+            return info('Current Nginx port: ' . Configuration::read()['port']);
+        }
+
+        $port = trim($port);
+        Nginx::updatePort($port);
+
+        Configuration::updateKey('port', $port);
+        Nginx::restart();
+        PhpFpm::restart();
+
+        info('Your Nginx port has been updated to ['.$port.'].');
+    })->descriptions('Get or set the port number used for Valet sites');
+
+    /**
      * Add the current working directory to the paths configuration.
      */
     $app->command('park [path]', function ($path = null) {

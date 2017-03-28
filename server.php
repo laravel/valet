@@ -120,7 +120,7 @@ $uri = urldecode(
 
 $siteName = basename(
     // Filter host to support xip.io feature
-    valet_support_xip_io($_SERVER['HTTP_HOST']),
+    valet_support_xip_io(explode(':',$_SERVER['HTTP_HOST'])[0]),
     '.'.$valetConfig['domain']
 );
 

@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 SOURCE="${BASH_SOURCE[0]}"
-SUDOCMDS="install uninstall start srestart top secure share"
+SUDOCMDS="install uninstall start restart stop secure share"
+PORT=$(cat ~/.valet/config.json | jq -r ".port")
 
 # If the current source is a symbolic link, we need to resolve it to an
 # actual directory name. We'll use PHP to do this easier than we can
@@ -65,7 +66,7 @@ then
 
     # Fetch Ngrok URL In Background...
     bash "$DIR/cli/scripts/fetch-share-url.sh" &
-    sudo -u $USER "$DIR/bin/ngrok" http -host-header=rewrite -region="$REGION" "$HOST.$DOMAIN:80"
+    sudo -u $USER "$DIR/bin/ngrok" http -host-header=rewrite -region="$REGION" "$HOST.$DOMAIN:$PORT"
     exit
 
 # Finally, for every other command we will just proxy into the PHP tool

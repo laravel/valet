@@ -84,8 +84,8 @@ class Nginx
         $this->files->putAsUser(
             '/etc/nginx/sites-available/valet.conf',
             str_replace(
-                ['VALET_HOME_PATH', 'VALET_SERVER_PATH'],
-                [VALET_HOME_PATH, VALET_SERVER_PATH],
+                ['VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_PORT'],
+                [VALET_HOME_PATH, VALET_SERVER_PATH, '80'],
                 $this->files->get(__DIR__.'/../stubs/valet.conf')
             )
         );
@@ -118,6 +118,24 @@ class Nginx
         $this->files->putAsUser($nginxDirectory.'/.keep', "\n");
 
         $this->rewriteSecureNginxFiles();
+    }
+
+    /**
+     * Update the port used by Nginx.
+     *
+     * @param  string  $newPort
+     * @return void
+     */
+    function updatePort($newPort)
+    {
+        $this->files->putAsUser(
+            '/etc/nginx/sites-available/valet.conf',
+            str_replace(
+                ['VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_PORT'],
+                [VALET_HOME_PATH, VALET_SERVER_PATH, $newPort],
+                $this->files->get(__DIR__.'/../stubs/valet.conf')
+            )
+        );
     }
 
     /**
