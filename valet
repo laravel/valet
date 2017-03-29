@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 SOURCE="${BASH_SOURCE[0]}"
-SUDOCMDS="install uninstall start restart stop secure share"
-PORT=$(cat ~/.valet/config.json | jq -r ".port")
+SUDOCMDS="uninstall install start restart stop unsecure secure"
+HOMEPATH=$HOME
 
 # If the current source is a symbolic link, we need to resolve it to an
 # actual directory name. We'll use PHP to do this easier than we can
@@ -27,10 +27,24 @@ fi
 # us to never require the end users to manually specify each sudo.
 if [[ -n $1 && $SUDOCMDS =~ $1 ]]
 then
+    if [[ ! -d "/etc/NetworkManager/dnsmasq.d" ]]
+    then
+        sudo mkdir -p "/etc/NetworkManager/dnsmasq.d"
+    fi
+
     if [[ "$EUID" -ne 0 ]]
     then
-        sudo $SOURCE "$@"
-        exit
+        sudo env HOME=$HOMEPATH $SOURCE "$@"
+        exit 0
+    fi
+fi
+
+if [[ -n $2 && "domain port" =~ $1 ]]
+then
+    if [[ "$EUID" -ne 0 ]]
+    then
+        sudo env HOME=$HOMEPATH $SOURCE "$@"
+        exit 0
     fi
 fi
 
@@ -40,7 +54,7 @@ fi
 if [[ "$1" = "update" ]]
 then
     bash $DIR/cli/scripts/update.sh
-    exit
+    exit 0
 
 # If the command is the "share" command we will need to resolve out any
 # symbolic links for the site. Before starting Ngrok, we will fire a
@@ -49,6 +63,7 @@ elif [[ "$1" = "share" ]]
 then
     HOST="${PWD##*/}"
     DOMAIN=$(php "$DIR/cli/valet.php" domain)
+    PORT=$(cat "$HOME/.valet/config.json" | jq -r ".port")
 
     for linkname in ~/.valet/Sites/*; do
         if [[ "$(readlink $linkname)" = "$PWD" ]]
