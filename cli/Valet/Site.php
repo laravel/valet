@@ -80,7 +80,7 @@ class Site
      * @param string $path
      * @return \Illuminate\Support\Collection
      */
-    function getCertificates(string $path)
+    function getCertificates($path)
     {
         return collect($this->files->scanDir($path))->filter(function ($value, $key) {
             return ends_with($value, '.crt');
@@ -96,7 +96,7 @@ class Site
      * @param \Illuminate\Support\Collection $certs
      * @return \Illuminate\Support\Collection
      */
-    function getLinks(string $path, \Illuminate\Support\Collection $certs)
+    function getLinks($path, $certs)
     {
         $config = $this->config->read();
 
