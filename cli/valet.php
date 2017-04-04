@@ -250,6 +250,26 @@ if (is_dir(VALET_HOME_PATH)) {
             output('NO');
         }
     })->descriptions('Determine if this is the latest version of Valet');
+
+    /**
+     * Determine directory listing option
+     */
+    $app->command('directory-listing [option]', function ($option = null) {
+        $key = 'directory-listing';
+        $config = Configuration::read();
+
+        if (is_null($option)) {
+            if (!isset($config[$key])) {
+                output('Directory listing is not enabled. Set to on or off. Default is off');
+            } else {
+                output('Directory listing is ' . $config[$key]);
+            }
+        } else {
+            $config[$key] = $option;
+            Configuration::write($config);
+            output('Directory listing configuration is saved');
+        }
+    })->descriptions('Determine directory listing behavior. Default is off');
 }
 
 /**

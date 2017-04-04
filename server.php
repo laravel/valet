@@ -18,6 +18,47 @@ function show_valet_404()
 }
 
 /**
+ * Show directory listing
+ */
+function show_directory_listing($valetSitePath, $siteName, $uri)
+{
+    echo "<h1>Index of " . $uri . "</h1>";
+    echo "<hr>";
+
+    if ($uri == '/') {
+        $directory = $valetSitePath."/*";
+    } else {
+        $directory = $valetSitePath.$uri."/*";
+    }
+
+    $paths = glob($directory);
+
+    // sort and group directories at the top then files
+    usort($paths, function ($a, $b) {
+        if (is_dir($a) == is_dir($b)) {
+            return strnatcasecmp($a, $b);
+        } else {
+            return is_dir($a) ? -1 : 1;
+        }
+    });
+
+    function display_path($path, $uri)
+    {
+        $file = basename($path);
+        if ($uri == '/') {
+            return sprintf('<a href="/%s">/%s</a>', $file, $file);
+        } else {
+            return sprintf('<a href="%s">%s</a>', $uri.'/'.$file, $uri.'/'.$file);
+        }
+    }
+
+    echo implode(array_map(function ($path) use ($uri) {
+        return display_path($path, $uri);
+    }, $paths), "<br/>");
+    exit;
+}
+
+/**
  * @param $domain string Domain to filter
  *
  * @return string Filtered domain (without xip.io feature)
@@ -125,7 +166,11 @@ $frontControllerPath = $valetDriver->frontControllerPath(
 );
 
 if (! $frontControllerPath) {
-    show_valet_404();
+    if (isset($valetConfig['directory-listing']) && $valetConfig['directory-listing'] == 'on') {
+        show_directory_listing($valetSitePath, $siteName, $uri);
+    } else {
+        show_valet_404();
+    }
 }
 
 chdir(dirname($frontControllerPath));
