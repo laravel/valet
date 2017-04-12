@@ -9,6 +9,7 @@ use Valet\Contracts\ServiceManager;
 use Valet\PackageManagers\Apt;
 use Valet\PackageManagers\Dnf;
 use Valet\PackageManagers\Pacman;
+use Valet\PackageManagers\Yum;
 use Valet\ServiceManagers\Systemd;
 use Valet\ServiceManagers\LinuxService;
 
@@ -140,6 +141,7 @@ class Valet
             Apt::class,
             Dnf::class,
             Pacman::class,
+            Yum::class,
         ])->first(function ($pm) {
             return resolve($pm)->isAvailable();
         }, function () {
