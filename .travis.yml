@@ -17,7 +17,7 @@ matrix:
       env: phpunit=true
     - php: 7.1
       env: phpunit=true
-    - php: 7.0
+    - php: 7.1
       env:
         phpunit: false
         distro: arch
