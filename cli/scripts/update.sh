@@ -1,31 +1,12 @@
 #!/usr/bin/env bash
 
-# Determine if this is the latest Valet release
-LATEST=$($HOME/.valet-cli/valet on-latest-version)
+# Determine if the port config key exists, if not, create it
+CONFIG="$HOME/.valet/config.json"
+PORT=$(jq -r ".port" "$CONFIG")
 
-if [[ "$LATEST" = "YES" ]]
+if [[ "$PORT" = "null" ]]
 then
-    echo "You are already using the latest version of Valet."
+    CONTENTS=$(jq '. + {port: "80"}' "$CONFIG")
+    echo -n $CONTENTS >| "$CONFIG"
     exit
 fi
-
-# Remove existing Valet directory
-rm -rf $HOME/.valet-cli
-
-# Download and unpack the latest Valet release
-mkdir $HOME/.valet-cli
-echo "Downloading latest release of Valet..."
-TARBALL=$(curl -s https://api.github.com/repos/cpriego/valet-ubuntu/releases/latest | jq ".tarball_url")
-TARBALL=$(echo $TARBALL | sed -e 's/^"//'  -e 's/"$//')
-wget --max-redirect=10 $TARBALL -O $HOME/.valet-cli/valet.tar.gz > /dev/null 2>&1
-tar xvzf $HOME/.valet-cli/valet.tar.gz -C $HOME/.valet-cli --strip 1 > /dev/null 2>&1
-
-# Install Valet's Composer dependencies
-echo "Installing Valet's Composer dependencies..."
-/usr/bin/php /usr/local/bin/composer install -d $HOME/.valet-cli > /dev/null 2>&1
-
-# Run the Valet installation process
-/usr/local/bin/valet install
-
-# Display the new Valet version
-$HOME/.valet-cli/valet --version
