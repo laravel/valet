@@ -24,7 +24,7 @@ class DnsMasq
         $this->cli = $cli;
         $this->files = $files;
         $this->configPath = '/etc/NetworkManager/dnsmasq.d/valet';
-        $this->nmConfigPath = '/etc/NetworkManager/NetworkManager.conf';
+        $this->nmConfigPath = '/etc/NetworkManager/conf.d/valet.conf';
     }
 
     /**
@@ -32,10 +32,10 @@ class DnsMasq
      *
      * @return void
      */
-    function install($domain = 'dev')
+    function install()
     {
         $this->dnsmasqSetup();
-        $this->createCustomConfigFile($domain);
+        $this->createCustomConfigFile('dev');
         $this->pm->dnsmasqRestart($this->sm);
     }
 
@@ -56,21 +56,12 @@ class DnsMasq
     function dnsmasqSetup()
     {
         $this->pm->ensureInstalled('dnsmasq');
+        $this->files->ensureDirExists('/etc/NetworkManager/conf.d');
 
-        $conf = $this->nmConfigPath;
-
-        $notInControlOfNetworkManager = empty($this->cli->run("grep '^dns=dnsmasq' $conf"));
-
-        if ($notInControlOfNetworkManager) {
-            $sed = "sed -i 's/#dns=/dns=/g' {$conf}";
-
-            if (empty($this->cli->run("grep '#dns=dnsmasq' $conf"))) {
-                $sed = "sed -i '/^\[main\]/adns=dnsmasq' {$conf}";
-            }
-
-            $this->cli->run($sed);
-            $this->cli->run('pkill dnsmasq');
-        }
+        $this->files->putAsUser(
+            $this->nmConfigPath,
+            $this->files->get(__DIR__.'/../stubs/networkmanager.conf')
+        );
     }
 
     /**
@@ -81,7 +72,8 @@ class DnsMasq
      */
     function updateDomain($oldDomain, $newDomain)
     {
-        $this->install($newDomain);
+        $this->createCustomConfigFile($newDomain);
+        $this->pm->dnsmasqRestart($this->sm);
     }
 
     /**
