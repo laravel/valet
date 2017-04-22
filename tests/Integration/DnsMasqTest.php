@@ -47,10 +47,11 @@ class DnsMasqTest extends TestCase
         $pm = Mockery::mock(PackageManager::class);
         $pm->shouldReceive('ensureInstalled')->once()->with('dnsmasq');
         $sm = Mockery::mock(ServiceManager::class);
-        $files = Mockery::mock(Filesystem::class);
+        $files = resolve(StubForFiles::class);
 
         swap(PackageManager::class, $pm);
         swap(ServiceManager::class, $sm);
+        swap(Filesystem::class, $files);
 
         $dnsMasq = resolve(DnsMasq::class);
         $dnsMasq->nmConfigPath = __DIR__ . '/output/valet.conf';
@@ -90,5 +91,13 @@ dns=dnsmasq
         $dnsMasq->shouldReceive('createCustomConfigFile')->once()->with('new');
         $pm->shouldReceive('dnsmasqRestart')->once()->with($sm);
         $dnsMasq->updateDomain('old', 'new');
+    }
+}
+
+class StubForFiles extends Filesystem
+{
+    function ensureDirExists($path, $owner = null, $mode = 0755)
+    {
+        return;
     }
 }
