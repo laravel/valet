@@ -62,7 +62,7 @@ class Nginx
         $contents = $this->files->get(__DIR__.'/../stubs/nginx.conf');
 
         $pid_string = 'pid /run/nginx.pid';
-        $hasPIDoption = strpos($this->cli->run('systemctl status nginx | grep ExecStart='), ' pid /');
+        $hasPIDoption = strpos($this->cli->run('cat /lib/systemd/system/nginx.service'), 'pid /');
 
         if ($hasPIDoption) {
             $pid_string = '# pid /run/nginx.pid';
