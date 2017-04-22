@@ -208,7 +208,7 @@ class Site
         $this->createSigningRequest($url, $keyPath, $csrPath);
 
         $this->cli->runAsUser(sprintf(
-            'openssl x509 -req -days 365 -in %s -signkey %s -out %s', $csrPath, $keyPath, $crtPath
+            'openssl x509 -req -sha256 -days 365 -in %s -signkey %s -out %s', $csrPath, $keyPath, $crtPath
         ));
 
         $this->trustCertificate($crtPath, $url);
