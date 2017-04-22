@@ -97,7 +97,7 @@ class Site
      * @param \Illuminate\Support\Collection $certs
      * @return \Illuminate\Support\Collection
      */
-    function getLinks($path, \Illuminate\Support\Collection $certs)
+    function getLinks($path, $certs)
     {
         $config = $this->config->read();
 
