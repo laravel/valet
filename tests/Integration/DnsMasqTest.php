@@ -29,12 +29,12 @@ class DnsMasqTest extends TestCase
 
     public function test_install_calls_the_right_methods_and_restarts()
     {
-        $files = Mockery::mock(CommandLine::class);
-        $cli = Mockery::mock(Filesystem::class);
+        $cli = Mockery::mock(CommandLine::class);
+        $files = Mockery::mock(Filesystem::class);
         $sm = Mockery::mock(ServiceManager::class);
         $pm = Mockery::mock(PackageManager::class);
 
-        $dnsMasq = Mockery::mock(DnsMasq::class.'[dnsmasqSetup,createCustomConfigFile]', [$pm, $sm, $cli, $files]);
+        $dnsMasq = Mockery::mock(DnsMasq::class.'[dnsmasqSetup,createCustomConfigFile]', [$pm, $sm, $files, $cli]);
 
         $dnsMasq->shouldReceive('dnsmasqSetup')->once();
         $dnsMasq->shouldReceive('createCustomConfigFile')->once()->with('dev');
@@ -47,6 +47,7 @@ class DnsMasqTest extends TestCase
         $pm = Mockery::mock(PackageManager::class);
         $pm->shouldReceive('ensureInstalled')->once()->with('dnsmasq');
         $sm = Mockery::mock(ServiceManager::class);
+        $files = Mockery::mock(Filesystem::class);
 
         swap(PackageManager::class, $pm);
         swap(ServiceManager::class, $sm);
