@@ -58,7 +58,7 @@ class NginxTest extends TestCase
 
         $files->shouldReceive('putAsUser')->andReturnUsing(function ($path, $contents) {
             $this->assertSame('/etc/nginx/nginx.conf', $path);
-            $this->assertTrue(strpos($contents, 'user '.user()) !== false);
+            $this->assertTrue(strpos($contents, 'user '.user().' '.group()) !== false);
             $this->assertTrue(strpos($contents, 'include '.VALET_HOME_PATH.'/Nginx/*') !== false);
         })->once();
 
