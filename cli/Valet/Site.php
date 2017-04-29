@@ -203,12 +203,15 @@ class Site
         $keyPath = $this->certificatesPath() . '/' . $url . '.key';
         $csrPath = $this->certificatesPath() . '/' . $url . '.csr';
         $crtPath = $this->certificatesPath() . '/' . $url . '.crt';
+        $confPath = $this->certificatesPath() . '/' . $url . '.conf';
 
+        $this->buildCertificateConf($confPath, $url);
         $this->createPrivateKey($keyPath);
-        $this->createSigningRequest($url, $keyPath, $csrPath);
+        $this->createSigningRequest($url, $keyPath, $csrPath, $confPath);
 
         $this->cli->runAsUser(sprintf(
-            'openssl x509 -req -sha256 -days 365 -in %s -signkey %s -out %s', $csrPath, $keyPath, $crtPath
+            'openssl x509 -req -sha256 -days 365 -in %s -signkey %s -out %s -extensions v3_req -extfile %s',
+            $csrPath, $keyPath, $crtPath, $confPath
         ));
 
         $this->trustCertificate($crtPath, $url);
@@ -231,12 +234,24 @@ class Site
      * @param  string $keyPath
      * @return void
      */
-    function createSigningRequest($url, $keyPath, $csrPath)
+    function createSigningRequest($url, $keyPath, $csrPath, $confPath)
     {
         $this->cli->runAsUser(sprintf(
-            'openssl req -new -subj "/C=/ST=/O=/localityName=/commonName=%s/organizationalUnitName=/emailAddress=/" -key %s -out %s -passin pass:',
-            $url, $keyPath, $csrPath
+            'openssl req -new -key %s -out %s -subj "/C=/ST=/O=/localityName=/commonName=%s/organizationalUnitName=/emailAddress=/" -config %s -passin pass:',
+            $keyPath, $csrPath, $url, $confPath
         ));
+    }
+
+    /**
+     * Build the SSL config for the given URL.
+     *
+     * @param  string  $url
+     * @return string
+     */
+    function buildCertificateConf($path, $url)
+    {
+        $config = str_replace('VALET_DOMAIN', $url, $this->files->get(__DIR__.'/../stubs/openssl.conf'));
+        $this->files->putAsUser($path, $config);
     }
 
     /**
@@ -284,6 +299,7 @@ class Site
         if ($this->files->exists($this->certificatesPath() . '/' . $url . '.crt')) {
             $this->files->unlink(VALET_HOME_PATH . '/Nginx/' . $url);
 
+            $this->files->unlink($this->certificatesPath() . '/' . $url . '.conf');
             $this->files->unlink($this->certificatesPath() . '/' . $url . '.key');
             $this->files->unlink($this->certificatesPath() . '/' . $url . '.csr');
             $this->files->unlink($this->certificatesPath() . '/' . $url . '.crt');
