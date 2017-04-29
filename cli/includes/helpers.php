@@ -176,3 +176,15 @@ function user()
 
     return $_SERVER['SUDO_USER'];
 }
+
+/**
+ * Get the user's group
+ */
+function group()
+{
+    if (! isset($_SERVER['SUDO_USER'])) {
+        return exec('id -gn '.$_SERVER['USER']);
+    }
+
+    return exec('id -gn '.$_SERVER['SUDO_USER']);
+}
