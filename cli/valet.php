@@ -18,10 +18,7 @@ use Illuminate\Container\Container;
  */
 Container::setInstance(new Container);
 
-$version = exec('jq -r \'.packages[] | select(.name | index("cpriego/valet-linux")) | .version\' $(composer --global config home)"/composer.lock"
-');
-
-// die(var_dump($version));
+$version = 'v2.0.14';
 
 $app = new Application('Valet', $version);
 
@@ -34,6 +31,8 @@ Valet::environmentSetup();
  * Allow Valet to be run more conveniently by allowing the Node proxy to run password-less sudo.
  */
 $app->command('install [--ignore-selinux]', function ($ignoreSELinux) {
+    passthru(dirname(__FILE__).'/scripts/update.sh'); // Clean up cruft
+
     Requirements::setIgnoreSELinux($ignoreSELinux)->check();
     Configuration::install();
     Nginx::install();
@@ -282,6 +281,9 @@ if (is_dir(VALET_HOME_PATH)) {
             warning('Updating now...');
             passthru($script.' update');
         }
+        DnsMasq::restart();
+        PhpFpm::restart();
+        Nginx::restart();
     })->descriptions('Update Valet Linux and clean up cruft');
 }
 
