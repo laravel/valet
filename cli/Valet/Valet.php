@@ -90,7 +90,8 @@ class Valet
     {
         $response = \Httpful\Request::get($this->github)->send();
 
-        return version_compare($currentVersion, trim($response->body->tag_name, 'v'), '>=');
+        // die(var_dump(trim($response->body->tag_name)));
+        return version_compare($currentVersion, trim($response->body->tag_name), '==');
     }
 
     /**

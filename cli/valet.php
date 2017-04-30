@@ -18,7 +18,10 @@ use Illuminate\Container\Container;
  */
 Container::setInstance(new Container);
 
-$version = '2.0.13';
+$version = exec('jq -r \'.packages[] | select(.name | index("cpriego/valet-linux")) | .version\' $(composer --global config home)"/composer.lock"
+');
+
+// die(var_dump($version));
 
 $app = new Application('Valet', $version);
 
@@ -268,13 +271,18 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Determine if this is the latest release of Valet.
      */
-    $app->command('on-latest-version', function () use ($version) {
+    $app->command('update', function () use ($version) {
+        $script = dirname(__FILE__).'/scripts/update.sh';
+
         if (Valet::onLatestVersion($version)) {
-            output('YES');
+            info('You have the latest version of Valet Linux');
+            passthru($script);
         } else {
-            output('NO');
+            warning('There is a new release of Valet Linux');
+            warning('Updating now...');
+            passthru($script.' update');
         }
-    })->descriptions('Determine if this is the latest version of Valet');
+    })->descriptions('Update Valet Linux and clean up cruft');
 }
 
 /**
