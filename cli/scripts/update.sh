@@ -10,3 +10,11 @@ then
     echo -n $CONTENTS >| "$CONFIG"
     exit
 fi
+
+# Clean NetworkManager cruft
+NM="/etc/NetworkManager"
+TMP="/tmp/nm.conf"
+
+sudo rm "$NM"/dnsmasq.d/valet
+sudo rm "$NM"/conf.d/valet.conf
+sudo grep -v "dns=dnsmasq" "$NM/NetworkManager.conf" > "$TMP" && sudo mv "$TMP" "$NM/NetworkManager.conf"

@@ -90,7 +90,7 @@ class Apt implements PackageManager
      */
     function dnsmasqRestart($sm)
     {
-        $sm->restart('network-manager');
+        $sm->restart('dnsmasq');
     }
 
     /**

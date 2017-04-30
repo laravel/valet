@@ -23,8 +23,9 @@ class DnsMasq
         $this->sm = $sm;
         $this->cli = $cli;
         $this->files = $files;
-        $this->configPath = '/etc/NetworkManager/dnsmasq.d/valet';
-        $this->nmConfigPath = '/etc/NetworkManager/conf.d/valet.conf';
+        $this->configPath = '/etc/dnsmasq.d/valet';
+        // $this->configPath = '/etc/NetworkManager/dnsmasq.d/valet';
+        // $this->nmConfigPath = '/etc/NetworkManager/conf.d/valet.conf';
     }
 
     /**
@@ -34,7 +35,8 @@ class DnsMasq
      */
     function install()
     {
-        $this->dnsmasqSetup();
+        $this->pm->ensureInstalled('dnsmasq');
+        // $this->dnsmasqSetup();
         $this->createCustomConfigFile('dev');
         $this->pm->dnsmasqRestart($this->sm);
     }
