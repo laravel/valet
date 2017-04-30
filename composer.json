@@ -49,8 +49,12 @@
         "phpunit/phpunit": "~5.5"
     },
     "scripts": {
-        "post-install-cmd": "bash cli/scripts/update.sh",
-        "post-update-cmd": "bash cli/scripts/update.sh"
+        "post-install-cmd": [
+            "chmod +x cli/scripts/update.sh && bash cli/scripts/update.sh"
+        ],
+        "post-update-cmd": [
+            "chmod +x cli/scripts/update.sh && bash cli/scripts/update.sh"
+        ]
     },
     "bin": [
         "valet"
