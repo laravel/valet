@@ -90,7 +90,7 @@ class Pacman implements PackageManager
      */
     function dnsmasqRestart($sm)
     {
-        $sm->restart('NetworkManager');
+        $sm->restart('dnsmasq');
     }
 
     /**
