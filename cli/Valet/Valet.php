@@ -90,7 +90,7 @@ class Valet
     {
         $response = \Httpful\Request::get($this->github)->send();
 
-        return version_compare($currentVersion, trim($response->body->tag_name, 'v'), '>=');
+        return version_compare($currentVersion, trim($response->body->tag_name), '>=');
     }
 
     /**
@@ -151,8 +151,8 @@ class Valet
     function getAvailableServiceManager()
     {
         return collect([
-            LinuxService::class,
             Systemd::class,
+            LinuxService::class,
         ])->first(function ($pm) {
             return resolve($pm)->isAvailable();
         }, function () {

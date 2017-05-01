@@ -41,6 +41,7 @@ class PhpFpm
     {
         if (! $this->pm->installed("php{$this->version}-fpm")) {
             $this->pm->ensureInstalled("php{$this->version}-fpm");
+            $this->sm->enable($this->fpmServiceName());
         }
 
         $this->files->ensureDirExists('/var/log', user());

@@ -43,6 +43,7 @@ class Nginx
     function install()
     {
         $this->pm->ensureInstalled('nginx');
+        $this->sm->enable('nginx');
         $this->files->ensureDirExists('/etc/nginx/sites-available');
         $this->files->ensureDirExists('/etc/nginx/sites-enabled');
 

@@ -17,11 +17,11 @@ matrix:
       env: phpunit=true
     - php: 7.1
       env: phpunit=true
-    - php: 7.1
-      env:
-        phpunit: false
-        distro: arch
-        run_opts: "'--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro'"
+    # - php: 7.1
+    #   env:
+    #     phpunit: false
+    #     distro: arch
+    #     run_opts: "'--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro'"
     - php: 7.0
       env:
         phpunit: false
@@ -47,12 +47,12 @@ matrix:
         phpunit: false
         distro: ubuntu1404
         run_opts: ""
-  allow_failures:
-    - php: 7.1
-      env:
-        phpunit: false
-        distro: arch
-        run_opts: "'--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro'"
+  # allow_failures:
+  #   - php: 7.1
+  #     env:
+  #       phpunit: false
+  #       distro: arch
+  #       run_opts: "'--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro'"
 
 before_install:
   - travis_retry composer self-update

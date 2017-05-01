@@ -18,7 +18,7 @@ use Illuminate\Container\Container;
  */
 Container::setInstance(new Container);
 
-$version = '2.0.14';
+$version = 'v2.0.15';
 
 $app = new Application('Valet', $version);
 
@@ -31,6 +31,8 @@ Valet::environmentSetup();
  * Allow Valet to be run more conveniently by allowing the Node proxy to run password-less sudo.
  */
 $app->command('install [--ignore-selinux]', function ($ignoreSELinux) {
+    passthru(dirname(__FILE__).'/scripts/update.sh'); // Clean up cruft
+
     Requirements::setIgnoreSELinux($ignoreSELinux)->check();
     Configuration::install();
     Nginx::install();
@@ -268,13 +270,21 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Determine if this is the latest release of Valet.
      */
-    $app->command('on-latest-version', function () use ($version) {
+    $app->command('update', function () use ($version) {
+        $script = dirname(__FILE__).'/scripts/update.sh';
+
         if (Valet::onLatestVersion($version)) {
-            output('YES');
+            info('You have the latest version of Valet Linux');
+            passthru($script);
         } else {
-            output('NO');
+            warning('There is a new release of Valet Linux');
+            warning('Updating now...');
+            passthru($script.' update');
         }
-    })->descriptions('Determine if this is the latest version of Valet');
+        DnsMasq::restart();
+        PhpFpm::restart();
+        Nginx::restart();
+    })->descriptions('Update Valet Linux and clean up cruft');
 }
 
 /**
