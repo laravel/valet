@@ -44,4 +44,4 @@ then
 fi
 
 fix-config
-cleanup
+# cleanup

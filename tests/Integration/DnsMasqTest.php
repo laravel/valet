@@ -32,14 +32,14 @@ class DnsMasqTest extends TestCase
         $cli = Mockery::mock(CommandLine::class);
         $files = Mockery::mock(Filesystem::class);
         $sm = Mockery::mock(ServiceManager::class);
-
         $pm = Mockery::mock(PackageManager::class);
-        $pm->shouldReceive('ensureInstalled')->once()->with('dnsmasq');
 
-        $dnsMasq = Mockery::mock(DnsMasq::class.'[createCustomConfigFile]', [$pm, $sm, $files, $cli]);
+        $dnsMasq = Mockery::mock(DnsMasq::class.'[dnsmasqSetup,createCustomConfigFile]', [$pm, $sm, $files, $cli]);
 
+        $dnsMasq->shouldReceive('dnsmasqSetup')->once();
         $dnsMasq->shouldReceive('createCustomConfigFile')->once()->with('dev');
         $pm->shouldReceive('dnsmasqRestart')->once()->with($sm);
+        $sm->shouldReceive('disableServices')->once();
         $dnsMasq->install();
     }
 

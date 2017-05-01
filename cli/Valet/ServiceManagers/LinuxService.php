@@ -102,6 +102,17 @@ class LinuxService implements ServiceManager
     }
 
     /**
+     * Disable services.
+     *
+     * @param
+     * @return void
+     */
+    public function disableServices()
+    {
+        return;
+    }
+
+    /**
      * Determine if service manager is available on the system.
      *
      * @return bool

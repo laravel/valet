@@ -7,7 +7,7 @@ use Valet\Contracts\ServiceManager;
 
 class DnsMasq
 {
-    var $pm, $sm, $cli, $files, $configPath;
+    var $pm, $sm, $cli, $files, $configPath, $nmConfigPath;
 
     /**
      * Create a new DnsMasq instance.
@@ -23,7 +23,8 @@ class DnsMasq
         $this->sm = $sm;
         $this->cli = $cli;
         $this->files = $files;
-        $this->configPath = '/etc/dnsmasq.d/valet';
+        $this->configPath = '/etc/NetworkManager/dnsmasq.d/valet';
+        $this->nmConfigPath = '/etc/NetworkManager/conf.d/valet.conf';
     }
 
     /**
@@ -33,9 +34,10 @@ class DnsMasq
      */
     function install()
     {
-        $this->pm->ensureInstalled('dnsmasq');
+        $this->dnsmasqSetup();
         $this->createCustomConfigFile('dev');
-        $this->restart();
+        $this->pm->dnsmasqRestart($this->sm);
+        $this->sm->disableServices();
     }
 
     /**
@@ -72,16 +74,6 @@ class DnsMasq
     function updateDomain($oldDomain, $newDomain)
     {
         $this->createCustomConfigFile($newDomain);
-        $this->pm->dnsmasqRestart($this->sm);
-    }
-
-    /**
-     * Restart dnsmasq.
-     *
-     * @return void
-     */
-    function restart()
-    {
         $this->pm->dnsmasqRestart($this->sm);
     }
 

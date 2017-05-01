@@ -102,6 +102,24 @@ class Systemd implements ServiceManager
     }
 
     /**
+     * Disable services.
+     *
+     * @param
+     * @return void
+     */
+    public function disableServices()
+    {
+        $services = ['dnsmasq','systemd-resolved'];
+
+        foreach ($services as $service) {
+            info("Disabling {$service}.service ...");
+            $this->cli->quietly('sudo systemctl disable ' . $this->getRealService($service));
+        }
+
+        $this->stop($services);
+    }
+
+    /**
      * Determine if service manager is available on the system.
      *
      * @return bool

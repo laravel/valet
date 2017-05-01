@@ -151,8 +151,8 @@ class Valet
     function getAvailableServiceManager()
     {
         return collect([
-            LinuxService::class,
             Systemd::class,
+            LinuxService::class,
         ])->first(function ($pm) {
             return resolve($pm)->isAvailable();
         }, function () {
