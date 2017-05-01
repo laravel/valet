@@ -169,7 +169,7 @@ class Site
     {
         return collect($this->files->scandir($this->certificatesPath()))
             ->map(function ($file) {
-                return str_replace(['.key', '.csr', '.crt'], '', $file);
+                return str_replace(['.key', '.csr', '.crt', '.conf'], '', $file);
             })->unique()->values()->all();
     }
 
