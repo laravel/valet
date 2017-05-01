@@ -113,6 +113,17 @@ class LinuxService implements ServiceManager
     }
 
     /**
+     * Enable services.
+     *
+     * @param
+     * @return void
+     */
+    public function enable($services)
+    {
+        return;
+    }
+
+    /**
      * Determine if service manager is available on the system.
      *
      * @return bool

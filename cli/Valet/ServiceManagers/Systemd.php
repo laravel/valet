@@ -120,6 +120,22 @@ class Systemd implements ServiceManager
     }
 
     /**
+     * Enable services.
+     *
+     * @param
+     * @return void
+     */
+    public function enable($services)
+    {
+        $services = is_array($services) ? $services : func_get_args();
+
+        foreach ($services as $service) {
+            info("Enabling {$service}.service ...");
+            $this->cli->quietly('sudo systemctl enable ' . $this->getRealService($service));
+        }
+    }
+
+    /**
      * Determine if service manager is available on the system.
      *
      * @return bool

@@ -35,9 +35,9 @@ class DnsMasq
     function install()
     {
         $this->dnsmasqSetup();
+        $this->sm->disableServices();
         $this->createCustomConfigFile('dev');
         $this->pm->dnsmasqRestart($this->sm);
-        $this->sm->disableServices();
     }
 
     /**
@@ -59,11 +59,7 @@ class DnsMasq
         $this->pm->ensureInstalled('dnsmasq');
         $this->files->ensureDirExists('/etc/NetworkManager/conf.d');
 
-        $this->files->putAsUser(
-            $this->nmConfigPath,
-            $this->files->get(__DIR__.'/../stubs/networkmanager.conf')
-        );
-
+        $this->files->putAsUser($this->nmConfigPath, $this->files->get(__DIR__.'/../stubs/networkmanager.conf'));
         $this->files->putAsUser('/etc/NetworkManager/dnsmasq.d/dnsmasq.conf', 'listen-address=127.0.0.1'.PHP_EOL);
     }
 

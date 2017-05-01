@@ -40,6 +40,7 @@ class NginxTest extends TestCase
         $pm->shouldReceive('ensureInstalled')->with('nginx')->once();
 
         $sm = Mockery::mock(ServiceManager::class);
+        $sm->shouldReceive('enable')->with('nginx')->once();
         $sm->shouldReceive('stop')->with('nginx')->once();
 
         $nginx = Mockery::mock(Nginx::class.'[installConfiguration,installServer,installNginxDirectory]', [$pm, $sm, $cli, $files, $conf, $site]);
