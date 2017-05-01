@@ -3,13 +3,17 @@
 # Determine if the port config key exists, if not, create it
 function fix-config() {
     local CONFIG="$HOME/.valet/config.json"
-    local PORT=$(jq -r ".port" "$CONFIG")
 
-    if [[ "$PORT" = "null" ]]
+    if [[ -f $CONFIG ]]
     then
-        echo "Fixing valet config file..."
-        CONTENTS=$(jq '. + {port: "80"}' "$CONFIG")
-        echo -n $CONTENTS >| "$CONFIG"
+        local PORT=$(jq -r ".port" "$CONFIG")
+
+        if [[ "$PORT" = "null" ]]
+        then
+            echo "Fixing valet config file..."
+            CONTENTS=$(jq '. + {port: "80"}' "$CONFIG")
+            echo -n $CONTENTS >| "$CONFIG"
+        fi
     fi
 }
 
