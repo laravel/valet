@@ -112,11 +112,13 @@ class Systemd implements ServiceManager
         $services = ['dnsmasq','systemd-resolved'];
 
         foreach ($services as $service) {
-            info("Disabling {$service}.service ...");
-            $this->cli->quietly('sudo systemctl disable ' . $this->getRealService($service));
+            try {
+                $this->cli->quietly('sudo systemctl disable ' . $this->getRealService($service));
+                info("Disabled {$service}.service ...");
+                $this->stop($service);
+            } catch (DomainException $e) {
+            }
         }
-
-        $this->stop($services);
     }
 
     /**
@@ -162,7 +164,7 @@ class Systemd implements ServiceManager
     function getRealService($service)
     {
         return collect($service)->first(function ($service) {
-            return !strpos($this->cli->run('systemctl status ' . $service), 'could not be found');
+            return strpos($this->cli->run("systemctl status {$service} | grep Loaded"), 'Loaded: loaded');
         }, function () {
             throw new DomainException("Unable to determine service name.");
         });
