@@ -17,36 +17,36 @@ matrix:
       env: phpunit=true
     - php: 7.1
       env: phpunit=true
-  #   - php: 7.1
-  #     env:
-  #       phpunit: false
-  #       distro: arch
-  #       run_opts: "'--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro'"
-  #   - php: 7.0
-  #     env:
-  #       phpunit: false
-  #       distro: centos7
-  #       run_opts: "'--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro'"
-  #   - php: 7.0
-  #     env:
-  #       phpunit: false
-  #       distro: fedora24
-  #       run_opts: "'--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro'"
-  #   - php: 7.0
-  #     env:
-  #       phpunit: false
-  #       distro: fedora25
-  #       run_opts: "'--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro'"
-  #   - php: 7.0
-  #     env:
-  #       phpunit: false
-  #       distro: ubuntu1604
-  #       run_opts: ""
-  #   - php: 7.0
-  #     env:
-  #       phpunit: false
-  #       distro: ubuntu1404
-  #       run_opts: ""
+    # - php: 7.1
+    #   env:
+    #     phpunit: false
+    #     distro: arch
+    #     run_opts: "'--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro'"
+    - php: 7.0
+      env:
+        phpunit: false
+        distro: centos7
+        run_opts: "'--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro'"
+    - php: 7.0
+      env:
+        phpunit: false
+        distro: fedora24
+        run_opts: "'--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro'"
+    - php: 7.0
+      env:
+        phpunit: false
+        distro: fedora25
+        run_opts: "'--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro'"
+    - php: 7.0
+      env:
+        phpunit: false
+        distro: ubuntu1604
+        run_opts: ""
+    - php: 7.0
+      env:
+        phpunit: false
+        distro: ubuntu1404
+        run_opts: ""
   # allow_failures:
   #   - php: 7.1
   #     env:
