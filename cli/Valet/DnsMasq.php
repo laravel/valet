@@ -63,6 +63,8 @@ class DnsMasq
             $this->nmConfigPath,
             $this->files->get(__DIR__.'/../stubs/networkmanager.conf')
         );
+
+        $this->files->putAsUser('/etc/NetworkManager/dnsmasq.d/dnsmasq.conf', 'listen-address=127.0.0.1'.PHP_EOL);
     }
 
     /**

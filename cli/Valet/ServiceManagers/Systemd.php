@@ -109,7 +109,7 @@ class Systemd implements ServiceManager
      */
     public function disableServices()
     {
-        $services = ['dnsmasq','resolvconf'];
+        $services = ['dnsmasq','systemd-resolved'];
 
         foreach ($services as $service) {
             info("Disabling {$service}.service ...");
