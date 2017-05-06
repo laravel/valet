@@ -20,11 +20,11 @@ function show_valet_404()
 /**
  * @param $domain string Domain to filter
  *
- * @return string Filtered domain (without xip.io feature)
+ * @return string Filtered domain (without wildcard dns feature (xip.io/nip.io))
  */
-function valet_support_xip_io($domain)
+function valet_support_wildcard_dns($domain)
 {
-    if (substr($domain, -7) === '.xip.io') {
+    if (in_array(substr($domain, -7), array('.xip.io', '.nip.io'), true)) {
         // support only ip v4 for now
         $domainPart = explode('.', $domain);
         if (count($domainPart) > 6) {
@@ -50,8 +50,8 @@ $uri = urldecode(
 );
 
 $siteName = basename(
-    // Filter host to support xip.io feature
-    valet_support_xip_io($_SERVER['HTTP_HOST']),
+    // Filter host to support wildcard dns feature
+    valet_support_wildcard_dns($_SERVER['HTTP_HOST']),
     '.'.$valetConfig['domain']
 );
 
