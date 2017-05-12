@@ -113,4 +113,22 @@ class PhpFpm
 
         return $confLookup[$this->brew->linkedPhp()];
     }
+
+
+    /**
+     * Switch between versions of installed PHP
+     *
+     * @return void
+     */
+    function switchTo($version)
+    {
+        $version = preg_replace('/[.]/','',$version);
+        if (! $this->brew->installed('php'.$version)) {
+            throw new DomainException("This version of PHP not installed.");
+        }
+
+        $this->cli->passthru('brew unlink '. $this->brew->linkedPhp());
+        $this->cli->passthru('brew link php'.$version);
+        $this->cli->passthru('valet install');
+    }
 }

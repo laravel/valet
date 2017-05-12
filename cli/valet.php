@@ -257,6 +257,17 @@ if (is_dir(VALET_HOME_PATH)) {
 }
 
 /**
+ * Switch between versions of PHP
+ */
+$app->command('switch-to [phpVersion]', function ($phpVersion) {
+
+    PhpFpm::switchTo($phpVersion);
+    PhpFpm::install();
+    Nginx::restart();
+    info('Valet is now using php'.$phpVersion.'.');
+})->descriptions('Switch between versions of PHP');
+
+/**
  * Load all of the Valet extensions.
  */
 foreach (Valet::extensions() as $extension) {
