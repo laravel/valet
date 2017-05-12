@@ -123,13 +123,26 @@ class PhpFpm
     function switchTo($version)
     {
         $version = preg_replace('/[.]/','',$version);
-        if (! $this->brew->installed('php'.$version)) {
-            $availableVersions = $this->brew->installedPhpVersions();
-            throw new DomainException("This version of PHP not installed. The following versions are installed: " . implode(' ', $availableVersions));
+        $versions = ['71', '70', '56'];
+        $currentVersion = $this->brew->linkedPhp();
+
+        if('php'.$version === $currentVersion) {
+            info('Already on this version');
+            return false;
         }
 
-        $this->cli->passthru('brew unlink '. $this->brew->linkedPhp());
+        if (!in_array($version, $versions)) {
+            throw new DomainException("This version of PHP not available. The following versions are available: " . implode(' ', $versions));
+        }
+
+        $this->cli->passthru('brew unlink '. $currentVersion);
+
+        if (!$this->brew->installed('php'.$version)) {
+            $this->brew->ensureInstalled('php'.$version);
+        }
+
         $this->cli->passthru('brew link php'.$version);
         $this->cli->passthru('valet install');
+        return true;
     }
 }
