@@ -259,8 +259,7 @@ if (is_dir(VALET_HOME_PATH)) {
 /**
  * Switch between versions of PHP
  */
-$app->command('switch-to [phpVersion]', function ($phpVersion) {
-
+$app->command('use [version]', function ($phpVersion) {
     PhpFpm::switchTo($phpVersion);
     PhpFpm::install();
     Nginx::restart();

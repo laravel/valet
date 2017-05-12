@@ -124,7 +124,8 @@ class PhpFpm
     {
         $version = preg_replace('/[.]/','',$version);
         if (! $this->brew->installed('php'.$version)) {
-            throw new DomainException("This version of PHP not installed.");
+            $availableVersions = $this->brew->installedPhpVersions();
+            throw new DomainException("This version of PHP not installed. The following versions are installed: " . implode(' ', $availableVersions));
         }
 
         $this->cli->passthru('brew unlink '. $this->brew->linkedPhp());
