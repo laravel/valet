@@ -45,20 +45,6 @@ class Brew
             || $this->installed('php56');
     }
 
-    function installedPhpVersions()
-    {
-        $versions = ['php71', 'php70', 'php56'];
-        $installed = [];
-
-        foreach ($versions as $version) {
-            if($this->installed($version)) {
-                $installed[] = str_replace('php', '', $version);
-            }
-        }
-
-        return $installed;
-    }
-
     /**
      * Determine if a compatible nginx version is Homebrewed.
      *
