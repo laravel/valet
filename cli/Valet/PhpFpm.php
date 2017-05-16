@@ -127,7 +127,6 @@ class PhpFpm
         $currentVersion = $this->brew->linkedPhp();
 
         if('php'.$version === $currentVersion) {
-            info('Already on this version');
             return false;
         }
 
