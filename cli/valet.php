@@ -18,7 +18,7 @@ use Illuminate\Container\Container;
  */
 Container::setInstance(new Container);
 
-$version = 'v2.0.16';
+$version = 'v2.0.17';
 
 $app = new Application('Valet', $version);
 
