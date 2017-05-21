@@ -8,7 +8,7 @@ use Valet\Contracts\PackageManager;
 
 class Dnf implements PackageManager
 {
-    var $cli;
+    public $cli;
 
     /**
      * Create a new Apt instance.
@@ -16,7 +16,7 @@ class Dnf implements PackageManager
      * @param  CommandLine $cli
      * @return void
      */
-    function __construct(CommandLine $cli)
+    public function __construct(CommandLine $cli)
     {
         $this->cli = $cli;
     }
@@ -27,7 +27,7 @@ class Dnf implements PackageManager
      * @param  string $package
      * @return bool
      */
-    function installed($package)
+    public function installed($package)
     {
         $query = "dnf list installed {$package} | grep {$package} | sed 's_  _\\t_g' | sed 's_\\._\\t_g' | cut -f 1";
 
@@ -42,7 +42,7 @@ class Dnf implements PackageManager
      * @param  string $package
      * @return void
      */
-    function ensureInstalled($package)
+    public function ensureInstalled($package)
     {
         if (!$this->installed($package)) {
             $this->installOrFail($package);
@@ -55,7 +55,7 @@ class Dnf implements PackageManager
      * @param  string $package
      * @return void
      */
-    function installOrFail($package)
+    public function installOrFail($package)
     {
         output('<info>[' . $package . '] is not installed, installing it now via Dnf...</info> 🍻');
 
@@ -71,7 +71,7 @@ class Dnf implements PackageManager
      *
      * @return void
      */
-    function setup()
+    public function setup()
     {
         // Nothing to do
     }
@@ -79,7 +79,7 @@ class Dnf implements PackageManager
     /**
      * Restart dnsmasq in Fedora.
      */
-    function dnsmasqRestart($sm)
+    public function dnsmasqRestart($sm)
     {
         $sm->restart('NetworkManager');
     }
@@ -89,7 +89,7 @@ class Dnf implements PackageManager
      *
      * @return bool
      */
-    function isAvailable()
+    public function isAvailable()
     {
         try {
             $output = $this->cli->run('which dnf', function ($exitCode, $output) {

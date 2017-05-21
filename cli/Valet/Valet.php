@@ -15,11 +15,12 @@ use Valet\ServiceManagers\LinuxService;
 
 class Valet
 {
-    var $cli, $files;
+    public $cli;
+    public $files;
 
-    var $valetBin = '/usr/local/bin/valet';
-    var $sudoers  = '/etc/sudoers.d/valet';
-    var $github   = 'https://api.github.com/repos/cpriego/valet-linux/releases/latest';
+    public $valetBin = '/usr/local/bin/valet';
+    public $sudoers  = '/etc/sudoers.d/valet';
+    public $github   = 'https://api.github.com/repos/cpriego/valet-linux/releases/latest';
 
     /**
      * Create a new Valet instance.
@@ -27,7 +28,7 @@ class Valet
      * @param  CommandLine  $cli
      * @param  Filesystem  $files
      */
-    function __construct(CommandLine $cli, Filesystem $files)
+    public function __construct(CommandLine $cli, Filesystem $files)
     {
         $this->cli = $cli;
         $this->files = $files;
@@ -38,7 +39,7 @@ class Valet
      *
      * @return void
      */
-    function symlinkToUsersBin()
+    public function symlinkToUsersBin()
     {
         $this->cli->run('ln -snf '.realpath(__DIR__.'/../../valet').' '.$this->valetBin);
     }
@@ -49,7 +50,7 @@ class Valet
      *
      * @return void
      */
-    function uninstall()
+    public function uninstall()
     {
         if ($this->files->exists($this->valetBin)) {
             $this->files->unlink($this->valetBin);
@@ -64,7 +65,7 @@ class Valet
      *
      * @return array
      */
-    function extensions()
+    public function extensions()
     {
         if (! $this->files->isDir(VALET_HOME_PATH.'/Extensions')) {
             return [];
@@ -86,7 +87,7 @@ class Valet
      * @param  string  $currentVersion
      * @return bool
      */
-    function onLatestVersion($currentVersion)
+    public function onLatestVersion($currentVersion)
     {
         $response = \Httpful\Request::get($this->github)->send();
 
@@ -98,7 +99,7 @@ class Valet
      *
      * @return void
      */
-    function environmentSetup()
+    public function environmentSetup()
     {
         $this->packageManagerSetup();
         $this->serviceManagerSetup();
@@ -109,7 +110,7 @@ class Valet
      *
      * @return void
      */
-    function packageManagerSetup()
+    public function packageManagerSetup()
     {
         Container::getInstance()->bind(PackageManager::class, $this->getAvailablePackageManager());
     }
@@ -119,7 +120,7 @@ class Valet
      *
      * @return string
      */
-    function getAvailablePackageManager()
+    public function getAvailablePackageManager()
     {
         return collect([
             Apt::class,
@@ -138,7 +139,7 @@ class Valet
      *
      * @return void
      */
-    function serviceManagerSetup()
+    public function serviceManagerSetup()
     {
         Container::getInstance()->bind(ServiceManager::class, $this->getAvailableServiceManager());
     }
@@ -148,11 +149,11 @@ class Valet
      *
      * @return string
      */
-    function getAvailableServiceManager()
+    public function getAvailableServiceManager()
     {
         return collect([
-            Systemd::class,
             LinuxService::class,
+            Systemd::class,
         ])->first(function ($pm) {
             return resolve($pm)->isAvailable();
         }, function () {

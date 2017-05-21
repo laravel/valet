@@ -10,7 +10,7 @@ interface PackageManager
      * @param  string  $package
      * @return bool
      */
-    function installed($package);
+    public function installed($package);
 
     /**
      * Ensure that the given package is installed.
@@ -18,7 +18,7 @@ interface PackageManager
      * @param  string  $package
      * @return void
      */
-    function ensureInstalled($package);
+    public function ensureInstalled($package);
 
     /**
      * Install the given package and throw an exception on failure.
@@ -26,24 +26,24 @@ interface PackageManager
      * @param  string  $package
      * @return void
      */
-    function installOrFail($package);
+    public function installOrFail($package);
 
     /**
      * Configure package manager on valet install.
      *
      * @return void
      */
-    function setup();
+    public function setup();
 
     /**
      * Restart dnsmasq in distro.
      */
-    function dnsmasqRestart($sm);
+    public function dnsmasqRestart($sm);
 
     /**
      * Determine if package manager is available on the system.
      *
      * @return bool
      */
-    function isAvailable();
+    public function isAvailable();
 }

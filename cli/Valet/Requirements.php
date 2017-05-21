@@ -6,9 +6,8 @@ use RuntimeException;
 
 class Requirements
 {
-    var $cli;
-
-    var $ignoreSELinux = false;
+    public $cli;
+    public $ignoreSELinux = false;
 
     /**
      * Create a new Warning instance.
@@ -35,7 +34,7 @@ class Requirements
     /**
      * Run all checks and output warnings.
      */
-    function check()
+    public function check()
     {
         $this->homePathIsInsideRoot();
         $this->seLinuxIsEnabled();
@@ -47,7 +46,7 @@ class Requirements
      * This usually means the HOME parameters has not been
      * kept using sudo.
      */
-    function homePathIsInsideRoot()
+    public function homePathIsInsideRoot()
     {
         if (strpos(VALET_HOME_PATH, '/root/') === 0) {
             throw new RuntimeException("Valet home directory is inside /root");
@@ -57,7 +56,7 @@ class Requirements
     /**
      * Verify is SELinux is enabled and in enforcing mode.
      */
-    function seLinuxIsEnabled()
+    public function seLinuxIsEnabled()
     {
         if ($this->ignoreSELinux) {
             return;

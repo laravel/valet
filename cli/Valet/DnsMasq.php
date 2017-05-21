@@ -7,7 +7,12 @@ use Valet\Contracts\ServiceManager;
 
 class DnsMasq
 {
-    var $pm, $sm, $cli, $files, $configPath, $nmConfigPath;
+    public $pm;
+    public $sm;
+    public $cli;
+    public $files;
+    public $configPath;
+    public $nmConfigPath;
 
     /**
      * Create a new DnsMasq instance.
@@ -17,7 +22,7 @@ class DnsMasq
      * @param  Filesystem  $files
      * @return void
      */
-    function __construct(PackageManager $pm, ServiceManager $sm, Filesystem $files, CommandLine $cli)
+    public function __construct(PackageManager $pm, ServiceManager $sm, Filesystem $files, CommandLine $cli)
     {
         $this->pm = $pm;
         $this->sm = $sm;
@@ -32,7 +37,7 @@ class DnsMasq
      *
      * @return void
      */
-    function install()
+    public function install()
     {
         $this->dnsmasqSetup();
         $this->sm->disableServices();
@@ -46,7 +51,7 @@ class DnsMasq
      * @param  string  $domain
      * @return void
      */
-    function createCustomConfigFile($domain)
+    public function createCustomConfigFile($domain)
     {
         $this->files->putAsUser($this->configPath, 'address=/.'.$domain.'/127.0.0.1'.PHP_EOL);
     }
@@ -54,7 +59,7 @@ class DnsMasq
     /**
      * Setup dnsmasq with Network Manager.
      */
-    function dnsmasqSetup()
+    public function dnsmasqSetup()
     {
         $this->pm->ensureInstalled('dnsmasq');
         $this->files->ensureDirExists('/etc/NetworkManager/conf.d');
@@ -69,7 +74,7 @@ class DnsMasq
      * @param  string  $newDomain
      * @return void
      */
-    function updateDomain($oldDomain, $newDomain)
+    public function updateDomain($oldDomain, $newDomain)
     {
         $this->createCustomConfigFile($newDomain);
         $this->pm->dnsmasqRestart($this->sm);
@@ -80,7 +85,7 @@ class DnsMasq
      *
      * @return void
      */
-    function uninstall()
+    public function uninstall()
     {
         if ($this->files->exists($this->configPath)) {
             $this->files->unlink($this->configPath);

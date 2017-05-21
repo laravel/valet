@@ -79,14 +79,18 @@ class LinuxService implements ServiceManager
         $services = is_array($services) ? $services : func_get_args();
 
         foreach ($services as $service) {
-            $status = $this->cli->run('service '.$this->getRealService($service).' status | grep "Active:"');
-            $running = strpos(trim($status), 'running');
+            if ($this->hasSystemd()) {
+                $status = $this->cli->run('systemctl status '.$this->getRealService($service).' | grep "Active:"');
+                $running = strpos(trim($status), 'running');
 
-            if ($running) {
-                info(ucfirst($service).' is running...');
-            } else {
-                warning(ucfirst($service).' is stopped...');
+                if ($running) {
+                    return info(ucfirst($service).' is running...');
+                } else {
+                    return warning(ucfirst($service).' is stopped...');
+                }
             }
+
+            return info($this->cli->run('service '.$this->getRealService($service)));
         }
     }
 
@@ -154,5 +158,23 @@ class LinuxService implements ServiceManager
         }, function () {
             throw new DomainException("Unable to determine service name.");
         });
+    }
+
+    /**
+     * Determine if systemd is available on the system.
+     *
+     * @return bool
+     */
+    private function hasSystemd()
+    {
+        try {
+            $this->cli->run('which systemctl', function ($exitCode, $output) {
+                throw new DomainException('Systemd not available');
+            });
+
+            return true;
+        } catch (DomainException $e) {
+            return false;
+        }
     }
 }

@@ -8,7 +8,7 @@ use Valet\Contracts\ServiceManager;
 
 class Systemd implements ServiceManager
 {
-    var $cli;
+    public $cli;
 
     /**
      * Create a new Brew instance.
@@ -26,7 +26,7 @@ class Systemd implements ServiceManager
      * @param
      * @return void
      */
-    function start($services)
+    public function start($services)
     {
         $services = is_array($services) ? $services : func_get_args();
 
@@ -42,7 +42,7 @@ class Systemd implements ServiceManager
      * @param
      * @return void
      */
-    function stop($services)
+    public function stop($services)
     {
         $services = is_array($services) ? $services : func_get_args();
 
@@ -58,7 +58,7 @@ class Systemd implements ServiceManager
      * @param
      * @return void
      */
-    function restart($services)
+    public function restart($services)
     {
         $services = is_array($services) ? $services : func_get_args();
 
@@ -132,8 +132,23 @@ class Systemd implements ServiceManager
         $services = is_array($services) ? $services : func_get_args();
 
         foreach ($services as $service) {
-            info("Enabling {$service}.service ...");
-            $this->cli->quietly('sudo systemctl enable ' . $this->getRealService($service));
+            try {
+                $service = $this->getRealService($service);
+                $enabled = strpos(trim($this->cli->run("systemctl is-enabled {$service}")), 'enabled');
+
+                if ($enabled === false) {
+                    $this->cli->quietly('sudo systemctl enable ' . $service);
+                    info(ucfirst($service).' has been enabled');
+                    return true;
+                }
+
+                info(ucfirst($service).' was already enabled');
+
+                return true;
+            } catch (DomainException $e) {
+                warning(ucfirst($service).' unavailable.');
+                return false;
+            }
         }
     }
 
@@ -142,7 +157,7 @@ class Systemd implements ServiceManager
      *
      * @return bool
      */
-    function isAvailable()
+    public function isAvailable()
     {
         try {
             $output = $this->cli->run('which systemctl', function ($exitCode, $output) {
@@ -161,7 +176,7 @@ class Systemd implements ServiceManager
      * @param string $service
      * @return string
      */
-    function getRealService($service)
+    public function getRealService($service)
     {
         return collect($service)->first(function ($service) {
             return strpos($this->cli->run("systemctl status {$service} | grep Loaded"), 'Loaded: loaded');

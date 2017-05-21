@@ -6,7 +6,9 @@ use DomainException;
 
 class Site
 {
-    var $config, $cli, $files;
+    public $config;
+    public $cli;
+    public $files;
 
     /**
      * Create a new Site instance.
@@ -15,7 +17,7 @@ class Site
      * @param  CommandLine $cli
      * @param  Filesystem $files
      */
-    function __construct(Configuration $config, CommandLine $cli, Filesystem $files)
+    public function __construct(Configuration $config, CommandLine $cli, Filesystem $files)
     {
         $this->cli = $cli;
         $this->files = $files;
@@ -28,7 +30,7 @@ class Site
      * @param  string $path
      * @return string|null
      */
-    function host($path)
+    public function host($path)
     {
         foreach ($this->files->scandir($this->sitesPath()) as $link) {
             if ($resolved = realpath($this->sitesPath() . '/' . $link) === $path) {
@@ -46,10 +48,11 @@ class Site
      * @param  string $link
      * @return string
      */
-    function link($target, $link)
+    public function link($target, $link)
     {
         $this->files->ensureDirExists(
-            $linkPath = $this->sitesPath(), user()
+            $linkPath = $this->sitesPath(),
+            user()
         );
 
         $this->config->prependPath($linkPath);
@@ -64,7 +67,7 @@ class Site
      *
      * @return \Illuminate\Support\Collection
      */
-    function links()
+    public function links()
     {
         $certsPath = VALET_HOME_PATH . '/Certificates';
 
@@ -81,7 +84,7 @@ class Site
      * @param string $path
      * @return \Illuminate\Support\Collection
      */
-    function getCertificates($path)
+    public function getCertificates($path)
     {
         return collect($this->files->scanDir($path))->filter(function ($value, $key) {
             return ends_with($value, '.crt');
@@ -97,7 +100,7 @@ class Site
      * @param \Illuminate\Support\Collection $certs
      * @return \Illuminate\Support\Collection
      */
-    function getLinks($path, $certs)
+    public function getLinks($path, $certs)
     {
         $config = $this->config->read();
 
@@ -117,7 +120,7 @@ class Site
      * @param  string $name
      * @return void
      */
-    function unlink($name)
+    public function unlink($name)
     {
         if ($this->files->exists($path = $this->sitesPath() . '/' . $name)) {
             $this->files->unlink($path);
@@ -129,7 +132,7 @@ class Site
      *
      * @return void
      */
-    function pruneLinks()
+    public function pruneLinks()
     {
         $this->files->ensureDirExists($this->sitesPath(), user());
 
@@ -143,7 +146,7 @@ class Site
      * @param  string $domain
      * @return void
      */
-    function resecureForNewDomain($oldDomain, $domain)
+    public function resecureForNewDomain($oldDomain, $domain)
     {
         if (!$this->files->exists($this->certificatesPath())) {
             return;
@@ -165,7 +168,7 @@ class Site
      *
      * @return array
      */
-    function secured()
+    public function secured()
     {
         return collect($this->files->scandir($this->certificatesPath()))
             ->map(function ($file) {
@@ -179,7 +182,7 @@ class Site
      * @param  string $url
      * @return void
      */
-    function secure($url)
+    public function secure($url)
     {
         $this->unsecure($url);
 
@@ -188,7 +191,8 @@ class Site
         $this->createCertificate($url);
 
         $this->files->putAsUser(
-            VALET_HOME_PATH . '/Nginx/' . $url, $this->buildSecureNginxServer($url)
+            VALET_HOME_PATH . '/Nginx/' . $url,
+            $this->buildSecureNginxServer($url)
         );
     }
 
@@ -198,7 +202,7 @@ class Site
      * @param  string $url
      * @return void
      */
-    function createCertificate($url)
+    public function createCertificate($url)
     {
         $keyPath = $this->certificatesPath() . '/' . $url . '.key';
         $csrPath = $this->certificatesPath() . '/' . $url . '.csr';
@@ -223,7 +227,7 @@ class Site
      * @param  string $keyPath
      * @return void
      */
-    function createPrivateKey($keyPath)
+    public function createPrivateKey($keyPath)
     {
         $this->cli->runAsUser(sprintf('openssl genrsa -out %s 2048', $keyPath));
     }
@@ -234,7 +238,7 @@ class Site
      * @param  string $keyPath
      * @return void
      */
-    function createSigningRequest($url, $keyPath, $csrPath, $confPath)
+    public function createSigningRequest($url, $keyPath, $csrPath, $confPath)
     {
         $this->cli->runAsUser(sprintf(
             'openssl req -new -key %s -out %s -subj "/C=/ST=/O=/localityName=/commonName=%s/organizationalUnitName=/emailAddress=/" -config %s -passin pass:',
@@ -248,7 +252,7 @@ class Site
      * @param  string  $url
      * @return string
      */
-    function buildCertificateConf($path, $url)
+    public function buildCertificateConf($path, $url)
     {
         $config = str_replace('VALET_DOMAIN', $url, $this->files->get(__DIR__.'/../stubs/openssl.conf'));
         $this->files->putAsUser($path, $config);
@@ -260,7 +264,7 @@ class Site
      * @param  string $crtPath
      * @return void
      */
-    function trustCertificate($crtPath, $url)
+    public function trustCertificate($crtPath, $url)
     {
         $this->cli->run(sprintf(
             'certutil -d sql:$HOME/.pki/nssdb -A -t TC -n "%s" -i "%s"', $url, $crtPath
@@ -277,7 +281,7 @@ class Site
      * @param  string $url
      * @return string
      */
-    function buildSecureNginxServer($url)
+    public function buildSecureNginxServer($url)
     {
         $path = $this->certificatesPath();
 
@@ -294,7 +298,7 @@ class Site
      * @param  string $url
      * @return void
      */
-    function unsecure($url)
+    public function unsecure($url)
     {
         if ($this->files->exists($this->certificatesPath() . '/' . $url . '.crt')) {
             $this->files->unlink(VALET_HOME_PATH . '/Nginx/' . $url);
@@ -314,7 +318,7 @@ class Site
      *
      * @return string
      */
-    function sitesPath()
+    public function sitesPath()
     {
         return VALET_HOME_PATH . '/Sites';
     }
@@ -324,7 +328,7 @@ class Site
      *
      * @return string
      */
-    function certificatesPath()
+    public function certificatesPath()
     {
         return VALET_HOME_PATH . '/Certificates';
     }

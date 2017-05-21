@@ -7,12 +7,12 @@ use Valet\Contracts\PackageManager;
 
 class Nginx
 {
-    var $pm;
-    var $sm;
-    var $cli;
-    var $files;
-    var $configuration;
-    var $site;
+    public $pm;
+    public $sm;
+    public $cli;
+    public $files;
+    public $configuration;
+    public $site;
 
     /**
      * Create a new Nginx instance.
@@ -25,7 +25,7 @@ class Nginx
      * @param  Site  $site
      * @return void
      */
-    function __construct(PackageManager $pm, ServiceManager $sm, CommandLine $cli, Filesystem $files, Configuration $configuration, Site $site)
+    public function __construct(PackageManager $pm, ServiceManager $sm, CommandLine $cli, Filesystem $files, Configuration $configuration, Site $site)
     {
         $this->cli = $cli;
         $this->pm = $pm;
@@ -40,7 +40,7 @@ class Nginx
      *
      * @return void
      */
-    function install()
+    public function install()
     {
         $this->pm->ensureInstalled('nginx');
         $this->sm->enable('nginx');
@@ -58,7 +58,7 @@ class Nginx
      *
      * @return void
      */
-    function installConfiguration()
+    public function installConfiguration()
     {
         $contents = $this->files->get(__DIR__.'/../stubs/nginx.conf');
 
@@ -80,7 +80,7 @@ class Nginx
      *
      * @return void
      */
-    function installServer()
+    public function installServer()
     {
         $this->files->putAsUser(
             '/etc/nginx/sites-available/valet.conf',
@@ -110,7 +110,7 @@ class Nginx
      *
      * @return void
      */
-    function installNginxDirectory()
+    public function installNginxDirectory()
     {
         if (! $this->files->isDir($nginxDirectory = VALET_HOME_PATH.'/Nginx')) {
             $this->files->mkdirAsUser($nginxDirectory);
@@ -127,7 +127,7 @@ class Nginx
      * @param  string  $newPort
      * @return void
      */
-    function updatePort($newPort)
+    public function updatePort($newPort)
     {
         $this->files->putAsUser(
             '/etc/nginx/sites-available/valet.conf',
@@ -144,7 +144,7 @@ class Nginx
      *
      * @return void
      */
-    function rewriteSecureNginxFiles()
+    public function rewriteSecureNginxFiles()
     {
         $domain = $this->configuration->read()['domain'];
 
@@ -156,7 +156,7 @@ class Nginx
      *
      * @return void
      */
-    function restart()
+    public function restart()
     {
         $this->sm->restart('nginx');
     }
@@ -166,7 +166,7 @@ class Nginx
      *
      * @return void
      */
-    function stop()
+    public function stop()
     {
         $this->sm->stop('nginx');
     }
@@ -176,7 +176,7 @@ class Nginx
      *
      * @return void
      */
-    function status()
+    public function status()
     {
         $this->sm->printStatus('nginx');
     }
@@ -186,7 +186,7 @@ class Nginx
      *
      * @return void
      */
-    function uninstall()
+    public function uninstall()
     {
         $this->stop();
     }
