@@ -24,7 +24,7 @@
         }
     },
     "require": {
-        "php": ">=5.5.9",
+        "php": ">=5.6",
         "illuminate/container": "~5.1",
         "mnapoli/silly": "~1.0",
         "symfony/process": "~2.7|~3.0",
@@ -33,7 +33,7 @@
     },
     "require-dev": {
         "mockery/mockery": "0.9.*",
-        "phpunit/phpunit": ">=4.8.24"
+        "phpunit/phpunit": "~5.7"
     },
     "bin": [
         "valet"

@@ -2,6 +2,8 @@
 
 namespace Valet;
 
+use DomainException;
+
 class Nginx
 {
     var $brew;
@@ -9,6 +11,7 @@ class Nginx
     var $files;
     var $configuration;
     var $site;
+    const NGINX_CONF = '/usr/local/etc/nginx/nginx.conf';
 
     /**
      * Create a new Nginx instance.
@@ -37,7 +40,9 @@ class Nginx
      */
     function install()
     {
-        $this->brew->ensureInstalled('nginx', ['--with-http2']);
+        if (!$this->brew->hasInstalledNginx()) {
+            $this->brew->installOrFail('nginx', ['--with-http2']);
+        }
 
         $this->installConfiguration();
         $this->installServer();
@@ -51,10 +56,12 @@ class Nginx
      */
     function installConfiguration()
     {
+        info('Installing nginx configuration...');
+
         $contents = $this->files->get(__DIR__.'/../stubs/nginx.conf');
 
         $this->files->putAsUser(
-            '/usr/local/etc/nginx/nginx.conf',
+            static::NGINX_CONF,
             str_replace(['VALET_USER', 'VALET_HOME_PATH'], [user(), VALET_HOME_PATH], $contents)
         );
     }
@@ -92,6 +99,8 @@ class Nginx
      */
     function installNginxDirectory()
     {
+        info('Installing nginx directory...');
+
         if (! $this->files->isDir($nginxDirectory = VALET_HOME_PATH.'/Nginx')) {
             $this->files->mkdirAsUser($nginxDirectory);
         }
@@ -99,6 +108,19 @@ class Nginx
         $this->files->putAsUser($nginxDirectory.'/.keep', "\n");
 
         $this->rewriteSecureNginxFiles();
+    }
+
+    /**
+     * Check nginx.conf for errors.
+     */
+    private function lint()
+    {
+        $this->cli->quietly(
+            'sudo nginx -c '.static::NGINX_CONF.' -t',
+            function ($exitCode, $outputMessage) {
+                throw new DomainException("Nginx cannot start, please check your nginx.conf [$exitCode: $outputMessage].");
+            }
+        );
     }
 
     /**
@@ -120,7 +142,9 @@ class Nginx
      */
     function restart()
     {
-        $this->cli->quietly('sudo brew services restart nginx');
+        $this->lint();
+
+        $this->brew->restartService($this->brew->nginxServiceName());
     }
 
     /**
@@ -130,7 +154,9 @@ class Nginx
      */
     function stop()
     {
-        $this->cli->quietly('sudo brew services stop nginx');
+        info('Stopping nginx....');
+
+        $this->cli->quietly('sudo brew services stop '. $this->brew->nginxServiceName());
     }
 
     /**

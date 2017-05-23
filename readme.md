@@ -1,10 +1,11 @@
-# Laravel Valet
+<p align="center"><img src="https://laravel.com/assets/img/components/logo-valet.svg"></p>
 
-[![Build Status](https://travis-ci.org/laravel/valet.svg?branch=master)](https://travis-ci.org/laravel/valet)
-[![Total Downloads](https://poser.pugx.org/laravel/valet/d/total.svg)](https://packagist.org/packages/laravel/valet)
-[![Latest Stable Version](https://poser.pugx.org/laravel/valet/v/stable.svg)](https://packagist.org/packages/laravel/valet)
-[![Latest Unstable Version](https://poser.pugx.org/laravel/valet/v/unstable.svg)](https://packagist.org/packages/laravel/valet)
-[![License](https://poser.pugx.org/laravel/valet/license.svg)](https://packagist.org/packages/laravel/valet)
+<p align="center">
+<a href="https://travis-ci.org/laravel/valet"><img src="https://travis-ci.org/laravel/valet.svg" alt="Build Status"></a>
+<a href="https://packagist.org/packages/laravel/valet"><img src="https://poser.pugx.org/laravel/valet/d/total.svg" alt="Total Downloads"></a>
+<a href="https://packagist.org/packages/laravel/valet"><img src="https://poser.pugx.org/laravel/valet/v/stable.svg" alt="Latest Stable Version"></a>
+<a href="https://packagist.org/packages/laravel/valet"><img src="https://poser.pugx.org/laravel/valet/license.svg" alt="License"></a>
+</p>
 
 ## Introduction
 
@@ -17,24 +18,6 @@ In other words, a blazing fast Laravel development environment that uses roughly
 ## Official Documentation
 
 Documentation for Valet can be found on the [Laravel website](https://laravel.com/docs/valet).
-
-## Upgrading To Valet 2.0
-
-Valet 2.0 transitions Valet's underlying web server from Caddy to Nginx. Before upgrading to this version you should run the following commands to stop and uninstall the existing Caddy daemon:
-
-```
-valet stop
-valet uninstall
-```
-
-Next, you should upgrade to the latest version of Valet. Depending on how you installed Valet, this is typically done through Git or Composer. Once the fresh Valet source code has been downloaded, you should run the `install` command:
-
-```
-valet install
-valet restart
-```
-
-After upgrading, it may be necessary to re-park or re-link your sites.
 
 ## License
 

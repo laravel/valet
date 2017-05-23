@@ -69,21 +69,18 @@ php7');
         $brew->shouldReceive('installed')->once()->with('php71')->andReturn(true);
         $brew->shouldReceive('installed')->with('php70')->andReturn(true);
         $brew->shouldReceive('installed')->with('php56')->andReturn(true);
-        $brew->shouldReceive('installed')->with('php55')->andReturn(true);
         $this->assertTrue($brew->hasInstalledPhp());
 
         $brew = Mockery::mock(Brew::class.'[installed]', [new CommandLine, new Filesystem]);
         $brew->shouldReceive('installed')->once()->with('php70')->andReturn(true);
         $brew->shouldReceive('installed')->with('php71')->andReturn(false);
         $brew->shouldReceive('installed')->with('php56')->andReturn(false);
-        $brew->shouldReceive('installed')->with('php55')->andReturn(false);
         $this->assertTrue($brew->hasInstalledPhp());
 
         $brew = Mockery::mock(Brew::class.'[installed]', [new CommandLine, new Filesystem]);
         $brew->shouldReceive('installed')->once()->with('php71')->andReturn(false);
         $brew->shouldReceive('installed')->once()->with('php70')->andReturn(false);
         $brew->shouldReceive('installed')->once()->with('php56')->andReturn(false);
-        $brew->shouldReceive('installed')->once()->with('php55')->andReturn(false);
         $this->assertFalse($brew->hasInstalledPhp());
     }
 
@@ -102,7 +99,9 @@ php7');
     public function test_restart_restarts_the_service_using_homebrew_services()
     {
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('quietly')->once()->with('sudo brew services restart dnsmasq');
+        $cli->shouldReceive('runAsUser')->once()->with('brew list | grep dnsmasq')->andReturn('dnsmasq');
+        $cli->shouldReceive('quietly')->once()->with('sudo brew services stop dnsmasq');
+        $cli->shouldReceive('quietly')->once()->with('sudo brew services start dnsmasq');
         swap(CommandLine::class, $cli);
         resolve(Brew::class)->restartService('dnsmasq');
     }
@@ -111,6 +110,7 @@ php7');
     public function test_stop_stops_the_service_using_homebrew_services()
     {
         $cli = Mockery::mock(CommandLine::class);
+        $cli->shouldReceive('runAsUser')->once()->with('brew list | grep dnsmasq')->andReturn('dnsmasq');
         $cli->shouldReceive('quietly')->once()->with('sudo brew services stop dnsmasq');
         swap(CommandLine::class, $cli);
         resolve(Brew::class)->stopService('dnsmasq');

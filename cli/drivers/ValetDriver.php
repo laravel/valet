@@ -54,6 +54,7 @@ abstract class ValetDriver
 
         $drivers[] = 'WordPressValetDriver';
         $drivers[] = 'BedrockValetDriver';
+        $drivers[] = 'ContaoValetDriver';
         $drivers[] = 'SymfonyValetDriver';
         $drivers[] = 'CraftValetDriver';
         $drivers[] = 'StatamicValetDriver';
@@ -62,13 +63,13 @@ abstract class ValetDriver
         $drivers[] = 'SculpinValetDriver';
         $drivers[] = 'JigsawValetDriver';
         $drivers[] = 'KirbyValetDriver';
-        $drivers[] = 'ContaoValetDriver';
         $drivers[] = 'KatanaValetDriver';
         $drivers[] = 'JoomlaValetDriver';
         $drivers[] = 'DrupalValetDriver';
         $drivers[] = 'Concrete5ValetDriver';
         $drivers[] = 'Typo3ValetDriver';
         $drivers[] = 'NeosValetDriver';
+        $drivers[] = 'Magento2ValetDriver';
 
         $drivers[] = 'BasicValetDriver';
 
