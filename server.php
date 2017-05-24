@@ -77,6 +77,19 @@ foreach ($valetConfig['paths'] as $path) {
     }
 }
 
+/**
+ * If no path is found, check if this request is set as an alias.
+ */
+
+if (isset($valetConfig['aliases'])){
+	if (isset($valetConfig['aliases'][$siteName])){
+		$aliasName = $valetConfig['aliases'][$siteName];
+		if (is_dir($path.'/'.$aliasName)) {
+			$valetSitePath = $path.'/'.$aliasName;
+		}
+	}
+}
+
 if (is_null($valetSitePath)) {
     show_valet_404();
 }
