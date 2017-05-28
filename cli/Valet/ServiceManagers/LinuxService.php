@@ -113,7 +113,19 @@ class LinuxService implements ServiceManager
      */
     public function disableServices()
     {
-        return;
+        $services = ['dnsmasq','systemd-resolved'];
+
+        if ($this->hasSystemd()) {
+            foreach ($services as $service) {
+                try {
+                    $this->cli->quietly('sudo systemctl disable ' . $this->getRealService($service));
+                    info("Disabled {$service}.service ...");
+                    $this->stop($service);
+                } catch (DomainException $e) {
+                    warning(ucfirst($service).' not available. Not disabled.');
+                }
+            }
+        }
     }
 
     /**
