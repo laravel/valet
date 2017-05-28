@@ -92,7 +92,7 @@ class Apt implements PackageManager
     {
         $sm->restart(['network-manager']);
 
-        $version = $this->cli->run('cat /etc/*release | grep DISTRIB_RELEASE | cut -d\= -f2');
+        $version = trim($this->cli->run('cat /etc/*release | grep DISTRIB_RELEASE | cut -d\= -f2'));
 
         if ($version === '17.04') {
             $sm->enable('systemd-resolved');
