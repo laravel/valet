@@ -13,6 +13,9 @@ class Nginx
     public $files;
     public $configuration;
     public $site;
+    public $nginx_conf;
+    public $sites_available_conf;
+    public $sites_enabled_conf;
 
     /**
      * Create a new Nginx instance.
@@ -33,6 +36,9 @@ class Nginx
         $this->site = $site;
         $this->files = $files;
         $this->configuration = $configuration;
+        $this->nginx_conf = '/etc/nginx/nginx.conf';
+        $this->sites_available_conf = '/etc/nginx/sites-available/valet.conf';
+        $this->sites_enabled_conf = '/etc/nginx/sites-enabled/valet.conf';
     }
 
     /**
@@ -61,6 +67,7 @@ class Nginx
     public function installConfiguration()
     {
         $contents = $this->files->get(__DIR__.'/../stubs/nginx.conf');
+        $nginx = $this->nginx_conf;
 
         $pid_string = 'pid /run/nginx.pid';
         $hasPIDoption = strpos($this->cli->run('cat /lib/systemd/system/nginx.service'), 'pid /');
@@ -69,8 +76,10 @@ class Nginx
             $pid_string = '# pid /run/nginx.pid';
         }
 
+        $this->files->backup($nginx);
+
         $this->files->putAsUser(
-            '/etc/nginx/nginx.conf',
+            $nginx,
             str_replace(['VALET_USER', 'VALET_GROUP', 'VALET_HOME_PATH', 'VALET_PID'], [user(), group(), VALET_HOME_PATH, $pid_string], $contents)
         );
     }
@@ -83,7 +92,7 @@ class Nginx
     public function installServer()
     {
         $this->files->putAsUser(
-            '/etc/nginx/sites-available/valet.conf',
+            $this->sites_available_conf,
             str_replace(
                 ['VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_PORT'],
                 [VALET_HOME_PATH, VALET_SERVER_PATH, '80'],
@@ -92,10 +101,11 @@ class Nginx
         );
 
         if ($this->files->exists('/etc/nginx/sites-enabled/default')) {
-            $this->cli->run('rm -f /etc/nginx/sites-enabled/default');
+            $this->files->unlink('/etc/nginx/sites-enabled/default');
         }
 
-        $this->cli->run('ln -snf /etc/nginx/sites-available/valet.conf /etc/nginx/sites-enabled/valet.conf');
+        $this->cli->run("ln -snf {$this->sites_available_conf} {$this->sites_enabled_conf}");
+        $this->files->backup('/etc/nginx/fastcgi_params');
 
         $this->files->putAsUser(
             '/etc/nginx/fastcgi_params',
@@ -130,7 +140,7 @@ class Nginx
     public function updatePort($newPort)
     {
         $this->files->putAsUser(
-            '/etc/nginx/sites-available/valet.conf',
+            $this->sites_available_conf,
             str_replace(
                 ['VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_PORT'],
                 [VALET_HOME_PATH, VALET_SERVER_PATH, $newPort],
@@ -189,5 +199,13 @@ class Nginx
     public function uninstall()
     {
         $this->stop();
+        $this->files->restore($this->nginx_conf);
+        $this->files->restore('/etc/nginx/fastcgi_params');
+        $this->files->unlink($this->sites_enabled_conf);
+        $this->files->unlink($this->sites_available_conf);
+
+        if ($this->files->exists('/etc/nginx/sites-available/default')) {
+            $this->files->symlink('/etc/nginx/sites-available/default', '/etc/nginx/sites-enabled/default');
+        }
     }
 }

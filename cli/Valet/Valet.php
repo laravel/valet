@@ -52,12 +52,8 @@ class Valet
      */
     public function uninstall()
     {
-        if ($this->files->exists($this->valetBin)) {
-            $this->files->unlink($this->valetBin);
-        }
-        if ($this->files->exists($this->sudoers)) {
-            $this->files->unlink($this->sudoers);
-        }
+        $this->files->unlink($this->valetBin);
+        $this->files->unlink($this->sudoers);
     }
 
     /**

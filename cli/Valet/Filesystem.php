@@ -236,6 +236,42 @@ class Filesystem
     }
 
     /**
+     * Backup the given file.
+     *
+     * @param  string  $file
+     * @return bool
+     */
+    public function backup($file)
+    {
+        $to = $file.'.bak';
+
+        if (! $this->exists($to)) {
+            if ($this->exists($file)) {
+                return rename($file, $to);
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Restore a backed up file.
+     *
+     * @param  string  $file
+     * @return bool
+     */
+    public function restore($file)
+    {
+        $from = $file.'.bak';
+
+        if ($this->exists($from)) {
+            return rename($from, $file);
+        }
+
+        return false;
+    }
+
+    /**
      * Copy the given file to a new location for the non-root user.
      *
      * @param  string  $from
@@ -394,8 +430,8 @@ class Filesystem
     public function scandir($path)
     {
         return collect(scandir($path))
-                    ->reject(function ($file) {
-                        return in_array($file, ['.', '..']);
-                    })->values()->all();
+            ->reject(function ($file) {
+                return in_array($file, ['.', '..']);
+            })->values()->all();
     }
 }

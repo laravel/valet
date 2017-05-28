@@ -60,7 +60,7 @@ class PhpFpm
     {
         if ($this->files->exists($this->fpmConfigPath().'/valet.conf')) {
             $this->files->unlink($this->fpmConfigPath().'/valet.conf');
-            $this->restart();
+            $this->stop();
         }
     }
 
