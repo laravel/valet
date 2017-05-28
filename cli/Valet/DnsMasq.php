@@ -13,6 +13,7 @@ class DnsMasq
     public $files;
     public $configPath;
     public $nmConfigPath;
+    public $resolvedConfig;
 
     /**
      * Create a new DnsMasq instance.
@@ -30,6 +31,7 @@ class DnsMasq
         $this->files = $files;
         $this->configPath = '/etc/NetworkManager/dnsmasq.d/valet';
         $this->nmConfigPath = '/etc/NetworkManager/conf.d/valet.conf';
+        $this->resolvedConfigPath = '/etc/systemd/resolved.conf';
     }
 
     /**
@@ -40,7 +42,7 @@ class DnsMasq
     public function install()
     {
         $this->dnsmasqSetup();
-        $this->sm->disableServices();
+        $this->fixResolved();
         $this->createCustomConfigFile('dev');
         $this->pm->dnsmasqRestart($this->sm);
     }
@@ -57,6 +59,19 @@ class DnsMasq
     }
 
     /**
+     * Fix systemd-resolved configuration.
+     *
+     * @return void
+     */
+    public function fixResolved()
+    {
+        $resolved = $this->resolvedConfigPath;
+
+        $this->files->backup($resolved);
+        $this->files->putAsUser($resolved, $this->files->get(__DIR__.'/../stubs/resolved.conf'));
+    }
+
+    /**
      * Setup dnsmasq with Network Manager.
      */
     public function dnsmasqSetup()
@@ -65,7 +80,6 @@ class DnsMasq
         $this->files->ensureDirExists('/etc/NetworkManager/conf.d');
 
         $this->files->putAsUser($this->nmConfigPath, $this->files->get(__DIR__.'/../stubs/networkmanager.conf'));
-        $this->files->putAsUser('/etc/NetworkManager/dnsmasq.d/dnsmasq.conf', 'listen-address=127.0.0.1'.PHP_EOL);
     }
 
     /**
@@ -76,6 +90,7 @@ class DnsMasq
      */
     public function updateDomain($oldDomain, $newDomain)
     {
+        $this->fixResolved();
         $this->createCustomConfigFile($newDomain);
         $this->pm->dnsmasqRestart($this->sm);
     }
@@ -87,9 +102,10 @@ class DnsMasq
      */
     public function uninstall()
     {
-        if ($this->files->exists($this->configPath)) {
-            $this->files->unlink($this->configPath);
-            $this->pm->dnsmasqRestart($this->sm);
-        }
+        $this->files->unlink($this->configPath);
+        $this->files->unlink($this->nmConfigPath);
+        $this->files->restore($this->resolvedConfigPath);
+
+        $this->pm->dnsmasqRestart($this->sm);
     }
 }
