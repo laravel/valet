@@ -55,13 +55,15 @@ class NginxTest extends TestCase
 
     public function test_install_nginx_configuration_places_nginx_base_configuration_in_proper_location()
     {
-        $files = Mockery::mock(Filesystem::class.'[putAsUser]');
+        $files = Mockery::mock(Filesystem::class.'[putAsUser,backup]');
 
         $files->shouldReceive('putAsUser')->andReturnUsing(function ($path, $contents) {
             $this->assertSame('/etc/nginx/nginx.conf', $path);
             $this->assertTrue(strpos($contents, 'user '.user().' '.group()) !== false);
             $this->assertTrue(strpos($contents, 'include '.VALET_HOME_PATH.'/Nginx/*') !== false);
         })->once();
+
+        $files->shouldReceive('backup')->with('/etc/nginx/nginx.conf')->once();
 
         swap(Filesystem::class, $files);
         swap(PackageManager::class, Mockery::mock(PackageManager::class));
@@ -75,7 +77,7 @@ class NginxTest extends TestCase
     public function test_install_nginx_server_places_nginx_base_configuration_in_proper_location()
     {
 
-        $files = Mockery::mock(Filesystem::class.'[putAsUser,exists]');
+        $files = Mockery::mock(Filesystem::class.'[putAsUser,exists,backup,unlink]');
         $cli = Mockery::mock(CommandLine::class.'[run]');
 
         $files->shouldReceive('putAsUser')->andReturnUsing(function ($path, $contents) {
@@ -89,13 +91,14 @@ class NginxTest extends TestCase
         })->once();
 
         $files->shouldReceive('exists')->with('/etc/nginx/sites-enabled/default')->andReturn(true)->once();
-        $cli->shouldReceive('run')->with('rm -f /etc/nginx/sites-enabled/default')->once();
-
-        $cli->shouldReceive('run')->with('ln -snf /etc/nginx/sites-available/valet.conf /etc/nginx/sites-enabled/valet.conf')->once();
+        $files->shouldReceive('unlink')->with('/etc/nginx/sites-enabled/default')->once();
+        $files->shouldReceive('backup')->with('/etc/nginx/fastcgi_params')->once();
 
         $files->shouldReceive('putAsUser')->andReturnUsing(function ($path, $contents) {
             $this->assertSame('/etc/nginx/fastcgi_params', $path);
         })->once();
+
+        $cli->shouldReceive('run')->with('ln -snf /etc/nginx/sites-available/valet.conf /etc/nginx/sites-enabled/valet.conf')->once();
 
         swap(Filesystem::class, $files);
         swap(CommandLine::class, $cli);

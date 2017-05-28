@@ -34,12 +34,12 @@ class DnsMasqTest extends TestCase
         $sm = Mockery::mock(ServiceManager::class);
         $pm = Mockery::mock(PackageManager::class);
 
-        $dnsMasq = Mockery::mock(DnsMasq::class.'[dnsmasqSetup,createCustomConfigFile]', [$pm, $sm, $files, $cli]);
+        $dnsMasq = Mockery::mock(DnsMasq::class.'[dnsmasqSetup,createCustomConfigFile,fixResolved]', [$pm, $sm, $files, $cli]);
 
         $dnsMasq->shouldReceive('dnsmasqSetup')->once();
         $dnsMasq->shouldReceive('createCustomConfigFile')->once()->with('dev');
+        $dnsMasq->shouldReceive('fixResolved')->once();
         $pm->shouldReceive('dnsmasqRestart')->once()->with($sm);
-        $sm->shouldReceive('disableServices')->once();
         $dnsMasq->install();
     }
 
@@ -66,9 +66,10 @@ class DnsMasqTest extends TestCase
         $cli = Mockery::mock(Filesystem::class);
         $files = Mockery::mock(CommandLine::class);
 
-        $dnsMasq = Mockery::mock(DnsMasq::class.'[createCustomConfigFile]', [$pm, $sm, $cli, $files]);
+        $dnsMasq = Mockery::mock(DnsMasq::class.'[createCustomConfigFile,fixResolved]', [$pm, $sm, $cli, $files]);
 
         $dnsMasq->shouldReceive('createCustomConfigFile')->once()->with('new');
+        $dnsMasq->shouldReceive('fixResolved')->once();
         $pm->shouldReceive('dnsmasqRestart')->once()->with($sm);
         $dnsMasq->updateDomain('old', 'new');
     }
