@@ -45,6 +45,10 @@ class SymfonyValetDriver extends ValetDriver
      */
     public function frontControllerPath($sitePath, $siteName, $uri)
     {
+        if (isset($_SERVER['HTTP_X_ORIGINAL_HOST']) && isset($_SERVER['HTTP_X_INBOUND_HOST']) && $_SERVER['HTTP_X_ORIGINAL_HOST'] === $_SERVER['HTTP_HOST']) {
+            $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_X_INBOUND_HOST'];
+        }
+
         if (file_exists($frontControllerPath = $sitePath.'/web/app_dev.php')) {
             return $frontControllerPath;
         } elseif (file_exists($frontControllerPath = $sitePath.'/web/app.php')) {
