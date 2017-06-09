@@ -42,6 +42,10 @@ class ContaoValetDriver extends ValetDriver
      */
     public function frontControllerPath($sitePath, $siteName, $uri)
     {
+        if ($uri === '/assets/tinymce4/js/tinymce.gzip.php') {
+            return $sitePath.'/assets/tinymce4/js/tinymce.gzip.php';
+        }
+
         if ($uri === '/install.php') {
             return $sitePath.'/web/install.php';
         }
