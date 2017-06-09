@@ -97,18 +97,10 @@ if (! $valetDriver) {
 }
 
 /**
- * Overwrite the HTTP host for Ngrok.
+ * ngrok uses the X-Original-Host to store the forwarded hostname.
  */
-if (isset($_SERVER['HTTP_X_ORIGINAL_HOST'])) {
-    if (!isset($_SERVER['HTTP_X_FORWARDED_HOST'])) {
-        $_SERVER['HTTP_X_FORWARDED_HOST'] = $_SERVER['HTTP_X_ORIGINAL_HOST'];
-    }
-
-    // Store original HTTP_HOST so it can optionally be restored in a driver
-    $_SERVER['HTTP_X_INBOUND_HOST'] = $_SERVER['HTTP_HOST'];
-
-    // Rewrite HTTP_HOST so it contains the hostname as entered by the visitor
-    $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_X_ORIGINAL_HOST'];
+if (isset($_SERVER['HTTP_X_ORIGINAL_HOST']) && !isset($_SERVER['HTTP_X_FORWARDED_HOST'])) {
+    $_SERVER['HTTP_X_FORWARDED_HOST'] = $_SERVER['HTTP_X_ORIGINAL_HOST'];
 }
 
 /**
