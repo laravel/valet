@@ -171,15 +171,15 @@ class Brew
 
         $resolvedPath = $this->files->readLink('/usr/local/bin/php');
 
-        if (strpos($resolvedPath, 'php71') !== false) {
-            return 'php71';
-        } elseif (strpos($resolvedPath, 'php70') !== false) {
-            return 'php70';
-        } elseif (strpos($resolvedPath, 'php56') !== false) {
-            return 'php56';
-        } else {
-            throw new DomainException("Unable to determine linked PHP.");
+        // Check all currently supported PHP versions
+        $phpVersions = ['php72', 'php71', 'php70', 'php56'];
+        foreach ($phpVersions as $version) {
+            if (strpos($resolvedPath, $version) !== false) {
+                return $version;
+            }
         }
+        
+        throw new DomainException("Unable to determine linked PHP.");
     }
 
     /**
