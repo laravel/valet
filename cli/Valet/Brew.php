@@ -40,9 +40,19 @@ class Brew
      */
     function hasInstalledPhp()
     {
-        return $this->installed('php71')
-            || $this->installed('php70')
-            || $this->installed('php56');
+        return $this->supportedPhpVersions()->contains(function ($version) {
+            return $this->installed($version);
+        });
+    }
+
+    /**
+     * Get a list of supported PHP versions
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    function supportedPhpVersions()
+    {
+        return collect(['php72', 'php71', 'php70', 'php56']);
     }
 
     /**
@@ -171,15 +181,11 @@ class Brew
 
         $resolvedPath = $this->files->readLink('/usr/local/bin/php');
 
-        // Check all currently supported PHP versions
-        $phpVersions = ['php72', 'php71', 'php70', 'php56'];
-        foreach ($phpVersions as $version) {
-            if (strpos($resolvedPath, $version) !== false) {
-                return $version;
-            }
-        }
-        
-        throw new DomainException("Unable to determine linked PHP.");
+        return $this->supportedPhpVersions()->first(function ($version) use ($resolvedPath) {
+            return strpos($resolvedPath, $version) !== false;
+        }, function () {
+            throw new DomainException("Unable to determine linked PHP.");
+        });
     }
 
     /**
