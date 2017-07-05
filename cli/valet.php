@@ -185,7 +185,7 @@ if (is_dir(VALET_HOME_PATH)) {
     $app->command('open [domain]', function ($domain = null) {
         $url = "http://".($domain ?: Site::host(getcwd())).'.'.Configuration::read()['domain'];
         // Run the 'open' command as the currently logged in user instead of root
-        passthru('sudo --user=`stat -f%Su /dev/console` open ' . escapeshellarg($url));
+        CommandLine::runAsUser("open ".escapeshellarg($url));
     })->descriptions('Open the site for the current (or specified) directory in your browser');
 
     /**
