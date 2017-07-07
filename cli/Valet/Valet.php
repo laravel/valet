@@ -120,11 +120,11 @@ class Valet
     public function getAvailablePackageManager()
     {
         return collect([
-            PackageKit::class,
             Apt::class,
             Dnf::class,
             Pacman::class,
             Yum::class,
+            PackageKit::class
         ])->first(function ($pm) {
             return resolve($pm)->isAvailable();
         }, function () {
