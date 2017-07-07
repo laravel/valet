@@ -8,10 +8,11 @@ use Valet\Contracts\PackageManager;
 use Valet\Contracts\ServiceManager;
 use Valet\PackageManagers\Apt;
 use Valet\PackageManagers\Dnf;
+use Valet\PackageManagers\PackageKit;
 use Valet\PackageManagers\Pacman;
 use Valet\PackageManagers\Yum;
-use Valet\ServiceManagers\Systemd;
 use Valet\ServiceManagers\LinuxService;
+use Valet\ServiceManagers\Systemd;
 
 class Valet
 {
@@ -119,6 +120,7 @@ class Valet
     public function getAvailablePackageManager()
     {
         return collect([
+            PackageKit::class,
             Apt::class,
             Dnf::class,
             Pacman::class,
