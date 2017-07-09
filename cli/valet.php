@@ -195,9 +195,9 @@ if (is_dir(VALET_HOME_PATH)) {
         $paths = Configuration::read()['paths'];
 
         if (count($paths) > 0) {
-            output(json_encode($paths, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+            info(json_encode($paths, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
         } else {
-            info('No paths have been registered.');
+            warning('No paths have been registered.');
         }
     })->descriptions('Get all of the paths registered with Valet');
 
