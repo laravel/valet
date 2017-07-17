@@ -58,11 +58,11 @@ class StatamicValetDriver extends ValetDriver
 
         $scriptName = '/index.php';
 
-        if (file_exists($sitePath.'/index.php')) {
+        if ($this->isActualFile($sitePath.'/index.php')) {
             $indexPath = $sitePath.'/index.php';
         }
 
-        if (file_exists($sitePath.'/public/index.php')) {
+        if ($this->isActualFile($sitePath.'/public/index.php')) {
             $indexPath = $sitePath.'/public/index.php';
         }
 
