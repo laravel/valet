@@ -18,7 +18,7 @@ In other words, a blazing fast Laravel development environment that uses roughly
 
 ## Official Documentation
 
-Documentation for Valet can be found on the [Wiki](https://github.com/cpriego/valet-linux/wiki).
+Documentation for Valet can be found on the [Valet Linux website](https://cpriego.github.io/valet-linux/).
 
 ## License
 
