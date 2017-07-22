@@ -4,3 +4,6 @@ error.log
 *.sublime-project
 *.sublime-workspace
 psysh
+Gemfile
+Gemfile.lock
+_site/
