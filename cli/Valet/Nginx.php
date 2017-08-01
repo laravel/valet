@@ -154,7 +154,7 @@ class Nginx
      */
     function stop()
     {
-        info('Stopping nginx....');
+        info('Stopping nginx...');
 
         $this->cli->quietly('sudo brew services stop '. $this->brew->nginxServiceName());
     }
