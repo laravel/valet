@@ -62,9 +62,11 @@ class StatamicValetDriver extends ValetDriver
             $indexPath = $sitePath.'/index.php';
         }
 
-        if ($this->isActualFile($sitePath.'/public/index.php')) {
+        if ($isAboveWebroot = $this->isActualFile($sitePath.'/public/index.php')) {
             $indexPath = $sitePath.'/public/index.php';
         }
+
+        $sitePathPrefix = ($isAboveWebroot) ? $sitePath.'/public' : $sitePath;
 
         if ($locale = $this->getUriLocale($uri)) {
             // Force trailing slashes on locale roots.
@@ -72,12 +74,12 @@ class StatamicValetDriver extends ValetDriver
                 header('Location: ' . $uri . '/'); die;
             }
 
-            $indexPath = $sitePath . '/' . $locale . '/index.php';
+            $indexPath = $sitePathPrefix . '/' . $locale . '/index.php';
             $scriptName = '/' . $locale . '/index.php';
         }
 
         $_SERVER['SCRIPT_NAME'] = $scriptName;
-        $_SERVER['SCRIPT_FILENAME'] = $sitePath . $scriptName;
+        $_SERVER['SCRIPT_FILENAME'] = $sitePathPrefix . $scriptName;
 
         return $indexPath;
     }
