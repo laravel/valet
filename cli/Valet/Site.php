@@ -209,7 +209,7 @@ class Site
         $this->createSigningRequest($url, $keyPath, $csrPath, $confPath);
 
         $this->cli->runAsUser(sprintf(
-            'openssl x509 -req -days 365 -in %s -signkey %s -out %s -extensions v3_req -extfile %s',
+            'openssl x509 -req -sha256 -days 365 -in %s -signkey %s -out %s -extensions v3_req -extfile %s',
             $csrPath, $keyPath, $crtPath, $confPath
         ));
 
