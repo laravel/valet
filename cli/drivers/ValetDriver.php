@@ -42,12 +42,19 @@ abstract class ValetDriver
      */
     public static function assign($sitePath, $siteName, $uri)
     {
-        $drivers = static::driversIn(VALET_HOME_PATH.'/Drivers');
+        $drivers = [];
+
+        if ($customSiteDriver = static::customSiteDriver($sitePath)) {
+            $drivers[] = $customSiteDriver;
+        }
+
+        $drivers = array_merge($drivers, static::driversIn(VALET_HOME_PATH.'/Drivers'));
 
         $drivers[] = 'LaravelValetDriver';
 
         $drivers[] = 'WordPressValetDriver';
         $drivers[] = 'BedrockValetDriver';
+        $drivers[] = 'ContaoValetDriver';
         $drivers[] = 'SymfonyValetDriver';
         $drivers[] = 'CraftValetDriver';
         $drivers[] = 'StatamicValetDriver';
@@ -56,11 +63,13 @@ abstract class ValetDriver
         $drivers[] = 'SculpinValetDriver';
         $drivers[] = 'JigsawValetDriver';
         $drivers[] = 'KirbyValetDriver';
-        $drivers[] = 'ContaoValetDriver';
         $drivers[] = 'KatanaValetDriver';
         $drivers[] = 'JoomlaValetDriver';
         $drivers[] = 'DrupalValetDriver';
         $drivers[] = 'Concrete5ValetDriver';
+        $drivers[] = 'Typo3ValetDriver';
+        $drivers[] = 'NeosValetDriver';
+        $drivers[] = 'Magento2ValetDriver';
 
         $drivers[] = 'BasicValetDriver';
 
@@ -71,6 +80,23 @@ abstract class ValetDriver
                 return $driver;
             }
         }
+    }
+
+    /**
+     * Get the custom driver class from the site path, if one exists.
+     *
+     * @param  string  $sitePath
+     * @return string
+     */
+    public static function customSiteDriver($sitePath)
+    {
+        if (! file_exists($sitePath.'/LocalValetDriver.php')) {
+            return;
+        }
+
+        require_once $sitePath.'/LocalValetDriver.php';
+
+        return 'LocalValetDriver';
     }
 
     /**
