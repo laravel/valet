@@ -1,6 +1,6 @@
 <?php
 
-class CakeValetDriver extends ValetDriver
+class NeosValetDriver extends ValetDriver
 {
     /**
      * Determine if the driver serves the request.
@@ -12,7 +12,7 @@ class CakeValetDriver extends ValetDriver
      */
     public function serves($sitePath, $siteName, $uri)
     {
-        return file_exists($sitePath.'/bin/cake');
+        return file_exists($sitePath.'/flow') && is_dir($sitePath.'/Web');
     }
 
     /**
@@ -25,10 +25,9 @@ class CakeValetDriver extends ValetDriver
      */
     public function isStaticFile($sitePath, $siteName, $uri)
     {
-        if ($this->isActualFile($staticFilePath = $sitePath.'/webroot/'.$uri)) {
+        if ($this->isActualFile($staticFilePath = $sitePath.'/Web'.$uri)) {
             return $staticFilePath;
         }
-
         return false;
     }
 
@@ -42,11 +41,10 @@ class CakeValetDriver extends ValetDriver
      */
     public function frontControllerPath($sitePath, $siteName, $uri)
     {
-        $_SERVER['DOCUMENT_ROOT'] = $sitePath.'/webroot';
-        $_SERVER['SCRIPT_FILENAME'] = $sitePath.'/webroot/index.php';
+        putenv('FLOW_CONTEXT=Development');
+        putenv('FLOW_REWRITEURLS=1');
+        $_SERVER['SCRIPT_FILENAME'] = $sitePath.'/Web/index.php';
         $_SERVER['SCRIPT_NAME'] = '/index.php';
-        $_SERVER['PHP_SELF'] = '/index.php';
-
-        return $sitePath.'/webroot/index.php';
+        return $sitePath.'/Web/index.php';
     }
 }

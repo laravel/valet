@@ -26,7 +26,8 @@ class LaravelValetDriver extends ValetDriver
      */
     public function isStaticFile($sitePath, $siteName, $uri)
     {
-        if (file_exists($staticFilePath = $sitePath.'/public'.$uri)) {
+        if (file_exists($staticFilePath = $sitePath.'/public'.$uri)
+           && is_file($staticFilePath)) {
             return $staticFilePath;
         }
 
@@ -53,6 +54,11 @@ class LaravelValetDriver extends ValetDriver
      */
     public function frontControllerPath($sitePath, $siteName, $uri)
     {
+        // Shortcut for getting the "local" hostname as the HTTP_HOST
+        if (isset($_SERVER['HTTP_X_ORIGINAL_HOST'], $_SERVER['HTTP_X_FORWARDED_HOST'])) {
+            $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_X_FORWARDED_HOST'];
+        }
+        
         return $sitePath.'/public/index.php';
     }
 }
