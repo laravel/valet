@@ -236,7 +236,7 @@ class Site
     function createSigningRequest($url, $keyPath, $csrPath, $confPath)
     {
         $this->cli->runAsUser(sprintf(
-            'openssl req -new -key %s -out %s -subj "/C=/ST=/O=/localityName=/commonName=*.%s/organizationalUnitName=/emailAddress=/" -config %s -passin pass:',
+            'openssl req -new -key %s -out %s -subj "/commonName=*.%s/" -config %s -passin pass:',
             $keyPath, $csrPath, $url, $confPath
         ));
     }
