@@ -52,6 +52,15 @@ if [ $# -gt 0 ]; then
           fi
     done
 
+  # Run Acceptance tests against ALL environments in parallel
+  elif [ "$1" == "test-all-parallel" ]; then
+      for DIRECTORY in `find $VAGRANT_FOLDER -maxdepth 1 -type d`; do
+            if [[ "$DIRECTORY" != $VAGRANT_FOLDER ]]; then
+              gnome-terminal --tab \
+                  --command="bash -c \"./develop test ${DIRECTORY##*/} && ./develop down ${DIRECTORY##*/}; read\""
+            fi
+      done
+
   fi
 
 else
@@ -93,5 +102,9 @@ else
   # ./develop test-all
   echo -e "\ttest-all"
   echo -e "\t\tRun Acceptance tests against ALL OSes."
+
+  # ./develop test-all-parallel
+  echo -e "\ttest-all-parallel"
+  echo -e "\t\tRun Acceptance tests against ALL OSes in parellel. Requires gnome-terminal."
 
 fi
