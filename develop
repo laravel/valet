@@ -32,7 +32,7 @@ if [ $# -gt 0 ]; then
   elif [ "$1" == "destroy-all" ]; then
     for DIRECTORY in `find $VAGRANT_FOLDER -maxdepth 1 -type d`; do
           if [[ "$DIRECTORY" != $VAGRANT_FOLDER ]]; then
-            ./develop destroy ${DIRECTORY##*/}
+            ./develop destroy ${DIRECTORY##*/} -f
           fi
     done
 
