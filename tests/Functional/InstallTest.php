@@ -4,6 +4,7 @@ use Valet\Tests\Functional\FunctionalTestCase;
 
 /**
  * @group functional
+ * @group acceptance
  */
 class InstallTest extends FunctionalTestCase
 {

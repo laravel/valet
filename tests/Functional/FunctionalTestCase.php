@@ -18,7 +18,9 @@ class FunctionalTestCase extends TestCase
      */
     protected function valetCommand($command, $workingDir = null)
     {
-        return $this->exec($_SERVER['REPOSITORY'] . '/valet ' . $command, $workingDir);
+        $valet = (isset($_SERVER['REPOSITORY']) ? $_SERVER['REPOSITORY'] . '/' : '') . 'valet';
+
+        return $this->exec($valet . ' ' . $command, $workingDir);
     }
 
     /**

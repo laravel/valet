@@ -16,4 +16,4 @@ cd $REPOSITORY
 ./valet install
 
 # Run Functional tests
-vendor/bin/phpunit --group functional
+vendor/bin/phpunit --group functional --exclude-group none

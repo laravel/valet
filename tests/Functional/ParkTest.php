@@ -7,6 +7,7 @@ use Configuration;
 
 /**
  * @group functional
+ * @group acceptance
  */
 class ParkTest extends FunctionalTestCase
 {

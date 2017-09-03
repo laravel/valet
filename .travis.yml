@@ -111,4 +111,4 @@ script:
   - if [[ -n $distro ]]; then docker exec -it $CONTAINER_ID /prepare.sh; fi
 
   # Run functional tests
-  - if [[ -n $distro ]]; then docker exec -it -u valet $CONTAINER_ID /workspace/tests/Functional/run.sh; fi
+  - if [[ -n $distro ]]; then docker exec -it -u valet $CONTAINER_ID /workspace/tests/Acceptance/docker.sh; fi
