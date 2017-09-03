@@ -1,0 +1,77 @@
+#!/bin/bash
+
+VAGRANT_FOLDER="./tests/Acceptance/Vagrant"
+
+if [ $# -gt 0 ]; then
+
+  # Spin up given development environment
+  if [ "$1" == "up" ]; then
+    cd "$VAGRANT_FOLDER/$2" && \
+    shift 2 && \
+    VALET_ENVIRONMENT=development vagrant up "$@"
+
+  # SSH into the given development environment
+  elif [ "$1" == "ssh" ]; then
+    cd "$VAGRANT_FOLDER/$2" && \
+    shift 2 && \
+    vagrant ssh "$@"
+
+  # Switch off given development environment
+  elif [ "$1" == "down" ]; then
+    cd "$VAGRANT_FOLDER/$2" && \
+    shift 2 && \
+    vagrant down "$@"
+
+  # Destroy given development environment
+  elif [ "$1" == "destroy" ]; then
+    cd "$VAGRANT_FOLDER/$2" && \
+    shift 2 && \
+    vagrant destroy "$@"
+
+  # Run Acceptance tests against given environment
+  elif [ "$1" == "test" ]; then
+    echo "WIP"
+
+  # Run Acceptance tests against ALL environments
+  elif [ "$1" == "test-all" ]; then
+    echo "WIP"
+
+  fi
+
+else
+  # Display usage
+  echo -e "Usage: ./develop [action] [arguments]\n"
+  echo -e "Available actions:"
+
+  # ./develop up {OS_NAME}
+  echo -e "\tup {OS_NAME}"
+  echo -e "\t\tSpin up a development environment using vagrant and SSH into it."
+  echo -e -n "\t\tAvailable OSes: "
+  for DIRECTORY in `find $VAGRANT_FOLDER -maxdepth 1 -type d`; do
+        if [[ "$DIRECTORY" != $VAGRANT_FOLDER ]]; then
+          echo -e -n "${DIRECTORY##*/} "
+        fi
+  done
+  echo
+
+  # ./develop ssh {OS_NAME}
+  echo -e "\tssh {OS_NAME}"
+  echo -e "\t\tSSH into the given development environment."
+
+  # ./develop down {OS_NAME}
+  echo -e "\tdown {OS_NAME}"
+  echo -e "\t\tSwitch off given development environment. This does NOT destroy the box."
+
+  # ./develop down {OS_NAME}
+  echo -e "\tdestroy {OS_NAME}"
+  echo -e "\t\tDestroy given development environment."
+
+  # ./develop test {OS_NAME}
+  echo -e "\ttest {OS_NAME}"
+  echo -e "\t\tRun Acceptance tests against a given OS."
+
+  # ./develop test-all
+  echo -e "\ttest-all"
+  echo -e "\t\tRun Acceptance tests against ALL OSes."
+
+fi
