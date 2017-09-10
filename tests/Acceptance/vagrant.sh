@@ -16,4 +16,4 @@ cd ~/cpriego-valet-linux
 valet install
 
 # Run Functional tests
-./vendor/bin/phpunit --group acceptance --exclude-group none
+./vendor/phpunit/phpunit/phpunit --group acceptance --exclude-group none
