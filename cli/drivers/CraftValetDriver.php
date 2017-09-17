@@ -183,8 +183,8 @@ class CraftValetDriver extends ValetDriver
         $parts = explode('/', $uri);
 
         if (count($parts) > 1 && in_array($parts[1], $locales)) {
-            $indexPath = $sitePath.'/public/'. $parts[1] .'/index.php';
-            $scriptName = '/' . $parts[1] . '/index.php';
+            $indexPath = $sitePath.'/'.$frontControllerDirectory.'/'.$parts[1].'/index.php';
+            $scriptName = '/'.$parts[1].'/index.php';
         }
 
         $_SERVER['SCRIPT_FILENAME'] = $indexPath;
