@@ -107,7 +107,7 @@ class DnsMasq
     }
 
     /**
-     * Create the resolver file to point the "dev" domain to 127.0.0.1.
+     * Create the resolver file to point the configured domain to 127.0.0.1.
      *
      * @param  string  $domain
      * @return void
