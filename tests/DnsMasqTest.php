@@ -41,7 +41,7 @@ class DnsMasqTest extends PHPUnit_Framework_TestCase
 
         $dnsMasq->install('localhost');
 
-        $this->assertSame('nameserver 127.0.0.1'.PHP_EOL, file_get_contents(__DIR__.'/output/resolver/dev'));
+        $this->assertSame('nameserver 127.0.0.1'.PHP_EOL, file_get_contents(__DIR__.'/output/resolver/localhost'));
         $this->assertSame('address=/.localhost/127.0.0.1'.PHP_EOL, file_get_contents(__DIR__.'/output/custom-dnsmasq.conf'));
         $this->assertSame('test-contents
 
