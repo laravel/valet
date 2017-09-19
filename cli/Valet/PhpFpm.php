@@ -114,4 +114,35 @@ class PhpFpm
 
         return $confLookup[$this->brew->linkedPhp()];
     }
+
+
+    /**
+     * Switch between versions of installed PHP
+     *
+     * @return void
+     */
+    function switchTo($version)
+    {
+        $version = preg_replace('/[.]/','',$version);
+        $versions = ['71', '70', '56'];
+        $currentVersion = $this->brew->linkedPhp();
+
+        if('php'.$version === $currentVersion) {
+            return false;
+        }
+
+        if (!in_array($version, $versions)) {
+            throw new DomainException("This version of PHP not available. The following versions are available: " . implode(' ', $versions));
+        }
+
+        $this->cli->passthru('brew unlink '. $currentVersion);
+
+        if (!$this->brew->installed('php'.$version)) {
+            $this->brew->ensureInstalled('php'.$version);
+        }
+
+        $this->cli->passthru('brew link php'.$version);
+        $this->cli->passthru('valet install');
+        return true;
+    }
 }
