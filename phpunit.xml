@@ -16,6 +16,7 @@
     <groups>
         <exclude>
             <group>functional</group>
+            <group>acceptance</group>
         </exclude>
     </groups>
     <php>
