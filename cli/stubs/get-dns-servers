@@ -3,13 +3,28 @@
 WORKDIR="/opt/valet-linux"
 DNSFILE="${WORKDIR}/dns-servers"
 LOGFILE="${WORKDIR}/watch.log"
-PIDS=""
+RESOLV="/etc/resolv.conf"
+
+function unique {
+    # Function to remove duplicated lines (even when they are not contiguous)
+    # cat -n      puts line numbers
+    # sort -uk2   sort and remove duplicates (ignoring line numbers)
+    # sort -nk1   sort by line number
+    # cut -f2-    remove line numbers
+    cat -n | sort -uk2 | sort -nk1 | cut -f2-
+}
 
 function updateNameservers() {
     # Read all of the nameserver files at once, filter lines starting with 'nameserver'
     # and exclude the ones containing 127.0.0.1 (localhost)
 
-    cat "${FILES[@]}" | grep -i '^nameserver' | grep -v '127.0.0.1' | tee "$DNSFILE" &>/dev/null
+    cat "${FILES[@]}" | grep -i '^nameserver' | grep -v '127.0.0.' | unique | tee "$DNSFILE" &>/dev/null
+    
+    # Add "search" and "domain" directives to /etc/resolv.conf
+    chattr -i "$RESOLV" && \
+    cat "${FILES[@]}" | grep -e '^search' -e '^domain' | unique | tee "$RESOLV" &>/dev/null && \
+    echo '127.0.0.1' >> "$RESOLV" && \
+    chattr +i "$RESOLV"
 }
 
 function watchFiles() {
@@ -37,7 +52,6 @@ function main() {
 
     for FILE in "${FILES[@]}"; do
         watchFiles "$FILE" &
-        PIDS="$PIDS $!"
     done
 
     # Find nameserver files in the /run/resolvconf/interface folder (as they do not have a standard name)
