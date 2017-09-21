@@ -9,7 +9,7 @@ class InstallTest extends FunctionalTestCase
 {
     public function test_valet_is_running_after_install()
     {
-        $response = \Httpful\Request::get('http://test.dev')->send();
+        $response = \Httpful\Request::get('http://test.test')->send();
 
         $this->assertEquals(404, $response->code);
         $this->assertContains('Valet - Not Found', $response->body);

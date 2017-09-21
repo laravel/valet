@@ -155,7 +155,7 @@ class NginxTest extends TestCase
         $files->shouldReceive('putAsUser')->with(VALET_HOME_PATH.'/Nginx/.keep', "\n")->once();
 
         swap(Filesystem::class, $files);
-        swap(Configuration::class, $config = Mockery::spy(Configuration::class, ['read' => ['domain' => 'dev']]));
+        swap(Configuration::class, $config = Mockery::spy(Configuration::class, ['read' => ['domain' => 'test']]));
         swap(Site::class, $site = Mockery::spy(Site::class));
         swap(PackageManager::class, Mockery::mock(PackageManager::class));
         swap(ServiceManager::class, Mockery::mock(ServiceManager::class));
@@ -163,6 +163,6 @@ class NginxTest extends TestCase
         $nginx = resolve(Nginx::class);
         $nginx->installNginxDirectory();
 
-        $site->shouldHaveReceived('resecureForNewDomain', ['dev', 'dev']);
+        $site->shouldHaveReceived('resecureForNewDomain', ['test', 'test']);
     }
 }

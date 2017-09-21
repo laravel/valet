@@ -42,7 +42,7 @@ class KirbyValetDriver extends ValetDriver
      */
     public function frontControllerPath($sitePath, $siteName, $uri)
     {
-        // Needed to force Kirby to use *.dev to generate its URLs...
+        // Needed to force Kirby to use *.test to generate its URLs...
         $_SERVER['SERVER_NAME'] = $_SERVER['HTTP_HOST'];
 
         if (preg_match('/^\/panel/', $uri)) {

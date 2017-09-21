@@ -139,8 +139,8 @@ class Typo3ValetDriver extends ValetDriver
     }
 
     /**
-     * Direct access to installtool via domain.dev/typo3/install/ will be redirected to
-     * sysext install script. domain.dev/typo3 will be redirected to /typo3/, because
+     * Direct access to installtool via domain.test/typo3/install/ will be redirected to
+     * sysext install script. domain.test/typo3 will be redirected to /typo3/, because
      * the generated JavaScript URIs on the login screen would be broken on /typo3.
      *
      * @param string $uri
@@ -173,7 +173,7 @@ class Typo3ValetDriver extends ValetDriver
         $docroot = $sitePath . $this->documentRoot;
         $abspath = $docroot . $uri;
 
-        $_SERVER['SERVER_NAME'] = $siteName . '.dev';
+        $_SERVER['SERVER_NAME'] = $siteName . '.test';
         $_SERVER['DOCUMENT_ROOT'] = $docroot;
         $_SERVER['DOCUMENT_URI'] = $uri;
         $_SERVER['SCRIPT_FILENAME'] = $abspath;

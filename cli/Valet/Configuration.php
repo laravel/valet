@@ -123,7 +123,7 @@ class Configuration
     public function writeBaseConfiguration()
     {
         if (! $this->files->exists($this->path())) {
-            $this->write(['domain' => 'dev', 'paths' => [], 'port' => '80']);
+            $this->write(['domain' => 'test', 'paths' => [], 'port' => '80']);
         }
     }
 
