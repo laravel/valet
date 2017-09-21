@@ -1,5 +1,4 @@
 dist: trusty
-services: docker
 language: php
 
 sudo: required
@@ -9,79 +8,14 @@ env:
     - setup=basic
     - APP_ENV=testing
 
-matrix:
-  include:
-    - php: 5.6
-      env: phpunit=true
-    - php: 7.0
-      env: phpunit=true
-    - php: 7.1
-      env: phpunit=true
-    # - php: 7.1
-    #   env:
-    #     phpunit: false
-    #     distro: arch
-    #     run_opts: "'--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro'"
-    - php: 7.0
-      env:
-        phpunit: false
-        distro: centos7
-        run_opts: "'--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro'"
-    - php: 7.0
-      env:
-        phpunit: false
-        distro: fedora24
-        run_opts: "'--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro'"
-    - php: 7.0
-      env:
-        phpunit: false
-        distro: fedora25
-        run_opts: "'--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro'"
-    - php: 7.0
-      env:
-        phpunit: false
-        distro: ubuntu1604
-        run_opts: ""
-    - php: 7.0
-      env:
-        phpunit: false
-        distro: ubuntu1404
-        run_opts: ""
-  allow_failures:
-    - php: 7.1
-      env:
-        phpunit: false
-        distro: arch
-        run_opts: "'--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro'"
-    - php: 7.0
-      env:
-        phpunit: false
-        distro: centos7
-        run_opts: "'--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro'"
-    - php: 7.0
-      env:
-        phpunit: false
-        distro: fedora24
-        run_opts: "'--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro'"
-    - php: 7.0
-      env:
-        phpunit: false
-        distro: fedora25
-        run_opts: "'--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro'"
-    - php: 7.0
-      env:
-        phpunit: false
-        distro: ubuntu1604
-        run_opts: ""
-    - php: 7.0
-      env:
-        phpunit: false
-        distro: ubuntu1404
-        run_opts: ""
+php:
+  - 5.6
+  - 7.0
+  - 7.1
+  - nightly
 
 before_install:
   - travis_retry composer self-update
-  - if [[ -n $distro ]]; then travis_retry docker pull thenodi/docker-${distro}-valet:latest; fi
 
 cache:
   directories:
@@ -93,22 +27,4 @@ install:
   - if [[ $setup = 'lowest' ]]; then travis_retry composer update --prefer-dist --no-interaction --prefer-lowest --prefer-stable; fi
 
 script:
-  - if [[ $phpunit = true ]]; then vendor/bin/phpunit; fi
-
-  # Start the container in detached mode
-  - >
-    if [[ -n $distro ]]; then
-      CONTAINER_ID=$( \
-          docker run --detach \
-              --volume="${PWD}":/workspace \
-              -e "REPOSITORY=/workspace" \
-              ${run_opts} \
-              thenodi/docker-${distro}-valet:latest
-      );
-    fi
-
-  # Prepare the container
-  - if [[ -n $distro ]]; then docker exec -it $CONTAINER_ID /prepare.sh; fi
-
-  # Run functional tests
-  - if [[ -n $distro ]]; then docker exec -it -u valet $CONTAINER_ID /workspace/tests/Acceptance/docker.sh; fi
+  - vendor/bin/phpunit
