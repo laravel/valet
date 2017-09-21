@@ -273,7 +273,7 @@ if (is_dir(VALET_HOME_PATH)) {
         Configuration::updateKey('fallback', $path ?: getcwd());
 
         info('Your Valet fallback path has been updated to '.($path === null ? 'the current directory' : "[{$path}]").'.');
-    })->descriptions('Set the current working (or specified) directory as the fallback path for uncaught urls');
+    })->descriptions('Set the current working (or specified) directory as the fallback site path for uncaught urls');
 
     /**
      * Removes the fallback site path used by Valet.
@@ -282,7 +282,7 @@ if (is_dir(VALET_HOME_PATH)) {
         Configuration::updateKey('fallback', null);
 
         info('Your Valet fallback path has been removed.');
-    })->descriptions('Remove the fallback site path used for uncaught urls');
+    })->descriptions('Remove the fallback site path for uncaught urls');
 }
 
 /**
