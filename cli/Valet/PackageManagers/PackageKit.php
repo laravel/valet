@@ -88,7 +88,7 @@ class PackageKit implements PackageManager
     /**
      * Restart dnsmasq in Ubuntu.
      */
-    public function dnsmasqRestart($sm)
+    public function nmRestart($sm)
     {
         $sm->restart(['network-manager']);
 

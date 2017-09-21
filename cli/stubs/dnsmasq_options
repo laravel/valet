@@ -1,0 +1,5 @@
+resolv-file=/opt/valet-linux/dns-servers
+listen-address=127.0.0.1
+bind-interfaces
+cache-size=0
+proxy-dnssec

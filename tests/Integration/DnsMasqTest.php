@@ -39,7 +39,8 @@ class DnsMasqTest extends TestCase
         $dnsMasq->shouldReceive('dnsmasqSetup')->once();
         $dnsMasq->shouldReceive('createCustomConfigFile')->once()->with('dev');
         $dnsMasq->shouldReceive('fixResolved')->once();
-        $pm->shouldReceive('dnsmasqRestart')->once()->with($sm);
+        $pm->shouldReceive('nmRestart')->once()->with($sm);
+        $sm->shouldReceive('restart')->once()->with('dnsmasq');
         $dnsMasq->install();
     }
 
@@ -69,8 +70,7 @@ class DnsMasqTest extends TestCase
         $dnsMasq = Mockery::mock(DnsMasq::class.'[createCustomConfigFile,fixResolved]', [$pm, $sm, $cli, $files]);
 
         $dnsMasq->shouldReceive('createCustomConfigFile')->once()->with('new');
-        $dnsMasq->shouldReceive('fixResolved')->once();
-        $pm->shouldReceive('dnsmasqRestart')->once()->with($sm);
+        $sm->shouldReceive('restart')->once()->with('dnsmasq');
         $dnsMasq->updateDomain('old', 'new');
     }
 }

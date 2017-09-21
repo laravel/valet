@@ -38,7 +38,7 @@ interface PackageManager
     /**
      * Restart dnsmasq in distro.
      */
-    public function dnsmasqRestart($sm);
+    public function nmRestart($sm);
 
     /**
      * Determine if package manager is available on the system.

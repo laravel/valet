@@ -79,7 +79,7 @@ class Yum implements PackageManager
     /**
      * Restart dnsmasq in Fedora.
      */
-    public function dnsmasqRestart($sm)
+    public function nmRestart($sm)
     {
         $sm->restart('NetworkManager');
     }

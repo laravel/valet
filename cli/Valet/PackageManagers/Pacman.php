@@ -88,7 +88,7 @@ class Pacman implements PackageManager
     /**
      * Restart dnsmasq in Ubuntu.
      */
-    public function dnsmasqRestart($sm)
+    public function nmRestart($sm)
     {
         $sm->restart('NetworkManager');
     }

@@ -134,8 +134,14 @@ if (strpos($siteName, 'www.') === 0) {
 $valetSitePath = null;
 
 foreach ($valetConfig['paths'] as $path) {
+    $domain = ($pos = strrpos($siteName, '.')) !== false
+                ? substr($siteName, $pos+1)
+                : null;
+
     foreach (glob($path . '/*', GLOB_ONLYDIR) as $dirPath) {
-        if (valet_path_to_slug($dirPath) == $siteName) {
+        $slug = valet_path_to_slug($dirPath);
+
+        if ($slug == $siteName || $slug == $domain) {
             $valetSitePath = $dirPath;
 
             break 2;

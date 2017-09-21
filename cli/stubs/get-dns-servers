@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+
+WORKDIR="/opt/valet-linux"
+DNSFILE="${WORKDIR}/dns-servers"
+LOGFILE="${WORKDIR}/watch.log"
+PIDS=""
+
+function updateNameservers() {
+    # Read all of the nameserver files at once, filter lines starting with 'nameserver'
+    # and exclude the ones containing 127.0.0.1 (localhost)
+
+    cat "${FILES[@]}" | grep -i '^nameserver' | grep -v '127.0.0.1' | tee "$DNSFILE" &>/dev/null
+}
+
+function watchFiles() {
+    local DIRNAME=${1%/*}
+
+    # Log which directories are being watched
+    echo "Watching for changes in ${DIRNAME}" >> "$LOGFILE" 
+
+    # Watch directories for changes in files
+    inotifywait -q -m -e modify --format "%w%f" "$DIRNAME" | while read change; do
+        updateNameservers
+    done
+
+}
+
+function main() {
+    # Create dns file in case it does not exists
+    touch "$DNSFILE"
+
+    # Clear log file
+    rm "$LOGFILE" && touch "$LOGFILE"
+
+    # Find nameserver files and launch watcher for each
+    readarray -t FILES <<< "$(find /run ! -readable -prune -o -name 'resolv.conf' -print)"
+
+    for FILE in "${FILES[@]}"; do
+        watchFiles "$FILE" &
+        PIDS="$PIDS $!"
+    done
+
+    # Find nameserver files in the /run/resolvconf/interface folder (as they do not have a standard name)
+    if [[ -d "/run/resolvconf/interface" ]]; then
+        readarray -t INTERFACES <<< "$(find /run/resolvconf/interface ! -readable -prune -o -type f -print)"
+
+        FILES=(${FILES[@]} ${INTERFACES[@]})      # Merge array of nameserver files
+        
+        watchFiles "/run/resolvconf/interface/" & # Do NOT strip the last slash
+    fi
+
+    updateNameservers
+}
+
+if [[ ! $(pgrep -f 'inotifywait -q -m -e modify') ]]; then
+    main
+fi
+
+exit 0

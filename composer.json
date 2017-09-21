@@ -50,10 +50,8 @@
     },
     "scripts": {
         "post-install-cmd": [
-            "chmod +x cli/scripts/update.sh && bash cli/scripts/update.sh"
         ],
         "post-update-cmd": [
-            "chmod +x cli/scripts/update.sh && bash cli/scripts/update.sh"
         ]
     },
     "bin": [

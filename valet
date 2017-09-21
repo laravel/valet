@@ -1,8 +1,34 @@
 #!/usr/bin/env bash
 
+set -e
+
 SOURCE="${BASH_SOURCE[0]}"
 SUDOCMDS="uninstall install start restart stop unsecure secure"
 HOMEPATH=$HOME
+
+function check_dependencies() {
+    local RED='\033[1;31m'
+    local NC='\033[0m'
+    local msg=''
+
+    if [[ -f "$DIR/in_testing" ]]; then
+        for cmd in "jq" "xsel" "certutil" "NetworkManager"; do
+            local str=''
+
+            if ! [[ -x "$(command -v $cmd)" ]]; then
+                printf -v str " - %s\n" "$cmd"
+                local msg+="$str"
+            fi
+        done
+
+        if [[ $msg != '' ]]; then
+            printf "${RED}You have missing Valet dependiencies:\n"
+            printf "$msg"
+            printf "\nPlease refer to https://cpriego.github.io/valet-linux/requirements on how to install them.${NC}\n"
+            exit 1
+        fi
+    fi
+}
 
 # If the current source is a symbolic link, we need to resolve it to an
 # actual directory name. We'll use PHP to do this easier than we can
@@ -27,10 +53,7 @@ fi
 # us to never require the end users to manually specify each sudo.
 if [[ -n $1 && $SUDOCMDS =~ $1 ]]
 then
-    if [[ ! -d "/etc/NetworkManager/dnsmasq.d" ]]
-    then
-        sudo mkdir -p "/etc/NetworkManager/dnsmasq.d"
-    fi
+    check_dependencies
 
     if [[ "$EUID" -ne 0 ]]
     then
@@ -53,6 +76,8 @@ fi
 # process to retrieve the live Ngrok tunnel URL in the background.
 if [[ "$1" = "share" ]]
 then
+    check_dependencies
+
     HOST="${PWD##*/}"
     DOMAIN=$(php "$DIR/cli/valet.php" domain)
     PORT=$(cat "$HOME/.valet/config.json" | jq -r ".port")

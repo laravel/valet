@@ -102,6 +102,7 @@ class NginxTest extends TestCase
 
         swap(Filesystem::class, $files);
         swap(CommandLine::class, $cli);
+        swap(Configuration::class, $config = Mockery::spy(Configuration::class, ['read' => ['port' => '80']]));
         swap(PackageManager::class, Mockery::mock(PackageManager::class));
         swap(ServiceManager::class, Mockery::mock(ServiceManager::class));
 

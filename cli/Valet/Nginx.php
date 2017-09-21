@@ -95,7 +95,7 @@ class Nginx
             $this->sites_available_conf,
             str_replace(
                 ['VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_PORT'],
-                [VALET_HOME_PATH, VALET_SERVER_PATH, '80'],
+                [VALET_HOME_PATH, VALET_SERVER_PATH, $this->configuration->read()['port']],
                 $this->files->get(__DIR__.'/../stubs/valet.conf')
             )
         );

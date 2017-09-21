@@ -106,6 +106,51 @@ class LinuxService implements ServiceManager
     }
 
     /**
+     * Check if service is disabled.
+     *
+     * @param
+     * @return void
+     */
+    public function disabled($service)
+    {
+        $service = $this->getRealService($service);
+
+        return (strpos(trim($this->cli->run("systemctl is-enabled {$service}")), 'enabled')) === false;
+    }
+
+    /**
+     * Disable services.
+     *
+     * @param
+     * @return void
+     */
+    public function disable($services)
+    {
+        if ($this->hasSystemd()) {
+            $services = is_array($services) ? $services : func_get_args();
+
+            foreach ($services as $service) {
+                try {
+                    $service = $this->getRealService($service);
+
+                     if (! $this->disabled($service)) {
+                        $this->cli->quietly('sudo systemctl disable ' . $service);
+                        info(ucfirst($service).' has been disabled');
+                        return true;
+                    }
+
+                    info(ucfirst($service).' was already disabled');
+
+                    return true;
+                } catch (DomainException $e) {
+                    warning(ucfirst($service).' not available.');
+                    return false;
+                }
+            }
+        }
+    }
+
+    /**
      * Enable services.
      *
      * @param
@@ -119,9 +164,8 @@ class LinuxService implements ServiceManager
             foreach ($services as $service) {
                 try {
                     $service = $this->getRealService($service);
-                    $enabled = strpos(trim($this->cli->run("systemctl is-enabled {$service}")), 'enabled');
 
-                    if ($enabled === false) {
+                    if ($this->disabled($service)) {
                         $this->cli->quietly('sudo systemctl enable ' . $service);
                         info(ucfirst($service).' has been enabled');
                         return true;

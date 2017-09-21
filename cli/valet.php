@@ -18,7 +18,7 @@ use Illuminate\Container\Container;
  */
 Container::setInstance(new Container);
 
-$version = 'v2.0.20';
+$version = 'v2.0.21';
 
 $app = new Application('Valet', $version);
 
@@ -37,7 +37,7 @@ $app->command('install [--ignore-selinux]', function ($ignoreSELinux) {
     Configuration::install();
     Nginx::install();
     PhpFpm::install();
-    DnsMasq::install();
+    DnsMasq::install(Configuration::read()['domain']);
     Nginx::restart();
     Valet::symlinkToUsersBin();
 
@@ -281,9 +281,6 @@ if (is_dir(VALET_HOME_PATH)) {
             warning('Updating now...');
             passthru($script.' update');
         }
-        DnsMasq::restart();
-        PhpFpm::restart();
-        Nginx::restart();
     })->descriptions('Update Valet Linux and clean up cruft');
 }
 

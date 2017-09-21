@@ -320,6 +320,36 @@ class Filesystem
     }
 
     /**
+     * Comment a line in a file.
+     *
+     * @param  string  $line
+     * @param  string  $file
+     * @return void
+     */
+    public function commentLine($line, $file)
+    {
+        if ($this->exists($file)) {
+            $command = "sed -i '/{$line}/ s/^/# /' {$file}";
+            CommandLineFacade::run($command);
+        }
+    }
+
+    /**
+     * Uncomment a line in a file.
+     *
+     * @param  string  $line
+     * @param  string  $file
+     * @return void
+     */
+    public function uncommentLine($line, $file)
+    {
+        if ($this->exists($file)) {
+            $command = "sed -i '/{$line}/ s/# *//' {$file}";
+            CommandLineFacade::run($command);
+        }
+    }
+
+    /**
      * Delete the file at the given path.
      *
      * @param  string  $path
