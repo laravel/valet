@@ -25,7 +25,7 @@ class LinkTest extends FunctionalTestCase
         // Call valet link command
         $this->valetCommand('link linked', $_SERVER['HOME'] . '/linked-directory');
 
-        $response = \Httpful\Request::get('http://linked.dev')->send();
+        $response = \Httpful\Request::get('http://linked.test')->send();
 
         $this->assertEquals(200, $response->code);
         $this->assertContains('Valet linked site', $response->body);
@@ -39,7 +39,7 @@ class LinkTest extends FunctionalTestCase
         // Call valet unlink command
         $this->valetCommand('unlink linked', $_SERVER['HOME'] . '/linked-directory');
 
-        $response = \Httpful\Request::get('http://linked.dev')->send();
+        $response = \Httpful\Request::get('http://linked.test')->send();
 
         $this->assertEquals(404, $response->code);
         $this->assertContains('Valet - Not Found', $response->body);
@@ -53,7 +53,7 @@ class LinkTest extends FunctionalTestCase
         $response = $this->valetCommand('links');
 
         $this->assertContains('linked', $response);
-        $this->assertContains('http://linked.dev', $response);
+        $this->assertContains('http://linked.test', $response);
         $this->assertContains($_SERVER['HOME'] . '/linked-directory', $response);
         // TODO: Test SSL output
     }

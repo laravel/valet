@@ -28,7 +28,7 @@ class SecureTest extends FunctionalTestCase
     {
         $this->valetCommand('secure', $_SERVER['HOME'] . '/valet-site');
 
-        $response = \Httpful\Request::get('https://valet-site.dev')->send();
+        $response = \Httpful\Request::get('https://valet-site.test')->send();
 
         $this->assertEquals(200, $response->code);
         $this->assertContains('Valet site', $response->body);
@@ -40,6 +40,6 @@ class SecureTest extends FunctionalTestCase
 
         $this->valetCommand('unsecure', $_SERVER['HOME'] . '/valet-site');
 
-        \Httpful\Request::get('https://valet-site.dev')->send();
+        \Httpful\Request::get('https://valet-site.test')->send();
     }
 }

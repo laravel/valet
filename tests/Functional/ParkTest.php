@@ -35,15 +35,15 @@ class ParkTest extends FunctionalTestCase
     {
         $this->valetCommand('park', $_SERVER['HOME'] . '/Code');
 
-        $one = \Httpful\Request::get('http://one.dev')->send();
+        $one = \Httpful\Request::get('http://one.test')->send();
         $this->assertEquals(200, $one->code);
         $this->assertContains('One', $one->body);
 
-        $two = \Httpful\Request::get('http://two.dev')->send();
+        $two = \Httpful\Request::get('http://two.test')->send();
         $this->assertEquals(200, $two->code);
         $this->assertContains('Two', $two->body);
 
-        $spaces = \Httpful\Request::get('http://with-spaces.dev')->send();
+        $spaces = \Httpful\Request::get('http://with-spaces.test')->send();
         $this->assertEquals(200, $spaces->code);
         $this->assertContains('With Spaces', $spaces->body);
     }
@@ -54,7 +54,7 @@ class ParkTest extends FunctionalTestCase
 
         $this->valetCommand('forget', $_SERVER['HOME'] . '/Code');
 
-        $response = \Httpful\Request::get('http://one.dev')->send();
+        $response = \Httpful\Request::get('http://one.test')->send();
 
         $this->assertEquals(404, $response->code);
         $this->assertContains('Valet - Not Found', $response->body);

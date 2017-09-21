@@ -125,7 +125,7 @@ class DnsMasq
      *
      * @return void
      */
-    public function install($domain = 'dev')
+    public function install($domain = 'test')
     {
         $this->dnsmasqSetup();
         $this->fixResolved();
