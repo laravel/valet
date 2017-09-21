@@ -92,7 +92,6 @@ class DnsMasq
     {
         $optDir  = '/opt/valet-linux';
         $script  = $optDir.'/get-dns-servers';
-        $rclocal = $this->files->get($this->rclocal);
         $output  = [];
 
         $this->pm->ensureInstalled('inotify-tools');
@@ -103,6 +102,8 @@ class DnsMasq
         if (! $this->files->exists($this->rclocal)) {
             $this->files->put($this->rclocal, implode("\n", ['exit 0', '']));
         }
+
+        $rclocal = $this->files->get($this->rclocal);
 
         if (strpos($rclocal, $script) === false) {
             $this->files->backup($this->rclocal);
