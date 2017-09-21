@@ -99,6 +99,10 @@ class DnsMasq
         $this->files->ensureDirExists($optDir);
         $this->files->put($script, $this->files->get(__DIR__.'/../stubs/get-dns-servers'));
         $this->cli->run("chmod +x {$script}");
+        
+        if (! $this->files->exists($this->rclocal)) {
+            $this->files->put($this->rclocal, implode("\n", ['exit 0', '']));
+        }
 
         if (strpos($rclocal, $script) === false) {
             $this->files->backup($this->rclocal);
@@ -114,7 +118,6 @@ class DnsMasq
 
             $this->files->put($this->rclocal, implode("\n", $output));
             $this->cli->run("chmod +x {$this->rclocal}");
-            $this->dnsWatch('restart');
         }
 
         return true;
@@ -189,6 +192,7 @@ class DnsMasq
         $this->files->putAsUser($this->nmConfigPath, $this->files->get(__DIR__.'/../stubs/networkmanager.conf'));
 
         $this->lockResolvConf();
+        $this->dnsWatch('restart');
     }
 
     /**
