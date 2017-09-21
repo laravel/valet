@@ -18,7 +18,21 @@ class FunctionalTestCase extends TestCase
      */
     protected function valetCommand($command, $workingDir = null)
     {
-        return $this->exec($_SERVER['REPOSITORY'] . '/valet ' . $command, $workingDir);
+        return $this->exec($this->valet() . ' ' . $command, $workingDir);
+    }
+
+    /**
+     * Get valet prefix for commands.
+     *
+     * @return string
+     */
+    protected function valet()
+    {
+        if (isset($_SERVER['REPOSITORY'])) {
+            return $_SERVER['REPOSITORY'] . '/valet';
+        }
+
+        return 'valet';
     }
 
     /**
@@ -47,5 +61,26 @@ class FunctionalTestCase extends TestCase
         }
 
         return $processOutput;
+    }
+
+    /**
+     * Run a command in the background.
+     *
+     * @param string $command
+     * @param null|string $workingDir
+     * @return Process
+     */
+    protected function background($command, $workingDir = null)
+    {
+        $process = new Process($command);
+
+        $process
+            ->setWorkingDirectory(
+                is_null($workingDir) ? realpath(__DIR__ . '/../..') : $workingDir
+            )
+            ->setTimeout(null)
+            ->start();
+
+        return $process;
     }
 }

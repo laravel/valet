@@ -4,6 +4,7 @@ use Valet\Tests\Functional\FunctionalTestCase;
 
 /**
  * @group functional
+ * @group acceptance
  */
 class LinkTest extends FunctionalTestCase
 {

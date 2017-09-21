@@ -7,6 +7,7 @@ use Httpful\Exception\ConnectionErrorException;
 
 /**
  * @group functional
+ * @group acceptance
  */
 class SecureTest extends FunctionalTestCase
 {
