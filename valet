@@ -37,7 +37,7 @@ then
     HOST="${PWD##*/}"
     DOMAIN=$(php "$DIR/cli/valet.php" domain)
 
-    for linkname in ~/.valet/Sites/*; do
+    for linkname in ~/.config/valet/Sites/*; do
         if [[ "$(readlink $linkname)" = "$PWD" ]]
         then
             HOST="${linkname##*/}"

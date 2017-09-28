@@ -140,6 +140,6 @@ class DnsMasq
      */
     function customConfigPath()
     {
-        return $_SERVER['HOME'].'/.valet/dnsmasq.conf';
+        return $_SERVER['HOME'].'/.config/valet/dnsmasq.conf';
     }
 }
