@@ -20,9 +20,6 @@ then
     DIR=$(php -r "echo realpath('$DIR/../laravel/valet');")
 fi
 
-# If the command is one of the commands that requires "sudo" privileges
-# then we'll proxy the incoming CLI request using sudo, which allows
-# us to never require the end users to manually specify each sudo.
 if [[ "$EUID" -ne 0 ]]
 then
     sudo $SOURCE "$@"
