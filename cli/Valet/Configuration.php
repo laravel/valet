@@ -111,7 +111,7 @@ class Configuration
     function writeBaseConfiguration()
     {
         if (! $this->files->exists($this->path())) {
-            $this->write(['domain' => 'localhost', 'paths' => []]);
+            $this->write(['domain' => 'test', 'paths' => []]);
         }
     }
 
