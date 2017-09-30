@@ -33,7 +33,7 @@ class DnsMasq
      *
      * @return void
      */
-    function install($domain = 'localhost')
+    function install($domain = 'test')
     {
         $this->brew->ensureInstalled('dnsmasq');
 
