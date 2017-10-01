@@ -1,0 +1,188 @@
+#!/usr/bin/env bash
+
+WORKDIR="/opt/valet-linux"
+DNSFILE="${WORKDIR}/dns-servers"
+DNSHEAD="${WORKDIR}/custom-nameservers"
+LOGFILE="${WORKDIR}/watch.log"
+VRESOLV="${WORKDIR}/resolv.conf"
+RESOLV="/etc/resolv.conf"
+
+function unique() {
+    # Function to remove duplicated lines (even when they are not contiguous)
+    # cat -n      puts line numbers
+    # sort -uk2   sort and remove duplicates (ignoring line numbers)
+    # sort -nk1   sort by line number
+    # cut -f2-    remove line numbers
+    cat -n | sort -uk2 | sort -nk1 | cut -f2-
+}
+
+function symlinkResolv() {
+    if [[ $(readlink -f "$RESOLV") != "$VRESOLV" ]]; then
+        if [[ ! -f "${RESOLV}.bak" ]]; then
+            mv "$RESOLV" "${RESOLV}.bak"
+        fi
+
+        ln -sf "$VRESOLV" "${RESOLV}.tmp"
+        mv "${RESOLV}.tmp" "$RESOLV"
+    fi
+}
+
+function getDirs() {
+    DIRS=()
+    local TARRAY=()
+
+    readarray -t TARRAY <<< "$(find /run -path '/run/user' -prune -o ! -readable -prune -o -name 'resolv.conf' -print)"
+
+    # Find nameserver files in the /run/NetworkManager folder (as they do not have a standard name)
+    if [[ ! -f "/run/NetworkManager/resolv.conf" && -d "/run/NetworkManager" ]]; then
+        TARRAY=(${TARRAY[@]} '/run/NetworkManager/')
+    fi
+
+    # Find nameserver files in the /run/resolvconf/interface folder (as they do not have a standard name)
+    if [[ -d "/run/resolvconf/interface" ]]; then
+        TARRAY=(${TARRAY[@]} '/run/resolvconf/interface/')
+    fi
+
+    for ENTRY in "${TARRAY[@]}"; do
+        local TMP=${ENTRY%/*}
+        DIRS=(${DIRS[@]} "$TMP")
+    done
+}
+
+function updateNameservers() {
+    # Read all of the nameserver files at once, filter lines starting with 'nameserver'
+    # and exclude the ones containing 127.0.0.1 (localhost)
+
+    getFiles
+
+    echo "${FILES[@]}" | tee "${WORKDIR}/resolvfiles.log" &>/dev/null
+
+    cat "$DNSHEAD" | unique | tee "$DNSFILE" &>/dev/null
+    cat "${FILES[@]}" | grep -i '^nameserver' | grep -v '127.0.0.1' | unique | tee -a "$DNSFILE" &>/dev/null
+    
+    symlinkResolv
+    
+    cat "${FILES[@]}" | grep -v '^nameserver' | grep -v '^#' | unique | tee "$VRESOLV" &>/dev/null 
+    echo 'nameserver 127.0.0.1' >> "$VRESOLV"
+
+    # Add "search" and "domain" directives to /etc/resolv.conf
+    # chattr -i "$RESOLV" && \
+    # cat "${FILES[@]}" | grep -v '^nameserver' | grep -v '^#' | unique | tee "$VRESOLV" &>/dev/null && \
+    # echo 'nameserver 127.0.0.1' >> "$VRESOLV" && \
+    # chattr +i "$RESOLV"
+}
+
+function getFiles() {
+    FILES=()
+    local TARRAY=()
+
+    for DIR in "${DIRS[@]}"; do
+        readarray -t TARRAY <<< "$(find ${DIR} -path ! -readable -prune -o -name 'resolv.conf' -print)"
+
+        # Find nameserver files in the /run/resolvconf/interface folder (as they do not have a standard name)
+        if [[ "$DIR" = "/run/resolvconf/interface" ]]; then
+            readarray -t TARRAY <<< "$(find ${DIR} ! -readable -prune -o -type f -print)"
+        fi
+        
+        FILES=(${FILES[@]} ${TARRAY[@]})
+    done    
+}
+
+function watchDirs() {
+    local WATCHERS=(${DIRS[@]} "$DNSHEAD")
+
+    # Log which directories are being watched
+    echo "Watching the following directories:" >> "$LOGFILE" 
+    
+    for DIR in "${DIRS[@]}"; do
+        echo " - ${1}" >> "$LOGFILE" 
+    done
+
+    # Watch directories for changes in files
+    inotifywait -q -m -e modify -e create -e delete --format "%w%f" "${WATCHERS[@]}" | while read change; do
+        updateNameservers
+    done &
+
+    pgrep -f 'inotifywait -q -m -e modify' | tee "${WORKDIR}/watch.pid" &>/dev/null
+}
+
+function main() {
+    # Create dns file in case it does not exists
+    touch "$DNSHEAD"
+    touch "$DNSFILE"
+
+    # Clear log file
+    if [[ -f "$LOGFILE" ]]; then
+        rm "$LOGFILE"
+    fi
+
+    touch "$LOGFILE"
+
+    getDirs
+    updateNameservers
+    watchDirs
+}
+
+################################################################################
+
+function start {
+    if [[ $(pgrep -f 'inotifywait -q -m -e modify') ]]; then
+        echo -e "Valet DNS Watcher is already running..."
+    else
+        echo -e "Starting Valet DNS Watcher..."
+        main
+        echo -e "Valet DNS Watcher started succesfully."
+    fi
+}
+
+function stop {
+    echo -e "Stopping Valet DNS Watcher...\n"
+    
+    pkill -f "inotifywait -q -m -e modify"
+
+    rm "$LOGFILE" && touch "$LOGFILE"
+
+    if [[ ! $(pgrep -f 'inotifywait -q -m -e modify') ]]; then
+        echo -e "\nValet DNS Watcher stopped succesfully."
+    fi
+}
+
+function restart {
+    echo -e "Stopping Valet DNS Watcher..."
+
+    if [[ $(pgrep -f 'inotifywait -q -m -e modify') ]]; then
+        pkill -f "inotifywait -q -m -e modify"
+    fi
+
+    echo -e "Starting Valet DNS Watcher..."
+    
+    main
+
+    if [[ $(pgrep -f 'inotifywait -q -m -e modify') ]]; then
+        echo -e "Valet DNS Watcher restarted succesfully."
+    fi
+}
+
+function status {
+    echo -e "Watching for changes in the following directories:\n"
+    cat '/opt/valet-linux/watch.log'
+}
+
+case "$1" in
+   start)
+      start
+   ;;
+   stop)
+      stop
+   ;;
+   restart)
+      restart
+   ;;
+   status)
+      status
+   ;;
+   *)
+      echo "Usage: $0 {start|stop|restart|status}"
+esac
+
+exit 0
