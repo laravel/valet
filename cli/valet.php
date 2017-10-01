@@ -79,20 +79,43 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Get or set the port number currently being used by Valet.
      */
-    $app->command('port [port]', function ($port = null) {
+    $app->command('port [port] [--https]', function ($port = null, $https) {
         if ($port === null) {
-            return info('Current Nginx port: ' . Configuration::read()['port']);
+            info('Current Nginx port (HTTP): ' . Configuration::get('port', 80));
+            info('Current Nginx port (HTTPS): ' . Configuration::get('https_port', 443));
+            return;
         }
 
         $port = trim($port);
-        Nginx::updatePort($port);
 
-        Configuration::updateKey('port', $port);
+        if ($https) {
+            Configuration::updateKey('https_port', $port);
+        }else{
+            Nginx::updatePort($port);
+            Configuration::updateKey('port', $port);
+        }
+
+        Site::regenerateSecuredSitesConfig();
+
         Nginx::restart();
         PhpFpm::restart();
 
-        info('Your Nginx port has been updated to ['.$port.'].');
+        $protocol = $https ? 'HTTPS' : 'HTTP';
+        info("Your Nginx {$protocol} port has been updated to [{$port}].");
     })->descriptions('Get or set the port number used for Valet sites');
+
+    /**
+     * Determine if the site is secured or not
+     */
+    $app->command('secured [site]', function ($site) {
+        if (Site::secured()->contains($site)) {
+            info("{$site} is secured.");
+            return 1;
+        }
+
+        info("{$site} is not secured.");
+        return 0;
+    })->descriptions('Determine if the site is secured or not');
 
     /**
      * Add the current working directory to the paths configuration.

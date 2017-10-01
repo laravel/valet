@@ -39,27 +39,4 @@ class ShareTest extends FunctionalTestCase
 
         $ngrok->stop();
     }
-
-    public function test_we_can_share_an_https_site()
-    {
-        // Secure site
-        $this->valetCommand('secure', $_SERVER['HOME'] . '/valet-site');
-
-        // Start ngrok tunnel
-        $ngrok = $this->background($this->valet().' share', $_SERVER['HOME'] . '/valet-site');
-
-        // Assert tunnel URL is reachable
-        $tunnel = Ngrok::currentTunnelUrl();
-
-        // TODO: Refactor Ngrok class so we can retrieve https tunnel too
-        $tunnel = str_replace('http://', 'https://', $tunnel);
-
-        $this->assertContains('ngrok.io', $tunnel);
-
-        $response = \Httpful\Request::get($tunnel)->send();
-        $this->assertEquals(200, $response->code);
-        $this->assertContains('Valet site', $response->body);
-
-        $ngrok->stop();
-    }
 }

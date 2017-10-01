@@ -198,6 +198,20 @@ class Configuration
     }
 
     /**
+     * Get a configuration value.
+     *
+     * @param string $key
+     * @param mixed $default
+     * @return mixed
+     */
+    public function get($key, $default = null)
+    {
+        $config = $this->read();
+
+        return array_key_exists($key, $config) ? $config[$key] : $default;
+    }
+
+    /**
      * Update a specific key in the configuration file.
      *
      * @param  string  $key

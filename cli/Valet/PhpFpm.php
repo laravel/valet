@@ -75,7 +75,11 @@ class PhpFpm
 
         $this->files->putAsUser(
             $this->fpmConfigPath().'/valet.conf',
-            str_replace(['VALET_USER', 'VALET_GROUP','VALET_HOME_PATH'], [user(), group(), VALET_HOME_PATH], $contents)
+            str_array_replace([
+                'VALET_USER' => user(),
+                'VALET_GROUP' => group(),
+                'VALET_HOME_PATH' => VALET_HOME_PATH,
+            ], $contents)
         );
     }
 

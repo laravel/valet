@@ -189,3 +189,15 @@ function group()
 
     return exec('id -gn '.$_SERVER['SUDO_USER']);
 }
+
+/**
+ * Search and replace using associative array
+ *
+ * @param array $searchAndReplace
+ * @param string $subject
+ * @return string
+ */
+function str_array_replace($searchAndReplace, $subject)
+{
+    return str_replace(array_keys($searchAndReplace), array_values($searchAndReplace), $subject);
+}

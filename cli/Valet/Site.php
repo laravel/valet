@@ -2,8 +2,6 @@
 
 namespace Valet;
 
-use DomainException;
-
 class Site
 {
     public $config;
@@ -89,7 +87,7 @@ class Site
         return collect($this->files->scanDir($path))->filter(function ($value, $key) {
             return ends_with($value, '.crt');
         })->map(function ($cert) {
-            return substr($cert, 0, -8);
+            return substr($cert, 0, -9);
         })->flip();
     }
 
@@ -104,14 +102,42 @@ class Site
     {
         $config = $this->config->read();
 
+        $httpPort = $this->httpSuffix();
+        $httpsPort = $this->httpsSuffix();
+
         return collect($this->files->scanDir($path))->mapWithKeys(function ($site) use ($path) {
             return [$site => $this->files->readLink($path . '/' . $site)];
-        })->map(function ($path, $site) use ($certs, $config) {
+        })->map(function ($path, $site) use ($certs, $config, $httpPort, $httpsPort) {
             $secured = $certs->has($site);
-            $url = ($secured ? 'https' : 'http') . '://' . $site . '.' . $config['domain'];
+
+            $url = ($secured ? 'https' : 'http') . '://' . $site . '.' . $config['domain'] . ($secured ? $httpsPort : $httpPort);
 
             return [$site, $secured ? ' X' : '', $url, $path];
         });
+    }
+
+    /**
+     * Return http port suffix
+     *
+     * @return string
+     */
+    public function httpSuffix()
+    {
+        $port = $this->config->get('port', 80);
+
+        return ($port == 80) ? '' : ':' . $port;
+    }
+
+    /**
+     * Return https port suffix
+     *
+     * @return string
+     */
+    public function httpsSuffix()
+    {
+        $port = $this->config->get('https_port', 443);
+
+        return ($port == 443) ? '' : ':' . $port;
     }
 
     /**
@@ -166,14 +192,14 @@ class Site
     /**
      * Get all of the URLs that are currently secured.
      *
-     * @return array
+     * @return \Illuminate\Support\Collection
      */
     public function secured()
     {
         return collect($this->files->scandir($this->certificatesPath()))
             ->map(function ($file) {
                 return str_replace(['.key', '.csr', '.crt', '.conf'], '', $file);
-            })->unique()->values()->all();
+            })->unique()->values();
     }
 
     /**
@@ -190,10 +216,7 @@ class Site
 
         $this->createCertificate($url);
 
-        $this->files->putAsUser(
-            VALET_HOME_PATH . '/Nginx/' . $url,
-            $this->buildSecureNginxServer($url)
-        );
+        $this->createSecureNginxServer($url);
     }
 
     /**
@@ -276,6 +299,17 @@ class Site
     }
 
     /**
+     * @param $url
+     */
+    public function createSecureNginxServer($url)
+    {
+        $this->files->putAsUser(
+            VALET_HOME_PATH . '/Nginx/' . $url,
+            $this->buildSecureNginxServer($url)
+        );
+    }
+
+    /**
      * Build the TLS secured Nginx server for the given URL.
      *
      * @param  string $url
@@ -285,9 +319,17 @@ class Site
     {
         $path = $this->certificatesPath();
 
-        return str_replace(
-            ['VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_SITE', 'VALET_CERT', 'VALET_KEY'],
-            [VALET_HOME_PATH, VALET_SERVER_PATH, $url, $path . '/' . $url . '.crt', $path . '/' . $url . '.key'],
+        return str_array_replace(
+            [
+                'VALET_HOME_PATH' => VALET_HOME_PATH,
+                'VALET_SERVER_PATH' => VALET_SERVER_PATH,
+                'VALET_SITE' => $url,
+                'VALET_CERT' => $path . '/' . $url . '.crt',
+                'VALET_KEY' => $path . '/' . $url . '.key',
+                'VALET_HTTP_PORT' => $this->config->get('port', 80),
+                'VALET_HTTPS_PORT' => $this->config->get('https_port', 443),
+                'VALET_REDIRECT_PORT' => $this->httpsSuffix(),
+            ],
             $this->files->get(__DIR__ . '/../stubs/secure.valet.conf')
         );
     }
@@ -311,6 +353,18 @@ class Site
             $this->cli->run(sprintf('certutil -d sql:$HOME/.pki/nssdb -D -n "%s"', $url));
             $this->cli->run(sprintf('certutil -d $HOME/.mozilla/firefox/*.default -D -n "%s"', $url));
         }
+    }
+
+    /**
+     * Regenerate all secured file configurations
+     *
+     * @return void
+     */
+    public function regenerateSecuredSitesConfig()
+    {
+        $this->secured()->each(function ($url) {
+            $this->createSecureNginxServer($url);
+        });
     }
 
     /**

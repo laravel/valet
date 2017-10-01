@@ -80,7 +80,12 @@ class Nginx
 
         $this->files->putAsUser(
             $nginx,
-            str_replace(['VALET_USER', 'VALET_GROUP', 'VALET_HOME_PATH', 'VALET_PID'], [user(), group(), VALET_HOME_PATH, $pid_string], $contents)
+            str_array_replace([
+                'VALET_USER' => user(),
+                'VALET_GROUP' => group(),
+                'VALET_HOME_PATH' => VALET_HOME_PATH,
+                'VALET_PID' => $pid_string,
+            ], $contents)
         );
     }
 
