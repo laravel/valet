@@ -102,8 +102,6 @@ function watchDirs() {
     inotifywait -q -m -e modify -e create -e delete --format "%w%f" "${WATCHERS[@]}" | while read change; do
         updateNameservers
     done &
-
-    pgrep -f 'inotifywait -q -m -e modify' | tee "${WORKDIR}/watch.pid" &>/dev/null
 }
 
 function main() {
@@ -131,6 +129,7 @@ function start {
     else
         echo -e "Starting Valet DNS Watcher..."
         main
+        sleep 2 && echo $(pgrep -f 'inotifywait -q -m -e modify') > "${WORKDIR}/watch.pid"
         echo -e "Valet DNS Watcher started succesfully."
     fi
 }
@@ -164,7 +163,6 @@ function restart {
 }
 
 function status {
-    echo -e "Watching for changes in the following directories:\n"
     cat '/opt/valet-linux/watch.log'
 }
 
