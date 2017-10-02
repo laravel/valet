@@ -31,7 +31,8 @@ start() {
 }
 
 stop() {
-    start-stop-daemon --stop --retry=$STOP_SCHEDULE --pidfile $PIDFILE --remove-pidfile || return 1
+    start-stop-daemon --stop --retry=$STOP_SCHEDULE --pidfile $PIDFILE || return 1
+    test -f $PIDFILE && rm $PIDFILE
 }
 
 case "$1" in

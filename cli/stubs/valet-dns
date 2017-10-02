@@ -95,7 +95,7 @@ function watchDirs() {
     echo "Watching the following directories:" >> "$LOGFILE" 
     
     for DIR in "${DIRS[@]}"; do
-        echo " - ${1}" >> "$LOGFILE" 
+        echo " - $DIR" >> "$LOGFILE" 
     done
 
     # Watch directories for changes in files
