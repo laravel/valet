@@ -19,9 +19,11 @@ class DnsMasq
     /**
      * Create a new DnsMasq instance.
      *
-     * @param  PackageManager  $pm
-     * @param  ServiceManager  $sm
-     * @param  Filesystem  $files
+     * @param PackageManager $pm    PackageManager object
+     * @param ServiceManager $sm    ServiceManager object
+     * @param Filesystem     $files Filesystem     object
+     * @param CommandLine    $cli   CommandLine    object
+     *
      * @return void
      */
     public function __construct(PackageManager $pm, ServiceManager $sm, Filesystem $files, CommandLine $cli)
@@ -42,45 +44,22 @@ class DnsMasq
     /**
      * Install and configure DnsMasq.
      *
+     * @param bool $lock Lock or Unlock the file
+     *
      * @return void
      */
-    private function lockResolvConf($lock = true)
+    private function _lockResolvConf($lock = true)
     {
         $arg = $lock ? '+i' : '-i';
 
         if (! $this->files->isLink($this->resolvconf)) {
-            $this->cli->run("chattr {$arg} {$this->resolvconf}", function ($code, $msg) {
-                warning($msg);
-            });
+            $this->cli->run(
+                "chattr {$arg} {$this->resolvconf}",
+                function ($code, $msg) {
+                    warning($msg);
+                }
+            );
         }
-    }
-
-    /**
-     * Control dns watcher.
-     *
-     * @param string $action start|stop|restart
-     * @return boolean
-     */
-    private function dnsWatch($action = 'start')
-    {
-        if ($action === 'start')  {
-            $this->cli->quietly('/opt/valet-linux/get-dns-servers');
-            return true;
-        }
-        
-        if ($action === 'stop') {
-            $this->cli->passthru('pkill -f "inotifywait -q -m -e modify --format"');
-            $this->cli->passthru('pkill -f "bash .*/get-dns-servers"');
-            return true;
-        }
-        
-        if ($action === 'restart') {
-            $this->dnsWatch('stop');
-            $this->dnsWatch('start');
-            return true;
-        }
-
-        return false;
     }
 
     /**
@@ -88,38 +67,26 @@ class DnsMasq
      *
      * @return void
      */
-    private function mergeDns()
+    private function _mergeDns()
     {
         $optDir  = '/opt/valet-linux';
-        $script  = $optDir.'/get-dns-servers';
-        $output  = [];
+        $script  = $optDir.'/valet-dns';
 
         $this->pm->ensureInstalled('inotify-tools');
+        $this->files->remove($optDir);
         $this->files->ensureDirExists($optDir);
-        $this->files->put($script, $this->files->get(__DIR__.'/../stubs/get-dns-servers'));
-        $this->cli->run("chmod +x {$script}");
+        $this->files->put($script, $this->files->get(__DIR__.'/../stubs/valet-dns'));
+        $this->cli->run("chmod +x $script");
+        $this->sm->installValetDns($this->files);
         
-        if (! $this->files->exists($this->rclocal)) {
-            $this->files->put($this->rclocal, implode("\n", ['exit 0', '']));
+        if ($this->files->exists($this->rclocal)) {
+            $this->files->restore($this->rclocal);
         }
-
-        $rclocal = $this->files->get($this->rclocal);
-
-        if (strpos($rclocal, $script) === false) {
-            $this->files->backup($this->rclocal);
-
-            foreach( explode("\n", $rclocal) as $line) {
-                if ($line == 'exit 0') {
-                    $output[] = $script;
-                    $output[] = '';
-                }
-
-                $output[] = $line;
-            }
-
-            $this->files->put($this->rclocal, implode("\n", $output));
-            $this->cli->run("chmod +x {$this->rclocal}");
-        }
+        
+        $this->files->backup($this->resolvconf);
+        $this->files->unlink($this->resolvconf);
+        $this->files->symlink($script, $this->resolvconf);
+        $this->sm->start('valet-dns');
 
         return true;
     }
@@ -127,12 +94,14 @@ class DnsMasq
     /**
      * Install and configure DnsMasq.
      *
+     * @param string $domain Domain TLD to use
+     *
      * @return void
      */
     public function install($domain = 'test')
     {
         $this->dnsmasqSetup();
-        $this->fixResolved();
+        // $this->fixResolved();
         $this->createCustomConfigFile($domain);
         $this->pm->nmRestart($this->sm);
         $this->sm->restart('dnsmasq');
@@ -141,7 +110,8 @@ class DnsMasq
     /**
      * Append the custom DnsMasq configuration file to the main configuration file.
      *
-     * @param  string  $domain
+     * @param string $domain Domain TLD to use
+     *
      * @return void
      */
     public function createCustomConfigFile($domain)
@@ -167,6 +137,8 @@ class DnsMasq
 
     /**
      * Setup dnsmasq with Network Manager.
+     *
+     * @return void
      */
     public function dnsmasqSetup()
     {
@@ -178,28 +150,23 @@ class DnsMasq
 
         $this->files->uncommentLine('IGNORE_RESOLVCONF', '/etc/default/dnsmasq');
 
-        $this->mergeDns();
-
-        $this->lockResolvConf(false);
+        $this->_lockResolvConf(false);
+        $this->_mergeDns();
 
         $this->files->unlink('/etc/dnsmasq.d/network-manager');
-        $this->files->backup($this->resolvconf);
-        $this->files->unlink($this->resolvconf);
         $this->files->backup($this->dnsmasqconf);
 
-        $this->files->putAsUser($this->resolvconf, 'nameserver 127.0.0.1'.PHP_EOL);
         $this->files->putAsUser($this->dnsmasqconf, $this->files->get(__DIR__.'/../stubs/dnsmasq.conf'));
         $this->files->putAsUser($this->dnsmasqOpts, $this->files->get(__DIR__.'/../stubs/dnsmasq_options'));
         $this->files->putAsUser($this->nmConfigPath, $this->files->get(__DIR__.'/../stubs/networkmanager.conf'));
-
-        $this->lockResolvConf();
-        $this->dnsWatch('restart');
     }
 
     /**
      * Update the domain used by DnsMasq.
      *
-     * @param  string  $newDomain
+     * @param string $oldDomain Old TLD
+     * @param string $newDomain New TLD
+     *
      * @return void
      */
     public function updateDomain($oldDomain, $newDomain)
@@ -215,13 +182,16 @@ class DnsMasq
      */
     public function uninstall()
     {
-        $this->dnsWatch('stop');
+        $this->sm->stop('valet-dns');
+        $this->sm->disable('valet-dns');
+
         $this->cli->passthru('rm -rf /opt/valet-linux');
         $this->files->unlink($this->configPath);
         $this->files->unlink($this->dnsmasqOpts);
         $this->files->unlink($this->nmConfigPath);
         $this->files->restore($this->resolvedConfigPath);
-        $this->lockResolvConf(false);
+        
+        $this->_lockResolvConf(false);
         $this->files->restore($this->rclocal);
         $this->files->restore($this->resolvconf);
         $this->files->restore($this->dnsmasqconf);
