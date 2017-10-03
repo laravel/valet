@@ -47,6 +47,7 @@ class Configuration
 
         if ($this->files->isDir($oldPath)) {
             rename($oldPath, VALET_HOME_PATH);
+            Nginx::rewriteSecureNginxFiles();
         }
     }
 
