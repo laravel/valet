@@ -92,7 +92,7 @@ function watchDirs() {
     local WATCHERS=(${DIRS[@]} "$DNSHEAD")
 
     # Log which directories are being watched
-    echo "Watching the following directories:" >> "$LOGFILE" 
+    echo "Watching the following directories for changes:" >> "$LOGFILE" 
     
     for DIR in "${DIRS[@]}"; do
         echo " - $DIR" >> "$LOGFILE" 
@@ -163,7 +163,12 @@ function restart {
 }
 
 function status {
-    cat '/opt/valet-linux/watch.log'
+    if [[ -f "$LOGFILE" ]]; then
+        echo -e "Valet DNS service is running correctly.\n"
+        cat '/opt/valet-linux/watch.log'
+    else
+        echo "Valet DNS service is not running."
+    fi
 }
 
 case "$1" in

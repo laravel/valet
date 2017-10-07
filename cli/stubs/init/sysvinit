@@ -14,6 +14,7 @@
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 PIDFILE=/opt/valet-linux/watch.pid
+LOGFILE=/opt/valet-linux/watch.log
 DAEMON=/opt/valet-linux/valet-dns
 NAME=valet-dns
 DESC="Valet DNS Resolution"
@@ -26,13 +27,16 @@ test -x $DAEMON || exit 0
 . /lib/lsb/init-functions
 
 start() {
-    test -f $PIDFILE && rm $PIDFILE
+    test -f "$PIDFILE" && rm "$PIDFILE"
     start-stop-daemon --start --pidfile $PIDFILE --exec $DAEMON start || return 2
 }
 
 stop() {
-    start-stop-daemon --stop --retry=$STOP_SCHEDULE --pidfile $PIDFILE || return 1
-    test -f $PIDFILE && rm $PIDFILE
+    if [ -f "$PIDFILE" ]; then
+        start-stop-daemon --stop --retry=$STOP_SCHEDULE --pidfile $PIDFILE && rm "$PIDFILE" || return 1
+    fi
+
+    test -f "$LOGFILE" && rm "$LOGFILE"
 }
 
 case "$1" in
