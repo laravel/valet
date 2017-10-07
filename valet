@@ -11,22 +11,20 @@ function check_dependencies() {
     local NC='\033[0m'
     local msg=''
 
-    if [[ -f "$DIR/in_testing" ]]; then
-        for cmd in "jq" "xsel" "certutil" "NetworkManager"; do
-            local str=''
+    for cmd in "jq" "xsel" "certutil" "NetworkManager"; do
+        local str=''
 
-            if ! [[ -x "$(command -v $cmd)" ]]; then
-                printf -v str " - %s\n" "$cmd"
-                local msg+="$str"
-            fi
-        done
-
-        if [[ $msg != '' ]]; then
-            printf "${RED}You have missing Valet dependiencies:\n"
-            printf "$msg"
-            printf "\nPlease refer to https://cpriego.github.io/valet-linux/requirements on how to install them.${NC}\n"
-            exit 1
+        if ! [[ -x "$(command -v $cmd)" ]]; then
+            printf -v str " - %s\n" "$cmd"
+            local msg+="$str"
         fi
+    done
+
+    if [[ $msg != '' ]]; then
+        printf "${RED}You have missing Valet dependiencies:\n"
+        printf "$msg"
+        printf "\nPlease refer to https://cpriego.github.io/valet-linux/requirements on how to install them.${NC}\n"
+        exit 1
     fi
 }
 
