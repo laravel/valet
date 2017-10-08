@@ -100,7 +100,7 @@ class DnsMasq
     public function install($domain = 'test')
     {
         $this->dnsmasqSetup();
-        // $this->fixResolved();
+        $this->fixResolved();
         $this->createCustomConfigFile($domain);
         $this->pm->nmRestart($this->sm);
         $this->sm->restart('dnsmasq');
@@ -126,10 +126,10 @@ class DnsMasq
      */
     public function fixResolved()
     {
-        $resolved = $this->resolvedConfigPath;
+        // $resolved = $this->resolvedConfigPath;
 
-        $this->files->backup($resolved);
-        $this->files->putAsUser($resolved, $this->files->get(__DIR__.'/../stubs/resolved.conf'));
+        // $this->files->backup($resolved);
+        // $this->files->putAsUser($resolved, $this->files->get(__DIR__.'/../stubs/resolved.conf'));
 
         $this->sm->disable('systemd-resolved');
         $this->sm->stop('systemd-resolved');
