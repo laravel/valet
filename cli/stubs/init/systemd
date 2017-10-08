@@ -1,0 +1,26 @@
+[Unit]
+Description=Valet DNS Resolution
+After=network-online.target
+Wants=network-online.target systemd-networkd-wait-online.service
+
+[Service]
+Restart=on-abnormal
+
+; User and group the process will run as.
+User=root
+Group=root
+
+Type=forking
+ExecStart=/opt/valet-linux/valet-dns start
+ExecStop=/opt/valet-linux/valet-dns stop
+ExecReload=/opt/valet-linux/valet-dns restart
+
+KillMode=process
+
+; Use a minimal /dev
+PrivateDevices=true
+; Hide /home, /root, and /run/user. Nobody will steal your SSH-keys.
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

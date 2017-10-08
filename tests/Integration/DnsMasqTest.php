@@ -26,24 +26,6 @@ class DnsMasqTest extends TestCase
         Mockery::close();
     }
 
-
-    public function test_install_calls_the_right_methods_and_restarts()
-    {
-        $cli = Mockery::mock(CommandLine::class);
-        $files = Mockery::mock(Filesystem::class);
-        $sm = Mockery::mock(ServiceManager::class);
-        $pm = Mockery::mock(PackageManager::class);
-
-        $dnsMasq = Mockery::mock(DnsMasq::class.'[dnsmasqSetup,createCustomConfigFile,fixResolved]', [$pm, $sm, $files, $cli]);
-
-        $dnsMasq->shouldReceive('dnsmasqSetup')->once();
-        $dnsMasq->shouldReceive('createCustomConfigFile')->once()->with('test');
-        $dnsMasq->shouldReceive('fixResolved')->once();
-        $pm->shouldReceive('nmRestart')->once()->with($sm);
-        $sm->shouldReceive('restart')->once()->with('dnsmasq');
-        $dnsMasq->install();
-    }
-
     public function test_createCustomConfigFile_correctly_creates_valet_dns_config_file()
     {
         $pm = Mockery::mock(PackageManager::class);
