@@ -235,7 +235,7 @@ class Systemd implements ServiceManager
         
         $files->put(
             '/etc/systemd/system/valet-dns.service', 
-            $this->files->get(__DIR__.'/../stubs/init/systemd')
+            $files->get(__DIR__.'/../../stubs/init/systemd')
         );
 
         $this->enable('valet-dns');
