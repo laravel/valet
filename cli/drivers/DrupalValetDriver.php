@@ -51,7 +51,7 @@ class DrupalValetDriver extends ValetDriver
      */
     public function frontControllerPath($sitePath, $siteName, $uri)
     {
-        if (!empty($uri) && $uri !== '/') {
+        if (!isset($_GET['q']) && !empty($uri) && $uri !== '/') {
           $_GET['q'] = $uri;
         }
 
