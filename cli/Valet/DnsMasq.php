@@ -33,27 +33,29 @@ class DnsMasq
      *
      * @return void
      */
-    function install($domain = 'test')
+    function install($tld = 'test')
     {
         $this->brew->ensureInstalled('dnsmasq');
 
         // For DnsMasq, we create our own custom configuration file which will be imported
         // in the main DnsMasq file. This allows Valet to make changes to our own files
         // without needing to modify the "primary" DnsMasq configuration files again.
-        $this->createCustomConfigFile($domain);
+        $this->createCustomConfigFile($tld);
 
-        $this->createDomainResolver($domain);
+        $this->createTldResolver($tld);
 
         $this->brew->restartService('dnsmasq');
+
+        info('Valet is configured to serve for TLD [.'.$tld.']');
     }
 
     /**
      * Append the custom DnsMasq configuration file to the main configuration file.
      *
-     * @param  string  $domain
+     * @param  string  $tld
      * @return void
      */
-    function createCustomConfigFile($domain)
+    function createCustomConfigFile($tld)
     {
         $customConfigPath = $this->customConfigPath();
 
@@ -61,7 +63,7 @@ class DnsMasq
 
         $this->appendCustomConfigImport($customConfigPath);
 
-        $this->files->putAsUser($customConfigPath, 'address=/.'.$domain.'/127.0.0.1'.PHP_EOL.'listen-address=127.0.0.1'.PHP_EOL);
+        $this->files->putAsUser($customConfigPath, 'address=/.'.$tld.'/127.0.0.1'.PHP_EOL.'listen-address=127.0.0.1'.PHP_EOL);
     }
 
     /**
@@ -107,30 +109,30 @@ class DnsMasq
     }
 
     /**
-     * Create the resolver file to point the configured domain to 127.0.0.1.
+     * Create the resolver file to point the configured TLD to 127.0.0.1.
      *
-     * @param  string  $domain
+     * @param  string  $tld
      * @return void
      */
-    function createDomainResolver($domain)
+    function createTldResolver($tld)
     {
         $this->files->ensureDirExists($this->resolverPath);
 
-        $this->files->put($this->resolverPath.'/'.$domain, 'nameserver 127.0.0.1'.PHP_EOL);
+        $this->files->put($this->resolverPath.'/'.$tld, 'nameserver 127.0.0.1'.PHP_EOL);
     }
 
     /**
-     * Update the domain (TLD) used by DnsMasq.
+     * Update the TLD/domain resolved by DnsMasq.
      *
-     * @param  string  $oldDomain
-     * @param  string  $newDomain
+     * @param  string  $oldTld
+     * @param  string  $newTld
      * @return void
      */
-    function updateDomain($oldDomain, $newDomain)
+    function updateTld($oldTld, $newTld)
     {
-        $this->files->unlink($this->resolverPath.'/'.$oldDomain);
+        $this->files->unlink($this->resolverPath.'/'.$oldTld);
 
-        $this->install($newDomain);
+        $this->install($newTld);
     }
 
     /**

@@ -50,13 +50,13 @@ conf-file='.__DIR__.'/output/custom-dnsmasq.conf
     }
 
 
-    public function test_update_domain_removes_old_resolver_and_reinstalls()
+    public function test_update_tld_removes_old_resolver_and_reinstalls()
     {
         $cli = Mockery::mock(CommandLine::class);
         $cli->shouldReceive('quietly')->with('rm /etc/resolver/old');
         $dnsMasq = Mockery::mock(DnsMasq::class.'[install]', [resolve(Brew::class), $cli, new Filesystem]);
         $dnsMasq->shouldReceive('install')->with('new');
-        $dnsMasq->updateDomain('old', 'new');
+        $dnsMasq->updateTld('old', 'new');
     }
 }
 

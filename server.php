@@ -18,9 +18,9 @@ function show_valet_404()
 }
 
 /**
- * @param $domain string Domain to filter
- *
- * @return string Filtered domain (without wildcard dns feature (xip.io/nip.io))
+ * You may use wildcard DNS providers xip.io or nip.io as a tool for testing your site via an IP address.
+ * To use it, first `valet link 192.168.3.3` (whatever your local IP is) inside your current project.
+ * Then you can reach your project's dev site by visiting http://your-local-ip.xip.io (or nip.io).
  */
 function valet_support_wildcard_dns($domain)
 {
@@ -52,7 +52,7 @@ $uri = urldecode(
 $siteName = basename(
     // Filter host to support wildcard dns feature
     valet_support_wildcard_dns($_SERVER['HTTP_HOST']),
-    '.'.$valetConfig['domain']
+    '.'.$valetConfig['tld']
 );
 
 if (strpos($siteName, 'www.') === 0) {

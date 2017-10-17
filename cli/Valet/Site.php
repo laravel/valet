@@ -104,7 +104,7 @@ class Site
             return [$site => $this->files->readLink($path.'/'.$site)];
         })->map(function ($path, $site) use ($certs, $config) {
             $secured = $certs->has($site);
-            $url = ($secured ? 'https': 'http').'://'.$site.'.'.$config['domain'];
+            $url = ($secured ? 'https': 'http').'://'.$site.'.'.$config['tld'];
 
             return [$site, $secured ? ' X': '', $url, $path];
         });
