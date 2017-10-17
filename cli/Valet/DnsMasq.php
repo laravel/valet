@@ -61,7 +61,7 @@ class DnsMasq
 
         $this->appendCustomConfigImport($customConfigPath);
 
-        $this->files->putAsUser($customConfigPath, 'address=/.'.$domain.'/127.0.0.1'.PHP_EOL);
+        $this->files->putAsUser($customConfigPath, 'address=/.'.$domain.'/127.0.0.1'.PHP_EOL.'listen-address=127.0.0.1'.PHP_EOL);
     }
 
     /**
