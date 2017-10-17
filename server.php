@@ -24,7 +24,7 @@ function show_valet_404()
  */
 function valet_support_wildcard_dns($domain)
 {
-    if (in_array(substr($domain, -7), array('.xip.io', '.nip.io'), true)) {
+    if (in_array(substr($domain, -7), ['.xip.io', '.nip.io'], true)) {
         // support only ip v4 for now
         $domainPart = explode('.', $domain);
         if (count($domainPart) > 6) {
