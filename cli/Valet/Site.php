@@ -85,7 +85,8 @@ class Site
         return collect($this->files->scanDir($path))->filter(function ($value, $key) {
             return ends_with($value, '.crt');
         })->map(function ($cert) {
-            return substr($cert, 0, -8);
+            $tld = $this->config->read()['tld'];
+            return substr($cert, 0, -(strlen($tld)+5));
         })->flip();
     }
 
