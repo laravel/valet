@@ -19,8 +19,8 @@ function show_valet_404()
 
 /**
  * You may use wildcard DNS providers xip.io or nip.io as a tool for testing your site via an IP address.
- * To use it, first `valet link 192.168.3.3` (whatever your local IP is) inside your current project.
- * Then you can reach your project's dev site by visiting http://your-local-ip.xip.io (or nip.io).
+ * It's simple to use: First determine the IP address of your local computer (like 192.168.0.10).
+ * Then simply use http://project.your-ip.xip.io - ie: http://laravel.192.168.0.10.xip.io
  */
 function valet_support_wildcard_dns($domain)
 {
