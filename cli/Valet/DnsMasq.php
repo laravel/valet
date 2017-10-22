@@ -87,6 +87,9 @@ class DnsMasq
      */
     function appendCustomConfigImport($customConfigPath)
     {
+        $contents = preg_replace('/^conf-file=.*\/\.valet\/.*$/m', '', $this->files->get($this->configPath));
+        $this->files->putAsUser($this->configPath, $contents);
+
         if (! $this->customConfigIsBeingImported($customConfigPath)) {
             $this->files->appendAsUser(
                 $this->configPath,
