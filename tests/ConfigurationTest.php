@@ -2,9 +2,10 @@
 
 use Valet\Filesystem;
 use Valet\Configuration;
+use PHPUnit\Framework\TestCase;
 use Illuminate\Container\Container;
 
-class ConfigurationTest extends PHPUnit_Framework_TestCase
+class ConfigurationTest extends TestCase
 {
     public function setUp()
     {

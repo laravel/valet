@@ -4,9 +4,10 @@ use Valet\Brew;
 use Valet\DnsMasq;
 use Valet\Filesystem;
 use Valet\CommandLine;
+use PHPUnit\Framework\TestCase;
 use Illuminate\Container\Container;
 
-class DnsMasqTest extends PHPUnit_Framework_TestCase
+class DnsMasqTest extends TestCase
 {
     public function setUp()
     {
