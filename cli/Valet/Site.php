@@ -2,8 +2,6 @@
 
 namespace Valet;
 
-use DomainException;
-
 class Site
 {
     var $config, $cli, $files;
@@ -71,7 +69,7 @@ class Site
 
         $certs = $this->getCertificates($certsPath);
 
-        return $this->getLinks(VALET_HOME_PATH.'/Sites', $certs);
+        return $this->getLinks($this->sitesPath(), $certs);
     }
 
     /**

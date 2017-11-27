@@ -46,6 +46,7 @@ class Configuration
         $oldPath = posix_getpwuid(fileowner(__FILE__))['dir'].'/.valet';
 
         if ($this->files->isDir($oldPath)) {
+            $this->prependPath(VALET_HOME_PATH.'/Sites');
             rename($oldPath, VALET_HOME_PATH);
         }
     }
