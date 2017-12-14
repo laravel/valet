@@ -75,6 +75,22 @@ class Site
     }
 
     /**
+     * Find a link.
+     *
+     * @param $name
+     * @return null
+     */
+    function findLink($name) {
+        foreach ($this->links() as $link) {
+            if ($link[0] === $name) {
+                return $link;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Get all certificates from config folder.
      *
      * @param string $path
@@ -85,7 +101,9 @@ class Site
         return collect($this->files->scanDir($path))->filter(function ($value, $key) {
             return ends_with($value, '.crt');
         })->map(function ($cert) {
-            return substr($cert, 0, -8);
+            $tld = $this->config->get('tld');
+            $subdomain = $this->config->get('subdomain');
+            return preg_replace("/^({$subdomain}\.)?(.+)(\.{$tld}\.crt)$/", "$2", $cert);
         })->flip();
     }
 
@@ -104,10 +122,34 @@ class Site
             return [$site => $this->files->readLink($path.'/'.$site)];
         })->map(function ($path, $site) use ($certs, $config) {
             $secured = $certs->has($site);
-            $url = ($secured ? 'https': 'http').'://'.$site.'.'.$config['domain'];
 
-            return [$site, $secured ? ' X': '', $url, $path];
+            $subdomain = isset($config['subdomain']) ? $config['subdomain'].'.' : '';
+
+            $domain = "{$subdomain}{$site}.{$config['tld']}";
+
+            $url = ($secured ? 'https': 'http')."://$domain";
+
+            return [$site, $secured ? ' X': '', $url, $path, $domain];
         });
+    }
+
+    /**
+     * Make a new secure url.
+     *
+     * @param  string $url
+     * @param  string $oldTld
+     * @param  string $oldSubdomain
+     * @param  string $newTld
+     * @param  string $newSubdomain
+     * @return string
+     */
+    function makeNewUrl($url, $oldTld, $oldSubdomain, $newTld, $newSubdomain)
+    {
+        $regex = "/({$oldSubdomain}\.)?(.+)(\.{$oldTld})/";
+
+        $newSubdomain = isset($newSubdomain) ? $newSubdomain.'.' : '';
+
+        return preg_replace($regex, "{$newSubdomain}$2.{$newTld}", $url);
     }
 
     /**
@@ -138,11 +180,13 @@ class Site
     /**
      * Resecure all currently secured sites with a fresh domain.
      *
-     * @param  string  $oldDomain
-     * @param  string  $domain
+     * @param  string $oldTld
+     * @param  string $oldSubdomain
+     * @param  string $newTld
+     * @param  string $newSubdomain
      * @return void
      */
-    function resecureForNewDomain($oldDomain, $domain)
+    function resecureForNewDomain($oldTld, $oldSubdomain, $newTld, $newSubdomain)
     {
         if (! $this->files->exists($this->certificatesPath())) {
             return;
@@ -155,7 +199,7 @@ class Site
         }
 
         foreach ($secured as $url) {
-            $this->secure(str_replace('.'.$oldDomain, '.'.$domain, $url));
+            $this->secure($this->makeNewUrl($url, $oldTld, $oldSubdomain, $newTld, $newSubdomain));
         }
     }
 
@@ -258,7 +302,7 @@ class Site
      * Build the SSL config for the given URL.
      *
      * @param  string  $url
-     * @return string
+     * @return void
      */
     function buildCertificateConf($path, $url)
     {

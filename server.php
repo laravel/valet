@@ -49,10 +49,11 @@ $uri = urldecode(
     explode("?", $_SERVER['REQUEST_URI'])[0]
 );
 
-$siteName = basename(
+$siteName = preg_replace(
+    "/^({$valetConfig['subdomain']}\.)?(.+)(\.({$valetConfig['tld']}|{$valetConfig['park_tld']}))$/",
+    "$2",
     // Filter host to support wildcard dns feature
-    valet_support_wildcard_dns($_SERVER['HTTP_HOST']),
-    '.'.$valetConfig['domain']
+    valet_support_wildcard_dns($_SERVER['HTTP_HOST'])
 );
 
 if (strpos($siteName, 'www.') === 0) {

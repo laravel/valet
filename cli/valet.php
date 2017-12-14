@@ -40,9 +40,9 @@ $app->command('install', function () {
     Configuration::install();
     Nginx::install();
     PhpFpm::install();
-    DnsMasq::install(Configuration::read()['domain']);
     Nginx::restart();
     Valet::symlinkToUsersBin();
+    DnsMasq::install(Site::links());
 
     output(PHP_EOL.'<info>Valet installed successfully!</info>');
 })->descriptions('Install the Valet services');
@@ -54,29 +54,34 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Get or set the domain currently being used by Valet.
      */
-    $app->command('domain [domain]', function ($domain = null) {
-        if ($domain === null) {
-            return info(Configuration::read()['domain']);
+    $app->command('domain [tld] [subdomain]', function ($tld = null, $subdomain = null) {
+        if ($tld === null) {
+            return info(Configuration::get('subdomain') . '.<site>.' . Configuration::get('tld'));
         }
 
-        DnsMasq::updateDomain(
-            $oldDomain = Configuration::read()['domain'], $domain = trim($domain, '.')
-        );
+        $oldTld = Configuration::get('tld');
 
-        Configuration::updateKey('domain', $domain);
+        $oldSubdomain = Configuration::get('subdomain');
 
-        Site::resecureForNewDomain($oldDomain, $domain);
+        DnsMasq::updateDomain($tld, $subdomain);
+
+        Site::resecureForNewDomain($oldTld, $oldSubdomain, $tld, $subdomain);
         PhpFpm::restart();
         Nginx::restart();
 
-        info('Your Valet domain has been updated to ['.$domain.'].');
+        $tld = trim($tld, '.');
+        $subdomain = isset($subdomain) ? "$subdomain.<site>" : '';
+
+        info('Your Valet domain has been updated to ['.$subdomain.$tld.'].');
     })->descriptions('Get or set the domain used for Valet sites');
 
     /**
      * Add the current working directory to the paths configuration.
      */
-    $app->command('park [path]', function ($path = null) {
+    $app->command('park [tld] [path]', function ($tld = 'test', $path = null) {
         Configuration::addPath($path ?: getcwd());
+
+        DnsMasq::tldTakeover($tld);
 
         info(($path === null ? "This" : "The [{$path}]") . " directory has been added to Valet's paths.");
     })->descriptions('Register the current working (or specified) directory with Valet');
@@ -95,6 +100,8 @@ if (is_dir(VALET_HOME_PATH)) {
      */
     $app->command('link [name] [--secure]', function ($name, $secure) {
         $linkPath = Site::link(getcwd(), $name = $name ?: basename(getcwd()));
+
+        DnsMasq::install(Site::links());
 
         info('A ['.$name.'] symbolic link has been created in ['.$linkPath.'].');
 
@@ -116,7 +123,11 @@ if (is_dir(VALET_HOME_PATH)) {
      * Unlink a link from the Valet links directory.
      */
     $app->command('unlink [name]', function ($name) {
+        DnsMasq::remove(Site::findLink($name));
+
         Site::unlink($name = $name ?: basename(getcwd()));
+
+        DnsMasq::install(Site::links());
 
         info('The ['.$name.'] symbolic link has been removed.');
     })->descriptions('Remove the specified Valet link');
@@ -125,7 +136,7 @@ if (is_dir(VALET_HOME_PATH)) {
      * Secure the given domain with a trusted TLS certificate.
      */
     $app->command('secure [domain]', function ($domain = null) {
-        $url = ($domain ?: Site::host(getcwd())).'.'.Configuration::read()['domain'];
+        $url = ($domain ?: Site::host(getcwd())).'.'.Configuration::get('tld');
 
         Site::secure($url);
 
@@ -140,7 +151,7 @@ if (is_dir(VALET_HOME_PATH)) {
      * Stop serving the given domain over HTTPS and remove the trusted TLS certificate.
      */
     $app->command('unsecure [domain]', function ($domain = null) {
-        $url = ($domain ?: Site::host(getcwd())).'.'.Configuration::read()['domain'];
+        $url = ($domain ?: Site::host(getcwd())).'.'.Configuration::get('tld');
 
         Site::unsecure($url);
 
@@ -170,7 +181,7 @@ if (is_dir(VALET_HOME_PATH)) {
      * Display all of the registered paths.
      */
     $app->command('paths', function () {
-        $paths = Configuration::read()['paths'];
+        $paths = Configuration::get('paths');
 
         if (count($paths) > 0) {
             output(json_encode($paths, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
@@ -183,7 +194,7 @@ if (is_dir(VALET_HOME_PATH)) {
      * Open the current or given directory in the browser.
      */
     $app->command('open [domain]', function ($domain = null) {
-        $url = "http://".($domain ?: Site::host(getcwd())).'.'.Configuration::read()['domain'];
+        $url = "http://".($domain ?: Site::host(getcwd())).'.'.Configuration::get('tld');
         CommandLine::runAsUser("open ".escapeshellarg($url));
     })->descriptions('Open the site for the current (or specified) directory in your browser');
 

@@ -110,9 +110,13 @@ class Configuration
      */
     function writeBaseConfiguration()
     {
-        if (! $this->files->exists($this->path())) {
-            $this->write(['domain' => 'test', 'paths' => []]);
-        }
+        $this->updateKey('tld', $this->get('tld', 'test'));
+
+        $this->updateKey('subdomain', $this->get('subdomain', null));
+
+        $this->updateKey('park_tld', $this->get('park_tld', null));
+
+        $this->updateKey('paths', $this->get('paths', [VALET_HOME_PATH.'/Sites']));
     }
 
     /**
@@ -222,5 +226,21 @@ class Configuration
     function path()
     {
         return VALET_HOME_PATH.'/config.json';
+    }
+
+    /**
+     * Get a configuration item.
+     *
+     * @param string $key
+     * @param mixed|null $default
+     * @return string
+     */
+    function get($key, $default = null)
+    {
+        $configuration = $this->read();
+
+        return isset($configuration[$key]) && !empty($configuration[$key])
+            ? $configuration[$key]
+            : $default;
     }
 }

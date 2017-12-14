@@ -76,15 +76,19 @@ class NginxTest extends PHPUnit_Framework_TestCase
         $files->shouldReceive('isDir')->with(VALET_HOME_PATH.'/Nginx')->andReturn(false);
         $files->shouldReceive('mkdirAsUser')->with(VALET_HOME_PATH.'/Nginx')->once();
         $files->shouldReceive('putAsUser')->with(VALET_HOME_PATH.'/Nginx/.keep', "\n")->once();
+        $config = Mockery::mock(Configuration::class.'[get]', [$files]);
+
+        $config->shouldReceive('get')->with('tld')->andReturn('test');
+        $config->shouldReceive('get')->with('subdomain')->andReturn('dev');
 
         swap(Filesystem::class, $files);
-        swap(Configuration::class, $config = Mockery::spy(Configuration::class, ['read' => ['domain' => 'test']]));
+        swap(Configuration::class, $config);
         swap(Site::class, $site = Mockery::spy(Site::class));
 
         $nginx = resolve(Nginx::class);
         $nginx->installNginxDirectory();
 
-        $site->shouldHaveReceived('resecureForNewDomain', ['test', 'test']);
+        $site->shouldHaveReceived('resecureForNewDomain', ['test', 'dev', 'test', 'dev']);
     }
 
 }
