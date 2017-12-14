@@ -160,7 +160,7 @@ class Configuration
     {
         $this->write(tap($this->read(), function (&$config) use ($path) {
             $config['paths'] = collect($config['paths'])->reject(function ($value) use ($path) {
-                return $value === $path;
+                return is_array($value) ? ($value['path'] === $path) : ($value === $path);
             })->values()->all();
         }));
     }

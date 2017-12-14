@@ -52,22 +52,18 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase
     {
         $config = Mockery::mock(Configuration::class.'[read,write]', [new Filesystem]);
         $config->shouldReceive('read')->andReturn([
-            'domain' => 'test',
             'paths' => ['path-1', 'path-2'],
         ]);
         $config->shouldReceive('write')->with([
-            'domain' => 'test',
             'paths' => ['path-1', 'path-2', 'path-3'],
         ]);
         $config->addPath('path-3');
 
         $config = Mockery::mock(Configuration::class.'[read,write]', [new Filesystem]);
         $config->shouldReceive('read')->andReturn([
-            'domain' => 'test',
             'paths' => ['path-1', 'path-2', 'path-3'],
         ]);
         $config->shouldReceive('write')->with([
-            'domain' => 'test',
             'paths' => ['path-1', 'path-2', 'path-3'],
         ]);
         $config->addPath('path-3');
@@ -77,11 +73,9 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase
     {
         $config = Mockery::mock(Configuration::class.'[read,write]', [new Filesystem]);
         $config->shouldReceive('read')->andReturn([
-            'domain' => 'test',
             'paths' => ['path-1', 'path-2'],
         ]);
         $config->shouldReceive('write')->with([
-            'domain' => 'test',
             'paths' => [
                 'path-1',
                 'path-2',
@@ -95,7 +89,6 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase
 
         $config = Mockery::mock(Configuration::class.'[read,write]', [new Filesystem]);
         $config->shouldReceive('read')->andReturn([
-            'domain' => 'test',
             'paths' => [
                 'path-1',
                 'path-2',
@@ -106,7 +99,6 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase
             ],
         ]);
         $config->shouldReceive('write')->with([
-            'domain' => 'test',
             'paths' => [
                 'path-1',
                 'path-2',
@@ -123,11 +115,9 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase
     {
         $config = Mockery::mock(Configuration::class.'[read,write]', [new Filesystem]);
         $config->shouldReceive('read')->andReturn([
-            'domain' => 'test',
             'paths' => ['path-1', 'path-2', 'path-3'],
         ]);
         $config->shouldReceive('write')->with([
-            'domain' => 'test',
             'paths' => [
                 'path-1',
                 'path-2',
@@ -141,7 +131,6 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase
 
         $config = Mockery::mock(Configuration::class.'[read,write]', [new Filesystem]);
         $config->shouldReceive('read')->andReturn([
-            'domain' => 'test',
             'paths' => [
                 'path-1',
                 'path-2',
@@ -152,7 +141,6 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase
             ],
         ]);
         $config->shouldReceive('write')->with([
-            'domain' => 'test',
             'paths' => [
                 'path-1',
                 'path-2',
@@ -168,6 +156,24 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase
         $config = Mockery::mock(Configuration::class.'[read,write]', [new Filesystem]);
         $config->shouldReceive('read')->andReturn([
             'paths' => ['path-1', 'path-2'],
+        ]);
+        $config->shouldReceive('write')->with([
+            'paths' => ['path-1'],
+        ]);
+        $config->removePath('path-2');
+    }
+
+    public function test_paths_with_custom_domain_may_be_removed_from_the_configuration()
+    {
+        $config = Mockery::mock(Configuration::class.'[read,write]', [new Filesystem]);
+        $config->shouldReceive('read')->andReturn([
+            'paths' => [
+                'path-1',
+                [
+                    'domain' => 'custom',
+                    'path' => 'path-2'
+                ]
+            ],
         ]);
         $config->shouldReceive('write')->with([
             'paths' => ['path-1'],
