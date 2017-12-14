@@ -52,19 +52,112 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase
     {
         $config = Mockery::mock(Configuration::class.'[read,write]', [new Filesystem]);
         $config->shouldReceive('read')->andReturn([
+            'domain' => 'test',
             'paths' => ['path-1', 'path-2'],
         ]);
         $config->shouldReceive('write')->with([
+            'domain' => 'test',
             'paths' => ['path-1', 'path-2', 'path-3'],
         ]);
         $config->addPath('path-3');
 
         $config = Mockery::mock(Configuration::class.'[read,write]', [new Filesystem]);
         $config->shouldReceive('read')->andReturn([
+            'domain' => 'test',
             'paths' => ['path-1', 'path-2', 'path-3'],
         ]);
         $config->shouldReceive('write')->with([
+            'domain' => 'test',
             'paths' => ['path-1', 'path-2', 'path-3'],
+        ]);
+        $config->addPath('path-3');
+    }
+
+    public function test_add_path_accepts_a_custom_domain_name()
+    {
+        $config = Mockery::mock(Configuration::class.'[read,write]', [new Filesystem]);
+        $config->shouldReceive('read')->andReturn([
+            'domain' => 'test',
+            'paths' => ['path-1', 'path-2'],
+        ]);
+        $config->shouldReceive('write')->with([
+            'domain' => 'test',
+            'paths' => [
+                'path-1',
+                'path-2',
+                [
+                    'domain' => 'custom',
+                    'path' => 'path-3'
+                ]
+            ],
+        ]);
+        $config->addPath('path-3', false, 'custom');
+
+        $config = Mockery::mock(Configuration::class.'[read,write]', [new Filesystem]);
+        $config->shouldReceive('read')->andReturn([
+            'domain' => 'test',
+            'paths' => [
+                'path-1',
+                'path-2',
+                [
+                    'domain' => 'custom',
+                    'path' => 'path-3'
+                ]
+            ],
+        ]);
+        $config->shouldReceive('write')->with([
+            'domain' => 'test',
+            'paths' => [
+                'path-1',
+                'path-2',
+                [
+                    'domain' => 'valet',
+                    'path' => 'path-3'
+                ]
+            ],
+        ]);
+        $config->addPath('path-3', false, 'valet');
+    }
+
+    public function test_add_path_with_custom_domain_converts_existing_paths()
+    {
+        $config = Mockery::mock(Configuration::class.'[read,write]', [new Filesystem]);
+        $config->shouldReceive('read')->andReturn([
+            'domain' => 'test',
+            'paths' => ['path-1', 'path-2', 'path-3'],
+        ]);
+        $config->shouldReceive('write')->with([
+            'domain' => 'test',
+            'paths' => [
+                'path-1',
+                'path-2',
+                [
+                    'domain' => 'custom',
+                    'path' => 'path-3'
+                ]
+            ],
+        ]);
+        $config->addPath('path-3', false, 'custom');
+
+        $config = Mockery::mock(Configuration::class.'[read,write]', [new Filesystem]);
+        $config->shouldReceive('read')->andReturn([
+            'domain' => 'test',
+            'paths' => [
+                'path-1',
+                'path-2',
+                [
+                    'domain' => 'custom',
+                    'path' => 'path-3'
+                ]
+            ],
+        ]);
+        $config->shouldReceive('write')->with([
+            'domain' => 'test',
+            'paths' => [
+                'path-1',
+                'path-2',
+                'path-3'
+            ],
         ]);
         $config->addPath('path-3');
     }

@@ -122,12 +122,20 @@ class Configuration
      * @param  bool  $prepend
      * @return void
      */
-    function addPath($path, $prepend = false)
+    function addPath($path, $prepend = false, $domain = null)
     {
+        if (! is_null($domain)) {
+            $path = [
+                'domain' => $domain,
+                'path' => $path
+            ];
+        }
         $this->write(tap($this->read(), function (&$config) use ($path, $prepend) {
             $method = $prepend ? 'prepend' : 'push';
 
-            $config['paths'] = collect($config['paths'])->{$method}($path)->unique()->all();
+            $config['paths'] = collect($config['paths'])->{$method}($path)->reverse()->unique(function ($item) {
+                return is_array($item) ? $item['path'] : $item;
+            })->reverse()->values()->all();
         }));
     }
 
