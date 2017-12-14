@@ -178,6 +178,7 @@ class Configuration
 
         $this->write(tap($this->read(), function (&$config) {
             $config['paths'] = collect($config['paths'])->filter(function ($path) {
+                $path = is_array($path) ? $path['path'] : $path;
                 return $this->files->isDir($path);
             })->values()->all();
         }));

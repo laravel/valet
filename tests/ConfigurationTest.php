@@ -189,9 +189,17 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase
         $files->shouldReceive('exists')->with(VALET_HOME_PATH.'/config.json')->andReturn(true);
         $files->shouldReceive('isDir')->with('path-1')->andReturn(true);
         $files->shouldReceive('isDir')->with('path-2')->andReturn(false);
+        $files->shouldReceive('isDir')->with('path-3')->andReturn(false);
         $config = Mockery::mock(Configuration::class.'[read,write]', [$files]);
         $config->shouldReceive('read')->andReturn([
-            'paths' => ['path-1', 'path-2'],
+            'paths' => [
+                'path-1', 
+                'path-2',
+                [
+                    'domain' => 'custom',
+                    'path' => 'path-3'
+                ]
+            ],
         ]);
         $config->shouldReceive('write')->with([
             'paths' => ['path-1'],
