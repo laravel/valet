@@ -7,7 +7,7 @@ use Symfony\Component\Process\Process;
 
 class DnsMasq
 {
-    var $brew, $cli, $files;
+    var $brew, $cli, $files, $config, $site;
 
     var $resolverPath = '/etc/resolver';
     var $configPath = '/usr/local/etc/dnsmasq.conf';
@@ -16,44 +16,59 @@ class DnsMasq
     /**
      * Create a new DnsMasq instance.
      *
-     * @param  Brew  $brew
-     * @param  CommandLine  $cli
-     * @param  Filesystem  $files
-     * @return void
+     * @param  Brew $brew
+     * @param  CommandLine $cli
+     * @param  Filesystem $files
+     * @param Configuration $config
+     * @param Site $site
      */
-    function __construct(Brew $brew, CommandLine $cli, Filesystem $files)
+    function __construct(Brew $brew, CommandLine $cli, Filesystem $files, Configuration $config, Site $site)
     {
         $this->cli = $cli;
         $this->brew = $brew;
         $this->files = $files;
+        $this->config = $config;
+        $this->site = $site;
     }
 
     /**
      * Install and configure DnsMasq.
      *
+     * @param  array  $links
      * @return void
      */
-    function install($domain = 'test')
+    function install($links)
     {
         $this->brew->ensureInstalled('dnsmasq');
 
         // For DnsMasq, we create our own custom configuration file which will be imported
         // in the main DnsMasq file. This allows Valet to make changes to our own files
         // without needing to modify the "primary" DnsMasq configuration files again.
-        $this->createCustomConfigFile($domain);
+        $this->createCustomConfigFile($links);
 
-        $this->createDomainResolver($domain);
+        $this->createDomainResolvers($links);
 
         $this->brew->restartService('dnsmasq');
     }
 
     /**
-     * Append the custom DnsMasq configuration file to the main configuration file.
+     * Install and configure DnsMasq.
      *
-     * @param  string  $domain
+     * @param  array  $link
      * @return void
      */
-    function createCustomConfigFile($domain)
+    function remove($link)
+    {
+        $this->removeDomainResolver($link[4]);
+    }
+
+    /**
+     * Append the custom DnsMasq configuration file to the main configuration file.
+     *
+     * @param  array  $links
+     * @return void
+     */
+    function createCustomConfigFile($links)
     {
         $customConfigPath = $this->customConfigPath();
 
@@ -61,7 +76,36 @@ class DnsMasq
 
         $this->appendCustomConfigImport($customConfigPath);
 
-        $this->files->putAsUser($customConfigPath, 'address=/.'.$domain.'/127.0.0.1'.PHP_EOL.'listen-address=127.0.0.1'.PHP_EOL);
+        $this->files->putAsUser($customConfigPath, $this->makeConfig($links));
+    }
+
+    /**
+     * Remove all domain resolvers.
+     *
+     * @param $links
+     */
+    function removeDomainResolvers($links)
+    {
+        foreach ($links as $link) {
+            $this->removeDomainResolver($link[4]);
+        }
+    }
+
+    /**
+     * Make the Dnsmasq configuration.
+     *
+     * @param $tld
+     * @param $subdomain
+     * @return void
+     */
+    public function updateDomain($tld, $subdomain)
+    {
+        $this->removeDomainResolvers($this->site->links());
+
+        $this->config->updateKey('tld', $tld);
+        $this->config->updateKey('subdomain', $subdomain);
+
+        $this->install($this->site->links()->toArray());
     }
 
     /**
@@ -109,28 +153,27 @@ class DnsMasq
     /**
      * Create the resolver file to point the configured domain to 127.0.0.1.
      *
-     * @param  string  $domain
+     * @param  array $links
+     * @return void
+     */
+    function createDomainResolvers($links)
+    {
+        $this->files->ensureDirExists($this->resolverPath);
+
+        foreach ($links as $link) {
+            $this->createDomainResolver($link[4]);
+        }
+    }
+
+    /**
+     * Create the resolver file to point the configured domain to 127.0.0.1.
+     *
+     * @param $domain
      * @return void
      */
     function createDomainResolver($domain)
     {
-        $this->files->ensureDirExists($this->resolverPath);
-
         $this->files->put($this->resolverPath.'/'.$domain, 'nameserver 127.0.0.1'.PHP_EOL);
-    }
-
-    /**
-     * Update the domain used by DnsMasq.
-     *
-     * @param  string  $oldDomain
-     * @param  string  $newDomain
-     * @return void
-     */
-    function updateDomain($oldDomain, $newDomain)
-    {
-        $this->files->unlink($this->resolverPath.'/'.$oldDomain);
-
-        $this->install($newDomain);
     }
 
     /**
@@ -141,5 +184,56 @@ class DnsMasq
     function customConfigPath()
     {
         return $_SERVER['HOME'].'/.valet/dnsmasq.conf';
+    }
+
+    /**
+     * Make the Dnsmasq configuration.
+     *
+     * @param $links
+     * @return string
+     */
+    function makeConfig($links)
+    {
+        $result = '';
+
+        foreach ($links as $link) {
+            $result .= "address=/.{$link[4]}/127.0.0.1".PHP_EOL;
+        }
+
+        if (!is_null($parkDomain = $this->config->get('park_tld'))) {
+            $result .= "address=/.{$parkDomain}/127.0.0.1".PHP_EOL;
+        }
+
+        return $result . 'listen-address=127.0.0.1'.PHP_EOL;
+    }
+
+    /**
+     * Remove a domain resolver file.
+     *
+     * @param $domain
+     */
+    function removeDomainResolver($domain)
+    {
+        $this->files->unlink($this->resolverPath.'/'.$domain);
+    }
+
+    /**
+     * Takeover a domain.
+     *
+     * @param $tld
+     */
+    function tldTakeover($tld)
+    {
+        if(!is_null($oldTld = $this->config->get('park_tld'))) {
+            $this->removeDomainResolver($oldTld);
+        }
+
+        $this->config->updateKey('park_tld', $tld);
+
+        $this->createDomainResolver($tld);
+
+        $this->createCustomConfigFile($this->site->links());
+
+        $this->brew->restartService('dnsmasq');
     }
 }

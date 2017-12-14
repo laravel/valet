@@ -1,9 +1,11 @@
 <?php
 
 use Valet\Brew;
+use Valet\Site;
 use Valet\DnsMasq;
 use Valet\Filesystem;
 use Valet\CommandLine;
+use Valet\Configuration;
 use Illuminate\Container\Container;
 
 class DnsMasqTest extends PHPUnit_Framework_TestCase
@@ -33,16 +35,30 @@ class DnsMasqTest extends PHPUnit_Framework_TestCase
         $brew->shouldReceive('restartService')->once()->with('dnsmasq');
         swap(Brew::class, $brew);
 
+        $config = Mockery::mock(Configuration::class.'[get]', [Container::getInstance()->make(Filesystem::class)]);
+        $config->shouldReceive('get')->with('tld')->andReturn('com');
+        $config->shouldReceive('get')->with('subdomain')->andReturn('dev');
+        $config->shouldReceive('get')->with('park_tld')->andReturn(null);
+        swap(Configuration::class, $config);
+
         $dnsMasq = resolve(StubForCreatingCustomDnsMasqConfigFiles::class);
 
         $dnsMasq->exampleConfigPath = __DIR__.'/files/dnsmasq.conf';
         $dnsMasq->configPath = __DIR__.'/output/dnsmasq.conf';
-        $dnsMasq->resolverPath = __DIR__.'/output/resolver';
+        $dnsMasq->resolverPath = $resolverPath = __DIR__.'/output/resolver';
 
-        $dnsMasq->install('test');
+        $dnsMasq->install([
+            'testing-site' => [
+                "testing-site",
+                "",
+                "http://dev.testing-site.com",
+                "/Users/me/sites/testing-site",
+                $domain = "dev.testing-site.com",
+            ]
+        ]);
 
-        $this->assertSame('nameserver 127.0.0.1'.PHP_EOL, file_get_contents(__DIR__.'/output/resolver/test'));
-        $this->assertSame('address=/.test/127.0.0.1'.PHP_EOL.'listen-address=127.0.0.1'.PHP_EOL, file_get_contents(__DIR__.'/output/custom-dnsmasq.conf'));
+        $this->assertSame('nameserver 127.0.0.1'.PHP_EOL, file_get_contents($resolverPath.'/'.$domain));
+        $this->assertSame("address=/.{$domain}/127.0.0.1".PHP_EOL.'listen-address=127.0.0.1'.PHP_EOL, file_get_contents(__DIR__.'/output/custom-dnsmasq.conf'));
         $this->assertSame('test-contents
 
 conf-file='.__DIR__.'/output/custom-dnsmasq.conf
@@ -54,9 +70,28 @@ conf-file='.__DIR__.'/output/custom-dnsmasq.conf
     {
         $cli = Mockery::mock(CommandLine::class);
         $cli->shouldReceive('quietly')->with('rm /etc/resolver/old');
-        $dnsMasq = Mockery::mock(DnsMasq::class.'[install]', [resolve(Brew::class), $cli, new Filesystem]);
-        $dnsMasq->shouldReceive('install')->with('new');
-        $dnsMasq->updateDomain('old', 'new');
+        $filesystem = Mockery::mock(Filesystem::class);
+        $configuration = Mockery::mock(Configuration::class.'[read]', [$filesystem]);
+        $site = Mockery::mock(Site::class.'[links]', [$configuration, $cli, $filesystem]);
+        $dnsMasq = Mockery::mock(DnsMasq::class.'[install]', [resolve(Brew::class), $cli, $filesystem, $configuration, $site]);
+        $site->shouldReceive('links')->andReturn($links = collect([
+            'testing-dusk' => [
+                "testing-site",
+                "",
+                "http://www.testing-site.com",
+                "/Users/me/sites/testing-site",
+                "www.testing-site.com",
+            ]
+        ]));
+        $filesystem->shouldReceive('unlink')->once();
+        $filesystem->shouldReceive('putAsUser')->twice();
+        $dnsMasq->shouldReceive('install')->with($links->toArray());
+        $dnsMasq->shouldReceive('removeDomainResolvers');
+        $configuration->shouldReceive('read')->twice()->andReturn([
+            'tld'       => 'com',
+            'subdomain' => 'dev',
+        ]);
+        $dnsMasq->updateDomain('com', 'www');
     }
 }
 
