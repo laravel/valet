@@ -78,7 +78,7 @@ class DnsMasq
         $listen = 'listen-address=127.0.0.1';
         $lines = collect(explode(PHP_EOL, $this->files->get($this->customConfigPath())))->filter()->reject(function ($line) use ($listen) {
             return $line === $listen;
-        })->all();
+        })->unique()->all();
         $lines[] = $listen;
 
         $this->files->putAsUser($this->customConfigPath(), implode(PHP_EOL, $lines) . PHP_EOL);
