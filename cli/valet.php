@@ -187,10 +187,16 @@ if (is_dir(VALET_HOME_PATH)) {
      * Display all of the registered paths.
      */
     $app->command('paths', function () {
-        $paths = Configuration::read()['paths'];
+        $paths = collect(Configuration::read()['paths']);
+        $domain = Configuration::read()['domain'];
 
         if (count($paths) > 0) {
-            output(json_encode($paths, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+            table(['Path', 'Domain'], $paths->map(function ($path) use ($domain) {
+                return [
+                    is_array($path) ? $path['path'] : $path,
+                    '.' . (is_array($path) ? $path['domain'] : $domain)
+                ];
+            })->all());
         } else {
             info('No paths have been registered.');
         }
