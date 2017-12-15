@@ -168,6 +168,7 @@ class DnsMasq
         if ($paths->isNotEmpty()) {
             $this->appendListenAddressToConfigFile();
         }
+        $this->brew->restartService('dnsmasq');
     }
 
     /**
