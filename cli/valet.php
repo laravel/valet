@@ -87,7 +87,7 @@ if (is_dir(VALET_HOME_PATH)) {
      * Add the current working directory to the paths configuration.
      * If a custom domain is specified, use this for this path.
      */
-    $app->command('park [path] [domain]', function ($path = null, $domain = null) {
+    $app->command('park [path] [--domain=]', function ($path = null, $domain = null) {
         Configuration::addPath($path ?: getcwd(), false, $domain);
         DnsMasq::updateCustomPathDomains();
 
