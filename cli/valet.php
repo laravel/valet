@@ -74,11 +74,12 @@ if (is_dir(VALET_HOME_PATH)) {
 
     /**
      * Add the current working directory to the paths configuration.
+     * If a custom domain is specified, use this for this path.
      */
-    $app->command('park [path]', function ($path = null) {
-        Configuration::addPath($path ?: getcwd());
+    $app->command('park [path] [domain]', function ($path = null, $domain = null) {
+        Configuration::addPath($path ?: getcwd(), false, $domain);
 
-        info(($path === null ? "This" : "The [{$path}]") . " directory has been added to Valet's paths.");
+        info(($path === null ? "This" : "The [{$path}]") . " directory has been added to Valet's paths" . ($domain === null ? "." : " using domain [{$domain}]"));
     })->descriptions('Register the current working (or specified) directory with Valet');
 
     /**

@@ -7,7 +7,7 @@ use Symfony\Component\Process\Process;
 
 class DnsMasq
 {
-    var $brew, $cli, $files;
+    var $brew, $cli, $files, $configuration;
 
     var $resolverPath = '/etc/resolver';
     var $configPath = '/usr/local/etc/dnsmasq.conf';
@@ -19,13 +19,15 @@ class DnsMasq
      * @param  Brew  $brew
      * @param  CommandLine  $cli
      * @param  Filesystem  $files
+     * @param  Configuration $configuration
      * @return void
      */
-    function __construct(Brew $brew, CommandLine $cli, Filesystem $files)
+    function __construct(Brew $brew, CommandLine $cli, Filesystem $files, Configuration $configuration)
     {
         $this->cli = $cli;
         $this->brew = $brew;
         $this->files = $files;
+        $this->configuration = $configuration;
     }
 
     /**
@@ -41,6 +43,8 @@ class DnsMasq
         // in the main DnsMasq file. This allows Valet to make changes to our own files
         // without needing to modify the "primary" DnsMasq configuration files again.
         $this->createCustomConfigFile($domain);
+
+        $this->appendListenAddressToConfigFile();
 
         $this->createDomainResolver($domain);
 
@@ -61,7 +65,23 @@ class DnsMasq
 
         $this->appendCustomConfigImport($customConfigPath);
 
-        $this->files->putAsUser($customConfigPath, 'address=/.'.$domain.'/127.0.0.1'.PHP_EOL.'listen-address=127.0.0.1'.PHP_EOL);
+        $this->files->appendAsUser($customConfigPath, 'address=/.'.$domain.'/127.0.0.1'.PHP_EOL);
+    }
+
+    /**
+     * Append the DnsMasq listen-address configuration parameter.
+     *
+     * @return void
+     */
+    function appendListenAddressToConfigFile()
+    {
+        $listen = 'listen-address=127.0.0.1';
+        $lines = collect(explode(PHP_EOL, $this->files->get($this->customConfigPath())))->filter()->reject(function ($line) use ($listen) {
+            return $line === $listen;
+        })->all();
+        $lines[] = $listen;
+
+        $this->files->putAsUser($this->customConfigPath(), implode(PHP_EOL, $lines) . PHP_EOL);
     }
 
     /**
@@ -131,6 +151,23 @@ class DnsMasq
         $this->files->unlink($this->resolverPath.'/'.$oldDomain);
 
         $this->install($newDomain);
+        $this->updateCustomPathDomains();
+    }
+
+    function updateCustomPathDomains()
+    {
+        $paths = collect($this->configuration->read()['paths']);
+        $paths->filter(function ($path) {
+            return is_array($path);
+        })->each(function ($path) {
+            $this->createCustomConfigFile($path['domain']);
+
+            $this->createDomainResolver($path['domain']);
+        });
+
+        if ($paths->isNotEmpty()) {
+            $this->appendListenAddressToConfigFile();
+        }
     }
 
     /**
