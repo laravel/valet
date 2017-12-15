@@ -78,6 +78,7 @@ if (is_dir(VALET_HOME_PATH)) {
      */
     $app->command('park [path] [domain]', function ($path = null, $domain = null) {
         Configuration::addPath($path ?: getcwd(), false, $domain);
+        DnsMasq::updateCustomPathDomains();
 
         info(($path === null ? "This" : "The [{$path}]") . " directory has been added to Valet's paths" . ($domain === null ? "." : " using domain [{$domain}]"));
     })->descriptions('Register the current working (or specified) directory with Valet');

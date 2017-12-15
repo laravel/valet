@@ -36,6 +36,26 @@ function valet_support_wildcard_dns($domain)
 }
 
 /**
+ * Detect the sitename with given domain
+ * @param  $domain string domain to use as suffix
+ * @return string The discovered sitename
+ */
+function detect_sitename($domain)
+{
+    $siteName = basename(
+        // Filter host to support xip.io feature
+        valet_support_wildcard_dns($_SERVER['HTTP_HOST']),
+        '.'.$domain
+    );
+
+    if (strpos($siteName, 'www.') === 0) {
+        $siteName = substr($siteName, 4);
+    }
+
+    return $siteName;
+}
+
+/**
  * Load the Valet configuration.
  */
 $valetConfig = json_decode(
@@ -49,23 +69,20 @@ $uri = urldecode(
     explode("?", $_SERVER['REQUEST_URI'])[0]
 );
 
-$siteName = basename(
-    // Filter host to support wildcard dns feature
-    valet_support_wildcard_dns($_SERVER['HTTP_HOST']),
-    '.'.$valetConfig['domain']
-);
-
-if (strpos($siteName, 'www.') === 0) {
-    $siteName = substr($siteName, 4);
-}
-
 /**
  * Determine the fully qualified path to the site.
  */
 $valetSitePath = null;
-$domain = array_slice(explode('.', $siteName), -1)[0];
 
 foreach ($valetConfig['paths'] as $path) {
+    if (is_array($path)) {
+        $siteName = detect_sitename($path['domain']);
+        $path = $path['path'];
+    } else {
+        $siteName = detect_sitename($valetConfig['domain']);
+    }
+    $domain = array_slice(explode('.', $siteName), -1)[0];
+
     if (is_dir($path.'/'.$siteName)) {
         $valetSitePath = $path.'/'.$siteName;
         break;
