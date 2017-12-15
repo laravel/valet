@@ -124,6 +124,7 @@ conf-file='.__DIR__.'/output/custom-dnsmasq.conf
 
         $dnsMasq->updateCustomPathDomains();
 
+        $this->assertSame('nameserver 127.0.0.1'.PHP_EOL, file_get_contents(__DIR__.'/output/resolver/test'));
         $this->assertSame('nameserver 127.0.0.1'.PHP_EOL, file_get_contents(__DIR__.'/output/resolver/example'));
         $this->assertSame('nameserver 127.0.0.1'.PHP_EOL, file_get_contents(__DIR__.'/output/resolver/custom'));
         $this->assertSame('address=/.test/127.0.0.1'.PHP_EOL.'address=/.example/127.0.0.1'.PHP_EOL.'address=/.custom/127.0.0.1'.PHP_EOL.'listen-address=127.0.0.1'.PHP_EOL, file_get_contents(__DIR__.'/output/custom-dnsmasq.conf'));
