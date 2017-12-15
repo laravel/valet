@@ -52,6 +52,17 @@ $app->command('install', function () {
  */
 if (is_dir(VALET_HOME_PATH)) {
     /**
+     * Retrieve the TLD from a given domain/path
+     * @param  $domain the domain to retrieve the TLD for
+     * @return string the TLD found for this domain
+     */
+    function get_tld_from_domain($domain) {
+        return data_get(collect(Configuration::read()['paths'])->filter(function ($path) use ($domain) {
+            return is_array($path) && $path['path'].'/'.$domain === getcwd();
+        })->first(), 'domain', Configuration::read()['domain']);
+    }
+
+    /**
      * Get or set the domain currently being used by Valet.
      */
     $app->command('domain [domain]', function ($domain = null) {
@@ -127,7 +138,9 @@ if (is_dir(VALET_HOME_PATH)) {
      * Secure the given domain with a trusted TLS certificate.
      */
     $app->command('secure [domain]', function ($domain = null) {
-        $url = ($domain ?: Site::host(getcwd())).'.'.Configuration::read()['domain'];
+        $domain = ($domain ?: Site::host(getcwd()));
+
+        $url = $domain.'.'.get_tld_from_domain($domain);
 
         Site::secure($url);
 
@@ -142,7 +155,9 @@ if (is_dir(VALET_HOME_PATH)) {
      * Stop serving the given domain over HTTPS and remove the trusted TLS certificate.
      */
     $app->command('unsecure [domain]', function ($domain = null) {
-        $url = ($domain ?: Site::host(getcwd())).'.'.Configuration::read()['domain'];
+        $domain = ($domain ?: Site::host(getcwd()));
+
+        $url = $domain.'.'.get_tld_from_domain($domain);
 
         Site::unsecure($url);
 
@@ -187,11 +202,7 @@ if (is_dir(VALET_HOME_PATH)) {
     $app->command('open [domain]', function ($domain = null) {
         $domain = ($domain ?: Site::host(getcwd()));
 
-        $tld = data_get(collect(Configuration::read()['paths'])->filter(function ($path) use ($domain) {
-            return is_array($path) && $path['path'].'/'.$domain === getcwd();
-        })->first(), 'domain', Configuration::read()['domain']);
-
-        $url = "http://".$domain.'.'.$tld;
+        $url = "http://".$domain.'.'.get_tld_from_domain($domain);
         CommandLine::runAsUser("open ".escapeshellarg($url));
     })->descriptions('Open the site for the current (or specified) directory in your browser');
 
