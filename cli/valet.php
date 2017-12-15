@@ -99,6 +99,7 @@ if (is_dir(VALET_HOME_PATH)) {
      */
     $app->command('forget [path]', function ($path = null) {
         Configuration::removePath($path ?: getcwd());
+        DnsMasq::updateCustomPathDomains();
 
         info(($path === null ? "This" : "The [{$path}]") . " directory has been removed from Valet's paths.");
     })->descriptions('Remove the current working (or specified) directory from Valet\'s list of paths');
