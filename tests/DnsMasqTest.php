@@ -56,7 +56,8 @@ conf-file='.__DIR__.'/output/custom-dnsmasq.conf
         $cli = Mockery::mock(CommandLine::class);
         $cli->shouldReceive('quietly')->with('rm /etc/resolver/old');
         swap(Configuration::class, Mockery::spy(Configuration::class));
-        $dnsMasq = Mockery::mock(DnsMasq::class.'[install]', [resolve(Brew::class), $cli, new Filesystem, resolve(Configuration::class)]);
+        $dnsMasq = Mockery::mock(DnsMasq::class.'[install, updateCustomPathDomains]', [resolve(Brew::class), $cli, new Filesystem, resolve(Configuration::class)]);
+        $dnsMasq->shouldReceive('updateCustomPathDomains');
         $dnsMasq->shouldReceive('install')->with('new');
         $dnsMasq->updateDomain('old', 'new');
     }
@@ -64,6 +65,9 @@ conf-file='.__DIR__.'/output/custom-dnsmasq.conf
 
     public function test_update_custom_path_domains_creates_config_files()
     {
+        $brew = Mockery::mock(Brew::class);
+        $brew->shouldReceive('restartService')->once()->with('dnsmasq');
+        swap(Brew::class, $brew);
         swap(Configuration::class, $config = Mockery::spy(Configuration::class, [
             'read' => [
                 'paths' => [
@@ -97,7 +101,7 @@ conf-file='.__DIR__.'/output/custom-dnsmasq.conf
     {
         $brew = Mockery::mock(Brew::class);
         $brew->shouldReceive('ensureInstalled')->once()->with('dnsmasq');
-        $brew->shouldReceive('restartService')->once()->with('dnsmasq');
+        $brew->shouldReceive('restartService')->twice()->with('dnsmasq');
         swap(Brew::class, $brew);
         swap(Configuration::class, $config = Mockery::spy(Configuration::class, [
             'read' => [
