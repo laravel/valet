@@ -40,7 +40,7 @@ class WordPressValetDriver extends BasicValetDriver
      * @param  string $uri
      * @return string
      */
-    private function forceTrailingSlash($uri)
+    protected function forceTrailingSlash($uri)
     {
         if (substr($uri, -1 * strlen('/wp-admin')) == '/wp-admin') {
             header('Location: '.$uri.'/'); die;
