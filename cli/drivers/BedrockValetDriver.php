@@ -1,6 +1,6 @@
 <?php
 
-class BedrockValetDriver extends BasicValetDriver
+class BedrockValetDriver extends WordPressValetDriver
 {
     /**
      * Determine if the driver serves the request.
@@ -57,20 +57,5 @@ class BedrockValetDriver extends BasicValetDriver
         }
 
         return $sitePath.'/web/index.php';
-    }
-
-    /**
-     * Redirect to uri with trailing slash.
-     *
-     * @param  string $uri
-     * @return string
-     */
-    private function forceTrailingSlash($uri)
-    {
-        if (substr($uri, -1 * strlen('/wp/wp-admin')) == '/wp/wp-admin') {
-            header('Location: '.$uri.'/'); die;
-        }
-
-        return $uri;
     }
 }
