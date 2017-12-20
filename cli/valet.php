@@ -129,8 +129,6 @@ if (is_dir(VALET_HOME_PATH)) {
 
         Site::secure($url);
 
-        PhpFpm::restart();
-
         Nginx::restart();
 
         info('The ['.$url.'] site has been secured with a fresh TLS certificate.');
@@ -143,8 +141,6 @@ if (is_dir(VALET_HOME_PATH)) {
         $url = ($domain ?: Site::host(getcwd())).'.'.Configuration::read()['domain'];
 
         Site::unsecure($url);
-
-        PhpFpm::restart();
 
         Nginx::restart();
 
