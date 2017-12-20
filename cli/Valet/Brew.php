@@ -40,7 +40,7 @@ class Brew
      */
     function hasInstalledPhp()
     {
-        return $this->supportedPhpVersions()->contains(function ($version) {
+        return $this->supportedPhpVersions()->contains(function ($index, $version) {
             return $this->installed($version);
         });
     }
