@@ -41,9 +41,14 @@ then
         fi
     done
 
+    NGROK=`which ngrok`
+    if [ -z $NGROK ]; then
+        NGROK="$DIR/bin/ngrok"
+    fi
+
     # Fetch Ngrok URL In Background...
     bash "$DIR/cli/scripts/fetch-share-url.sh" &
-    sudo -u $(logname) "$DIR/bin/ngrok" http "$HOST.$DOMAIN:80" -host-header=rewrite ${*:2}
+    sudo -u $(logname) ${NGROK} http "$HOST.$DOMAIN:80" -host-header=rewrite ${*:2}
     exit
 
 # Finally, for every other command we will just proxy into the PHP tool
