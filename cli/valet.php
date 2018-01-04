@@ -253,6 +253,16 @@ if (is_dir(VALET_HOME_PATH)) {
             output('NO');
         }
     })->descriptions('Determine if this is the latest version of Valet');
+
+    /**
+     * Install the sudoers.d entries so password is no longer required.
+     */
+    $app->command('trust', function () {
+        Brew::createSudoersEntry();
+        Valet::createSudoersEntry();
+
+        info('Sudoers entries have been added for Brew and Valet.');
+    })->descriptions('Add sudoers files for Brew and Valet to make Valet commands run without passwords');
 }
 
 /**
