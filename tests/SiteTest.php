@@ -64,6 +64,24 @@ class SiteTest extends PHPUnit_Framework_TestCase
         $site->pruneLinks();
         $this->assertFileNotExists(__DIR__.'/output/link');
     }
+
+
+    public function test_certificates_trim_tld_for_custom_tlds()
+    {
+        $files = Mockery::mock(Filesystem::class);
+        $files->shouldReceive('scandir')->once()->andReturn([
+            'threeletters.dev.crt',
+            'fiveletters.local.crt',
+        ]);
+
+        swap(Filesystem::class, $files);
+
+        $site = resolve(Site::class);
+        $certs = $site->getCertificates('fake-cert-path')->flip();
+
+        $this->assertEquals('threeletters', $certs->first());
+        $this->assertEquals('fiveletters', $certs->last());
+    }
 }
 
 
