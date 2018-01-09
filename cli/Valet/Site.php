@@ -272,12 +272,12 @@ class Site
     /**
      * Build the SSL config for the given URL.
      *
-     * @param  string  $url
+     * @param  string $url
      * @return string
      */
     public function buildCertificateConf($path, $url)
     {
-        $config = str_replace('VALET_DOMAIN', $url, $this->files->get(__DIR__.'/../stubs/openssl.conf'));
+        $config = str_replace('VALET_DOMAIN', $url, $this->files->get(__DIR__ . '/../stubs/openssl.conf'));
         $this->files->putAsUser($path, $config);
     }
 
@@ -323,6 +323,7 @@ class Site
             [
                 'VALET_HOME_PATH' => VALET_HOME_PATH,
                 'VALET_SERVER_PATH' => VALET_SERVER_PATH,
+                'VALET_STATIC_PREFIX' => VALET_STATIC_PREFIX,
                 'VALET_SITE' => $url,
                 'VALET_CERT' => $path . '/' . $url . '.crt',
                 'VALET_KEY' => $path . '/' . $url . '.key',

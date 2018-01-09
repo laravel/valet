@@ -99,8 +99,8 @@ class Nginx
         $this->files->putAsUser(
             $this->sites_available_conf,
             str_replace(
-                ['VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_PORT'],
-                [VALET_HOME_PATH, VALET_SERVER_PATH, $this->configuration->read()['port']],
+                ['VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_STATIC_PREFIX', 'VALET_PORT'],
+                [VALET_HOME_PATH, VALET_SERVER_PATH, VALET_STATIC_PREFIX, $this->configuration->read()['port']],
                 $this->files->get(__DIR__.'/../stubs/valet.conf')
             )
         );

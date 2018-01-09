@@ -165,7 +165,7 @@ abstract class ValetDriver
         header('Content-Type: text/html');
         header_remove('Content-Type');
 
-        header('X-Accel-Redirect: /static' . $staticFilePath);
+        header('X-Accel-Redirect: /' . VALET_STATIC_PREFIX . $staticFilePath);
     }
 
     /**
