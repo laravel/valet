@@ -37,7 +37,7 @@ class SculpinValetDriver extends BasicValetDriver
         $composer_json_source = file_get_contents($sitePath.'/composer.json');
         $composer_json = json_decode($composer_json_source, true);
 
-        if (json_last_error() != JSON_ERROR_NONE) {
+        if (json_last_error() !== JSON_ERROR_NONE) {
             return false;
         }
 
