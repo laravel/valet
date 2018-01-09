@@ -22,6 +22,7 @@ require_once __DIR__.'/BedrockValetDriver.php';
 require_once __DIR__.'/ContaoValetDriver.php';
 require_once __DIR__.'/KatanaValetDriver.php';
 require_once __DIR__.'/CakeValetDriver.php';
+require_once __DIR__.'/Cake2ValetDriver.php';
 require_once __DIR__.'/JoomlaValetDriver.php';
 require_once __DIR__.'/DrupalValetDriver.php';
 require_once __DIR__.'/Concrete5ValetDriver.php';
