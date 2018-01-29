@@ -38,12 +38,12 @@ function valet_support_xip_io($domain)
 /**
  * @param array $config Valet configuration array
  *
- * @return string|null If set, fallback site path for uncaught urls
+ * @return string|null If set, default site path for uncaught urls
  * */
-function valet_fallback_site_path($config)
+function valet_default_site_path($config)
 {
-    if (isset($config['fallback']) && is_string($config['fallback']) && is_dir($config['fallback'])) {
-        return $config['fallback'];
+    if (isset($config['default']) && is_string($config['default']) && is_dir($config['default'])) {
+        return $config['default'];
     }
 
     return null;
@@ -91,7 +91,7 @@ foreach ($valetConfig['paths'] as $path) {
     }
 }
 
-if (is_null($valetSitePath) && is_null($valetSitePath = valet_fallback_site_path($valetConfig))) {
+if (is_null($valetSitePath) && is_null($valetSitePath = valet_default_site_path($valetConfig))) {
     show_valet_404();
 }
 
