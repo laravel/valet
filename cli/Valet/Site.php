@@ -185,11 +185,66 @@ class Site
 
         $this->files->ensureDirExists($this->certificatesPath(), user());
 
+        $this->createCa();
+
         $this->createCertificate($url);
 
         $this->files->putAsUser(
             VALET_HOME_PATH.'/Nginx/'.$url, $this->buildSecureNginxServer($url)
         );
+    }
+
+    /**
+     * If CA and root certificates are nonexistent, crete them and trust the root cert.
+     *
+     * When created CN and O fields receive random affixes. The random part is saved in file so that later certificate can be untrusted.
+     *
+     * @return void
+     */
+    function createCa()
+    {
+        $caPemPath = $this->certificatesPath().'/LaravelValetCASelfSigned.pem';
+        $caKeyPath = $this->certificatesPath().'/LaravelValetCASelfSigned.key';
+        $caAffixPath = $this->certificatesPath().'/LaravelValetCASelfSigned.affix';
+
+        if ($this->files->exists($caKeyPath) && $this->files->exists($caPemPath) && $this->files->exists($caAffixPath)) {
+            return;
+        }
+
+        $oName = 'Laravel Valet CA Self Signed O';
+        $cName = 'Laravel Valet CA Self Signed C';
+        $affix = '';
+
+        if ($this->files->exists($caKeyPath)) {
+            $this->files->unlink($caKeyPath);
+        }
+        if ($this->files->exists($caPemPath)) {
+            $this->files->unlink($caPemPath);
+        }
+        if ($this->files->exists($caAffixPath)) {
+            $affix = $this->files->get($caAffixPath);
+            $this->cli->run(sprintf(
+                'sudo security delete-certificate -c "%s%s" /Library/Keychains/System.keychain -t',
+                $cName, $affix
+            ));
+            $this->files->unlink($caAffixPath);
+        }
+        $this->cli->run(sprintf(
+            'sudo security delete-certificate -c "%s" /Library/Keychains/System.keychain -t',
+            $cName
+        ));
+
+        $affix = bin2hex(openssl_random_pseudo_bytes(15));
+        $this->files->putAsUser($caAffixPath, $affix);
+
+        $oName .= $affix;
+        $cName .= $affix;
+
+        $this->cli->runAsUser(sprintf(
+            'openssl req -new -newkey rsa:2048 -days 730 -nodes -x509 -subj "/C=LV/ST=Latvia/O=%s/localityName=Riga/commonName=%s/organizationalUnitName=Developers/emailAddress=noreply@valet.test/" -keyout %s -out %s',
+            $oName, $cName, $caKeyPath, $caPemPath
+        ));
+        $this->trustCa($caPemPath);
     }
 
     /**
@@ -200,6 +255,8 @@ class Site
      */
     function createCertificate($url)
     {
+        $caPemPath = $this->certificatesPath().'/LaravelValetCASelfSigned.pem';
+        $caKeyPath = $this->certificatesPath().'/LaravelValetCASelfSigned.key';
         $keyPath = $this->certificatesPath().'/'.$url.'.key';
         $csrPath = $this->certificatesPath().'/'.$url.'.csr';
         $crtPath = $this->certificatesPath().'/'.$url.'.crt';
@@ -210,8 +267,8 @@ class Site
         $this->createSigningRequest($url, $keyPath, $csrPath, $confPath);
 
         $this->cli->runAsUser(sprintf(
-            'openssl x509 -req -sha256 -days 365 -in %s -signkey %s -out %s -extensions v3_req -extfile %s',
-            $csrPath, $keyPath, $crtPath, $confPath
+            'openssl x509 -req -sha256 -days 730 -CA %s -CAkey %s -in %s -out %s -extensions v3_req -extfile %s',
+            $caPemPath, $caKeyPath, $csrPath, $crtPath, $confPath
         ));
 
         $this->trustCertificate($crtPath);
@@ -237,8 +294,21 @@ class Site
     function createSigningRequest($url, $keyPath, $csrPath, $confPath)
     {
         $this->cli->runAsUser(sprintf(
-            'openssl req -new -key %s -out %s -subj "/C=/ST=/O=/localityName=/commonName=*.%s/organizationalUnitName=/emailAddress=/" -config %s -passin pass:',
+            'openssl req -new -key %s -out %s -subj "/C=/ST=/O=/localityName=/commonName=%s/organizationalUnitName=/emailAddress=/" -config %s',
             $keyPath, $csrPath, $url, $confPath
+        ));
+    }
+
+    /**
+     * Trust the given root certificate file in the Mac Keychain.
+     *
+     * @param  string  $pemPath
+     * @return void
+     */
+    function trustCa($caPemPath)
+    {
+        $this->cli->run(sprintf(
+            'sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain %s', $caPemPath
         ));
     }
 
@@ -251,7 +321,7 @@ class Site
     function trustCertificate($crtPath)
     {
         $this->cli->run(sprintf(
-            'sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain %s', $crtPath
+            'sudo security add-trusted-cert -d -r trustAsRoot -k /Library/Keychains/System.keychain %s', $crtPath
         ));
     }
 
@@ -300,7 +370,7 @@ class Site
             $this->files->unlink($this->certificatesPath().'/'.$url.'.csr');
             $this->files->unlink($this->certificatesPath().'/'.$url.'.crt');
 
-            $this->cli->run(sprintf('sudo security delete-certificate -c "%s" -t', $url));
+            $this->cli->run(sprintf('sudo security delete-certificate -c "%s" /Library/Keychains/System.keychain -t', $url));
         }
     }
 
