@@ -211,8 +211,8 @@ class Site
             return;
         }
 
-        $oName = 'Laravel Valet CA Self Signed O';
-        $cName = 'Laravel Valet CA Self Signed C';
+        $oName = 'Laravel Valet CA Self Signed Organization';
+        $cName = 'Laravel Valet CA Self Signed CN ';
         $affix = '';
 
         if ($this->files->exists($caKeyPath)) {
@@ -237,7 +237,6 @@ class Site
         $affix = bin2hex(openssl_random_pseudo_bytes(15));
         $this->files->putAsUser($caAffixPath, $affix);
 
-        $oName .= $affix;
         $cName .= $affix;
 
         $this->cli->runAsUser(sprintf(
