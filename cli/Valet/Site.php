@@ -241,7 +241,7 @@ class Site
         $cName .= $affix;
 
         $this->cli->runAsUser(sprintf(
-            'openssl req -new -newkey rsa:2048 -days 730 -nodes -x509 -subj "/C=LV/ST=Latvia/O=%s/localityName=Riga/commonName=%s/organizationalUnitName=Developers/emailAddress=noreply@valet.test/" -keyout %s -out %s',
+            'openssl req -new -newkey rsa:2048 -days 730 -nodes -x509 -subj "/C=/ST=/O=%s/localityName=/commonName=%s/organizationalUnitName=Developers/emailAddress=noreply@valet.test/" -keyout %s -out %s',
             $oName, $cName, $caKeyPath, $caPemPath
         ));
         $this->trustCa($caPemPath);
