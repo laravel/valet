@@ -371,6 +371,7 @@ class Site
             $this->files->unlink($this->certificatesPath().'/'.$url.'.crt');
 
             $this->cli->run(sprintf('sudo security delete-certificate -c "%s" /Library/Keychains/System.keychain -t', $url));
+            $this->cli->run(sprintf('sudo security delete-certificate -c "*.%s" /Library/Keychains/System.keychain -t', $url));
         }
     }
 
