@@ -23,6 +23,14 @@ class CraftValetDriver extends ValetDriver
      */
     public function frontControllerDirectory($sitePath)
     {
+        $dirs = ['web', 'public'];
+
+        foreach ($dirs as $dir) {
+            if (is_dir($sitePath.'/'.$dir)) {
+                return $dir;
+            }
+        }
+        // Give up, and just return the default
         return is_file($sitePath.'/craft') ? 'web' : 'public';
     }
 
