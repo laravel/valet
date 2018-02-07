@@ -199,23 +199,19 @@ class Site
     /**
      * If CA and root certificates are nonexistent, crete them and trust the root cert.
      *
-     * When created CN and O fields receive random affixes. The random part is saved in file so that later certificate can be untrusted.
-     *
      * @return void
      */
     function createCa()
     {
         $caPemPath = $this->caPath().'/LaravelValetCASelfSigned.pem';
         $caKeyPath = $this->caPath().'/LaravelValetCASelfSigned.key';
-        $caAffixPath = $this->caPath().'/LaravelValetCASelfSigned.affix';
 
-        if ($this->files->exists($caKeyPath) && $this->files->exists($caPemPath) && $this->files->exists($caAffixPath)) {
+        if ($this->files->exists($caKeyPath) && $this->files->exists($caPemPath)) {
             return;
         }
 
         $oName = 'Laravel Valet CA Self Signed Organization';
-        $cName = 'Laravel Valet CA Self Signed CN ';
-        $affix = '';
+        $cName = 'Laravel Valet CA Self Signed CN';
 
         if ($this->files->exists($caKeyPath)) {
             $this->files->unlink($caKeyPath);
@@ -223,23 +219,11 @@ class Site
         if ($this->files->exists($caPemPath)) {
             $this->files->unlink($caPemPath);
         }
-        if ($this->files->exists($caAffixPath)) {
-            $affix = $this->files->get($caAffixPath);
-            $this->cli->run(sprintf(
-                'sudo security delete-certificate -c "%s%s" /Library/Keychains/System.keychain',
-                $cName, $affix
-            ));
-            $this->files->unlink($caAffixPath);
-        }
+
         $this->cli->run(sprintf(
             'sudo security delete-certificate -c "%s" /Library/Keychains/System.keychain',
             $cName
         ));
-
-        $affix = bin2hex(openssl_random_pseudo_bytes(15));
-        $this->files->putAsUser($caAffixPath, $affix);
-
-        $cName .= $affix;
 
         $this->cli->runAsUser(sprintf(
             'openssl req -new -newkey rsa:2048 -days 730 -nodes -x509 -subj "/C=/ST=/O=%s/localityName=/commonName=%s/organizationalUnitName=Developers/emailAddress=noreply@valet.test/" -keyout %s -out %s',
