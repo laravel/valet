@@ -226,13 +226,13 @@ class Site
         if ($this->files->exists($caAffixPath)) {
             $affix = $this->files->get($caAffixPath);
             $this->cli->run(sprintf(
-                'sudo security delete-certificate -c "%s%s" -t /Library/Keychains/System.keychain',
+                'sudo security delete-certificate -c "%s%s" /Library/Keychains/System.keychain',
                 $cName, $affix
             ));
             $this->files->unlink($caAffixPath);
         }
         $this->cli->run(sprintf(
-            'sudo security delete-certificate -c "%s" -t /Library/Keychains/System.keychain',
+            'sudo security delete-certificate -c "%s" /Library/Keychains/System.keychain',
             $cName
         ));
 
@@ -377,8 +377,8 @@ class Site
             $this->files->unlink($this->certificatesPath().'/'.$url.'.csr');
             $this->files->unlink($this->certificatesPath().'/'.$url.'.crt');
 
-            $this->cli->run(sprintf('sudo security delete-certificate -c "%s" -t /Library/Keychains/System.keychain', $url));
-            $this->cli->run(sprintf('sudo security delete-certificate -c "*.%s" -t /Library/Keychains/System.keychain', $url));
+            $this->cli->run(sprintf('sudo security delete-certificate -c "%s" /Library/Keychains/System.keychain', $url));
+            $this->cli->run(sprintf('sudo security delete-certificate -c "*.%s" /Library/Keychains/System.keychain', $url));
         }
     }
 
