@@ -183,6 +183,8 @@ class Site
     {
         $this->unsecure($url);
 
+        $this->files->ensureDirExists($this->caPath(), user());
+
         $this->files->ensureDirExists($this->certificatesPath(), user());
 
         $this->createCa();
@@ -203,9 +205,9 @@ class Site
      */
     function createCa()
     {
-        $caPemPath = $this->certificatesPath().'/LaravelValetCASelfSigned.pem';
-        $caKeyPath = $this->certificatesPath().'/LaravelValetCASelfSigned.key';
-        $caAffixPath = $this->certificatesPath().'/LaravelValetCASelfSigned.affix';
+        $caPemPath = $this->caPath().'/LaravelValetCASelfSigned.pem';
+        $caKeyPath = $this->caPath().'/LaravelValetCASelfSigned.key';
+        $caAffixPath = $this->caPath().'/LaravelValetCASelfSigned.affix';
 
         if ($this->files->exists($caKeyPath) && $this->files->exists($caPemPath) && $this->files->exists($caAffixPath)) {
             return;
@@ -254,9 +256,9 @@ class Site
      */
     function createCertificate($url)
     {
-        $caPemPath = $this->certificatesPath().'/LaravelValetCASelfSigned.pem';
-        $caKeyPath = $this->certificatesPath().'/LaravelValetCASelfSigned.key';
-        $caSrlPath = $this->certificatesPath().'/LaravelValetCASelfSigned.srl';
+        $caPemPath = $this->caPath().'/LaravelValetCASelfSigned.pem';
+        $caKeyPath = $this->caPath().'/LaravelValetCASelfSigned.key';
+        $caSrlPath = $this->caPath().'/LaravelValetCASelfSigned.srl';
         $keyPath = $this->certificatesPath().'/'.$url.'.key';
         $csrPath = $this->certificatesPath().'/'.$url.'.csr';
         $crtPath = $this->certificatesPath().'/'.$url.'.crt';
@@ -388,6 +390,16 @@ class Site
     function sitesPath()
     {
         return VALET_HOME_PATH.'/Sites';
+    }
+
+    /**
+     * Get the path to the Valet CA certificates.
+     *
+     * @return string
+     */
+    function caPath()
+    {
+        return VALET_HOME_PATH.'/CA';
     }
 
     /**
