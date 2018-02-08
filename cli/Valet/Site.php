@@ -226,8 +226,8 @@ class Site
         ));
 
         $this->cli->runAsUser(sprintf(
-            'openssl req -new -newkey rsa:2048 -days 730 -nodes -x509 -subj "/C=/ST=/O=%s/localityName=/commonName=%s/organizationalUnitName=Developers/emailAddress=noreply@valet.test/" -keyout %s -out %s',
-            $oName, $cName, $caKeyPath, $caPemPath
+            'openssl req -new -newkey rsa:2048 -days 730 -nodes -x509 -subj "/C=/ST=/O=%s/localityName=/commonName=%s/organizationalUnitName=Developers/emailAddress=%s/" -keyout %s -out %s',
+            $oName, $cName, 'rootcertificate@laravel.valet', $caKeyPath, $caPemPath
         ));
         $this->trustCa($caPemPath);
     }
@@ -285,8 +285,8 @@ class Site
     function createSigningRequest($url, $keyPath, $csrPath, $confPath)
     {
         $this->cli->runAsUser(sprintf(
-            'openssl req -new -key %s -out %s -subj "/C=/ST=/O=/localityName=/commonName=%s/organizationalUnitName=/emailAddress=/" -config %s',
-            $keyPath, $csrPath, $url, $confPath
+            'openssl req -new -key %s -out %s -subj "/C=/ST=/O=/localityName=/commonName=%s/organizationalUnitName=/emailAddress=%s%s/" -config %s',
+            $keyPath, $csrPath, $url, $url, '@laravel.valet', $confPath
         ));
     }
 
@@ -363,6 +363,10 @@ class Site
 
             $this->cli->run(sprintf('sudo security delete-certificate -c "%s" /Library/Keychains/System.keychain', $url));
             $this->cli->run(sprintf('sudo security delete-certificate -c "*.%s" /Library/Keychains/System.keychain', $url));
+            $this->cli->run(sprintf(
+                'sudo security find-certificate -e "%s%s" -a -Z | grep SHA-1 | sudo awk \'{system("security delete-certificate -Z "$NF" /Library/Keychains/System.keychain")}\'',
+                $url, '@laravel.valet'
+            ));
         }
     }
 
