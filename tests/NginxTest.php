@@ -4,9 +4,10 @@ use Valet\Site;
 use Valet\Nginx;
 use Valet\Filesystem;
 use Valet\Configuration;
+use PHPUnit\Framework\TestCase;
 use Illuminate\Container\Container;
 
-class NginxTest extends PHPUnit_Framework_TestCase
+class NginxTest extends TestCase
 {
     public function setUp()
     {

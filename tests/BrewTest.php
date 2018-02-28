@@ -3,9 +3,10 @@
 use Valet\Brew;
 use Valet\Filesystem;
 use Valet\CommandLine;
+use PHPUnit\Framework\TestCase;
 use Illuminate\Container\Container;
 
-class BrewTest extends PHPUnit_Framework_TestCase
+class BrewTest extends TestCase
 {
     public function setUp()
     {

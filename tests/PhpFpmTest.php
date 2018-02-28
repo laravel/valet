@@ -1,9 +1,10 @@
 <?php
 
 use Valet\PhpFpm;
+use PHPUnit\Framework\TestCase;
 use Illuminate\Container\Container;
 
-class PhpFpmTest extends PHPUnit_Framework_TestCase
+class PhpFpmTest extends TestCase
 {
     public function setUp()
     {
