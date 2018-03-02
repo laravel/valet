@@ -95,7 +95,7 @@ class PhpFpm
      */
     function stop()
     {
-        $this->brew->stopService('php56', 'php70', 'php71', 'php72');
+        $this->brew->stopService('php56', 'php70', 'php71', 'php72', 'php');
     }
 
     /**
@@ -106,6 +106,7 @@ class PhpFpm
     function fpmConfigPath()
     {
         $confLookup = [
+            'php' => '/usr/local/etc/php/7.2/php-fpm.d/www.conf',
             'php72' => '/usr/local/etc/php/7.2/php-fpm.d/www.conf',
             'php71' => '/usr/local/etc/php/7.1/php-fpm.d/www.conf',
             'php70' => '/usr/local/etc/php/7.0/php-fpm.d/www.conf',
