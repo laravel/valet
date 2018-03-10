@@ -176,10 +176,12 @@ class Site
     /**
      * Secure the given host with TLS.
      *
-     * @param  string  $url
+     * @param  string $url
+     * @param bool    $notRedirected
+     *
      * @return void
      */
-    function secure($url)
+    function secure($url, $notRedirected = false)
     {
         $this->unsecure($url);
 
@@ -188,7 +190,7 @@ class Site
         $this->createCertificate($url);
 
         $this->files->putAsUser(
-            VALET_HOME_PATH.'/Nginx/'.$url, $this->buildSecureNginxServer($url)
+            VALET_HOME_PATH.'/Nginx/'.$url, $this->buildSecureNginxServer($url, $notRedirected)
         );
     }
 
@@ -270,16 +272,23 @@ class Site
     /**
      * Build the TLS secured Nginx server for the given URL.
      *
-     * @param  string  $url
+     * @param  string $url
+     * @param bool    $notRedirected
+     *
      * @return string
      */
-    function buildSecureNginxServer($url)
+    function buildSecureNginxServer($url, $notRedirected = false)
     {
         $path = $this->certificatesPath();
+        $redirectStub = !$notRedirected ? str_replace(
+            ['VALET_SITE'],
+            [$url],
+            $this->files->get(__DIR__.'/../stubs/redirect-unsecure.valet.conf')
+        ) : '';
 
         return str_replace(
-            ['VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_STATIC_PREFIX', 'VALET_SITE', 'VALET_CERT', 'VALET_KEY'],
-            [VALET_HOME_PATH, VALET_SERVER_PATH, VALET_STATIC_PREFIX, $url, $path.'/'.$url.'.crt', $path.'/'.$url.'.key'],
+            ['VALET_REDIRECT_STUB', 'VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_STATIC_PREFIX', 'VALET_SITE', 'VALET_CERT', 'VALET_KEY'],
+            [$redirectStub, VALET_HOME_PATH, VALET_SERVER_PATH, VALET_STATIC_PREFIX, $url, $path.'/'.$url.'.crt', $path.'/'.$url.'.key'],
             $this->files->get(__DIR__.'/../stubs/secure.valet.conf')
         );
     }

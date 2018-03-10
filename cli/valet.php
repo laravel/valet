@@ -93,7 +93,7 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Register a symbolic link with Valet.
      */
-    $app->command('link [name] [--secure]', function ($name, $secure) {
+    $app->command('link [name] [--secure] [--not-redirected]', function ($name, $secure, $notRedirected) {
         $linkPath = Site::link(getcwd(), $name = $name ?: basename(getcwd()));
 
         info('A ['.$name.'] symbolic link has been created in ['.$linkPath.'].');
@@ -101,7 +101,9 @@ if (is_dir(VALET_HOME_PATH)) {
         if ($secure) {
             $this->runCommand('secure '.$name);
         }
-    })->descriptions('Link the current working directory to Valet');
+    })->descriptions('Link the current working directory to Valet' [
+        '--not-redirected' => 'Make the site accessible via port 80'
+    ]);
 
     /**
      * Display all of the registered symbolic links.
@@ -124,17 +126,19 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Secure the given domain with a trusted TLS certificate.
      */
-    $app->command('secure [domain]', function ($domain = null) {
+    $app->command('secure [domain] [--not-redirected]', function ($domain = null, $notRedirected = null) {
         $url = ($domain ?: Site::host(getcwd())).'.'.Configuration::read()['domain'];
 
-        Site::secure($url);
+        Site::secure($url, $notRedirected);
 
         PhpFpm::restart();
 
         Nginx::restart();
 
         info('The ['.$url.'] site has been secured with a fresh TLS certificate.');
-    })->descriptions('Secure the given domain with a trusted TLS certificate');
+    })->descriptions('Secure the given domain with a trusted TLS certificate', [
+        '--not-redirected' => 'Make the site accessible via port 80'
+    ]);
 
     /**
      * Stop serving the given domain over HTTPS and remove the trusted TLS certificate.
