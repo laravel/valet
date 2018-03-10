@@ -101,7 +101,7 @@ if (is_dir(VALET_HOME_PATH)) {
         if ($secure) {
             $this->runCommand('secure '.$name);
         }
-    })->descriptions('Link the current working directory to Valet' [
+    })->descriptions('Link the current working directory to Valet', [
         '--not-redirected' => 'Make the site accessible via port 80'
     ]);
 
