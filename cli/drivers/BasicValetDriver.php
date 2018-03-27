@@ -25,7 +25,11 @@ class BasicValetDriver extends ValetDriver
      */
     public function isStaticFile($sitePath, $siteName, $uri)
     {
-        if (file_exists($staticFilePath = $sitePath.'/public'.$uri)) {
+        if (file_exists($staticFilePath = $sitePath.'/public'.$uri.'index.html')) {
+            return $staticFilePath;
+        } elseif (file_exists($staticFilePath = $sitePath.'/public'.$uri.'index.php')) {
+            return $staticFilePath;
+        } elseif (file_exists($staticFilePath = $sitePath.'/public'.$uri)) {
             return $staticFilePath;
         } elseif ($this->isActualFile($staticFilePath = $sitePath.$uri)) {
             return $staticFilePath;
