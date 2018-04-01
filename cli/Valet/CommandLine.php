@@ -25,7 +25,7 @@ class CommandLine
      */
     function quietlyAsUser($command)
     {
-        $this->quietly('sudo -u '.user().' '.$command.' > /dev/null 2>&1');
+        $this->quietly('sudo '.$command.' > /dev/null 2>&1');
     }
 
     /**
