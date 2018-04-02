@@ -263,6 +263,15 @@ if (is_dir(VALET_HOME_PATH)) {
 
         info('Sudoers entries have been added for Brew and Valet.');
     })->descriptions('Add sudoers files for Brew and Valet to make Valet commands run without passwords');
+
+    /**
+     * See nginx error logs.
+     */
+    $app->command('logs', function () {
+        $logFile = VALET_HOME_PATH . '/Log/nginx-error.log';
+
+        passthru("tail -f $logFile");
+    })->descriptions('See nginx error logs in realtime');
 }
 
 /**
