@@ -52,7 +52,7 @@ class Brew
      */
     function supportedPhpVersions()
     {
-        return collect(['php', 'php72', 'php71', 'php70', 'php56']);
+        return collect(['php', 'php@7.2', 'php@7.1', 'php@7.0', 'php@5.6', 'php72', 'php71', 'php70', 'php56' ]);
     }
 
     /**
