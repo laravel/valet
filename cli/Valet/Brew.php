@@ -182,7 +182,7 @@ class Brew
         $resolvedPath = $this->files->readLink('/usr/local/bin/php');
 
         return $this->supportedPhpVersions()->first(function ($version) use ($resolvedPath) {
-            return strpos(preg_replace('/([@|\.])/', '', $resolvedPath, "/$version/")) !== false;
+            return strpos($resolvedPath, "/$version/") !== false;
         }, function () {
             throw new DomainException("Unable to determine linked PHP.");
         });
