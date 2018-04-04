@@ -52,7 +52,7 @@ class Brew
      */
     function supportedPhpVersions()
     {
-        return collect(['php', 'php@7.2', 'php@7.1', 'php@7.0', 'php@5.6', 'php72', 'php71', 'php70', 'php56' ]);
+        return collect(['php', 'php72', 'php71', 'php70', 'php56']);
     }
 
     /**
@@ -182,7 +182,7 @@ class Brew
         $resolvedPath = $this->files->readLink('/usr/local/bin/php');
 
         return $this->supportedPhpVersions()->first(function ($version) use ($resolvedPath) {
-            return strpos($resolvedPath, "/$version/") !== false;
+            return strpos(preg_replace('/([@|\.])/', '', $resolvedPath), "/$version/") !== false;
         }, function () {
             throw new DomainException("Unable to determine linked PHP.");
         });
