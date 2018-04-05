@@ -107,6 +107,10 @@ class PhpFpm
     {
         $confLookup = [
             'php' => '/usr/local/etc/php/7.2/php-fpm.d/www.conf',
+            'php@7.2' => '/usr/local/etc/php/7.2/php-fpm.d/www.conf',
+            'php@7.1' => '/usr/local/etc/php/7.1/php-fpm.d/www.conf',
+            'php@7.0' => '/usr/local/etc/php/7.0/php-fpm.d/www.conf',
+            'php@5.6' => '/usr/local/etc/php/5.6/php-fpm.conf',
             'php72' => '/usr/local/etc/php/7.2/php-fpm.d/www.conf',
             'php71' => '/usr/local/etc/php/7.1/php-fpm.d/www.conf',
             'php70' => '/usr/local/etc/php/7.0/php-fpm.d/www.conf',
