@@ -113,6 +113,8 @@ class PhpFpm
             'php56' => '/usr/local/etc/php/5.6/php-fpm.conf',
         ];
 
-        return $confLookup[$this->brew->linkedPhp()];
+        $key = preg_replace('/([@|\.])/', '', $this->brew->linkedPhp());
+
+        return $confLookup[$key];
     }
 }
