@@ -7,6 +7,8 @@ use DomainException;
 
 class Brew
 {
+    const SUPPORTED_PHP_VERSIONS = ['php', 'php@7.2', 'php@7.1', 'php@7.0', 'php@5.6'];
+
     var $cli, $files;
 
     /**
@@ -182,7 +184,9 @@ class Brew
         $resolvedPath = $this->files->readLink('/usr/local/bin/php');
 
         return $this->supportedPhpVersions()->first(function ($version) use ($resolvedPath) {
-            return strpos(preg_replace('/([@|\.])/', '', $resolvedPath), "/$version/") !== false;
+            $resolvedPathNormalized= preg_replace('/([@|\.])/', '', $resolvedPath);
+            $versionNormalized = preg_replace('/([@|\.])/', '', $version);
+            return strpos($resolvedPathNormalized, "/$versionNormalized/") !== false;
         }, function () {
             throw new DomainException("Unable to determine linked PHP.");
         });
