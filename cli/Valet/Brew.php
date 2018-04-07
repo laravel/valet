@@ -54,7 +54,7 @@ class Brew
      */
     function supportedPhpVersions()
     {
-        return collect(['php', 'php72', 'php71', 'php70', 'php56']);
+        return collect(static::SUPPORTED_PHP_VERSIONS);
     }
 
     /**
