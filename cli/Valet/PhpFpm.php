@@ -29,7 +29,7 @@ class PhpFpm
         $this->pm = $pm;
         $this->sm = $sm;
         $this->files = $files;
-        $this->version = $this->getVersion($files);
+        $this->version = $this->getVersion();
     }
 
     /**
