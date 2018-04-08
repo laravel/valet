@@ -11,7 +11,7 @@ function check_dependencies() {
     local NC='\033[0m'
     local msg=''
 
-    for cmd in "jq" "xsel" "certutil" "NetworkManager"; do
+    for cmd in "jq" "xsel" "certutil"; do
         local str=''
 
         if ! [[ -x "$(command -v $cmd)" ]]; then
