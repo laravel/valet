@@ -31,7 +31,7 @@ function getDirs() {
     DIRS=()
     local TARRAY=()
 
-    readarray -t TARRAY <<< "$(find /run -path '/run/user' -prune -o ! -readable -prune -o -name 'resolv.conf' -print)"
+    readarray -t TARRAY <<< "$(find /run -path '/run/user' -prune -o -path '/run/media' -prune -o ! -readable -prune -o -name 'resolv.conf' -print)"
 
     # Find nameserver files in the /run/NetworkManager folder (as they do not have a standard name)
     if [[ ! -f "/run/NetworkManager/resolv.conf" && -d "/run/NetworkManager" ]]; then
@@ -59,10 +59,10 @@ function updateNameservers() {
 
     cat "$DNSHEAD" | unique | tee "$DNSFILE" &>/dev/null
     cat "${FILES[@]}" | grep -i '^nameserver' | grep -v '127.0.0.1' | unique | tee -a "$DNSFILE" &>/dev/null
-    
+
     symlinkResolv
-    
-    cat "${FILES[@]}" | grep -v '^nameserver' | grep -v '^#' | unique | tee "$VRESOLV" &>/dev/null 
+
+    cat "${FILES[@]}" | grep -v '^nameserver' | grep -v '^#' | unique | tee "$VRESOLV" &>/dev/null
     echo 'nameserver 127.0.0.1' >> "$VRESOLV"
 
     # Add "search" and "domain" directives to /etc/resolv.conf
@@ -83,19 +83,19 @@ function getFiles() {
         if [[ "$DIR" = "/run/resolvconf/interface" ]]; then
             readarray -t TARRAY <<< "$(find ${DIR} ! -readable -prune -o -type f -print)"
         fi
-        
+
         FILES=(${FILES[@]} ${TARRAY[@]})
-    done    
+    done
 }
 
 function watchDirs() {
     local WATCHERS=(${DIRS[@]} "$DNSHEAD")
 
     # Log which directories are being watched
-    echo "Watching the following directories for changes:" >> "$LOGFILE" 
-    
+    echo "Watching the following directories for changes:" >> "$LOGFILE"
+
     for DIR in "${DIRS[@]}"; do
-        echo " - $DIR" >> "$LOGFILE" 
+        echo " - $DIR" >> "$LOGFILE"
     done
 
     # Watch directories for changes in files
@@ -136,7 +136,7 @@ function start {
 
 function stop {
     echo -e "Stopping Valet DNS Watcher...\n"
-    
+
     pkill -f "inotifywait -q -m -e modify"
 
     rm "$LOGFILE" && touch "$LOGFILE"
@@ -154,7 +154,7 @@ function restart {
     fi
 
     echo -e "Starting Valet DNS Watcher..."
-    
+
     main
 
     if [[ $(pgrep -f 'inotifywait -q -m -e modify') ]]; then
