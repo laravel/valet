@@ -30,36 +30,36 @@ class BrewTest extends PHPUnit_Framework_TestCase
     public function test_installed_returns_true_when_given_formula_is_installed()
     {
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('runAsUser')->once()->with('brew list | grep php71')->andReturn('php71');
+        $cli->shouldReceive('runAsUser')->once()->with('brew list | grep php@7.1')->andReturn('php@7.1');
         swap(CommandLine::class, $cli);
-        $this->assertTrue(resolve(Brew::class)->installed('php71'));
+        $this->assertTrue(resolve(Brew::class)->installed('php@7.1'));
 
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('runAsUser')->once()->with('brew list | grep php71')->andReturn('php71-mcrypt
-php71');
+        $cli->shouldReceive('runAsUser')->once()->with('brew list | grep php')->andReturn('php
+php@7.2');
         swap(CommandLine::class, $cli);
-        $this->assertTrue(resolve(Brew::class)->installed('php71'));
+        $this->assertTrue(resolve(Brew::class)->installed('php'));
     }
 
 
     public function test_installed_returns_false_when_given_formula_is_not_installed()
     {
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('runAsUser')->once()->with('brew list | grep php71')->andReturn('');
+        $cli->shouldReceive('runAsUser')->once()->with('brew list | grep php@7.1')->andReturn('');
         swap(CommandLine::class, $cli);
-        $this->assertFalse(resolve(Brew::class)->installed('php71'));
+        $this->assertFalse(resolve(Brew::class)->installed('php@7.1'));
 
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('runAsUser')->once()->with('brew list | grep php71')->andReturn('php71-mcrypt');
+        $cli->shouldReceive('runAsUser')->once()->with('brew list | grep php@7.1')->andReturn('php');
         swap(CommandLine::class, $cli);
-        $this->assertFalse(resolve(Brew::class)->installed('php71'));
+        $this->assertFalse(resolve(Brew::class)->installed('php@7.1'));
 
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('runAsUser')->once()->with('brew list | grep php71')->andReturn('php71-mcrypt
-php71-something-else
+        $cli->shouldReceive('runAsUser')->once()->with('brew list | grep php@7.1')->andReturn('php
+something-else-php@7.1
 php7');
         swap(CommandLine::class, $cli);
-        $this->assertFalse(resolve(Brew::class)->installed('php71'));
+        $this->assertFalse(resolve(Brew::class)->installed('php@7.1'));
     }
 
 
@@ -220,11 +220,11 @@ php7');
     public function test_tap_taps_the_given_homebrew_repository()
     {
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('passthru')->once()->with('sudo -u '.user().' brew tap php71');
-        $cli->shouldReceive('passthru')->once()->with('sudo -u '.user().' brew tap php70');
-        $cli->shouldReceive('passthru')->once()->with('sudo -u '.user().' brew tap php56');
+        $cli->shouldReceive('passthru')->once()->with('sudo -u '.user().' brew tap php@7.1');
+        $cli->shouldReceive('passthru')->once()->with('sudo -u '.user().' brew tap php@7.0');
+        $cli->shouldReceive('passthru')->once()->with('sudo -u '.user().' brew tap php@5.6');
         swap(CommandLine::class, $cli);
-        resolve(Brew::class)->tap('php71', 'php70', 'php56');
+        resolve(Brew::class)->tap('php@7.1', 'php@7.0', 'php@5.6');
     }
 
 
@@ -251,6 +251,14 @@ php7');
 
     public function test_linked_php_returns_linked_php_formula_name()
     {
+        // homebrew\core php @7.2
+        $files = Mockery::mock(Filesystem::class);
+        $files->shouldReceive('isLink')->once()->with('/usr/local/bin/php')->andReturn(true);
+        $files->shouldReceive('readLink')->once()->with('/usr/local/bin/php')->andReturn('/test/path/php@7.2/test');
+        swap(Filesystem::class, $files);
+        $this->assertSame('php@7.2', resolve(Brew::class)->linkedPhp());
+
+        // hombrew\homebrew-php php @7.1
         $files = Mockery::mock(Filesystem::class);
         $files->shouldReceive('isLink')->once()->with('/usr/local/bin/php')->andReturn(true);
         $files->shouldReceive('readLink')->once()->with('/usr/local/bin/php')->andReturn('/test/path/php71/test');
