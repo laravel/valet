@@ -111,10 +111,11 @@ class PhpFpm
         $confLookup = [];
 
         foreach (Brew::SUPPORTED_PHP_VERSIONS as $version) {
-            $versionNormalized = preg_replace('/([^\d\.])/', '', $version);
-            $versionNormalized = $versionNormalized === ''
-                ? '7.2'
-                : $versionNormalized;
+            $versionNormalized = preg_replace(
+                '/php@?(\d)\.?(\d)/',
+                '$1.$2',
+                $version === 'php' ? Brew::LATEST_PHP_VERSION : $version
+            );
 
             $confLookup[$version] = $versionNormalized === '5.6'
                 ? '/usr/local/etc/php/5.6/php-fpm.conf'
