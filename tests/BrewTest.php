@@ -71,6 +71,10 @@ php7');
         $brew->shouldReceive('installed')->with('php71')->andReturn(false);
         $brew->shouldReceive('installed')->with('php70')->andReturn(false);
         $brew->shouldReceive('installed')->with('php56')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php@7.2')->andReturn(true);
+        $brew->shouldReceive('installed')->with('php@7.1')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php@7.0')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php@5.6')->andReturn(false);
         $this->assertTrue($brew->hasInstalledPhp());
 
         $brew = Mockery::mock(Brew::class.'[installed]', [new CommandLine, new Filesystem]);
@@ -79,6 +83,10 @@ php7');
         $brew->shouldReceive('installed')->with('php71')->andReturn(true);
         $brew->shouldReceive('installed')->with('php70')->andReturn(false);
         $brew->shouldReceive('installed')->with('php56')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php@7.2')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php@7.1')->andReturn(true);
+        $brew->shouldReceive('installed')->with('php@7.0')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php@5.6')->andReturn(false);
         $this->assertTrue($brew->hasInstalledPhp());
 
         $brew = Mockery::mock(Brew::class.'[installed]', [new CommandLine, new Filesystem]);
@@ -87,6 +95,10 @@ php7');
         $brew->shouldReceive('installed')->with('php71')->andReturn(false);
         $brew->shouldReceive('installed')->with('php70')->andReturn(true);
         $brew->shouldReceive('installed')->with('php56')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php@7.2')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php@7.1')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php@7.0')->andReturn(true);
+        $brew->shouldReceive('installed')->with('php@5.6')->andReturn(false);
         $this->assertTrue($brew->hasInstalledPhp());
 
         $brew = Mockery::mock(Brew::class.'[installed]', [new CommandLine, new Filesystem]);
@@ -95,6 +107,10 @@ php7');
         $brew->shouldReceive('installed')->with('php71')->andReturn(false);
         $brew->shouldReceive('installed')->with('php70')->andReturn(false);
         $brew->shouldReceive('installed')->with('php56')->andReturn(true);
+        $brew->shouldReceive('installed')->with('php@7.2')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php@7.1')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php@7.0')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php@5.6')->andReturn(true);
         $this->assertTrue($brew->hasInstalledPhp());
 
         $brew = Mockery::mock(Brew::class.'[installed]', [new CommandLine, new Filesystem]);
@@ -103,6 +119,10 @@ php7');
         $brew->shouldReceive('installed')->with('php71')->andReturn(false);
         $brew->shouldReceive('installed')->with('php70')->andReturn(false);
         $brew->shouldReceive('installed')->with('php56')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php@7.2')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php@7.1')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php@7.0')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php@5.6')->andReturn(false);
         $this->assertFalse($brew->hasInstalledPhp());
     }
 
@@ -145,13 +165,13 @@ php7');
         $files->shouldReceive('isLink')->once()->with('/usr/local/bin/php')->andReturn(true);
         $files->shouldReceive('readLink')->once()->with('/usr/local/bin/php')->andReturn('/test/path/php71/test');
         swap(Filesystem::class, $files);
-        $this->assertSame('php71', resolve(Brew::class)->linkedPhp());
+        $this->assertSame('php@7.1', resolve(Brew::class)->linkedPhp());
 
         $files = Mockery::mock(Filesystem::class);
         $files->shouldReceive('isLink')->once()->with('/usr/local/bin/php')->andReturn(true);
         $files->shouldReceive('readLink')->once()->with('/usr/local/bin/php')->andReturn('/test/path/php56/test');
         swap(Filesystem::class, $files);
-        $this->assertSame('php56', resolve(Brew::class)->linkedPhp());
+        $this->assertSame('php@5.6', resolve(Brew::class)->linkedPhp());
     }
 
 
