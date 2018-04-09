@@ -108,16 +108,16 @@ class PhpFpm
      */
     function fpmConfigPath()
     {
-        return array_map(function ($version) {
-            $versionNormalized = preg_replace(
-                '/php@?(\d)\.?(\d)/',
-                '$1.$2',
-                $version === 'php' ? Brew::LATEST_PHP_VERSION : $version
-            );
+        $version = $this->brew->linkedPhp();
 
-            return $versionNormalized === '5.6'
-                ? '/usr/local/etc/php/5.6/php-fpm.conf'
-                : "/usr/local/etc/php/${versionNormalized}/php-fpm.d/www.conf";
-        }, Brew::SUPPORTED_PHP_VERSIONS);
+        $versionNormalized = preg_replace(
+            '/php@?(\d)\.?(\d)/',
+            '$1.$2',
+            $version === 'php' ? Brew::LATEST_PHP_VERSION : $version
+        );
+
+        return $versionNormalized === '5.6'
+            ? '/usr/local/etc/php/5.6/php-fpm.conf'
+            : "/usr/local/etc/php/${versionNormalized}/php-fpm.d/www.conf";
     }
 }
