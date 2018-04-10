@@ -11,7 +11,7 @@ class PhpFpm
     var $brew, $cli, $files;
 
     var $taps = [
-        'homebrew/dupes', 'homebrew/versions', 'homebrew/homebrew-php'
+        'homebrew/core', 'homebrew/services'
     ];
 
     /**
@@ -37,7 +37,7 @@ class PhpFpm
     function install()
     {
         if (! $this->brew->hasInstalledPhp()) {
-            $this->brew->ensureInstalled('php71', [], $this->taps);
+            $this->brew->ensureInstalled('php', [], $this->taps);
         }
 
         $this->files->ensureDirExists('/usr/local/var/log', user());
@@ -95,7 +95,7 @@ class PhpFpm
      */
     function stop()
     {
-        $this->brew->stopService('php56', 'php70', 'php71', 'php72', 'php');
+        $this->brew->stopService('php', 'php@5.6', 'php@7.0', 'php@7.1', 'php@7.2', 'php56', 'php70', 'php71', 'php72');
     }
 
     /**
@@ -106,7 +106,14 @@ class PhpFpm
     function fpmConfigPath()
     {
         $confLookup = [
+            // homebrew/core
             'php' => '/usr/local/etc/php/7.2/php-fpm.d/www.conf',
+            'php@7.2' => '/usr/local/etc/php/7.2/php-fpm.d/www.conf',
+            'php@7.1' => '/usr/local/etc/php/7.1/php-fpm.d/www.conf',
+            'php@7.0' => '/usr/local/etc/php/7.0/php-fpm.d/www.conf',
+            'php@5.6' => '/usr/local/etc/php/5.6/php-fpm.d/www.conf',
+
+            // homebrew/homebrew-php
             'php72' => '/usr/local/etc/php/7.2/php-fpm.d/www.conf',
             'php71' => '/usr/local/etc/php/7.1/php-fpm.d/www.conf',
             'php70' => '/usr/local/etc/php/7.0/php-fpm.d/www.conf',
