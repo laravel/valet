@@ -21,9 +21,9 @@ function show_valet_404()
  * Show directory listing or 404 if diretory doesn't exist
  * 
  * @param $valetSitePath string Fully qualified path to the site
- * @param $uri string site URI
+ * @param $uri string Site URI
  * 
- * @return string Directory listening html string
+ * @return string Directory listing html string
  */
 function show_directory_listing($valetSitePath, $uri)
 { 
