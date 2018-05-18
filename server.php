@@ -18,6 +18,48 @@ function show_valet_404()
 }
 
 /**
+ * Show directory listing or 404 if diretory doesn't exist
+ * 
+ * @param $valetSitePath string Fully qualified path to the site
+ * @param $uri string site URI
+ * 
+ * @return string Directory listening html string
+ */
+function show_directory_listing($valetSitePath, $uri)
+{ 
+    $is_root = ($uri == '/');
+
+    $directory = ($is_root) ? $valetSitePath : $valetSitePath.$uri;
+
+    if(!file_exists($directory)) { 
+        show_valet_404(); 
+    }
+
+    // sort directories at the top
+    $paths = glob("$directory/*");
+
+    usort($paths, function ($a, $b) {
+
+        return (is_dir($a) == is_dir($b)) ? strnatcasecmp($a, $b) : (is_dir($a)) ? -1 : 1;
+
+    });
+
+    // start printing html
+    echo "<h1>Index of $uri</h1>";
+    echo "<hr>";
+
+    echo implode(array_map(function ($path) use ($uri, $is_root) {
+
+        $file = basename($path);
+
+        return ($is_root) ? "<a href='/$file'>/$file</a>" : "<a href='$uri/$file'>$uri/$file/</a>";
+
+    }, $paths), "<br>");
+
+    exit;
+}
+
+/**
  * @param $domain string Domain to filter
  *
  * @return string Filtered domain (without wildcard dns feature (xip.io/nip.io))
@@ -139,7 +181,7 @@ $frontControllerPath = $valetDriver->frontControllerPath(
 );
 
 if (! $frontControllerPath) {
-    show_valet_404();
+    show_directory_listing($valetSitePath, $uri);
 }
 
 chdir(dirname($frontControllerPath));
