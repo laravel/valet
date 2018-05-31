@@ -113,12 +113,14 @@ abstract class ValetDriver
 
         $drivers = [];
 
-        foreach (scandir($path) as $file) {
-            if ($file !== 'ValetDriver.php' && strpos($file, 'ValetDriver') !== false) {
-                require_once $path.'/'.$file;
+        $dir = new RecursiveDirectoryIterator($path);
+        $iterator = new RecursiveIteratorIterator($dir);
+        $regex = new RegexIterator($iterator, '/^.+ValetDriver\.php$/i', RecursiveRegexIterator::GET_MATCH);
 
-                $drivers[] = basename($file, '.php');
-            }
+        foreach ($regex as $file) {
+            require_once $file[0];
+
+            $drivers[] = basename($file[0], '.php');
         }
 
         return $drivers;
