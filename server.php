@@ -65,7 +65,7 @@ $uri = urldecode(
 
 $siteName = basename(
     // Filter host to support wildcard dns feature
-    valet_support_wildcard_dns($_SERVER['HTTP_HOST']),
+    valet_support_wildcard_dns(explode(':',$_SERVER['HTTP_HOST'])[0]),
     '.'.$valetConfig['domain']
 );
 
