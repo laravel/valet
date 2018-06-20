@@ -3,6 +3,9 @@
 use Valet\Site;
 use Valet\Filesystem;
 use Valet\Configuration;
+use function Valet\user;
+use function Valet\resolve;
+use function Valet\swap;
 use Illuminate\Container\Container;
 
 class SiteTest extends PHPUnit_Framework_TestCase
