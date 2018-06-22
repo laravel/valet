@@ -95,7 +95,10 @@ class PhpFpm
      */
     function stop()
     {
-        $this->brew->stopService('php56', 'php70', 'php71', 'php72');
+        call_user_func_array(
+            [$this->brew, 'stopService'],
+            Brew::SUPPORTED_PHP_VERSIONS
+        );
     }
 
     /**
@@ -105,13 +108,16 @@ class PhpFpm
      */
     function fpmConfigPath()
     {
-        $confLookup = [
-            'php72' => '/usr/local/etc/php/7.2/php-fpm.d/www.conf',
-            'php71' => '/usr/local/etc/php/7.1/php-fpm.d/www.conf',
-            'php70' => '/usr/local/etc/php/7.0/php-fpm.d/www.conf',
-            'php56' => '/usr/local/etc/php/5.6/php-fpm.conf',
-        ];
+        $version = $this->brew->linkedPhp();
 
-        return $confLookup[$this->brew->linkedPhp()];
+        $versionNormalized = preg_replace(
+            '/php@?(\d)\.?(\d)/',
+            '$1.$2',
+            $version === 'php' ? Brew::LATEST_PHP_VERSION : $version
+        );
+
+        return $versionNormalized === '5.6'
+            ? '/usr/local/etc/php/5.6/php-fpm.conf'
+            : "/usr/local/etc/php/${versionNormalized}/php-fpm.d/www.conf";
     }
 }

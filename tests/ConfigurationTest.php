@@ -1,5 +1,7 @@
 <?php
 
+use Valet\Brew;
+use Valet\Valet;
 use Valet\Filesystem;
 use Valet\Configuration;
 use Illuminate\Container\Container;
@@ -119,5 +121,16 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase
         $config->shouldReceive('read')->once()->andReturn(['foo' => 'bar']);
         $config->shouldReceive('write')->once()->with(['foo' => 'bar', 'bar' => 'baz']);
         $config->updateKey('bar', 'baz');
+    }
+
+
+    public function test_trust_adds_the_sudoer_files()
+    {
+        $files = Mockery::mock(Filesystem::class.'[ensureDirExists,put]');
+        $files->shouldReceive('ensureDirExists')->with('/etc/sudoers.d')->twice();
+        $files->shouldReceive('put')->twice();
+        swap(Filesystem::class, $files);
+        resolve(Brew::class)->createSudoersEntry();
+        resolve(Valet::class)->createSudoersEntry();
     }
 }
