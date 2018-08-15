@@ -1,5 +1,7 @@
 <?php
 
+namespace Valet;
+
 use Illuminate\Container\Container;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Console\Output\ConsoleOutput;
