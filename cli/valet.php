@@ -12,6 +12,10 @@ if (file_exists(__DIR__.'/../vendor/autoload.php')) {
 
 use Silly\Application;
 use Illuminate\Container\Container;
+use function Valet\info;
+use function Valet\output;
+use function Valet\table;
+use function Valet\warning;
 
 /**
  * Create the application.
