@@ -18,9 +18,9 @@ function show_valet_404()
 }
 
 /**
- * @param $domain string Domain to filter
- *
- * @return string Filtered domain (without wildcard dns feature (xip.io/nip.io))
+ * You may use wildcard DNS providers xip.io or nip.io as a tool for testing your site via an IP address.
+ * It's simple to use: First determine the IP address of your local computer (like 192.168.0.10).
+ * Then simply use http://project.your-ip.xip.io - ie: http://laravel.192.168.0.10.xip.io
  */
 function valet_support_wildcard_dns($domain)
 {
@@ -66,7 +66,7 @@ $uri = urldecode(
 $siteName = basename(
     // Filter host to support wildcard dns feature
     valet_support_wildcard_dns($_SERVER['HTTP_HOST']),
-    '.'.$valetConfig['domain']
+    '.'.$valetConfig['tld']
 );
 
 if (strpos($siteName, 'www.') === 0) {

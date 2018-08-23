@@ -130,9 +130,9 @@ class Nginx
      */
     function rewriteSecureNginxFiles()
     {
-        $domain = $this->configuration->read()['domain'];
+        $tld = $this->configuration->read()['tld'];
 
-        $this->site->resecureForNewDomain($domain, $domain);
+        $this->site->resecureForNewTld($tld, $tld);
     }
 
     /**
