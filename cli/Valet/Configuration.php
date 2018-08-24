@@ -115,12 +115,15 @@ class Configuration
         }
 
         /**
-         *  For upgrades, change config key 'domain' to 'tld'
+         * Migrate old configurations from 'domain' to 'tld'
          */
         $config = $this->read();
-        if (isset($config['domain']) && !isset($config['tld'])) {
-            $this->updateKey('tld', $config['domain']);
+
+        if (isset($config['tld'])) {
+            return;
         }
+
+        $this->updateKey('tld', !empty($config['domain']) ? $config['domain'] : 'test');
     }
 
     /**

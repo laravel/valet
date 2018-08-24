@@ -59,6 +59,10 @@ if (is_dir(VALET_HOME_PATH)) {
      * Get or set the TLD currently being used by Valet.
      */
     $app->command('tld [tld]', function ($tld = null) {
+        if (empty(Configuration::read()['tld'])) {
+            Configuration::writeBaseConfiguration();
+        }
+
         if ($tld === null) {
             return info('Valet is configured to serve for TLD: .'.Configuration::read()['tld']);
         }
@@ -74,7 +78,7 @@ if (is_dir(VALET_HOME_PATH)) {
         Nginx::restart();
 
         info('Your Valet TLD has been updated to ['.$tld.'].');
-    }, ['domain'])->descriptions('Get or set the TLD used for Valet sites. (Currently: .'.Configuration::read()['tld'].')');
+    }, ['domain'])->descriptions('Get or set the TLD used for Valet sites.');
 
     /**
      * Add the current working directory to the paths configuration.
