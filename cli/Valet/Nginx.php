@@ -91,7 +91,7 @@ class Nginx
     }
 
     /**
-     * Install the Nginx configuration directory to the ~/.valet directory.
+     * Install the Nginx configuration directory to the ~/.config/valet directory.
      *
      * This directory contains all site-specific Nginx servers.
      *

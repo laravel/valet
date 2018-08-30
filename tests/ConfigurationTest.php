@@ -27,8 +27,9 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase
 
     public function test_configuration_directory_is_created_if_it_doesnt_exist()
     {
-        $files = Mockery::mock(Filesystem::class);
+        $files = Mockery::mock(Filesystem::class.'[ensureDirExists,isDir]');
         $files->shouldReceive('ensureDirExists')->once()->with(VALET_HOME_PATH, user());
+        $files->shouldReceive('isDir')->once();
         swap(Filesystem::class, $files);
         resolve(Configuration::class)->createConfigurationDirectory();
     }

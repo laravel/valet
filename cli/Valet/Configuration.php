@@ -9,7 +9,7 @@ class Configuration
     /**
      * Create a new Valet configuration class instance.
      *
-     * @param Filesystem $filesystem
+     * @param Filesystem $files
      */
     function __construct(Filesystem $files)
     {
@@ -42,6 +42,13 @@ class Configuration
     function createConfigurationDirectory()
     {
         $this->files->ensureDirExists(VALET_HOME_PATH, user());
+
+        $oldPath = posix_getpwuid(fileowner(__FILE__))['dir'].'/.valet';
+
+        if ($this->files->isDir($oldPath)) {
+            $this->prependPath(VALET_HOME_PATH.'/Sites');
+            rename($oldPath, VALET_HOME_PATH);
+        }
     }
 
     /**
