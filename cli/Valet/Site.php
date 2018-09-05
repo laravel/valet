@@ -2,8 +2,6 @@
 
 namespace Valet;
 
-use DomainException;
-
 class Site
 {
     var $config, $cli, $files;
@@ -72,7 +70,7 @@ class Site
 
         $certs = $this->getCertificates($certsPath);
 
-        return $this->getLinks(VALET_HOME_PATH.'/Sites', $certs);
+        return $this->getLinks($this->sitesPath(), $certs);
     }
 
     /**
@@ -86,7 +84,8 @@ class Site
         return collect($this->files->scandir($path))->filter(function ($value, $key) {
             return ends_with($value, '.crt');
         })->map(function ($cert) {
-            return substr($cert, 0, strripos($cert, '.', -5));
+            $certWithoutSuffix = substr($cert, 0, -4);
+            return substr($certWithoutSuffix, 0, strrpos($certWithoutSuffix, '.'));
         })->flip();
     }
 
@@ -105,7 +104,7 @@ class Site
             return [$site => $this->files->readLink($path.'/'.$site)];
         })->map(function ($path, $site) use ($certs, $config) {
             $secured = $certs->has($site);
-            $url = ($secured ? 'https': 'http').'://'.$site.'.'.$config['domain'];
+            $url = ($secured ? 'https': 'http').'://'.$site.'.'.$config['tld'];
 
             return [$site, $secured ? ' X': '', $url, $path];
         });
@@ -137,13 +136,13 @@ class Site
     }
 
     /**
-     * Resecure all currently secured sites with a fresh domain.
+     * Resecure all currently secured sites with a fresh tld.
      *
-     * @param  string  $oldDomain
-     * @param  string  $domain
+     * @param  string  $oldTld
+     * @param  string  $tld
      * @return void
      */
-    function resecureForNewDomain($oldDomain, $domain)
+    function resecureForNewTld($oldTld, $tld)
     {
         if (! $this->files->exists($this->certificatesPath())) {
             return;
@@ -156,7 +155,7 @@ class Site
         }
 
         foreach ($secured as $url) {
-            $this->secure(str_replace('.'.$oldDomain, '.'.$domain, $url));
+            $this->secure(str_replace('.'.$oldTld, '.'.$tld, $url));
         }
     }
 

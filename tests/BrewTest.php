@@ -3,6 +3,9 @@
 use Valet\Brew;
 use Valet\Filesystem;
 use Valet\CommandLine;
+use function Valet\user;
+use function Valet\resolve;
+use function Valet\swap;
 use Illuminate\Container\Container;
 
 class BrewTest extends PHPUnit_Framework_TestCase

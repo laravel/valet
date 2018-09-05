@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Define the user's "~/.valet" path.
+ * Define the user's "~/.config/valet" path.
  */
 
-define('VALET_HOME_PATH', posix_getpwuid(fileowner(__FILE__))['dir'].'/.valet');
+define('VALET_HOME_PATH', posix_getpwuid(fileowner(__FILE__))['dir'].'/.config/valet');
 define('VALET_STATIC_PREFIX', '41c270e4-5535-4daa-b23e-c269744c2f45');
 
 /**
@@ -18,9 +18,9 @@ function show_valet_404()
 }
 
 /**
- * @param $domain string Domain to filter
- *
- * @return string Filtered domain (without wildcard dns feature (xip.io/nip.io))
+ * You may use wildcard DNS providers xip.io or nip.io as a tool for testing your site via an IP address.
+ * It's simple to use: First determine the IP address of your local computer (like 192.168.0.10).
+ * Then simply use http://project.your-ip.xip.io - ie: http://laravel.192.168.0.10.xip.io
  */
 function valet_support_wildcard_dns($domain)
 {

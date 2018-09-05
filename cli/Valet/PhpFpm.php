@@ -11,7 +11,7 @@ class PhpFpm
     var $brew, $cli, $files;
 
     var $taps = [
-        'homebrew/dupes', 'homebrew/versions', 'homebrew/homebrew-php'
+        'homebrew/homebrew-core'
     ];
 
     /**

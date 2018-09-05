@@ -4,6 +4,9 @@ use Valet\Brew;
 use Valet\DnsMasq;
 use Valet\Filesystem;
 use Valet\CommandLine;
+use function Valet\user;
+use function Valet\resolve;
+use function Valet\swap;
 use Illuminate\Container\Container;
 
 class DnsMasqTest extends PHPUnit_Framework_TestCase
@@ -50,13 +53,13 @@ conf-file='.__DIR__.'/output/custom-dnsmasq.conf
     }
 
 
-    public function test_update_domain_removes_old_resolver_and_reinstalls()
+    public function test_update_tld_removes_old_resolver_and_reinstalls()
     {
         $cli = Mockery::mock(CommandLine::class);
         $cli->shouldReceive('quietly')->with('rm /etc/resolver/old');
         $dnsMasq = Mockery::mock(DnsMasq::class.'[install]', [resolve(Brew::class), $cli, new Filesystem]);
         $dnsMasq->shouldReceive('install')->with('new');
-        $dnsMasq->updateDomain('old', 'new');
+        $dnsMasq->updateTld('old', 'new');
     }
 }
 

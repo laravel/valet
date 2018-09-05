@@ -91,7 +91,7 @@ class Nginx
     }
 
     /**
-     * Install the Nginx configuration directory to the ~/.valet directory.
+     * Install the Nginx configuration directory to the ~/.config/valet directory.
      *
      * This directory contains all site-specific Nginx servers.
      *
@@ -130,9 +130,9 @@ class Nginx
      */
     function rewriteSecureNginxFiles()
     {
-        $domain = $this->configuration->read()['domain'];
+        $tld = $this->configuration->read()['tld'];
 
-        $this->site->resecureForNewDomain($domain, $domain);
+        $this->site->resecureForNewTld($tld, $tld);
     }
 
     /**

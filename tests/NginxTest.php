@@ -4,6 +4,9 @@ use Valet\Site;
 use Valet\Nginx;
 use Valet\Filesystem;
 use Valet\Configuration;
+use function Valet\user;
+use function Valet\resolve;
+use function Valet\swap;
 use Illuminate\Container\Container;
 
 class NginxTest extends PHPUnit_Framework_TestCase
@@ -78,13 +81,13 @@ class NginxTest extends PHPUnit_Framework_TestCase
         $files->shouldReceive('putAsUser')->with(VALET_HOME_PATH.'/Nginx/.keep', "\n")->once();
 
         swap(Filesystem::class, $files);
-        swap(Configuration::class, $config = Mockery::spy(Configuration::class, ['read' => ['domain' => 'test']]));
+        swap(Configuration::class, $config = Mockery::spy(Configuration::class, ['read' => ['tld' => 'test']]));
         swap(Site::class, $site = Mockery::spy(Site::class));
 
         $nginx = resolve(Nginx::class);
         $nginx->installNginxDirectory();
 
-        $site->shouldHaveReceived('resecureForNewDomain', ['test', 'test']);
+        $site->shouldHaveReceived('resecureForNewTld', ['test', 'test']);
     }
 
 }
