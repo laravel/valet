@@ -32,7 +32,7 @@ fi
 if [[ "$1" = "share" ]]
 then
     HOST="${PWD##*/}"
-    DOMAIN=$(php "$DIR/cli/valet.php" domain)
+    TLD=$(php "$DIR/cli/valet.php" tld)
 
     for linkname in ~/.config/valet/Sites/*; do
         if [[ "$(readlink $linkname)" = "$PWD" ]]
@@ -43,7 +43,7 @@ then
 
     # Fetch Ngrok URL In Background...
     bash "$DIR/cli/scripts/fetch-share-url.sh" &
-    sudo -u $(logname) "$DIR/bin/ngrok" http "$HOST.$DOMAIN:80" -host-header=rewrite ${*:2}
+    sudo -u $(logname) "$DIR/bin/ngrok" http "$HOST.$TLD:80" -host-header=rewrite ${*:2}
     exit
 
 # Finally, for every other command we will just proxy into the PHP tool

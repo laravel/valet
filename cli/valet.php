@@ -64,7 +64,7 @@ if (is_dir(VALET_HOME_PATH)) {
         }
 
         if ($tld === null) {
-            return info('Valet is configured to serve for TLD: .'.Configuration::read()['tld']);
+            return info(Configuration::read()['tld']);
         }
 
         DnsMasq::updateTld(
