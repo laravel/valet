@@ -43,7 +43,7 @@ then
 
 	# Decide the correct PORT to use according if the site has a secure 
 	# config or not.
-	if grep 443 ~/.config/valet/Nginx/$HOST*
+	if grep --quiet 443 ~/.config/valet/Nginx/$HOST*
 	then
 		PORT=88
 	else
