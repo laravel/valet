@@ -22,7 +22,7 @@ use function Valet\warning;
  */
 Container::setInstance(new Container);
 
-$version = '2.0.12';
+$version = '2.1.0';
 
 $app = new Application('Laravel Valet', $version);
 
