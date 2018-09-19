@@ -21,6 +21,43 @@ class Site
     }
 
     /**
+     * Get the name of the site.
+     *
+     * @param  string|null $name
+     * @return string
+     */
+    private function getRealSiteName($name)
+    {
+        if (! is_null($name)) {
+            return $name;
+        }
+
+        if (is_string($link = $this->getLinkNameByCurrentDir())) {
+            return $link;
+        }
+
+        return basename(getcwd());
+    }
+
+    /**
+     * Get link name based on the current directory.
+     *
+     * @return null|string
+     */
+    private function getLinkNameByCurrentDir()
+    {
+        $count = count($links = $this->links()->where('path', getcwd()));
+
+        if ($count == 1) {
+            return $links->shift()['site'];
+        }
+
+        if ($count > 1) {
+            throw new DomainException("There are {$count} links related to the current directory, please specify the name: valet unlink <name>.");
+        }
+    }
+
+    /**
      * Get the real hostname for the given path, checking links.
      *
      * @param  string  $path
@@ -106,7 +143,12 @@ class Site
             $secured = $certs->has($site);
             $url = ($secured ? 'https': 'http').'://'.$site.'.'.$config['tld'];
 
-            return [$site, $secured ? ' X': '', $url, $path];
+            return [
+                'site' => $site,
+                'secured' => $secured ? ' X': '',
+                'url' => $url,
+                'path' => $path,
+            ];
         });
     }
 
@@ -118,9 +160,13 @@ class Site
      */
     function unlink($name)
     {
+        $name = $this->getRealSiteName($name);
+
         if ($this->files->exists($path = $this->sitesPath().'/'.$name)) {
             $this->files->unlink($path);
         }
+
+        return $name;
     }
 
     /**
