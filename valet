@@ -87,10 +87,14 @@ then
         fi
     done
 
-    php "$DIR/cli/valet.php" secured "$HOST.$DOMAIN" &> /dev/null || (
-        printf "\033[1;31mSecured sites can not be shared.\033[0m\n"
-        exit 1
-    )
+    # Decide the correct PORT to use according if the site has a secure 
+    # config or not.
+    if grep --no-messages --quiet 443 ~/.valet/Nginx/$HOST*
+    then
+        PORT=88
+    else
+        PORT=80
+    fi
 
     # Fetch Ngrok URL In Background...
     bash "$DIR/cli/scripts/fetch-share-url.sh" &
