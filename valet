@@ -41,9 +41,18 @@ then
         fi
     done
 
-    # Fetch Ngrok URL In Background...
-    bash "$DIR/cli/scripts/fetch-share-url.sh" &
-    sudo -u $(logname) "$DIR/bin/ngrok" http "$HOST.$TLD:80" -host-header=rewrite ${*:2}
+	# Decide the correct PORT to use according if the site has a secure 
+	# config or not.
+	if grep --quiet 443 ~/.config/valet/Nginx/$HOST*
+	then
+		PORT=88
+	else
+		PORT=80
+	fi
+
+	# Fetch Ngrok URL In Background...
+	bash "$DIR/cli/scripts/fetch-share-url.sh" &
+	sudo -u $(logname) "$DIR/bin/ngrok" http "$HOST.$TLD:$PORT" -host-header=rewrite ${*:2}
     exit
 
 # Finally, for every other command we will just proxy into the PHP tool

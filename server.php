@@ -32,6 +32,10 @@ function valet_support_wildcard_dns($domain)
         }
     }
 
+    if (strpos($domain, ':') !== false) {
+        $domain = explode(':',$domain)[0];
+    }
+
     return $domain;
 }
 
