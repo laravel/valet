@@ -136,6 +136,13 @@ if ($uri !== '/' && ! $isPhpFile && $staticFilePath = $valetDriver->isStaticFile
 }
 
 /**
+ * Attempt to load server environment variables.
+ */
+$valetDriver->loadServerEnvironmentVariables(
+    $valetSitePath, $siteName
+);
+
+/**
  * Attempt to dispatch to a front controller.
  */
 $frontControllerPath = $valetDriver->frontControllerPath(
