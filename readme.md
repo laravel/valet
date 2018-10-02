@@ -21,4 +21,4 @@ Documentation for Valet can be found on the [Laravel website](https://laravel.co
 
 ## License
 
-Laravel Valet is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT)
+Laravel Valet is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
