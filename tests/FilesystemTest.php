@@ -1,8 +1,9 @@
 <?php
 
 use Valet\Filesystem;
+use PHPUnit\Framework\TestCase;
 
-class FilesystemTest extends PHPUnit_Framework_TestCase
+class FilesystemTest extends TestCase
 {
     public function tearDown()
     {

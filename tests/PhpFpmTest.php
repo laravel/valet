@@ -4,8 +4,9 @@ use Valet\PhpFpm;
 use function Valet\user;
 use function Valet\resolve;
 use Illuminate\Container\Container;
+use PHPUnit\Framework\TestCase;
 
-class PhpFpmTest extends PHPUnit_Framework_TestCase
+class PhpFpmTest extends TestCase
 {
     public function setUp()
     {

@@ -7,8 +7,9 @@ use function Valet\user;
 use function Valet\resolve;
 use function Valet\swap;
 use Illuminate\Container\Container;
+use PHPUnit\Framework\TestCase;
 
-class BrewTest extends PHPUnit_Framework_TestCase
+class BrewTest extends TestCase
 {
     public function setUp()
     {

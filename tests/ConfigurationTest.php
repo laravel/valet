@@ -8,8 +8,9 @@ use function Valet\user;
 use function Valet\resolve;
 use function Valet\swap;
 use Illuminate\Container\Container;
+use PHPUnit\Framework\TestCase;
 
-class ConfigurationTest extends PHPUnit_Framework_TestCase
+class ConfigurationTest extends TestCase
 {
     public function setUp()
     {
