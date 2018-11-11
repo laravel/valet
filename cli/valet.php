@@ -63,13 +63,16 @@ $app->command('install', function () {
  */
 if (is_dir(VALET_HOME_PATH)) {
     /**
+     * Upgrade helper: ensure the tld config exists
+     */
+    if (empty(Configuration::read()['tld'])) {
+        Configuration::writeBaseConfiguration();
+    }
+
+    /**
      * Get or set the TLD currently being used by Valet.
      */
     $app->command('tld [tld]', function ($tld = null) {
-        if (empty(Configuration::read()['tld'])) {
-            Configuration::writeBaseConfiguration();
-        }
-
         if ($tld === null) {
             return info(Configuration::read()['tld']);
         }
