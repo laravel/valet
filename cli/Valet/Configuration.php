@@ -41,6 +41,8 @@ class Configuration
      */
     function createConfigurationDirectory()
     {
+        $this->files->ensureDirExists(preg_replace('~/valet$~', '', VALET_HOME_PATH), user());
+
         $oldPath = posix_getpwuid(fileowner(__FILE__))['dir'].'/.valet';
 
         if ($this->files->isDir($oldPath)) {
