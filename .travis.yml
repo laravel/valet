@@ -16,6 +16,7 @@ env:
 sudo: false
 
 before_install:
+  - phpenv config-rm xdebug.ini || true
   - travis_retry composer self-update
 
 cache:
