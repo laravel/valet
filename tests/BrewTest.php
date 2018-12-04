@@ -133,9 +133,9 @@ php7');
     public function test_tap_taps_the_given_homebrew_repository()
     {
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('passthru')->once()->with('sudo -u '.user().' brew tap php71');
-        $cli->shouldReceive('passthru')->once()->with('sudo -u '.user().' brew tap php70');
-        $cli->shouldReceive('passthru')->once()->with('sudo -u '.user().' brew tap php56');
+        $cli->shouldReceive('passthru')->once()->with('sudo -u "'.user().'" brew tap php71');
+        $cli->shouldReceive('passthru')->once()->with('sudo -u "'.user().'" brew tap php70');
+        $cli->shouldReceive('passthru')->once()->with('sudo -u "'.user().'" brew tap php56');
         swap(CommandLine::class, $cli);
         resolve(Brew::class)->tap('php71', 'php70', 'php56');
     }
