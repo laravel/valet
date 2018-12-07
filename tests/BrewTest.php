@@ -96,10 +96,12 @@ php7');
 
         $brew = Mockery::mock(Brew::class.'[installed]', [new CommandLine, new Filesystem]);
         $brew->shouldReceive('installed')->with('php')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php73')->andReturn(false);
         $brew->shouldReceive('installed')->with('php72')->andReturn(false);
         $brew->shouldReceive('installed')->with('php71')->andReturn(false);
         $brew->shouldReceive('installed')->with('php70')->andReturn(true);
         $brew->shouldReceive('installed')->with('php56')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php@7.3')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.2')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.1')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.0')->andReturn(true);
@@ -108,10 +110,12 @@ php7');
 
         $brew = Mockery::mock(Brew::class.'[installed]', [new CommandLine, new Filesystem]);
         $brew->shouldReceive('installed')->with('php')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php73')->andReturn(false);
         $brew->shouldReceive('installed')->with('php72')->andReturn(false);
         $brew->shouldReceive('installed')->with('php71')->andReturn(false);
         $brew->shouldReceive('installed')->with('php70')->andReturn(false);
         $brew->shouldReceive('installed')->with('php56')->andReturn(true);
+        $brew->shouldReceive('installed')->with('php@7.3')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.2')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.1')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.0')->andReturn(false);
@@ -120,10 +124,12 @@ php7');
 
         $brew = Mockery::mock(Brew::class.'[installed]', [new CommandLine, new Filesystem]);
         $brew->shouldReceive('installed')->with('php')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php73')->andReturn(false);
         $brew->shouldReceive('installed')->with('php72')->andReturn(false);
         $brew->shouldReceive('installed')->with('php71')->andReturn(false);
         $brew->shouldReceive('installed')->with('php70')->andReturn(false);
         $brew->shouldReceive('installed')->with('php56')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php@7.3')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.2')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.1')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.0')->andReturn(false);
