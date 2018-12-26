@@ -31,7 +31,7 @@ class NginxTest extends PHPUnit_Framework_TestCase
 
         $files->shouldReceive('putAsUser')->andReturnUsing(function ($path, $contents) {
             $this->assertSame('/usr/local/etc/nginx/nginx.conf', $path);
-            $this->assertContains('include '.VALET_HOME_PATH.'/Nginx/*', $contents);
+            $this->assertContains('include "'.VALET_HOME_PATH.'/Nginx/*"', $contents);
         })->once();
 
         swap(Filesystem::class, $files);
