@@ -273,7 +273,7 @@ class Site
         ));
 
         $this->cli->runAsUser(sprintf(
-            'openssl req -new -newkey rsa:2048 -days 730 -nodes -x509 -subj "/C=/ST=/O=%s/localityName=/commonName=%s/organizationalUnitName=Developers/emailAddress=%s/" -keyout %s -out %s',
+            'openssl req -new -newkey rsa:2048 -days 730 -nodes -x509 -subj "/C=/ST=/O=%s/localityName=/commonName=%s/organizationalUnitName=Developers/emailAddress=%s/" -keyout "%s" -out "%s"',
             $oName, $cName, 'rootcertificate@laravel.valet', $caKeyPath, $caPemPath
         ));
         $this->trustCa($caPemPath);
@@ -305,7 +305,7 @@ class Site
         }
 
         $this->cli->runAsUser(sprintf(
-            'openssl x509 -req -sha256 -days 730 -CA %s -CAkey %s%s -in %s -out %s -extensions v3_req -extfile %s',
+            'openssl x509 -req -sha256 -days 730 -CA "%s" -CAkey "%s"%s -in "%s" -out "%s" -extensions v3_req -extfile "%s"',
             $caPemPath, $caKeyPath, $caSrlParam, $csrPath, $crtPath, $confPath
         ));
 
@@ -320,7 +320,7 @@ class Site
      */
     function createPrivateKey($keyPath)
     {
-        $this->cli->runAsUser(sprintf('openssl genrsa -out %s 2048', $keyPath));
+        $this->cli->runAsUser(sprintf('openssl genrsa -out "%s" 2048', $keyPath));
     }
 
     /**
@@ -332,7 +332,7 @@ class Site
     function createSigningRequest($url, $keyPath, $csrPath, $confPath)
     {
         $this->cli->runAsUser(sprintf(
-            'openssl req -new -key %s -out %s -subj "/C=/ST=/O=/localityName=/commonName=%s/organizationalUnitName=/emailAddress=%s%s/" -config %s',
+            'openssl req -new -key "%s" -out "%s" -subj "/C=/ST=/O=/localityName=/commonName=%s/organizationalUnitName=/emailAddress=%s%s/" -config "%s"',
             $keyPath, $csrPath, $url, $url, '@laravel.valet', $confPath
         ));
     }

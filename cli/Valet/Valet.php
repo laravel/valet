@@ -31,7 +31,7 @@ class Valet
     {
         $this->cli->quietlyAsUser('rm '.$this->valetBin);
 
-        $this->cli->runAsUser('ln -s '.realpath(__DIR__.'/../../valet').' '.$this->valetBin);
+        $this->cli->runAsUser('ln -s "'.realpath(__DIR__.'/../../valet').'" '.$this->valetBin);
     }
 
     /**
