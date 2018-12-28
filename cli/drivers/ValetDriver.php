@@ -52,24 +52,25 @@ abstract class ValetDriver
 
         $drivers[] = 'LaravelValetDriver';
 
-        $drivers[] = 'WordPressValetDriver';
         $drivers[] = 'BedrockValetDriver';
-        $drivers[] = 'ContaoValetDriver';
-        $drivers[] = 'SymfonyValetDriver';
-        $drivers[] = 'CraftValetDriver';
-        $drivers[] = 'StatamicValetDriver';
-        $drivers[] = 'StatamicV1ValetDriver';
         $drivers[] = 'CakeValetDriver';
-        $drivers[] = 'SculpinValetDriver';
-        $drivers[] = 'JigsawValetDriver';
-        $drivers[] = 'KirbyValetDriver';
-        $drivers[] = 'KatanaValetDriver';
-        $drivers[] = 'JoomlaValetDriver';
-        $drivers[] = 'DrupalValetDriver';
         $drivers[] = 'Concrete5ValetDriver';
-        $drivers[] = 'Typo3ValetDriver';
-        $drivers[] = 'NeosValetDriver';
+        $drivers[] = 'ContaoValetDriver';
+        $drivers[] = 'CraftValetDriver';
+        $drivers[] = 'DirectusValetDriver';
+        $drivers[] = 'DrupalValetDriver';
+        $drivers[] = 'JigsawValetDriver';
+        $drivers[] = 'JoomlaValetDriver';
+        $drivers[] = 'KatanaValetDriver';
+        $drivers[] = 'KirbyValetDriver';
         $drivers[] = 'Magento2ValetDriver';
+        $drivers[] = 'NeosValetDriver';
+        $drivers[] = 'SculpinValetDriver';
+        $drivers[] = 'StatamicV1ValetDriver';
+        $drivers[] = 'StatamicValetDriver';
+        $drivers[] = 'SymfonyValetDriver';
+        $drivers[] = 'Typo3ValetDriver';
+        $drivers[] = 'WordPressValetDriver';
 
         $drivers[] = 'BasicValetDriver';
 
