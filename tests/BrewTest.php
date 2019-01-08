@@ -174,9 +174,27 @@ php7');
     {
         $files = Mockery::mock(Filesystem::class);
         $files->shouldReceive('isLink')->once()->with('/usr/local/bin/php')->andReturn(true);
-        $files->shouldReceive('readLink')->once()->with('/usr/local/bin/php')->andReturn('/test/path/php71/test');
+        $files->shouldReceive('readLink')->once()->with('/usr/local/bin/php')->andReturn('/test/path/php/7.3.0/test');
         swap(Filesystem::class, $files);
-        $this->assertSame('php@7.1', resolve(Brew::class)->linkedPhp());
+        $this->assertSame('php@7.3', resolve(Brew::class)->linkedPhp());
+
+        $files = Mockery::mock(Filesystem::class);
+        $files->shouldReceive('isLink')->once()->with('/usr/local/bin/php')->andReturn(true);
+        $files->shouldReceive('readLink')->once()->with('/usr/local/bin/php')->andReturn('/test/path/php@7.2/7.2.13/test');
+        swap(Filesystem::class, $files);
+        $this->assertSame('php@7.2', resolve(Brew::class)->linkedPhp());
+
+        $files = Mockery::mock(Filesystem::class);
+        $files->shouldReceive('isLink')->once()->with('/usr/local/bin/php')->andReturn(true);
+        $files->shouldReceive('readLink')->once()->with('/usr/local/bin/php')->andReturn('/test/path/php/7.2.9_2/test');
+        swap(Filesystem::class, $files);
+        $this->assertSame('php@7.2', resolve(Brew::class)->linkedPhp());
+
+        $files = Mockery::mock(Filesystem::class);
+        $files->shouldReceive('isLink')->once()->with('/usr/local/bin/php')->andReturn(true);
+        $files->shouldReceive('readLink')->once()->with('/usr/local/bin/php')->andReturn('/test/path/php72/7.2.9_2/test');
+        swap(Filesystem::class, $files);
+        $this->assertSame('php@7.2', resolve(Brew::class)->linkedPhp());
 
         $files = Mockery::mock(Filesystem::class);
         $files->shouldReceive('isLink')->once()->with('/usr/local/bin/php')->andReturn(true);
@@ -205,7 +223,7 @@ php7');
     {
         $files = Mockery::mock(Filesystem::class);
         $files->shouldReceive('isLink')->once()->with('/usr/local/bin/php')->andReturn(true);
-        $files->shouldReceive('readLink')->once()->with('/usr/local/bin/php')->andReturn('/test/path/php42/test');
+        $files->shouldReceive('readLink')->once()->with('/usr/local/bin/php')->andReturn('/test/path/php/5.4.14/test');
         swap(Filesystem::class, $files);
         resolve(Brew::class)->linkedPhp();
     }

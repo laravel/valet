@@ -192,17 +192,28 @@ class Brew
     function linkedPhp()
     {
         if (! $this->files->isLink('/usr/local/bin/php')) {
-            throw new DomainException("Unable to determine linked PHP.");
+            throw new DomainException("Homebrew PHP appears not to be linked.");
         }
 
         $resolvedPath = $this->files->readLink('/usr/local/bin/php');
 
-        return $this->supportedPhpVersions()->first(function ($version) use ($resolvedPath) {
-            $resolvedPathNormalized= preg_replace('/([@|\.])/', '', $resolvedPath);
-            $versionNormalized = preg_replace('/([@|\.])/', '', $version);
-            return strpos($resolvedPathNormalized, "/$versionNormalized/") !== false;
-        }, function () {
-            throw new DomainException("Unable to determine linked PHP.");
+        /**
+         * Typical homebrew path resolutions are like:
+         * "../Cellar/php@7.2/7.2.13/bin/php"
+         * or older styles:
+         * "../Cellar/php/7.2.9_2/bin/php
+         * "../Cellar/php55/bin/php
+         */
+        preg_match('~\w{3,}/(php)(@?\d\.?\d)?/(\d\.\d)?([_\d\.]*)?/?\w{3,}~', $resolvedPath, $matches);
+        $resolvedPhpVersion = $matches[3] ?: $matches[2];
+
+        return $this->supportedPhpVersions()->first(   
+            function ($version) use ($resolvedPhpVersion) {
+                $resolvedVersionNormalized = preg_replace('/[^\d]/', '', $resolvedPhpVersion);
+                $versionNormalized = preg_replace('/[^\d]/', '', $version);
+                return $resolvedVersionNormalized === $versionNormalized;
+        }, function () use ($resolvedPhpVersion) {
+            throw new DomainException("Unable to determine linked PHP when parsing '$resolvedPhpVersion'");
         });
     }
 
