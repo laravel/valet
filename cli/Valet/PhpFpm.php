@@ -40,7 +40,7 @@ class PhpFpm
             $this->brew->ensureInstalled('php71', [], $this->taps);
         }
 
-        $this->files->ensureDirExists('/usr/local/var/log', user());
+        $this->files->ensureDirExists($this->brew->getPrefix().'/var/log', user());
 
         $this->updateConfiguration();
 
@@ -117,7 +117,7 @@ class PhpFpm
         );
 
         return $versionNormalized === '5.6'
-            ? '/usr/local/etc/php/5.6/php-fpm.conf'
-            : "/usr/local/etc/php/${versionNormalized}/php-fpm.d/www.conf";
+            ? $this->brew->getPrefix().'/etc/php/5.6/php-fpm.conf'
+            : $this->brew->getPrefix()."/etc/php/${versionNormalized}/php-fpm.d/www.conf";
     }
 }

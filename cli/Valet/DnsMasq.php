@@ -26,6 +26,8 @@ class DnsMasq
         $this->cli = $cli;
         $this->brew = $brew;
         $this->files = $files;
+        $this->configPath = $this->brew->getPrefix().$this->configPath;
+        $this->exampleConfigPath = $this->brew->getPrefix().$this->exampleConfigPath;
     }
 
     /**

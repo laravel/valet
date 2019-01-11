@@ -73,10 +73,10 @@ class Nginx
      */
     function installServer()
     {
-        $this->files->ensureDirExists('/usr/local/etc/nginx/valet');
+        $this->files->ensureDirExists($this->brew->getPrefix().'/etc/nginx/valet');
 
         $this->files->putAsUser(
-            '/usr/local/etc/nginx/valet/valet.conf',
+          $this->brew->getPrefix().'/etc/nginx/valet/valet.conf',
             str_replace(
                 ['VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_STATIC_PREFIX'],
                 [VALET_HOME_PATH, VALET_SERVER_PATH, VALET_STATIC_PREFIX],
@@ -85,7 +85,7 @@ class Nginx
         );
 
         $this->files->putAsUser(
-            '/usr/local/etc/nginx/fastcgi_params',
+          $this->brew->getPrefix().'/etc/nginx/fastcgi_params',
             $this->files->get(__DIR__.'/../stubs/fastcgi_params')
         );
     }
