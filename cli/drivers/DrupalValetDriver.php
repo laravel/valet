@@ -57,7 +57,7 @@ class DrupalValetDriver extends ValetDriver
     {
         $sitePath = $this->addSubdirectory($sitePath);
 
-        if (!isset($_GET['q']) && !empty($uri) && $uri !== '/') {
+        if (!isset($_GET['q']) && !empty($uri) && $uri !== '/' && strpos($uri, '/jsonapi/') === false) {
           $_GET['q'] = $uri;
         }
 
