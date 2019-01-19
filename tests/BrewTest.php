@@ -6,6 +6,7 @@ use Valet\CommandLine;
 use function Valet\user;
 use function Valet\resolve;
 use function Valet\swap;
+use Illuminate\Support\Collection;
 use Illuminate\Container\Container;
 
 class BrewTest extends PHPUnit_Framework_TestCase
@@ -337,9 +338,70 @@ php7');
         $this->assertSame('Some output', resolve(Brew::class)->unlink('aformula'));
     }
 
-    // TODO: search will pass to brew search
-    // TODO: search will pass into grep if passed
-    // TODO: search will throw if fails
-    // TODO: getRunningServices will return array of services currently started
-    // TODO: getRunningServices can pass grep to filter result
+    public function test_search_will_pass_to_brew_search_and_return_array()
+    {
+        $cli = Mockery::mock(CommandLine::class);
+        $cli->shouldReceive('runAsUser')->once()->withArgs([
+            'brew search term',
+            Mockery::type('callable')
+        ])->andReturn('==> Formulae' . PHP_EOL . 'found' . PHP_EOL . '==> Casks' . PHP_EOL . 'another found' . PHP_EOL);
+
+        swap(CommandLine::class, $cli);
+        $result = resolve(Brew::class)->search('term');
+        $this->assertInstanceOf(Collection::class, $result);
+        $this->assertSame([
+            'found',
+            'another found',
+        ], array_values($result->all()));
+    }
+
+    /**
+     * @expectedException DomainException
+     */
+    public function test_search_will_throw_exception_on_failure()
+    {
+        $cli = Mockery::mock(CommandLine::class);
+        $cli->shouldReceive('runAsUser')->once()->withArgs([
+            'brew search term',
+            Mockery::type('callable'),
+        ])->andReturnUsing(function ($command, $onError) {
+            $onError(1, 'test error output');
+        });
+        swap(CommandLine::class, $cli);
+        resolve(Brew::class)->search('term');
+    }
+
+    /**
+     * @expectedException DomainException
+     */
+    public function test_getRunningServices_will_throw_exception_on_failure()
+    {
+        $cli = Mockery::mock(CommandLine::class);
+        $cli->shouldReceive('runAsUser')->once()->withArgs([
+            'brew services list | grep started | awk \'{ print $1; }\'',
+            Mockery::type('callable'),
+        ])->andReturnUsing(function ($command, $onError) {
+            $onError(1, 'test error output');
+        });
+        swap(CommandLine::class, $cli);
+        resolve(Brew::class)->getRunningServices();
+    }
+
+    public function test_getRunningServices_will_pass_to_brew_services_list_and_return_array()
+    {
+        $cli = Mockery::mock(CommandLine::class);
+        $cli->shouldReceive('runAsUser')->once()->withArgs([
+            'brew services list | grep started | awk \'{ print $1; }\'',
+            Mockery::type('callable')
+        ])->andReturn('service1' . PHP_EOL . 'service2' . PHP_EOL . PHP_EOL . 'service3' . PHP_EOL);
+
+        swap(CommandLine::class, $cli);
+        $result = resolve(Brew::class)->getRunningServices('term');
+        $this->assertInstanceOf(Collection::class, $result);
+        $this->assertSame([
+            'service1',
+            'service2',
+            'service3',
+        ], array_values($result->all()));
+    }
 }

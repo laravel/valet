@@ -277,9 +277,9 @@ if (is_dir(VALET_HOME_PATH)) {
     })->descriptions('Add sudoers files for Brew and Valet to make Valet commands run without passwords');
 
     /**
-     * Allow the user to use another version of php
+     * Allow the user to change the version of php valet uses
      */
-    $app->command('use phpVersion', function ($phpVersion = null) {
+    $app->command('use phpVersion', function ($phpVersion) {
         PhpFpm::stopRunning();
 
         PhpFpm::useVersion($phpVersion);
@@ -287,7 +287,7 @@ if (is_dir(VALET_HOME_PATH)) {
         Nginx::restart();
         info(sprintf('Valet is now using %s.', $phpVersion));
     })->descriptions('Change the version of php used by valet', [
-        'phpVersion' => 'The PHP version you want to use, e.g php72',
+        'phpVersion' => 'The PHP version you want to use, e.g php@7.2',
     ]);
 }
 

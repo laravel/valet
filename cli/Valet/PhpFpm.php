@@ -2,9 +2,7 @@
 
 namespace Valet;
 
-use Exception;
 use DomainException;
-use Symfony\Component\Process\Process;
 
 class PhpFpm
 {
@@ -127,19 +125,32 @@ class PhpFpm
     function stopRunning()
     {
         $this->brew->stopService(
-            $this->brew->getRunningServices('php')->all()
+            $this->brew->getRunningServices()
+                ->filter(function ($service) {
+                    return substr($service, 0, 3) === 'php';
+                })
+                ->all()
         );
     }
 
+    /**
+     * Use a specific version of php
+     *
+     * @param $version
+     */
     function useVersion($version)
     {
-        // Ensure we have php{version}
+        // Ensure we have php prefixed
         if (substr($version, 0, 3) !== 'php') {
             $version = 'php' . $version;
         }
 
         info(sprintf('Finding brew formula for: %s', $version));
-        $foundVersion = $this->brew->search($version, 'php');
+        $foundVersion = $this->brew->search($version)
+            ->filter(function ($service) {
+                return $this->brew->supportedPhpVersions()->contains($service);
+            })
+            ->first();
         info(sprintf('Found brew formula: %s', $foundVersion));
 
         if (!$this->brew->supportedPhpVersions()->contains($foundVersion)) {
