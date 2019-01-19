@@ -185,13 +185,23 @@ class Brew
     }
 
     /**
+     * Determine if php is currently linked
+     *
+     * @return bool
+     */
+    function hasLinkedPhp()
+    {
+        return $this->files->isLink('/usr/local/bin/php');
+    }
+
+    /**
      * Determine which version of PHP is linked in Homebrew.
      *
      * @return string
      */
     function linkedPhp()
     {
-        if (! $this->files->isLink('/usr/local/bin/php')) {
+        if (! $this->hasLinkedPhp()) {
             throw new DomainException("Homebrew PHP appears not to be linked.");
         }
 
@@ -238,5 +248,62 @@ class Brew
 
         $this->files->put('/etc/sudoers.d/brew', 'Cmnd_Alias BREW = /usr/local/bin/brew *
 %admin ALL=(root) NOPASSWD: BREW'.PHP_EOL);
+    }
+
+    /**
+     * Link passed formula
+     *
+     * @param $formula
+     * @param bool $force
+     *
+     * @return string
+     */
+    function link($formula, $force = false)
+    {
+        return $this->cli->runAsUser(
+            sprintf('brew link %s%s', $formula, $force ? ' --force': ''),
+            function ($exitCode, $errorOutput) use ($formula) {
+                output($errorOutput);
+
+                throw new DomainException('Brew was unable to link [' . $formula . '].');
+            }
+        );
+    }
+
+    /**
+     * Unlink passed formula
+     * @param $formula
+     *
+     * @return string
+     */
+    function unlink($formula)
+    {
+        return $this->cli->runAsUser(
+            sprintf('brew unlink %s', $formula),
+            function ($exitCode, $errorOutput) use ($formula) {
+                output($errorOutput);
+
+                throw new DomainException('Brew was unable to unlink [' . $formula . '].');
+            }
+        );
+    }
+
+    /**
+     * Search for a formula
+     *
+     * @param $formula
+     * @param null $grep
+     *
+     * @return string
+     */
+    function search($formula, $grep = null) {
+        return $this->cli->runAsUser(
+            sprintf('brew search %s%s', $formula, $grep ? ' | grep ' . $formula : ''),
+            function ($exitCode, $errorOutput) use ($formula) {
+                output($errorOutput);
+
+                throw new DomainException('Brew was unable to find [' . $formula . '].');
+            }
+        );
     }
 }

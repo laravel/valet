@@ -172,35 +172,31 @@ php7');
 
     public function test_linked_php_returns_linked_php_formula_name()
     {
+        $getBrewMock = function ($filesystem) {
+            $brewMock = Mockery::mock(Brew::class, [new CommandLine, $filesystem])->makePartial();
+            $brewMock->shouldReceive('hasLinkedPhp')->once()->andReturn(true);
+            return $brewMock;
+        };
+
         $files = Mockery::mock(Filesystem::class);
-        $files->shouldReceive('isLink')->once()->with('/usr/local/bin/php')->andReturn(true);
         $files->shouldReceive('readLink')->once()->with('/usr/local/bin/php')->andReturn('/test/path/php/7.3.0/test');
-        swap(Filesystem::class, $files);
-        $this->assertSame('php@7.3', resolve(Brew::class)->linkedPhp());
+        $this->assertSame('php@7.3', $getBrewMock($files)->linkedPhp());
 
         $files = Mockery::mock(Filesystem::class);
-        $files->shouldReceive('isLink')->once()->with('/usr/local/bin/php')->andReturn(true);
         $files->shouldReceive('readLink')->once()->with('/usr/local/bin/php')->andReturn('/test/path/php@7.2/7.2.13/test');
-        swap(Filesystem::class, $files);
-        $this->assertSame('php@7.2', resolve(Brew::class)->linkedPhp());
+        $this->assertSame('php@7.2', $getBrewMock($files)->linkedPhp());
 
         $files = Mockery::mock(Filesystem::class);
-        $files->shouldReceive('isLink')->once()->with('/usr/local/bin/php')->andReturn(true);
         $files->shouldReceive('readLink')->once()->with('/usr/local/bin/php')->andReturn('/test/path/php/7.2.9_2/test');
-        swap(Filesystem::class, $files);
-        $this->assertSame('php@7.2', resolve(Brew::class)->linkedPhp());
+        $this->assertSame('php@7.2', $getBrewMock($files)->linkedPhp());
 
         $files = Mockery::mock(Filesystem::class);
-        $files->shouldReceive('isLink')->once()->with('/usr/local/bin/php')->andReturn(true);
         $files->shouldReceive('readLink')->once()->with('/usr/local/bin/php')->andReturn('/test/path/php72/7.2.9_2/test');
-        swap(Filesystem::class, $files);
-        $this->assertSame('php@7.2', resolve(Brew::class)->linkedPhp());
+        $this->assertSame('php@7.2', $getBrewMock($files)->linkedPhp());
 
         $files = Mockery::mock(Filesystem::class);
-        $files->shouldReceive('isLink')->once()->with('/usr/local/bin/php')->andReturn(true);
         $files->shouldReceive('readLink')->once()->with('/usr/local/bin/php')->andReturn('/test/path/php56/test');
-        swap(Filesystem::class, $files);
-        $this->assertSame('php@5.6', resolve(Brew::class)->linkedPhp());
+        $this->assertSame('php@5.6', $getBrewMock($files)->linkedPhp());
     }
 
 
@@ -209,10 +205,21 @@ php7');
      */
     public function test_linked_php_throws_exception_if_no_php_link()
     {
+        $brewMock = Mockery::mock(Brew::class)->makePartial();
+        $brewMock->shouldReceive('hasLinkedPhp')->once()->andReturn(false);
+        $brewMock->linkedPhp();
+    }
+
+
+    public function test_has_linked_php_returns_true_if_php_link_exists()
+    {
         $files = Mockery::mock(Filesystem::class);
-        $files->shouldReceive('isLink')->once()->with('/usr/local/bin/php')->andReturn(false);
+        $files->shouldReceive('isLink')->twice()->with('/usr/local/bin/php')->andReturn(false, true);
         swap(Filesystem::class, $files);
-        resolve(Brew::class)->linkedPhp();
+        $brew = resolve(Brew::class);
+
+        $this->assertFalse($brew->hasLinkedPhp());
+        $this->assertTrue($brew->hasLinkedPhp());
     }
 
 
@@ -260,5 +267,73 @@ php7');
         });
         swap(CommandLine::class, $cli);
         resolve(Brew::class)->installOrFail('dnsmasq');
+    }
+
+    /**
+     * @expectedException DomainException
+     */
+    public function test_link_will_throw_exception_on_failure()
+    {
+        $cli = Mockery::mock(CommandLine::class);
+        $cli->shouldReceive('runAsUser')->once()->withArgs([
+            'brew link aformula',
+            Mockery::type('callable'),
+        ])->andReturnUsing(function ($command, $onError) {
+            $onError(1, 'test error output');
+        });
+        swap(CommandLine::class, $cli);
+        resolve(Brew::class)->link('aformula');
+    }
+
+    public function test_link_will_pass_formula_to_run_as_user()
+    {
+        $cli = Mockery::mock(CommandLine::class);
+        $cli->shouldReceive('runAsUser')->once()->withArgs([
+            'brew link aformula',
+            Mockery::type('callable'),
+        ])->andReturn('Some output');
+
+        swap(CommandLine::class, $cli);
+        $this->assertSame('Some output', resolve(Brew::class)->link('aformula'));
+    }
+
+    public function test_link_will_pass_formula_and_force_to_run_as_user_if_set()
+    {
+        $cli = Mockery::mock(CommandLine::class);
+        $cli->shouldReceive('runAsUser')->once()->withArgs([
+            'brew link aformula --force',
+            Mockery::type('callable'),
+        ])->andReturn('Some output forced');
+
+        swap(CommandLine::class, $cli);
+        $this->assertSame('Some output forced', resolve(Brew::class)->link('aformula', true));
+    }
+
+    /**
+     * @expectedException DomainException
+     */
+    public function test_unlink_will_throw_exception_on_failure()
+    {
+        $cli = Mockery::mock(CommandLine::class);
+        $cli->shouldReceive('runAsUser')->once()->withArgs([
+            'brew unlink aformula',
+            Mockery::type('callable'),
+        ])->andReturnUsing(function ($command, $onError) {
+            $onError(1, 'test error output');
+        });
+        swap(CommandLine::class, $cli);
+        resolve(Brew::class)->unlink('aformula');
+    }
+
+    public function test_unlink_will_pass_formula_to_run_as_user()
+    {
+        $cli = Mockery::mock(CommandLine::class);
+        $cli->shouldReceive('runAsUser')->once()->withArgs([
+            'brew unlink aformula',
+            Mockery::type('callable'),
+        ])->andReturn('Some output');
+
+        swap(CommandLine::class, $cli);
+        $this->assertSame('Some output', resolve(Brew::class)->unlink('aformula'));
     }
 }

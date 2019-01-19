@@ -120,4 +120,33 @@ class PhpFpm
             ? '/usr/local/etc/php/5.6/php-fpm.conf'
             : "/usr/local/etc/php/${versionNormalized}/php-fpm.d/www.conf";
     }
+
+    function useVersion($version)
+    {
+        // Ensure we have php{version}
+        if (substr($version, 0, 3) !== 'php') {
+            $version = 'php' . $version;
+        }
+
+        $foundResult = $this->brew->search($version, 'php');
+
+        if (!$this->brew->supportedPhpVersions()->contains($version)) {
+            throw new DomainException(
+                sprintf('Valet doesn\'t support PHP version: %s', $version)
+            );
+        }
+
+        if ($this->brew->hasLinkedPhp()) {
+            $currentVersion = $this->brew->linkedPhp();
+            info(sprintf('Unlinking current version: %s', $currentVersion));
+            $this->brew->unlink($currentVersion);
+        }
+
+        $this->brew->ensureInstalled($version);
+
+        info(sprintf('Linking new version: %s', $version));
+        $this->brew->link($version, true);
+
+        $this->install();
+    }
 }
