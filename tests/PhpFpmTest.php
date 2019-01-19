@@ -1,7 +1,9 @@
 <?php
 
+use Valet\Brew;
 use Valet\PhpFpm;
 use function Valet\user;
+use function Valet\swap;
 use function Valet\resolve;
 use Illuminate\Container\Container;
 
@@ -36,6 +38,29 @@ class PhpFpmTest extends PHPUnit_Framework_TestCase
         $this->assertContains("\nlisten = ".VALET_HOME_PATH."/valet.sock", $contents);
     }
 
+    public function test_stopRunning_will_pass_filtered_result_of_getRunningServices_to_stopService()
+    {
+        $brewMock = Mockery::mock(Brew::class);
+        $brewMock->shouldReceive('getRunningServices')->once()
+            ->andReturn(collect([
+                'php7.2',
+                'php@7.3',
+                'php56',
+                'php',
+                'nginx',
+                'somethingelse',
+            ]));
+        $brewMock->shouldReceive('stopService')->once()->with([
+            'php7.2',
+            'php@7.3',
+            'php56',
+            'php',
+        ]);
+
+        swap(Brew::class, $brewMock);
+        resolve(PhpFpm::class)->stopRunning();
+    }
+
     // TODO: useVersion if no php at start it will prefix
     // TODO: useVersion will pass version to Brew::search and then check if it's supported
     // TODO:     - if not supported will through
@@ -43,8 +68,6 @@ class PhpFpmTest extends PHPUnit_Framework_TestCase
     // TODO: useVersion will ensure new version is installed
     // TODO: useVersion will link found version (force)
     // TODO: useVersion will call install at end
-
-    // TODO: stopRunning will get the running php services and stop them
 }
 
 
