@@ -280,7 +280,7 @@ if (is_dir(VALET_HOME_PATH)) {
      * Allow the user to use another version of php
      */
     $app->command('use phpVersion', function ($phpVersion = null) {
-        PhpFpm::stop();
+        PhpFpm::stopRunning();
 
         PhpFpm::useVersion($phpVersion);
 

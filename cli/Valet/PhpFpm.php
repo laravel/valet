@@ -121,6 +121,16 @@ class PhpFpm
             : "/usr/local/etc/php/${versionNormalized}/php-fpm.d/www.conf";
     }
 
+    /**
+     * Only stop running php services
+     */
+    function stopRunning()
+    {
+        $this->brew->stopService(
+            $this->brew->getRunningServices('php')->all()
+        );
+    }
+
     function useVersion($version)
     {
         // Ensure we have php{version}
@@ -128,11 +138,13 @@ class PhpFpm
             $version = 'php' . $version;
         }
 
-        $foundResult = $this->brew->search($version, 'php');
+        info(sprintf('Finding brew formula for: %s', $version));
+        $foundVersion = $this->brew->search($version, 'php');
+        info(sprintf('Found brew formula: %s', $foundVersion));
 
-        if (!$this->brew->supportedPhpVersions()->contains($version)) {
+        if (!$this->brew->supportedPhpVersions()->contains($foundVersion)) {
             throw new DomainException(
-                sprintf('Valet doesn\'t support PHP version: %s', $version)
+                sprintf('Valet doesn\'t support PHP version: %s', $foundVersion)
             );
         }
 
@@ -142,10 +154,10 @@ class PhpFpm
             $this->brew->unlink($currentVersion);
         }
 
-        $this->brew->ensureInstalled($version);
+        $this->brew->ensureInstalled($foundVersion);
 
-        info(sprintf('Linking new version: %s', $version));
-        $this->brew->link($version, true);
+        info(sprintf('Linking new version: %s', $foundVersion));
+        $this->brew->link($foundVersion, true);
 
         $this->install();
     }
