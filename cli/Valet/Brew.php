@@ -289,7 +289,7 @@ class Brew
     }
 
     /**
-     * Search for a formula
+     * Search for a formula and return found, optional grep to filter results
      *
      * @param $formula
      * @param null $grep
@@ -297,13 +297,33 @@ class Brew
      * @return string
      */
     function search($formula, $grep = null) {
-        return $this->cli->runAsUser(
-            sprintf('brew search %s%s', $formula, $grep ? ' | grep ' . $formula : ''),
+        return str_replace(PHP_EOL, '', $this->cli->runAsUser(
+            sprintf('brew search %s%s', $formula, $grep ? ' | grep ' . $grep : ''),
             function ($exitCode, $errorOutput) use ($formula) {
                 output($errorOutput);
 
                 throw new DomainException('Brew was unable to find [' . $formula . '].');
             }
-        );
+        ));
+    }
+
+    /**
+     * Get the currently running brew services
+     *
+     * @param null $grep
+     * @return \Illuminate\Support\Collection
+     */
+    function getRunningServices($grep = null)
+    {
+        $grep = 'started' . ($grep ? '.*' . $grep : '');
+
+        return collect(array_filter(explode(PHP_EOL, $this->cli->runAsUser(
+            sprintf('brew services list | grep %s | awk \'{ print $1; }\'', $grep),
+            function ($exitCode, $errorOutput) {
+                output($errorOutput);
+
+                throw new DomainException('Brew was unable to check which services are running.');
+            }
+        ))));
     }
 }

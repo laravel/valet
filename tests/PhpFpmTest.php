@@ -36,7 +36,15 @@ class PhpFpmTest extends PHPUnit_Framework_TestCase
         $this->assertContains("\nlisten = ".VALET_HOME_PATH."/valet.sock", $contents);
     }
 
-    // TODO: useVersion
+    // TODO: useVersion if no php at start it will prefix
+    // TODO: useVersion will pass version to Brew::search and then check if it's supported
+    // TODO:     - if not supported will through
+    // TODO: useVersion if already linked php will unlink it
+    // TODO: useVersion will ensure new version is installed
+    // TODO: useVersion will link found version (force)
+    // TODO: useVersion will call install at end
+
+    // TODO: stopRunning will get the running php services and stop them
 }
 
 

@@ -336,4 +336,10 @@ php7');
         swap(CommandLine::class, $cli);
         $this->assertSame('Some output', resolve(Brew::class)->unlink('aformula'));
     }
+
+    // TODO: search will pass to brew search
+    // TODO: search will pass into grep if passed
+    // TODO: search will throw if fails
+    // TODO: getRunningServices will return array of services currently started
+    // TODO: getRunningServices can pass grep to filter result
 }
