@@ -137,6 +137,7 @@ class PhpFpm
      * Use a specific version of php
      *
      * @param $version
+     * @return string
      */
     function useVersion($version)
     {
@@ -147,17 +148,17 @@ class PhpFpm
 
         info(sprintf('Finding brew formula for: %s', $version));
         $foundVersion = $this->brew->search($version)
-            ->filter(function ($service) {
+            ->first(function ($service) {
                 return $this->brew->supportedPhpVersions()->contains($service);
-            })
-            ->first();
-        info(sprintf('Found brew formula: %s', $foundVersion));
+            });
 
-        if (!$this->brew->supportedPhpVersions()->contains($foundVersion)) {
+        if (is_null($foundVersion)) {
             throw new DomainException(
-                sprintf('Valet doesn\'t support PHP version: %s', $foundVersion)
+                sprintf('Valet can\'t find a supported version of PHP for: %s', $version)
             );
         }
+
+        info(sprintf('Found brew formula: %s', $foundVersion));
 
         if ($this->brew->hasLinkedPhp()) {
             $currentVersion = $this->brew->linkedPhp();
@@ -171,5 +172,7 @@ class PhpFpm
         $this->brew->link($foundVersion, true);
 
         $this->install();
+
+        return $foundVersion;
     }
 }

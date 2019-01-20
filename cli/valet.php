@@ -282,10 +282,10 @@ if (is_dir(VALET_HOME_PATH)) {
     $app->command('use phpVersion', function ($phpVersion) {
         PhpFpm::stopRunning();
 
-        PhpFpm::useVersion($phpVersion);
+        $newVersion = PhpFpm::useVersion($phpVersion);
 
         Nginx::restart();
-        info(sprintf('Valet is now using %s.', $phpVersion));
+        info(sprintf('Valet is now using %s.', $newVersion));
     })->descriptions('Change the version of php used by valet', [
         'phpVersion' => 'The PHP version you want to use, e.g php@7.2',
     ]);
