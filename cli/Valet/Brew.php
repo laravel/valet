@@ -224,7 +224,8 @@ class Brew
      */
     function restartLinkedPhp()
     {
-        $this->restartService($this->linkedPhp());
+        $version = $this->linkedPhp();
+        $this->restartService($version === self::LATEST_PHP_VERSION ? 'php' : $version);
     }
 
     /**

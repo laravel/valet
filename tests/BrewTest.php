@@ -261,4 +261,24 @@ php7');
         swap(CommandLine::class, $cli);
         resolve(Brew::class)->installOrFail('dnsmasq');
     }
+
+    public function test_restart_linked_php_will_pass_through_linked_php_version_to_restart_service()
+    {
+        $brewMock = Mockery::mock(Brew::class)->makePartial();
+
+        $brewMock->shouldReceive('linkedPhp')->once()->andReturn('php@7.2-test');
+        $brewMock->shouldReceive('restartService')->once()->with('php@7.2-test');
+
+        $brewMock->restartLinkedPhp();
+    }
+
+    public function test_restart_linked_php_will_pass_php_to_restart_service_if_linked_php_returns_latest_version()
+    {
+        $brewMock = Mockery::mock(Brew::class)->makePartial();
+
+        $brewMock->shouldReceive('linkedPhp')->once()->andReturn(Brew::LATEST_PHP_VERSION);
+        $brewMock->shouldReceive('restartService')->once()->with('php');
+
+        $brewMock->restartLinkedPhp();
+    }
 }
