@@ -63,7 +63,7 @@ class PhpFpmTest extends PHPUnit_Framework_TestCase
         resolve(PhpFpm::class)->stopRunning();
     }
 
-    public function test_use_version_if_no_php_at_start_will_prefix()
+    public function test_use_version_will_convert_passed_php_version()
     {
         $brewMock = Mockery::mock(Brew::class);
         $phpFpmMock = Mockery::mock(PhpFpm::class, [
@@ -74,9 +74,6 @@ class PhpFpmTest extends PHPUnit_Framework_TestCase
 
         $phpFpmMock->shouldReceive('install');
 
-        $brewMock->shouldReceive('search')->with('php7.2')->twice()->andReturn(collect([
-            'php@7.2'
-        ]));
         $brewMock->shouldReceive('supportedPhpVersions')->twice()->andReturn(collect([
             'php@7.2',
             'php@5.6',
@@ -86,28 +83,24 @@ class PhpFpmTest extends PHPUnit_Framework_TestCase
         $brewMock->shouldReceive('link')->withArgs(['php@7.2', true]);
 
         // Test both non prefixed and prefixed
-        $this->assertSame('php@7.2', $phpFpmMock->useVersion('7.2'));
         $this->assertSame('php@7.2', $phpFpmMock->useVersion('php7.2'));
+        $this->assertSame('php@7.2', $phpFpmMock->useVersion('php72'));
     }
 
     /**
      * @expectedException DomainException
-     * @expectedExceptionMessage Valet can't find a supported version of PHP for: php7.2
      */
-    public function test_use_version_will_throw_if_searched_version_is_not_supported()
+    public function test_use_version_will_throw_if_version_not_supported()
     {
         $brewMock = Mockery::mock(Brew::class);
         swap(Brew::class, $brewMock);
 
-        $brewMock->shouldReceive('search')->with('php7.2')->andReturn(collect([
-            'php@7.2'
-        ]));
         $brewMock->shouldReceive('supportedPhpVersions')->andReturn(collect([
             'php@7.3',
             'php@7.1',
         ]));
 
-        resolve(PhpFpm::class)->useVersion('7.2');
+        resolve(PhpFpm::class)->useVersion('php@7.2');
     }
 
     public function test_use_version_if_already_linked_php_will_unlink_before_installing()
@@ -120,9 +113,6 @@ class PhpFpmTest extends PHPUnit_Framework_TestCase
         ])->makePartial();
         $phpFpmMock->shouldReceive('install');
 
-        $brewMock->shouldReceive('search')->with('php@7.2')->andReturn(collect([
-            'php@7.2'
-        ]));
         $brewMock->shouldReceive('supportedPhpVersions')->andReturn(collect([
             'php@7.2',
             'php@5.6',

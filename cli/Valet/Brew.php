@@ -288,27 +288,6 @@ class Brew
     }
 
     /**
-     * Search for a formula and return found, optional grep to filter results
-     *
-     * @param $formula
-     *
-     * @return \Illuminate\Support\Collection
-     */
-    function search($formula) {
-        return collect(explode(PHP_EOL, $this->cli->runAsUser(
-            sprintf('brew search %s', $formula),
-            function ($exitCode, $errorOutput) use ($formula) {
-                output($errorOutput);
-
-                throw new DomainException('Brew was unable to find [' . $formula . '].');
-            }
-        )))->filter(function ($formulaFound) {
-            // Filter out empty and search category headers
-            return $formulaFound && !in_array($formulaFound, ['==> Formulae', '==> Casks']);
-        });
-    }
-
-    /**
      * Get the currently running brew services
      *
      * @return \Illuminate\Support\Collection
