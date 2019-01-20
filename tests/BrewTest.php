@@ -338,39 +338,6 @@ php7');
         $this->assertSame('Some output', resolve(Brew::class)->unlink('aformula'));
     }
 
-    public function test_search_will_pass_to_brew_search_and_return_array()
-    {
-        $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('runAsUser')->once()->withArgs([
-            'brew search term',
-            Mockery::type('callable')
-        ])->andReturn('==> Formulae' . PHP_EOL . 'found' . PHP_EOL . '==> Casks' . PHP_EOL . 'another found' . PHP_EOL);
-
-        swap(CommandLine::class, $cli);
-        $result = resolve(Brew::class)->search('term');
-        $this->assertInstanceOf(Collection::class, $result);
-        $this->assertSame([
-            'found',
-            'another found',
-        ], array_values($result->all()));
-    }
-
-    /**
-     * @expectedException DomainException
-     */
-    public function test_search_will_throw_exception_on_failure()
-    {
-        $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('runAsUser')->once()->withArgs([
-            'brew search term',
-            Mockery::type('callable'),
-        ])->andReturnUsing(function ($command, $onError) {
-            $onError(1, 'test error output');
-        });
-        swap(CommandLine::class, $cli);
-        resolve(Brew::class)->search('term');
-    }
-
     /**
      * @expectedException DomainException
      */

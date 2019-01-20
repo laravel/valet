@@ -141,38 +141,30 @@ class PhpFpm
      */
     function useVersion($version)
     {
-        // Ensure we have php prefixed
-        if (substr($version, 0, 3) !== 'php') {
-            $version = 'php' . $version;
-        }
+        // If passed php7.2 or php72 formats, convert to php@7.2 format:
+        $version = preg_replace('/(php)([0-9+])(?:.)?([0-9+])/i', '$1@$2.$3', $version);
 
-        info(sprintf('Finding brew formula for: %s', $version));
-        $foundVersion = $this->brew->search($version)
-            ->first(function ($service) {
-                return $this->brew->supportedPhpVersions()->contains($service);
-            });
-
-        if (is_null($foundVersion)) {
+        if (!$this->brew->supportedPhpVersions()->contains($version)) {
             throw new DomainException(
-                sprintf('Valet can\'t find a supported version of PHP for: %s', $version)
+                sprintf('Valet doesnn\'t support PHP version: %s', $version)
             );
         }
 
-        info(sprintf('Found brew formula: %s', $foundVersion));
+        // Install the relevant formula if not already installed
+        $this->brew->ensureInstalled($version);
 
+        // Unlink the current php if there is one
         if ($this->brew->hasLinkedPhp()) {
             $currentVersion = $this->brew->linkedPhp();
             info(sprintf('Unlinking current version: %s', $currentVersion));
             $this->brew->unlink($currentVersion);
         }
 
-        $this->brew->ensureInstalled($foundVersion);
-
-        info(sprintf('Linking new version: %s', $foundVersion));
-        $this->brew->link($foundVersion, true);
+        info(sprintf('Linking new version: %s', $version));
+        $this->brew->link($version, true);
 
         $this->install();
 
-        return $foundVersion;
+        return $version;
     }
 }
