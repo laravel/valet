@@ -118,7 +118,7 @@ class PhpFpmTest extends PHPUnit_Framework_TestCase
             'php@5.6',
         ]));
         $brewMock->shouldReceive('hasLinkedPhp')->andReturn(true);
-        $brewMock->shouldReceive('linkedPhp')->andReturn('php@7.1');
+        $brewMock->shouldReceive('getLinkedPhpFormula')->andReturn('php@7.1');
         $brewMock->shouldReceive('unlink')->with('php@7.1');
         $brewMock->shouldReceive('ensureInstalled')->with('php@7.2');
         $brewMock->shouldReceive('link')->withArgs(['php@7.2', true]);

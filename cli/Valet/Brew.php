@@ -194,11 +194,11 @@ class Brew
     }
 
     /**
-     * Determine which version of PHP is linked in Homebrew.
+     * Get the linked php parsed
      *
-     * @return string
+     * @return mixed
      */
-    function linkedPhp()
+    function getParsedLinkedPhp()
     {
         if (! $this->hasLinkedPhp()) {
             throw new DomainException("Homebrew PHP appears not to be linked.");
@@ -214,6 +214,32 @@ class Brew
          * "../Cellar/php55/bin/php
          */
         preg_match('~\w{3,}/(php)(@?\d\.?\d)?/(\d\.\d)?([_\d\.]*)?/?\w{3,}~', $resolvedPath, $matches);
+
+        return $matches;
+    }
+
+    /**
+     * Gets the currently linked formula
+     * E.g if under php, will be php, if under php@7.3 will be that
+     * Different to ->linkedPhp() in that this will just get the linked directory name (whether that is php, php55 or
+     * php@7.2)
+     *
+     * @return mixed
+     */
+    function getLinkedPhpFormula()
+    {
+        $matches = $this->getParsedLinkedPhp();
+        return $matches[1] . $matches[2];
+    }
+
+    /**
+     * Determine which version of PHP is linked in Homebrew.
+     *
+     * @return string
+     */
+    function linkedPhp()
+    {
+        $matches = $this->getParsedLinkedPhp();
         $resolvedPhpVersion = $matches[3] ?: $matches[2];
 
         return $this->supportedPhpVersions()->first(   

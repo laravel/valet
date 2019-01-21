@@ -371,4 +371,104 @@ php7');
             'service3',
         ], array_values($result->all()));
     }
+
+    /**
+     * @dataProvider supportedPhpLinkPathProvider
+     *
+     * @param $path
+     * @param $matches
+     */
+    public function test_get_parsed_linked_php_will_return_matches_for_linked_php($path, $matches)
+    {
+        $getBrewMock = function ($filesystem) {
+            $brewMock = Mockery::mock(Brew::class, [new CommandLine, $filesystem])->makePartial();
+            $brewMock->shouldReceive('hasLinkedPhp')->once()->andReturn(true);
+            return $brewMock;
+        };
+
+        $files = Mockery::mock(Filesystem::class);
+        $files->shouldReceive('readLink')->once()->with('/usr/local/bin/php')->andReturn($path);
+        $this->assertSame($matches, $getBrewMock($files)->getParsedLinkedPhp());
+    }
+
+    /**
+     * @dataProvider supportedPhpLinkPathProvider
+     *
+     * @param $path
+     * @param $matches
+     * @param $expectedLinkFormula
+     */
+    public function test_get_linked_php_formula_will_return_linked_php_directory($path, $matches, $expectedLinkFormula)
+    {
+        $brewMock = Mockery::mock(Brew::class)->makePartial();
+        $brewMock->shouldReceive('getParsedLinkedPhp')->andReturn($matches);
+
+        $this->assertSame($expectedLinkFormula, $brewMock->getLinkedPhpFormula());
+    }
+
+    /**
+     * Provider of php links and their expected split matches
+     *
+     * @return array
+     */
+    public function supportedPhpLinkPathProvider()
+    {
+        return [
+            [
+                '/test/path/php/7.3.0/test', // linked path
+                [ // matches
+                    'path/php/7.3.0/test',
+                    'php',
+                    '',
+                    '7.3',
+                    '.0',
+                ],
+                'php', // expected link formula
+            ],
+            [
+                '/test/path/php@7.2/7.2.13/test',
+                [
+                    'path/php@7.2/7.2.13/test',
+                    'php',
+                    '@7.2',
+                    '7.2',
+                    '.13',
+                ],
+                'php@7.2'
+            ],
+            [
+                '/test/path/php/7.2.9_2/test',
+                [
+                    'path/php/7.2.9_2/test',
+                    'php',
+                    '',
+                    '7.2',
+                    '.9_2',
+                ],
+                'php',
+            ],
+            [
+                '/test/path/php72/7.2.9_2/test',
+                [
+                    'path/php72/7.2.9_2/test',
+                    'php',
+                    '72',
+                    '7.2',
+                    '.9_2',
+                ],
+                'php72',
+            ],
+            [
+                '/test/path/php56/test',
+                [
+                    'path/php56/test',
+                    'php',
+                    '56',
+                    '',
+                    '',
+                ],
+                'php56',
+            ],
+        ];
+    }
 }
