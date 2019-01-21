@@ -155,7 +155,7 @@ class PhpFpm
 
         // Unlink the current php if there is one
         if ($this->brew->hasLinkedPhp()) {
-            $currentVersion = $this->brew->linkedPhp();
+            $currentVersion = $this->brew->getLinkedPhpFormula();
             info(sprintf('Unlinking current version: %s', $currentVersion));
             $this->brew->unlink($currentVersion);
         }
