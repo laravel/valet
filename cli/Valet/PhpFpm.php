@@ -146,7 +146,10 @@ class PhpFpm
 
         if (!$this->brew->supportedPhpVersions()->contains($version)) {
             throw new DomainException(
-                sprintf('Valet doesnn\'t support PHP version: %s', $version)
+                sprintf(
+                    'Valet doesn\'t support PHP version: %s (try something like \'php7.2\' instead)',
+                    $version
+                )
             );
         }
 
