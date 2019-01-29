@@ -406,6 +406,14 @@ php7');
         $this->assertSame($expectedLinkFormula, $brewMock->getLinkedPhpFormula());
     }
 
+    public function test_restart_linked_php_will_pass_through_linked_php_formula_to_restart_service()
+    {
+        $brewMock = Mockery::mock(Brew::class)->makePartial();
+        $brewMock->shouldReceive('getLinkedPhpFormula')->once()->andReturn('php@7.2-test');
+        $brewMock->shouldReceive('restartService')->once()->with('php@7.2-test');
+        $brewMock->restartLinkedPhp();
+    }
+
     /**
      * Provider of php links and their expected split matches
      *
