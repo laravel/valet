@@ -9,6 +9,7 @@ require_once __DIR__.'/BasicValetDriver.php';
 /**
  * Specific drivers...
  */
+require_once __DIR__.'/AegeaValetDriver.php';
 require_once __DIR__.'/CraftValetDriver.php';
 require_once __DIR__.'/JigsawValetDriver.php';
 require_once __DIR__.'/KirbyValetDriver.php';

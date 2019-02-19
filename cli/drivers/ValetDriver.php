@@ -70,6 +70,7 @@ abstract class ValetDriver
         $drivers[] = 'Typo3ValetDriver';
         $drivers[] = 'NeosValetDriver';
         $drivers[] = 'Magento2ValetDriver';
+        $drivers[] = 'AegeaValetDriver';
 
         $drivers[] = 'BasicValetDriver';
 
