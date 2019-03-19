@@ -1,3 +1,6 @@
+# UNMAINTAINED
+## I'm sorry guys, it's been a while since I was able to work on this. I do not have time to maintain this project for I'm no longer actively using Valet nor PHP. Feel free to fork-it/request-ownership/add-support-on-upstream. I will archive this repo at the end of April, 2019.
+
 <p align="center"><img src="https://cdn.rawgit.com/wiki/cpriego/valet-linux/images/valet.svg"></p>
 
 <p align="center">
