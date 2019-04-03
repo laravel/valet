@@ -180,13 +180,11 @@ abstract class ValetDriver
 
     /**
      * Load server environment variables if available.
-     * Processes any '*' entries first, and then adds site-specific entries
      *
      * @param  string  $sitePath
-     * @param  string  $siteName
      * @return void
      */
-    public function loadServerEnvironmentVariables($sitePath, $siteName)
+    public function loadServerEnvironmentVariables($sitePath)
     {
         $varFilePath = $sitePath . '/.valet-env.php';
         if (! file_exists($varFilePath)) {
@@ -194,15 +192,15 @@ abstract class ValetDriver
         }
 
         $variables = include $varFilePath;
-
-        $variablesToSet = isset($variables['*']) ? $variables['*'] : [];
-
-        if (isset($variables[$siteName])) {
-            $variablesToSet = array_merge($variablesToSet, $variables[$siteName]);
+        if (!is_array($variables)) {
+            return;
         }
 
-        foreach ($variablesToSet as $key => $value) {
-            if (! is_string($key)) continue;
+        foreach ($variables as $key => $value) {
+            if (!is_string($key)) {
+                continue;
+            }
+
             $_SERVER[$key] = $value;
             $_ENV[$key] = $value;
             putenv($key . '=' . $value);

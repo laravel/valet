@@ -139,7 +139,7 @@ if ($uri !== '/' && ! $isPhpFile && $staticFilePath = $valetDriver->isStaticFile
  * Attempt to load server environment variables.
  */
 $valetDriver->loadServerEnvironmentVariables(
-    $valetSitePath, $siteName
+    $valetSitePath
 );
 
 /**
