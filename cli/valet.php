@@ -289,6 +289,28 @@ if (is_dir(VALET_HOME_PATH)) {
     })->descriptions('Change the version of php used by valet', [
         'phpVersion' => 'The PHP version you want to use, e.g php@7.2',
     ]);
+
+    /**
+     * Tail log file.
+     */
+    $app->command('logs [-f|--follow] [--lines=] [file]', function ($follow, $lines, $file = null) {
+        $defaultLogFile = VALET_HOME_PATH.'/Log/nginx-error.log';
+
+        $logFile = data_get(Configuration::read(), "logs.$file", $defaultLogFile);
+
+        $options = [];
+        
+        if ($follow) $options[] = '-f';
+
+        if ((int) $lines) {
+            $options[] = '-n';
+            $options[] = (int) $lines;
+        }
+
+        $logCommand = implode(' ', array_merge(['tail'], $options, [$logFile]));
+
+        passthru($logCommand);
+    })->descriptions('Tail log file');
 }
 
 /**
