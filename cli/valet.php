@@ -291,26 +291,59 @@ if (is_dir(VALET_HOME_PATH)) {
     ]);
 
     /**
-     * Tail log file.
+     * Tail log files.
      */
-    $app->command('logs [-f|--follow] [--lines=] [file]', function ($follow, $lines, $file = null) {
-        $defaultLogFile = VALET_HOME_PATH.'/Log/nginx-error.log';
+    $app->command('logs [-f|--follow] [-l|--lines=] [key]', function ($follow, $lines, $key = null) {
+        $defaultLogs = [
+            'php' => VALET_HOME_PATH.'/Log/php.log',
+            'php-fpm' => '/usr/local/var/log/php-fpm.log',
+            'nginx' => VALET_HOME_PATH.'/Log/nginx-error.log',
+            'mysql' => VALET_HOME_PATH.'/Log/mysql.log',
+            'mailhog' => '/usr/local/var/log/mailhog.log',
+            'redis' => '/usr/local/var/log/redis.log',
+        ];
 
-        $logFile = data_get(Configuration::read(), "logs.$file", $defaultLogFile);
+        $configLogs = data_get(Configuration::read(), 'logs');
+        if (!is_array($configLogs)) $configLogs = [];
 
-        $options = [];
-        
-        if ($follow) $options[] = '-f';
+        $logs = collect(array_merge($defaultLogs, $configLogs))->sortKeys();
 
-        if ((int) $lines) {
-            $options[] = '-n';
-            $options[] = (int) $lines;
+        if (!$key) {
+            info(implode(PHP_EOL, [
+                'Here are the logs you might be interested in.',
+                null,
+                'In order to tail a log, pass the relevant log key (e.g. "php")',
+                'along with any optional tail parameters (e.g. "-f" for follow).',
+                null,
+                'For example: "valet logs php -f --lines=3"',
+                null,
+            ]));
+            table(
+                ['Keys', 'Files'],
+                collect($logs)->map(function ($file, $key) {
+                    return [$key, $file];
+                })->toArray()
+            );
+            info(implode(PHP_EOL, [
+                null,
+                'Tip: Set custom logs by adding a "logs" key/file object',
+                'to your "'.Configuration::path().'" file.',
+            ]));
+            exit;
         }
 
-        $logCommand = implode(' ', array_merge(['tail'], $options, [$logFile]));
+        if (!isset($logs[$key])) return warning('No logs found for ['.$key.'].');
 
-        passthru($logCommand);
-    })->descriptions('Tail log file');
+        $file = $logs[$key];
+        if (!file_exists($file)) return warning('Log path ['.$file.'] does not (yet) exist.');
+
+        $options = [];
+        if ($follow) $options[] = '-f';
+        if ((int) $lines) $options[] = '-n '.(int) $lines;
+
+        $command = implode(' ', array_merge(['tail'], $options, [$file]));
+        passthru($command);
+    })->descriptions('Tail log files');
 }
 
 /**
