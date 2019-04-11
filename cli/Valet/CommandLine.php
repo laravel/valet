@@ -74,7 +74,14 @@ class CommandLine
     {
         $onError = $onError ?: function () {};
 
-        $process = new Process($command);
+        // Symfony 4.x throws a warning when the command string is passed to the constructor
+        // But the version constraint allows older versions, too
+        // For more information, see: https://github.com/laravel/valet/pull/761
+        if (method_exists(Process::class, 'fromShellCommandline')) {
+            $process = Process::fromShellCommandline($command);
+        } else {
+            $process = new Process($command);
+        }
 
         $processOutput = '';
         $process->setTimeout(null)->run(function ($type, $line) use (&$processOutput) {
