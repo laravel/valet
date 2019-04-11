@@ -74,7 +74,7 @@ class CommandLine
     {
         $onError = $onError ?: function () {};
 
-        $process = Process::fromShellCommandline($command);
+        $process = new Process($command);
 
         $processOutput = '';
         $process->setTimeout(null)->run(function ($type, $line) use (&$processOutput) {
