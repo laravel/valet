@@ -74,7 +74,11 @@ class CommandLine
     {
         $onError = $onError ?: function () {};
 
-        $process = new Process($command);
+        if (method_exists(Process::class, 'fromShellCommandline')) {
+            $process = Process::fromShellCommandline($command);
+        } else {
+            $process = new Process($command);
+        }
 
         $processOutput = '';
         $process->setTimeout(null)->run(function ($type, $line) use (&$processOutput) {
