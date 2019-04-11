@@ -74,8 +74,9 @@ class CommandLine
     {
         $onError = $onError ?: function () {};
 
-        // Symfony 4.x throws a warning when the command string is passed to the constructor
-        // But the version constraint allows older versions, too
+        // Symfony's 4.x Process component has deprecated passing a command string
+        // to the constructor, but older versions (which Valet's Composer
+        // constraints allow) don't have the fromShellCommandLine method.
         // For more information, see: https://github.com/laravel/valet/pull/761
         if (method_exists(Process::class, 'fromShellCommandline')) {
             $process = Process::fromShellCommandline($command);
