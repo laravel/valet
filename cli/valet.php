@@ -6,8 +6,10 @@
  */
 if (file_exists(__DIR__.'/../vendor/autoload.php')) {
     require __DIR__.'/../vendor/autoload.php';
-} else {
+} elseif (file_exists(__DIR__.'/../../../autoload.php')) {
     require __DIR__.'/../../../autoload.php';
+} else {
+    require getenv('HOME').'/.composer/vendor/autoload.php';
 }
 
 use Silly\Application;
