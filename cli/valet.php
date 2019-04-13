@@ -295,10 +295,8 @@ if (is_dir(VALET_HOME_PATH)) {
      */
     $app->command('log [-f|--follow] [-l|--lines=] [key]', function ($follow, $lines, $key = null) {
         $defaultLogs = [
-            'php' => VALET_HOME_PATH.'/Log/php.log',
             'php-fpm' => '/usr/local/var/log/php-fpm.log',
             'nginx' => VALET_HOME_PATH.'/Log/nginx-error.log',
-            'mysql' => VALET_HOME_PATH.'/Log/mysql.log',
             'mailhog' => '/usr/local/var/log/mailhog.log',
             'redis' => '/usr/local/var/log/redis.log',
         ];
