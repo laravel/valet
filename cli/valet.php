@@ -293,7 +293,7 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Tail log file.
      */
-    $app->command('logs [-f|--follow] [-l|--lines=] [key]', function ($follow, $lines, $key = null) {
+    $app->command('log [-f|--follow] [-l|--lines=] [key]', function ($follow, $lines, $key = null) {
         $defaultLogs = [
             'php' => VALET_HOME_PATH.'/Log/php.log',
             'php-fpm' => '/usr/local/var/log/php-fpm.log',
