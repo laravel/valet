@@ -88,10 +88,14 @@ foreach ($valetConfig['paths'] as $path) {
         $valetSitePath = $path.'/'.$siteName;
         break;
     }
+}
 
-    if (is_dir($path.'/'.$domain)) {
-        $valetSitePath = $path.'/'.$domain;
-        break;
+if (is_null($valetSitePath)) {
+    foreach ($valetConfig['paths'] as $path) {
+        if (is_dir($path.'/'.$domain)) {
+            $valetSitePath = $path.'/'.$domain;
+            break;
+        }
     }
 }
 
