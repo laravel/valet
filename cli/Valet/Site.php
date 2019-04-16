@@ -299,15 +299,23 @@ class Site
         $this->createPrivateKey($keyPath);
         $this->createSigningRequest($url, $keyPath, $csrPath, $confPath);
 
-        $caSrlParam = ' -CAcreateserial';
-        if ($this->files->exists($caSrlPath)) {
-            $caSrlParam = ' -CAserial ' . $caSrlPath;
+        $caSrlParam = '-CAserial ' . $caSrlPath;
+        if (! $this->files->exists($caSrlPath)) {
+            $caSrlParam .= ' -CAcreateserial';
         }
 
-        $this->cli->runAsUser(sprintf(
-            'openssl x509 -req -sha256 -days 730 -CA "%s" -CAkey "%s"%s -in "%s" -out "%s" -extensions v3_req -extfile "%s"',
+        $result = $this->cli->runAsUser(sprintf(
+            'openssl x509 -req -sha256 -days 730 -CA "%s" -CAkey "%s" %s -in "%s" -out "%s" -extensions v3_req -extfile "%s"',
             $caPemPath, $caKeyPath, $caSrlParam, $csrPath, $crtPath, $confPath
         ));
+
+        // If cert could not be created using runAsUser(), use run().
+        if (strpos($result, 'Permission denied')) {
+            $this->cli->run(sprintf(
+                'openssl x509 -req -sha256 -days 730 -CA "%s" -CAkey "%s" %s -in "%s" -out "%s" -extensions v3_req -extfile "%s"',
+                $caPemPath, $caKeyPath, $caSrlParam, $csrPath, $crtPath, $confPath
+            ));
+        }
 
         $this->trustCertificate($crtPath);
     }

@@ -6,8 +6,10 @@
  */
 if (file_exists(__DIR__.'/../vendor/autoload.php')) {
     require __DIR__.'/../vendor/autoload.php';
-} else {
+} elseif (file_exists(__DIR__.'/../../../autoload.php')) {
     require __DIR__.'/../../../autoload.php';
+} else {
+    require getenv('HOME').'/.composer/vendor/autoload.php';
 }
 
 use Silly\Application;
@@ -29,7 +31,7 @@ if (is_dir(VALET_LEGACY_HOME_PATH) && !is_dir(VALET_HOME_PATH)) {
  */
 Container::setInstance(new Container);
 
-$version = '2.2.1';
+$version = '2.2.5';
 
 $app = new Application('Laravel Valet', $version);
 
