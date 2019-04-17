@@ -148,8 +148,10 @@ class Magento2ValetDriver extends ValetDriver
         $this->checkMageMode($sitePath);
 
         if ('developer' === $this->mageMode) {
+            $_SERVER['DOCUMENT_ROOT'] = $sitePath;
             return $sitePath . '/index.php';
         }
+        $_SERVER['DOCUMENT_ROOT'] = $sitePath . '/pub';
         return $sitePath . '/pub/index.php';
     }
 }
