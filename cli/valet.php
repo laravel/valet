@@ -291,6 +291,73 @@ if (is_dir(VALET_HOME_PATH)) {
     })->descriptions('Change the version of php used by valet', [
         'phpVersion' => 'The PHP version you want to use, e.g php@7.2',
     ]);
+
+    /**
+     * Tail log file.
+     */
+    $app->command('log [-f|--follow] [-l|--lines=] [key]', function ($follow, $lines, $key = null) {
+        $defaultLogs = [
+            'php-fpm' => '/usr/local/var/log/php-fpm.log',
+            'nginx' => VALET_HOME_PATH.'/Log/nginx-error.log',
+            'mailhog' => '/usr/local/var/log/mailhog.log',
+            'redis' => '/usr/local/var/log/redis.log',
+        ];
+
+        $configLogs = data_get(Configuration::read(), 'logs');
+        if (! is_array($configLogs)) {
+            $configLogs = [];
+        }
+
+        $logs = collect(array_merge($defaultLogs, $configLogs))->sortKeys();
+
+        if (! $key) {
+            info(implode(PHP_EOL, [
+                'In order to tail a log, pass the relevant log key (e.g. "nginx")',
+                'along with any optional tail parameters (e.g. "-f" for follow).',
+                null,
+                'For example: "valet logs nginx -f --lines=3"',
+                null,
+                'Here are the logs you might be interested in.',
+                null,
+            ]));
+
+            table(
+                ['Keys', 'Files'],
+                collect($logs)->map(function ($file, $key) {
+                    return [$key, $file];
+                })->toArray()
+            );
+
+            info(implode(PHP_EOL, [
+                null,
+                'Tip: Set custom logs by adding a "logs" key/file object',
+                'to your "'.Configuration::path().'" file.',
+            ]));
+
+            exit;
+        }
+
+        if (! isset($logs[$key])) {
+            return warning('No logs found for ['.$key.'].');
+        }
+
+        $file = $logs[$key];
+        if (! file_exists($file)) {
+            return warning('Log path ['.$file.'] does not (yet) exist.');
+        }
+
+        $options = [];
+        if ($follow) {
+            $options[] = '-f';
+        }
+        if ((int) $lines) {
+            $options[] = '-n '.(int) $lines;
+        }
+
+        $command = implode(' ', array_merge(['tail'], $options, [$file]));
+
+        passthru($command);
+    })->descriptions('Tail log file');
 }
 
 /**
