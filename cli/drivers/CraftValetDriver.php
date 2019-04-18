@@ -23,6 +23,14 @@ class CraftValetDriver extends ValetDriver
      */
     public function frontControllerDirectory($sitePath)
     {
+        $dirs = ['web', 'public'];
+
+        foreach ($dirs as $dir) {
+            if (is_dir($sitePath.'/'.$dir)) {
+                return $dir;
+            }
+        }
+        // Give up, and just return the default
         return is_file($sitePath.'/craft') ? 'web' : 'public';
     }
 
@@ -183,8 +191,13 @@ class CraftValetDriver extends ValetDriver
         $parts = explode('/', $uri);
 
         if (count($parts) > 1 && in_array($parts[1], $locales)) {
-            $indexPath = $sitePath.'/public/'. $parts[1] .'/index.php';
-            $scriptName = '/' . $parts[1] . '/index.php';
+            $indexLocalizedPath = $sitePath.'/'.$frontControllerDirectory.'/'.$parts[1].'/index.php';
+
+            // Check if index.php exists in the localized folder, this is optional in Craft 3
+            if (file_exists($indexLocalizedPath)) {
+                $indexPath = $indexLocalizedPath;
+                $scriptName = '/' . $parts[1] . '/index.php';
+            }
         }
 
         $_SERVER['SCRIPT_FILENAME'] = $indexPath;
