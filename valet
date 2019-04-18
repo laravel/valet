@@ -22,7 +22,7 @@ fi
 
 if [[ "$EUID" -ne 0 ]]
 then
-    sudo "$SOURCE" "$@"
+    sudo --preserve-env "$SOURCE" "$@"
     exit
 fi
 
