@@ -32,6 +32,10 @@ function valet_support_xip_io($domain)
         }
     }
 
+    if (strpos($domain, ':') !== false) {
+        $domain = explode(':',$domain)[0];
+    }
+
     return $domain;
 }
 
