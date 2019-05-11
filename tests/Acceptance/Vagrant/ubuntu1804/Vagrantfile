@@ -1,0 +1,13 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/bionic64"
+
+  config.vm.synced_folder "../../../../", "/home/ubuntu/cpriego-valet-linux"
+
+  config.vm.provision "shell" do |s|
+    s.path = "provision.sh"
+    s.privileged = false
+    s.env = {
+      VALET_ENVIRONMENT: ENV['VALET_ENVIRONMENT'] || "testing"
+    }
+  end
+end
