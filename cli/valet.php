@@ -308,7 +308,8 @@ if (is_dir(VALET_HOME_PATH)) {
             $configLogs = [];
         }
 
-        $logs = collect(array_merge($defaultLogs, $configLogs))->sortKeys();
+        $logs = array_merge($defaultLogs, $configLogs);
+        ksort($logs);
 
         if (! $key) {
             info(implode(PHP_EOL, [
