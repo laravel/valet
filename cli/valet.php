@@ -316,7 +316,7 @@ if (is_dir(VALET_HOME_PATH)) {
                 'In order to tail a log, pass the relevant log key (e.g. "nginx")',
                 'along with any optional tail parameters (e.g. "-f" for follow).',
                 null,
-                'For example: "valet logs nginx -f --lines=3"',
+                'For example: "valet log nginx -f --lines=3"',
                 null,
                 'Here are the logs you might be interested in.',
                 null,
