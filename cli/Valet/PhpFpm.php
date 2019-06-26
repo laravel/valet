@@ -72,7 +72,12 @@ class PhpFpm
      * @return void
      */
     public function changeVersion($version = null) {
+        $oldVersion = $this->version;
+        $exception = null;
+
         $this->stop();
+        info('Disabling php' . $this->version . '-fpm...');
+        $this->sm->disable($this->fpmServiceName());
 
         if (!isset($version) || strtolower($version) === 'default') {
             $this->version = $this->getVersion(true);
@@ -80,12 +85,27 @@ class PhpFpm
             $this->version = $version;
         }
 
-        $this->install();
+        try {
+            $this->install();
+        } catch (DomainException $e) {
+            $this->version = $oldVersion;
+            $exception = $e;
+        }
+
+        if ($this->sm->disabled($this->fpmServiceName())) {
+            info('Enabling php' . $this->version . '-fpm...');
+            $this->sm->enable($this->fpmServiceName());
+        }
 
         if ($this->version !== $this->getVersion(true)) {
             $this->files->putAsUser(VALET_HOME_PATH . '/use_php_version', $this->version);
         } else {
             $this->files->unlink(VALET_HOME_PATH . '/use_php_version');
+        }
+
+        if ($exception) {
+            info('Changing version failed');
+            throw $exception;
         }
     }
 
