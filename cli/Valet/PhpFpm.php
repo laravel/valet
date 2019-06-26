@@ -65,6 +65,31 @@ class PhpFpm
     }
 
     /**
+     * Change the php-fpm version.
+     *
+     * @param string|float|int $version
+     *
+     * @return void
+     */
+    public function changeVersion($version = null) {
+        $this->stop();
+
+        if (!isset($version) || strtolower($version) === 'default') {
+            $this->version = $this->getVersion(true);
+        } else {
+            $this->version = $version;
+        }
+
+        $this->install();
+
+        if ($this->version !== $this->getVersion(true)) {
+            $this->files->putAsUser(VALET_HOME_PATH . '/use_php_version', $this->version);
+        } else {
+            $this->files->unlink(VALET_HOME_PATH . '/use_php_version');
+        }
+    }
+
+    /**
      * Update the PHP FPM configuration to use the current user.
      *
      * @return void
@@ -116,11 +141,19 @@ class PhpFpm
     /**
      * Get installed PHP version.
      *
+     * @param string $real force getting version from /usr/bin/php.
+     *
      * @return string
      */
-    public function getVersion()
+    public function getVersion($real = false)
     {
-        return explode('php', basename($this->files->readLink('/usr/bin/php')))[1];
+        if (!$real && $this->files->exists(VALET_HOME_PATH . '/use_php_version')) {
+            $version = $this->files->get(VALET_HOME_PATH . '/use_php_version');
+        } else {
+            $version = explode('php', basename($this->files->readLink('/usr/bin/php')))[1];
+        }
+
+        return $version;
     }
 
     /**
