@@ -262,9 +262,10 @@ if (is_dir(VALET_HOME_PATH)) {
      */
     $app->command('on-latest-version', function () use ($version) {
         if (Valet::onLatestVersion($version)) {
-            output('YES');
+            output('Yes');
         } else {
-            output('NO');
+            output(sprintf('Your version of Valet (%s) is not the latest version available.', $version));
+            output('Upgrade instructions can be found in the docs: https://laravel.com/docs/valet#upgrading');
         }
     })->descriptions('Determine if this is the latest version of Valet');
 
@@ -288,7 +289,7 @@ if (is_dir(VALET_HOME_PATH)) {
 
         Nginx::restart();
         info(sprintf('Valet is now using %s.', $newVersion));
-    })->descriptions('Change the version of php used by valet', [
+    })->descriptions('Change the version of PHP used by valet', [
         'phpVersion' => 'The PHP version you want to use, e.g php@7.2',
     ]);
 
