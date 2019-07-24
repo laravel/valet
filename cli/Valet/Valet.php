@@ -11,6 +11,7 @@ use Valet\PackageManagers\Dnf;
 use Valet\PackageManagers\PackageKit;
 use Valet\PackageManagers\Pacman;
 use Valet\PackageManagers\Yum;
+use Valet\PackageManagers\Eopkg;
 use Valet\ServiceManagers\LinuxService;
 use Valet\ServiceManagers\Systemd;
 
@@ -124,7 +125,8 @@ class Valet
             Dnf::class,
             Pacman::class,
             Yum::class,
-            PackageKit::class
+            PackageKit::class,
+            Eopkg::class
         ])->first(function ($pm) {
             return resolve($pm)->isAvailable();
         }, function () {
