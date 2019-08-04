@@ -77,7 +77,7 @@ then
     check_dependencies
 
     HOST="${PWD##*/}"
-    DOMAIN=$(php "$DIR/cli/valet.php" domain)
+    DOMAIN=$(cat "$HOME/.valet/config.json" | jq -r ".domain")
     PORT=$(cat "$HOME/.valet/config.json" | jq -r ".port")
 
     for linkname in ~/.valet/Sites/*; do
