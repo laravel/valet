@@ -45,7 +45,7 @@ if (is_dir(VALET_HOME_PATH)) {
 }
 
 /**
- * Allow Valet to be run more conveniently by allowing the Node proxy to run password-less sudo.
+ * Install Valet and any required services.
  */
 $app->command('install', function () {
     Nginx::stop();
