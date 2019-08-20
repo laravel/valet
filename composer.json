@@ -19,6 +19,10 @@
         {
             "name": "Leonardo Nodari",
             "email": "nodarileonardo@gmail.com"
+        },
+        {
+            "name": "Joaquín Marcher",
+            "email": "joaquin@marcher.com.uy"
         }
     ],
     "autoload": {
