@@ -122,6 +122,13 @@ if (isset($_SERVER['HTTP_X_ORIGINAL_HOST']) && !isset($_SERVER['HTTP_X_FORWARDED
 }
 
 /**
+ * Attempt to load server environment variables.
+ */
+$valetDriver->loadServerEnvironmentVariables(
+    $valetSitePath, $siteName
+);
+
+/**
  * Allow driver to mutate incoming URL.
  */
 $uri = $valetDriver->mutateUri($uri);
@@ -134,13 +141,6 @@ $isPhpFile = pathinfo($uri, PATHINFO_EXTENSION) === 'php';
 if ($uri !== '/' && ! $isPhpFile && $staticFilePath = $valetDriver->isStaticFile($valetSitePath, $siteName, $uri)) {
     return $valetDriver->serveStaticFile($staticFilePath, $valetSitePath, $siteName, $uri);
 }
-
-/**
- * Attempt to load server environment variables.
- */
-$valetDriver->loadServerEnvironmentVariables(
-    $valetSitePath, $siteName
-);
 
 /**
  * Attempt to dispatch to a front controller.
