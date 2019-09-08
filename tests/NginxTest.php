@@ -49,7 +49,7 @@ class NginxTest extends PHPUnit_Framework_TestCase
         $files->shouldReceive('putAsUser')->with(VALET_HOME_PATH.'/Nginx/.keep', "\n")->once();
 
         swap(Filesystem::class, $files);
-        swap(Configuration::class, Mockery::spy(Configuration::class));
+        swap(Configuration::class, $config = Mockery::spy(Configuration::class, ['read' => ['tld' => 'test']]));
         swap(Site::class, Mockery::spy(Site::class));
 
         $nginx = resolve(Nginx::class);
@@ -65,7 +65,7 @@ class NginxTest extends PHPUnit_Framework_TestCase
         $files->shouldReceive('putAsUser')->with(VALET_HOME_PATH.'/Nginx/.keep', "\n")->once();
 
         swap(Filesystem::class, $files);
-        swap(Configuration::class, Mockery::spy(Configuration::class));
+        swap(Configuration::class, $config = Mockery::spy(Configuration::class, ['read' => ['tld' => 'test']]));
         swap(Site::class, Mockery::spy(Site::class));
 
         $nginx = resolve(Nginx::class);
