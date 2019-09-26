@@ -33,10 +33,6 @@ class Magento2ValetDriver extends ValetDriver
      */
     public function isStaticFile($sitePath, $siteName, $uri)
     {
-        if(strpos($uri,'/static/') === 0){
-    		$uri = '/pub' . $uri;
-    	}
-        
         $this->checkMageMode($sitePath);
 
         $uri = $this->handleForVersions($uri);
