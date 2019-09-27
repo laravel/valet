@@ -241,7 +241,7 @@ if (is_dir(VALET_HOME_PATH)) {
      * Stop the daemon services.
      */
     $app->command('stop', function () {
-        PhpFpm::stop();
+        PhpFpm::stopRunning();
 
         Nginx::stop();
 
