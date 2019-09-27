@@ -142,6 +142,11 @@ class Magento2ValetDriver extends ValetDriver
     public function frontControllerPath($sitePath, $siteName, $uri)
     {
         $this->checkMageMode($sitePath);
+        
+        if (file_exists($sitePath . $uri) {
+            $_SERVER['DOCUMENT_ROOT'] = $sitePath;
+            return $sitePath . $uri;
+        }
 
         if ('developer' === $this->mageMode) {
             $_SERVER['DOCUMENT_ROOT'] = $sitePath;
