@@ -28,6 +28,135 @@ class SiteTest extends PHPUnit_Framework_TestCase
     }
 
 
+    public function test_get_sites_will_return_if_secured()
+    {
+        $files = Mockery::mock(Filesystem::class);
+        $dirPath = '/Users/usertest/parkedpath';
+        $files->shouldReceive('scandir')
+            ->once()
+            ->with($dirPath)
+            ->andReturn(['sitetwo', 'sitethree']);
+        $files->shouldReceive('isLink')
+            ->andReturn(false);
+        $files->shouldReceive('realpath')
+            ->twice()
+            ->andReturn($dirPath . '/sitetwo', $dirPath . '/sitethree');
+
+        $config = Mockery::mock(Configuration::class);
+        $config->shouldReceive('read')
+            ->once()
+            ->andReturn(['tld' => 'local']);
+
+        swap(Filesystem::class, $files);
+        swap(Configuration::class, $config);
+
+        /** @var Site $site */
+        $site = resolve(Site::class);
+
+        $certs = Mockery::mock(\Illuminate\Support\Collection::class);
+        $certs->shouldReceive('has')
+            ->twice()
+            ->with(Mockery::on(function ($arg) {
+                return $arg === 'sitetwo' || $arg === 'sitethree';
+            }))
+            ->andReturn(false, true);
+
+        $sites = $site->getSites($dirPath, $certs);
+
+        $this->assertCount(2, $sites);
+        $this->assertSame([
+            'site' => 'sitetwo',
+            'secured' => '',
+            'url' => 'http://sitetwo.local',
+            'path' => $dirPath . '/sitetwo',
+        ], $sites->first());
+        $this->assertSame([
+            'site' => 'sitethree',
+            'secured' => ' X',
+            'url' => 'https://sitethree.local',
+            'path' => $dirPath . '/sitethree',
+        ], $sites->last());
+    }
+
+
+    public function test_get_sites_will_work_with_non_symlinked_path()
+    {
+        $files = Mockery::mock(Filesystem::class);
+        $dirPath = '/Users/usertest/parkedpath';
+        $files->shouldReceive('scandir')
+            ->once()
+            ->with($dirPath)
+            ->andReturn(['sitetwo']);
+        $files->shouldReceive('isLink')
+            ->once()
+            ->with($dirPath . '/sitetwo')
+            ->andReturn(false);
+        $files->shouldReceive('realpath')
+            ->once()
+            ->with($dirPath . '/sitetwo')
+            ->andReturn($dirPath . '/sitetwo');
+
+        $config = Mockery::mock(Configuration::class);
+        $config->shouldReceive('read')
+            ->once()
+            ->andReturn(['tld' => 'local']);
+
+        swap(Filesystem::class, $files);
+        swap(Configuration::class, $config);
+
+        /** @var Site $site */
+        $site = resolve(Site::class);
+
+        $sites = $site->getSites($dirPath, collect());
+        $this->assertCount(1, $sites);
+        $this->assertSame([
+            'site' => 'sitetwo',
+            'secured' => '',
+            'url' => 'http://sitetwo.local',
+            'path' => $dirPath . '/sitetwo',
+        ], $sites->first());
+    }
+
+
+    public function test_get_sites_will_work_with_symlinked_path()
+    {
+        $files = Mockery::mock(Filesystem::class);
+        $dirPath = '/Users/usertest/apath';
+        $files->shouldReceive('scandir')
+            ->once()
+            ->with($dirPath)
+            ->andReturn(['siteone']);
+        $files->shouldReceive('isLink')
+            ->once()
+            ->with($dirPath . '/siteone')
+            ->andReturn(true);
+        $files->shouldReceive('readLink')
+            ->once()
+            ->with($dirPath . '/siteone')
+            ->andReturn($linkedPath = '/Users/usertest/linkedpath/siteone');
+
+        $config = Mockery::mock(Configuration::class);
+        $config->shouldReceive('read')
+            ->once()
+            ->andReturn(['tld' => 'local']);
+
+        swap(Filesystem::class, $files);
+        swap(Configuration::class, $config);
+
+        /** @var Site $site */
+        $site = resolve(Site::class);
+
+        $sites = $site->getSites($dirPath, collect());
+        $this->assertCount(1, $sites);
+        $this->assertSame([
+            'site' => 'siteone',
+            'secured' => '',
+            'url' => 'http://siteone.local',
+            'path' => $linkedPath,
+        ], $sites->first());
+    }
+
+
     public function test_symlink_creates_symlink_to_given_path()
     {
         $files = Mockery::mock(Filesystem::class);
