@@ -28,7 +28,7 @@ class SiteTest extends PHPUnit_Framework_TestCase
     }
 
 
-    public function test_get_certificates_will_return_without_multi_segment_tld()
+    public function test_get_certificates_will_return_with_multi_segment_tld()
     {
         $files = Mockery::mock(Filesystem::class);
         $files->shouldReceive('scandir')
