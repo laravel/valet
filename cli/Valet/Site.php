@@ -128,7 +128,7 @@ class Site
             $certWithoutSuffix = substr($cert, 0, -4);
             $trimToString = '.';
 
-            // If we have the cert ending in our tld stripe that tld specifically
+            // If we have the cert ending in our tld strip that tld specifically
             // if not then just strip the last segment for  backwards compatibility.
             if (ends_with($certWithoutSuffix, $config['tld'])) {
                 $trimToString .= $config['tld'];
