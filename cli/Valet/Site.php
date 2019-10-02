@@ -109,7 +109,7 @@ class Site
 
         $certs = $this->getCertificates($certsPath);
 
-        return $this->getLinks($this->sitesPath(), $certs);
+        return $this->getSites($this->sitesPath(), $certs);
     }
 
     /**
@@ -155,8 +155,7 @@ class Site
     }
 
     /**
-     * Get list of links and present them formatted.
-     * Use generic getSites which works for link and non link sites
+     * @deprecated Use getSites instead which works for both normal and symlinked paths.
      *
      * @param string $path
      * @param \Illuminate\Support\Collection $certs
