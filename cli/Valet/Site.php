@@ -120,11 +120,21 @@ class Site
      */
     function getCertificates($path)
     {
+        $config = $this->config->read();
+
         return collect($this->files->scandir($path))->filter(function ($value, $key) {
             return ends_with($value, '.crt');
-        })->map(function ($cert) {
+        })->map(function ($cert) use ($config) {
             $certWithoutSuffix = substr($cert, 0, -4);
-            return substr($certWithoutSuffix, 0, strrpos($certWithoutSuffix, '.'));
+            $trimToString = '.';
+
+            // If we have the cert ending in our tld strip that tld specifically
+            // if not then just strip the last segment for  backwards compatibility.
+            if (ends_with($certWithoutSuffix, $config['tld'])) {
+                $trimToString .= $config['tld'];
+            }
+
+            return substr($certWithoutSuffix, 0, strrpos($certWithoutSuffix, $trimToString));
         })->flip();
     }
 
