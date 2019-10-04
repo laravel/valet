@@ -102,6 +102,15 @@ if (is_dir(VALET_HOME_PATH)) {
     })->descriptions('Register the current working (or specified) directory with Valet');
 
     /**
+     * Get all the current sites within paths parked with 'park {path}'
+     */
+    $app->command('parked', function () {
+        $parked = Site::parked();
+
+        table(['Site', 'SSL', 'URL', 'Path'], $parked->all());
+    })->descriptions('Display all the current sites within parked paths');
+
+    /**
      * Remove the current working directory from the paths configuration.
      */
     $app->command('forget [path]', function ($path = null) {

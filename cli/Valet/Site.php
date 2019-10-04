@@ -109,7 +109,33 @@ class Site
 
         $certs = $this->getCertificates($certsPath);
 
-        return $this->getLinks($this->sitesPath(), $certs);
+        return $this->getSites($this->sitesPath(), $certs);
+    }
+
+    /**
+     * Pretty print out all parked links in Valet
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    function parked()
+    {
+        $certsPath = VALET_HOME_PATH.'/Certificates';
+
+        $this->files->ensureDirExists($certsPath, user());
+
+        $certs = $this->getCertificates($certsPath);
+
+        $config = $this->config->read();
+        $parkedLinks = collect();
+        foreach ($config['paths'] as $path) {
+            if ($path === $this->sitesPath()) {
+                continue;
+            }
+
+            $parkedLinks = $parkedLinks->merge($this->getSites($path, $certs));
+        }
+
+        return $parkedLinks;
     }
 
     /**
@@ -139,7 +165,7 @@ class Site
     }
 
     /**
-     * Get list of links and present them formatted.
+     * @deprecated Use getSites instead which works for both normal and symlinked paths.
      *
      * @param string $path
      * @param \Illuminate\Support\Collection $certs
@@ -147,10 +173,31 @@ class Site
      */
     function getLinks($path, $certs)
     {
+        return $this->getSites($path, $certs);
+    }
+
+    /**
+     * Get list of sites and return them formatted
+     * Will work for symlink and normal site paths
+     *
+     * @param $path
+     * @param $certs
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    function getSites($path, $certs)
+    {
         $config = $this->config->read();
 
         return collect($this->files->scandir($path))->mapWithKeys(function ($site) use ($path) {
-            return [$site => $this->files->readLink($path.'/'.$site)];
+            $sitePath = $path.'/'.$site;
+
+            if ($this->files->isLink($sitePath)) {
+                $realPath = $this->files->readLink($sitePath);
+            } else {
+                $realPath = $this->files->realpath($sitePath);
+            }
+            return [$site => $realPath];
         })->map(function ($path, $site) use ($certs, $config) {
             $secured = $certs->has($site);
             $url = ($secured ? 'https': 'http').'://'.$site.'.'.$config['tld'];
