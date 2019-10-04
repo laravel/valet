@@ -28,6 +28,28 @@ class SiteTest extends PHPUnit_Framework_TestCase
     }
 
 
+    public function test_get_certificates_will_return_with_multi_segment_tld()
+    {
+        $files = Mockery::mock(Filesystem::class);
+        $files->shouldReceive('scandir')
+            ->once()
+            ->with($certPath = '/Users/testuser/.config/valet/Certificates')
+            ->andReturn(['helloworld.multi.segment.tld.com.crt']);
+        $config = Mockery::mock(Configuration::class);
+        $config->shouldReceive('read')
+            ->once()
+            ->andReturn(['tld' => 'multi.segment.tld.com']);
+
+        swap(Filesystem::class, $files);
+        swap(Configuration::class, $config);
+
+        /** @var Site $site */
+        $site = resolve(Site::class);
+        $certs = $site->getCertificates($certPath);
+        $this->assertSame(['helloworld' => 0], $certs->all());
+    }
+
+
     public function test_get_sites_will_return_if_secured()
     {
         $files = Mockery::mock(Filesystem::class);
@@ -206,6 +228,12 @@ class SiteTest extends PHPUnit_Framework_TestCase
             'fiveletters.local.crt',
         ]);
 
+        $config = Mockery::mock(Configuration::class);
+        $config->shouldReceive('read')
+            ->once()
+            ->andReturn(['tld' => 'other']);
+
+        swap(Configuration::class, $config);
         swap(Filesystem::class, $files);
 
         $site = resolve(Site::class);

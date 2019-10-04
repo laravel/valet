@@ -31,7 +31,7 @@ if (is_dir(VALET_LEGACY_HOME_PATH) && !is_dir(VALET_HOME_PATH)) {
  */
 Container::setInstance(new Container);
 
-$version = '2.4.2';
+$version = '2.5.0';
 
 $app = new Application('Laravel Valet', $version);
 
@@ -250,7 +250,7 @@ if (is_dir(VALET_HOME_PATH)) {
      * Stop the daemon services.
      */
     $app->command('stop', function () {
-        PhpFpm::stop();
+        PhpFpm::stopRunning();
 
         Nginx::stop();
 
