@@ -119,7 +119,7 @@ $valetConfig = json_decode(
 /**
  * Parse the URI and site / host for the incoming request.
  */
-$uri = urldecode(
+$uri = rawurldecode(
     explode("?", $_SERVER['REQUEST_URI'])[0]
 );
 
