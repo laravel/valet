@@ -63,6 +63,7 @@ class SiteTest extends PHPUnit_Framework_TestCase
         $files->shouldReceive('realpath')
             ->twice()
             ->andReturn($dirPath . '/sitetwo', $dirPath . '/sitethree');
+        $files->shouldReceive('isDir')->andReturn(true);
 
         $config = Mockery::mock(Configuration::class);
         $config->shouldReceive('read')
@@ -117,6 +118,7 @@ class SiteTest extends PHPUnit_Framework_TestCase
             ->once()
             ->with($dirPath . '/sitetwo')
             ->andReturn($dirPath . '/sitetwo');
+        $files->shouldReceive('isDir')->once()->with($dirPath . '/sitetwo')->andReturn(true);
 
         $config = Mockery::mock(Configuration::class);
         $config->shouldReceive('read')
@@ -140,6 +142,41 @@ class SiteTest extends PHPUnit_Framework_TestCase
     }
 
 
+    public function test_get_sites_will_not_return_if_path_is_not_directory()
+    {
+        $files = Mockery::mock(Filesystem::class);
+        $dirPath = '/Users/usertest/parkedpath';
+        $files->shouldReceive('scandir')
+            ->once()
+            ->with($dirPath)
+            ->andReturn(['sitetwo', 'siteone']);
+        $files->shouldReceive('isLink')->andReturn(false);
+        $files->shouldReceive('realpath')->andReturn($dirPath . '/sitetwo', $dirPath . '/siteone');
+        $files->shouldReceive('isDir')->twice()
+            ->andReturn(false, true);
+
+        $config = Mockery::mock(Configuration::class);
+        $config->shouldReceive('read')
+            ->once()
+            ->andReturn(['tld' => 'local']);
+
+        swap(Filesystem::class, $files);
+        swap(Configuration::class, $config);
+
+        /** @var Site $site */
+        $site = resolve(Site::class);
+
+        $sites = $site->getSites($dirPath, collect());
+        $this->assertCount(1, $sites);
+        $this->assertSame([
+            'site' => 'siteone',
+            'secured' => '',
+            'url' => 'http://siteone.local',
+            'path' => $dirPath . '/siteone',
+        ], $sites->first());
+    }
+
+
     public function test_get_sites_will_work_with_symlinked_path()
     {
         $files = Mockery::mock(Filesystem::class);
@@ -156,6 +193,7 @@ class SiteTest extends PHPUnit_Framework_TestCase
             ->once()
             ->with($dirPath . '/siteone')
             ->andReturn($linkedPath = '/Users/usertest/linkedpath/siteone');
+        $files->shouldReceive('isDir')->andReturn(true);
 
         $config = Mockery::mock(Configuration::class);
         $config->shouldReceive('read')

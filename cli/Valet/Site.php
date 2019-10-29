@@ -198,6 +198,8 @@ class Site
                 $realPath = $this->files->realpath($sitePath);
             }
             return [$site => $realPath];
+        })->filter(function ($path) {
+            return $this->files->isDir($path);
         })->map(function ($path, $site) use ($certs, $config) {
             $secured = $certs->has($site);
             $url = ($secured ? 'https': 'http').'://'.$site.'.'.$config['tld'];
