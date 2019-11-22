@@ -2,8 +2,8 @@
 
 namespace Valet\Tests\Functional;
 
-use Filesystem;
 use Configuration;
+use Filesystem;
 
 /**
  * @group functional

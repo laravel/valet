@@ -27,7 +27,7 @@ class ShareTest extends FunctionalTestCase
     public function test_we_can_share_an_http_site()
     {
         // Start ngrok tunnel
-        $ngrok = $this->background($this->valet().' share', $_SERVER['HOME'] . '/valet-site');
+        $ngrok = $this->background($this->valet() . ' share', $_SERVER['HOME'] . '/valet-site');
 
         // Assert tunnel URL is reachable
         $tunnel = Ngrok::currentTunnelUrl();

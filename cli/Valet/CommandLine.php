@@ -9,29 +9,29 @@ class CommandLine
     /**
      * Simple global function to run commands.
      *
-     * @param  string  $command
+     * @param string $command
      * @return void
      */
     public function quietly($command)
     {
-        $this->runCommand($command.' > /dev/null 2>&1');
+        $this->runCommand($command . ' > /dev/null 2>&1');
     }
 
     /**
      * Simple global function to run commands.
      *
-     * @param  string  $command
+     * @param string $command
      * @return void
      */
     public function quietlyAsUser($command)
     {
-        $this->quietly('sudo -u '.user().' '.$command.' > /dev/null 2>&1');
+        $this->quietly('sudo -u ' . user() . ' ' . $command . ' > /dev/null 2>&1');
     }
 
     /**
      * Pass the command to the command line and display the output.
      *
-     * @param  string  $command
+     * @param string $command
      * @return void
      */
     public function passthru($command)
@@ -42,8 +42,8 @@ class CommandLine
     /**
      * Run the given command as the non-root user.
      *
-     * @param  string  $command
-     * @param  callable $onError
+     * @param string   $command
+     * @param callable $onError
      * @return string
      */
     public function run($command, callable $onError = null)
@@ -54,25 +54,26 @@ class CommandLine
     /**
      * Run the given command.
      *
-     * @param  string  $command
-     * @param  callable $onError
+     * @param string   $command
+     * @param callable $onError
      * @return string
      */
     public function runAsUser($command, callable $onError = null)
     {
-        return $this->runCommand('sudo -u '.user().' '.$command, $onError);
+        return $this->runCommand('sudo -u ' . user() . ' ' . $command, $onError);
     }
 
     /**
      * Run the given command.
      *
-     * @param  string  $command
-     * @param  callable $onError
+     * @param string   $command
+     * @param callable $onError
      * @return string
      */
     protected function runCommand($command, callable $onError = null)
     {
-        $onError = $onError ?: function () {};
+        $onError = $onError ?: function () {
+        };
 
         $process = new Process($command);
 

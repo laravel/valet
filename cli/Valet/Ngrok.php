@@ -2,8 +2,8 @@
 
 namespace Valet;
 
-use Httpful\Request;
 use DomainException;
+use Httpful\Request;
 
 class Ngrok
 {
@@ -33,7 +33,7 @@ class Ngrok
     /**
      * Find the HTTP tunnel URL from the list of tunnels.
      *
-     * @param  array  $tunnels
+     * @param array $tunnels
      * @return string|null
      */
     public function findHttpTunnelUrl(array $tunnels)

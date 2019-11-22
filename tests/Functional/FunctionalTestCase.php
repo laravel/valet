@@ -12,7 +12,7 @@ class FunctionalTestCase extends TestCase
      * Execute valet command.
      * Fail if exit code is different from 0.
      *
-     * @param string $command
+     * @param string      $command
      * @param null|string $workingDir
      * @return string
      */
@@ -39,7 +39,7 @@ class FunctionalTestCase extends TestCase
      * Pass the command to the command line and display the output.
      * Fail if exit code is different from 0.
      *
-     * @param string $command
+     * @param string      $command
      * @param null|string $workingDir
      * @return string
      */
@@ -66,7 +66,7 @@ class FunctionalTestCase extends TestCase
     /**
      * Run a command in the background.
      *
-     * @param string $command
+     * @param string      $command
      * @param null|string $workingDir
      * @return Process
      */

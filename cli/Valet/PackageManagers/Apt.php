@@ -13,7 +13,7 @@ class Apt implements PackageManager
     /**
      * Create a new Apt instance.
      *
-     * @param  CommandLine  $cli
+     * @param CommandLine $cli
      * @return void
      */
     public function __construct(CommandLine $cli)
@@ -24,7 +24,7 @@ class Apt implements PackageManager
     /**
      * Get array of installed packages
      *
-     * @param  string  $package
+     * @param string $package
      * @return array
      */
     public function packages($package)
@@ -37,7 +37,7 @@ class Apt implements PackageManager
     /**
      * Determine if the given package is installed.
      *
-     * @param  string $package
+     * @param string $package
      * @return bool
      */
     public function installed($package)
@@ -48,12 +48,12 @@ class Apt implements PackageManager
     /**
      * Ensure that the given package is installed.
      *
-     * @param  string $package
+     * @param string $package
      * @return void
      */
     public function ensureInstalled($package)
     {
-        if (! $this->installed($package)) {
+        if (!$this->installed($package)) {
             $this->installOrFail($package);
         }
     }
@@ -61,17 +61,17 @@ class Apt implements PackageManager
     /**
      * Install the given package and throw an exception on failure.
      *
-     * @param  string $package
+     * @param string $package
      * @return void
      */
     public function installOrFail($package)
     {
-        output('<info>['.$package.'] is not installed, installing it now via Apt...</info> 🍻');
+        output('<info>[' . $package . '] is not installed, installing it now via Apt...</info> 🍻');
 
-        $this->cli->run(trim('apt-get install -y '.$package), function ($exitCode, $errorOutput) use ($package) {
+        $this->cli->run(trim('apt-get install -y ' . $package), function ($exitCode, $errorOutput) use ($package) {
             output($errorOutput);
 
-            throw new DomainException('Apt was unable to install ['.$package.'].');
+            throw new DomainException('Apt was unable to install [' . $package . '].');
         });
     }
 

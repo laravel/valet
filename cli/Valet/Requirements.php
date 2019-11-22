@@ -28,6 +28,7 @@ class Requirements
     public function setIgnoreSELinux($ignore = true)
     {
         $this->ignoreSELinux = $ignore;
+
         return $this;
     }
 

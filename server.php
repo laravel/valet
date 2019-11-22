@@ -4,7 +4,7 @@
  * Define the user's "~/.valet" path.
  */
 
-define('VALET_HOME_PATH', posix_getpwuid(fileowner(__FILE__))['dir'].'/.valet');
+define('VALET_HOME_PATH', posix_getpwuid(fileowner(__FILE__))['dir'] . '/.valet');
 define('VALET_STATIC_PREFIX', '41c270e4-5535-4daa-b23e-c269744c2f45');
 
 /**
@@ -13,7 +13,7 @@ define('VALET_STATIC_PREFIX', '41c270e4-5535-4daa-b23e-c269744c2f45');
 function show_valet_404()
 {
     http_response_code(404);
-    require __DIR__.'/cli/templates/404.html';
+    require __DIR__ . '/cli/templates/404.html';
     exit;
 }
 
@@ -33,7 +33,7 @@ function valet_support_xip_io($domain)
     }
 
     if (strpos($domain, ':') !== false) {
-        $domain = explode(':',$domain)[0];
+        $domain = explode(':', $domain)[0];
     }
 
     return $domain;
@@ -45,10 +45,11 @@ function valet_support_xip_io($domain)
  * @param string $path
  * @return string Slug version of last folder name
  */
-function valet_path_to_slug($path) {
+function valet_path_to_slug($path)
+{
     $replace = [
         '&lt;' => '', '&gt;' => '', '&#039;' => '', '&amp;' => '',
-        '&quot;' => '', 'À' => 'A', 'Á' => 'A', 'Â' => 'A', 'Ã' => 'A', 'Ä'=> 'Ae',
+        '&quot;' => '', 'À' => 'A', 'Á' => 'A', 'Â' => 'A', 'Ã' => 'A', 'Ä' => 'Ae',
         '&Auml;' => 'A', 'Å' => 'A', 'Ā' => 'A', 'Ą' => 'A', 'Ă' => 'A', 'Æ' => 'Ae',
         'Ç' => 'C', 'Ć' => 'C', 'Č' => 'C', 'Ĉ' => 'C', 'Ċ' => 'C', 'Ď' => 'D', 'Đ' => 'D',
         'Ð' => 'D', 'È' => 'E', 'É' => 'E', 'Ê' => 'E', 'Ë' => 'E', 'Ē' => 'E',
@@ -91,7 +92,7 @@ function valet_path_to_slug($path) {
         'м' => 'm', 'н' => 'n', 'о' => 'o', 'п' => 'p', 'р' => 'r', 'с' => 's',
         'т' => 't', 'у' => 'u', 'ф' => 'f', 'х' => 'h', 'ц' => 'c', 'ч' => 'ch',
         'ш' => 'sh', 'щ' => 'sch', 'ъ' => '', 'ы' => 'y', 'ь' => '', 'э' => 'e',
-        'ю' => 'yu', 'я' => 'ya'
+        'ю' => 'yu', 'я' => 'ya',
     ];
 
     // make a human readable string
@@ -113,7 +114,7 @@ function valet_path_to_slug($path) {
  * Load the Valet configuration.
  */
 $valetConfig = json_decode(
-    file_get_contents(VALET_HOME_PATH.'/config.json'), true
+    file_get_contents(VALET_HOME_PATH . '/config.json'), true
 );
 
 /**
@@ -124,9 +125,9 @@ $uri = rawurldecode(
 );
 
 $siteName = basename(
-    // Filter host to support xip.io feature
-    valet_support_xip_io(explode(':',strtolower($_SERVER['HTTP_HOST']))[0]),
-    '.'.$valetConfig['domain']
+// Filter host to support xip.io feature
+    valet_support_xip_io(explode(':', strtolower($_SERVER['HTTP_HOST']))[0]),
+    '.' . $valetConfig['domain']
 );
 
 if (strpos($siteName, 'www.') === 0) {
@@ -140,8 +141,8 @@ $valetSitePath = null;
 
 foreach ($valetConfig['paths'] as $path) {
     $domain = ($pos = strrpos($siteName, '.')) !== false
-                ? substr($siteName, $pos+1)
-                : null;
+        ? substr($siteName, $pos + 1)
+        : null;
 
     foreach (glob($path . '/*', GLOB_ONLYDIR) as $dirPath) {
         $slug = valet_path_to_slug($dirPath);
@@ -163,11 +164,11 @@ if ($valetSitePath === null) {
  */
 $valetDriver = null;
 
-require __DIR__.'/cli/drivers/require.php';
+require __DIR__ . '/cli/drivers/require.php';
 
 $valetDriver = ValetDriver::assign($valetSitePath, $siteName, $uri);
 
-if (! $valetDriver) {
+if (!$valetDriver) {
     show_valet_404();
 }
 
@@ -188,8 +189,9 @@ $uri = $valetDriver->mutateUri($uri);
  */
 $isPhpFile = pathinfo($uri, PATHINFO_EXTENSION) === 'php';
 
-if ($uri !== '/' && ! $isPhpFile && $staticFilePath = $valetDriver->isStaticFile($valetSitePath, $siteName, $uri)) {
+if ($uri !== '/' && !$isPhpFile && $staticFilePath = $valetDriver->isStaticFile($valetSitePath, $siteName, $uri)) {
     $valetDriver->serveStaticFile($staticFilePath, $valetSitePath, $siteName, $uri);
+
     return;
 }
 
@@ -200,7 +202,7 @@ $frontControllerPath = $valetDriver->frontControllerPath(
     $valetSitePath, $siteName, $uri
 );
 
-if (! $frontControllerPath) {
+if (!$frontControllerPath) {
     show_valet_404();
 }
 

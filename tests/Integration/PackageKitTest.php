@@ -1,9 +1,9 @@
 <?php
 
-use Valet\CommandLine;
-use Valet\PackageManagers\PackageKit;
 use Illuminate\Container\Container;
 use PHPUnit\Framework\TestCase;
+use Valet\CommandLine;
+use Valet\PackageManagers\PackageKit;
 
 class PackageKitTest extends TestCase
 {

@@ -19,24 +19,24 @@ class DnsMasq
     /**
      * Create a new DnsMasq instance.
      *
-     * @param PackageManager $pm    PackageManager object
-     * @param ServiceManager $sm    ServiceManager object
+     * @param PackageManager $pm PackageManager object
+     * @param ServiceManager $sm ServiceManager object
      * @param Filesystem     $files Filesystem     object
-     * @param CommandLine    $cli   CommandLine    object
+     * @param CommandLine    $cli CommandLine    object
      *
      * @return void
      */
     public function __construct(PackageManager $pm, ServiceManager $sm, Filesystem $files, CommandLine $cli)
     {
-        $this->pm    = $pm;
-        $this->sm    = $sm;
-        $this->cli   = $cli;
+        $this->pm = $pm;
+        $this->sm = $sm;
+        $this->cli = $cli;
         $this->files = $files;
         $this->rclocal = '/etc/rc.local';
-        $this->resolvconf   = '/etc/resolv.conf';
-        $this->dnsmasqconf  = '/etc/dnsmasq.conf';
-        $this->configPath   = '/etc/dnsmasq.d/valet';
-        $this->dnsmasqOpts  = '/etc/dnsmasq.d/options';
+        $this->resolvconf = '/etc/resolv.conf';
+        $this->dnsmasqconf = '/etc/dnsmasq.conf';
+        $this->configPath = '/etc/dnsmasq.d/valet';
+        $this->dnsmasqOpts = '/etc/dnsmasq.d/options';
         $this->nmConfigPath = '/etc/NetworkManager/conf.d/valet.conf';
         $this->resolvedConfigPath = '/etc/systemd/resolved.conf';
     }
@@ -52,7 +52,7 @@ class DnsMasq
     {
         $arg = $lock ? '+i' : '-i';
 
-        if (! $this->files->isLink($this->resolvconf)) {
+        if (!$this->files->isLink($this->resolvconf)) {
             $this->cli->run(
                 "chattr {$arg} {$this->resolvconf}",
                 function ($code, $msg) {
@@ -69,20 +69,20 @@ class DnsMasq
      */
     private function _mergeDns()
     {
-        $optDir  = '/opt/valet-linux';
-        $script  = $optDir.'/valet-dns';
+        $optDir = '/opt/valet-linux';
+        $script = $optDir . '/valet-dns';
 
         $this->pm->ensureInstalled('inotify-tools');
         $this->files->remove($optDir);
         $this->files->ensureDirExists($optDir);
-        $this->files->put($script, $this->files->get(__DIR__.'/../stubs/valet-dns'));
+        $this->files->put($script, $this->files->get(__DIR__ . '/../stubs/valet-dns'));
         $this->cli->run("chmod +x $script");
         $this->sm->installValetDns($this->files);
-        
+
         if ($this->files->exists($this->rclocal)) {
             $this->files->restore($this->rclocal);
         }
-        
+
         $this->files->backup($this->resolvconf);
         $this->files->unlink($this->resolvconf);
         $this->files->symlink($script, $this->resolvconf);
@@ -116,7 +116,7 @@ class DnsMasq
      */
     public function createCustomConfigFile($domain)
     {
-        $this->files->putAsUser($this->configPath, 'address=/.'.$domain.'/127.0.0.1'.PHP_EOL);
+        $this->files->putAsUser($this->configPath, 'address=/.' . $domain . '/127.0.0.1' . PHP_EOL);
     }
 
     /**
@@ -156,9 +156,9 @@ class DnsMasq
         $this->files->unlink('/etc/dnsmasq.d/network-manager');
         $this->files->backup($this->dnsmasqconf);
 
-        $this->files->putAsUser($this->dnsmasqconf, $this->files->get(__DIR__.'/../stubs/dnsmasq.conf'));
-        $this->files->putAsUser($this->dnsmasqOpts, $this->files->get(__DIR__.'/../stubs/dnsmasq_options'));
-        $this->files->putAsUser($this->nmConfigPath, $this->files->get(__DIR__.'/../stubs/networkmanager.conf'));
+        $this->files->putAsUser($this->dnsmasqconf, $this->files->get(__DIR__ . '/../stubs/dnsmasq.conf'));
+        $this->files->putAsUser($this->dnsmasqOpts, $this->files->get(__DIR__ . '/../stubs/dnsmasq_options'));
+        $this->files->putAsUser($this->nmConfigPath, $this->files->get(__DIR__ . '/../stubs/networkmanager.conf'));
     }
 
     /**
@@ -190,7 +190,7 @@ class DnsMasq
         $this->files->unlink($this->dnsmasqOpts);
         $this->files->unlink($this->nmConfigPath);
         $this->files->restore($this->resolvedConfigPath);
-        
+
         $this->_lockResolvConf(false);
         $this->files->restore($this->rclocal);
         $this->files->restore($this->resolvconf);

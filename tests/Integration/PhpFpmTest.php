@@ -1,10 +1,10 @@
 <?php
 
-use Valet\PhpFpm;
-use Valet\Contracts\PackageManager;
-use Valet\Contracts\ServiceManager;
 use Illuminate\Container\Container;
 use PHPUnit\Framework\TestCase;
+use Valet\Contracts\PackageManager;
+use Valet\Contracts\ServiceManager;
+use Valet\PhpFpm;
 
 class PhpFpmTest extends TestCase
 {
@@ -18,7 +18,7 @@ class PhpFpmTest extends TestCase
 
     public function tearDown()
     {
-        exec('rm -rf '.__DIR__.'/output');
+        exec('rm -rf ' . __DIR__ . '/output');
         mkdir(__DIR__ . '/output');
         touch(__DIR__ . '/output/.gitkeep');
 
@@ -39,7 +39,7 @@ class PhpFpmTest extends TestCase
         $this->assertContains(sprintf("\ngroup = %s", group()), $contents);
         $this->assertContains(sprintf("\nlisten.owner = %s", user()), $contents);
         $this->assertContains(sprintf("\nlisten.group = %s", group()), $contents);
-        $this->assertContains("\nlisten = ".VALET_HOME_PATH."/valet.sock", $contents);
+        $this->assertContains("\nlisten = " . VALET_HOME_PATH . "/valet.sock", $contents);
     }
 }
 

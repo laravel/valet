@@ -11,9 +11,9 @@ class Site
     /**
      * Create a new Site instance.
      *
-     * @param  Configuration $config
-     * @param  CommandLine $cli
-     * @param  Filesystem $files
+     * @param Configuration $config
+     * @param CommandLine   $cli
+     * @param Filesystem    $files
      */
     public function __construct(Configuration $config, CommandLine $cli, Filesystem $files)
     {
@@ -25,13 +25,13 @@ class Site
     /**
      * Get the real hostname for the given path, checking links.
      *
-     * @param  string $path
+     * @param string $path
      * @return string|null
      */
     public function host($path)
     {
         foreach ($this->files->scandir($this->sitesPath()) as $link) {
-            if ($resolved = realpath($this->sitesPath() . '/' . $link) === $path) {
+            if (realpath($this->sitesPath() . '/' . $link) === $path) {
                 return $link;
             }
         }
@@ -42,8 +42,8 @@ class Site
     /**
      * Link the current working directory with the given name.
      *
-     * @param  string $target
-     * @param  string $link
+     * @param string $target
+     * @param string $link
      * @return string
      */
     public function link($target, $link)
@@ -94,7 +94,7 @@ class Site
     /**
      * Get list of links and present them formatted.
      *
-     * @param string $path
+     * @param string                         $path
      * @param \Illuminate\Support\Collection $certs
      * @return \Illuminate\Support\Collection
      */
@@ -143,7 +143,7 @@ class Site
     /**
      * Unlink the given symbolic link.
      *
-     * @param  string $name
+     * @param string $name
      * @return void
      */
     public function unlink($name)
@@ -168,8 +168,8 @@ class Site
     /**
      * Resecure all currently secured sites with a fresh domain.
      *
-     * @param  string $oldDomain
-     * @param  string $domain
+     * @param string $oldDomain
+     * @param string $domain
      * @return void
      */
     public function resecureForNewDomain($oldDomain, $domain)
@@ -205,7 +205,7 @@ class Site
     /**
      * Secure the given host with TLS.
      *
-     * @param  string $url
+     * @param string $url
      * @return void
      */
     public function secure($url)
@@ -222,7 +222,7 @@ class Site
     /**
      * Create and trust a certificate for the given URL.
      *
-     * @param  string $url
+     * @param string $url
      * @return void
      */
     public function createCertificate($url)
@@ -247,7 +247,7 @@ class Site
     /**
      * Create the private key for the TLS certificate.
      *
-     * @param  string $keyPath
+     * @param string $keyPath
      * @return void
      */
     public function createPrivateKey($keyPath)
@@ -258,7 +258,7 @@ class Site
     /**
      * Create the signing request for the TLS certificate.
      *
-     * @param  string $keyPath
+     * @param string $keyPath
      * @return void
      */
     public function createSigningRequest($url, $keyPath, $csrPath, $confPath)
@@ -272,7 +272,7 @@ class Site
     /**
      * Build the SSL config for the given URL.
      *
-     * @param  string $url
+     * @param string $url
      * @return string
      */
     public function buildCertificateConf($path, $url)
@@ -284,7 +284,7 @@ class Site
     /**
      * Trust the given certificate file in the Mac Keychain.
      *
-     * @param  string $crtPath
+     * @param string $crtPath
      * @return void
      */
     public function trustCertificate($crtPath, $url)
@@ -312,7 +312,7 @@ class Site
     /**
      * Build the TLS secured Nginx server for the given URL.
      *
-     * @param  string $url
+     * @param string $url
      * @return string
      */
     public function buildSecureNginxServer($url)
@@ -338,7 +338,7 @@ class Site
     /**
      * Unsecure the given URL so that it will use HTTP again.
      *
-     * @param  string $url
+     * @param string $url
      * @return void
      */
     public function unsecure($url)

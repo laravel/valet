@@ -1,9 +1,9 @@
 <?php
 
-use Valet\CommandLine;
-use Valet\PackageManagers\Apt;
 use Illuminate\Container\Container;
 use PHPUnit\Framework\TestCase;
+use Valet\CommandLine;
+use Valet\PackageManagers\Apt;
 
 class AptTest extends TestCase
 {

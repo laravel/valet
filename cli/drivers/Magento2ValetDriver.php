@@ -13,9 +13,9 @@ class Magento2ValetDriver extends ValetDriver
     /**
      * Determine if the driver serves the request.
      *
-     * @param  string $sitePath
-     * @param  string $siteName
-     * @param  string $uri
+     * @param string $sitePath
+     * @param string $siteName
+     * @param string $uri
      * @return boolean
      */
     public function serves($sitePath, $siteName, $uri)
@@ -26,9 +26,9 @@ class Magento2ValetDriver extends ValetDriver
     /**
      * Determine if the incoming request is for a static file.
      *
-     * @param  string $sitePath
-     * @param  string $siteName
-     * @param  string $uri
+     * @param string $sitePath
+     * @param string $siteName
+     * @param string $uri
      * @return string|false
      */
     public function isStaticFile($sitePath, $siteName, $uri)
@@ -77,7 +77,7 @@ class Magento2ValetDriver extends ValetDriver
      * Rewrite URLs that look like "versions12345/" to remove
      * the versions12345/ part
      *
-     * @param  string $route
+     * @param string $route
      */
     private function handleForVersions($route)
     {
@@ -87,7 +87,7 @@ class Magento2ValetDriver extends ValetDriver
     /**
      * Determine the current MAGE_MODE
      *
-     * @param  string $sitePath
+     * @param string $sitePath
      */
     private function checkMageMode($sitePath)
     {
@@ -97,6 +97,7 @@ class Magento2ValetDriver extends ValetDriver
         }
         if (!file_exists($sitePath . '/index.php')) {
             $this->mageMode = 'production'; // Can't use developer mode without index.php in project root
+
             return;
         }
         $mageConfig = [];
@@ -128,15 +129,16 @@ class Magento2ValetDriver extends ValetDriver
                 return true;
             }
         }
+
         return false;
     }
 
     /**
      * Get the fully resolved path to the application's front controller.
      *
-     * @param  string $sitePath
-     * @param  string $siteName
-     * @param  string $uri
+     * @param string $sitePath
+     * @param string $siteName
+     * @param string $uri
      * @return string
      */
     public function frontControllerPath($sitePath, $siteName, $uri)
@@ -145,9 +147,11 @@ class Magento2ValetDriver extends ValetDriver
 
         if ('developer' === $this->mageMode) {
             $_SERVER['DOCUMENT_ROOT'] = $sitePath;
+
             return $sitePath . '/index.php';
         }
         $_SERVER['DOCUMENT_ROOT'] = $sitePath . '/pub';
+
         return $sitePath . '/pub/index.php';
     }
 }

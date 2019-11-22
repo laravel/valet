@@ -41,14 +41,15 @@ class Typo3ValetDriver extends ValetDriver
      * Determine if the driver serves the request. For TYPO3, this is the
      * case, if a folder called "typo3" is present in the document root.
      *
-     * @param  string  $sitePath
-     * @param  string  $siteName
-     * @param  string  $uri
+     * @param string $sitePath
+     * @param string $siteName
+     * @param string $uri
      * @return bool
      */
     public function serves($sitePath, $siteName, $uri)
     {
         $typo3Dir = $sitePath . $this->documentRoot . '/typo3';
+
         return file_exists($typo3Dir) && is_dir($typo3Dir);
     }
 
@@ -57,9 +58,9 @@ class Typo3ValetDriver extends ValetDriver
      * no PHP script file and the URI points to a valid file (no folder) on
      * the disk. Access to those static files will be authorized.
      *
-     * @param  string  $sitePath
-     * @param  string  $siteName
-     * @param  string  $uri
+     * @param string $sitePath
+     * @param string $siteName
+     * @param string $uri
      * @return string|false
      */
     public function isStaticFile($sitePath, $siteName, $uri)
@@ -95,6 +96,7 @@ class Typo3ValetDriver extends ValetDriver
                 return false;
             }
         }
+
         return true;
     }
 
@@ -103,9 +105,9 @@ class Typo3ValetDriver extends ValetDriver
      * This can be the currently requested PHP script, a folder that
      * contains an index.php or the global index.php otherwise.
      *
-     * @param  string  $sitePath
-     * @param  string  $siteName
-     * @param  string  $uri
+     * @param string $sitePath
+     * @param string $siteName
+     * @param string $uri
      * @return string
      */
     public function frontControllerPath($sitePath, $siteName, $uri)
@@ -162,10 +164,10 @@ class Typo3ValetDriver extends ValetDriver
      * Configures the $_SERVER globals for serving the script at
      * the specified URI and returns it absolute file path.
      *
-     * @param  string  $sitePath
-     * @param  string  $siteName
-     * @param  string  $uri
-     * @param  string  $script
+     * @param string $sitePath
+     * @param string $siteName
+     * @param string $uri
+     * @param string $script
      * @return string
      */
     private function serveScript($sitePath, $siteName, $uri)

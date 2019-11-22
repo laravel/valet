@@ -1,9 +1,9 @@
 <?php
 
 use Illuminate\Container\Container;
+use PHPUnit\Framework\TestCase;
 use Valet\CommandLine;
 use Valet\Requirements;
-use PHPUnit\Framework\TestCase;
 
 class RequirementsTest extends TestCase
 {

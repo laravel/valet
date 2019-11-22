@@ -1,12 +1,12 @@
 <?php
 
-use Valet\DnsMasq;
-use Valet\Filesystem;
+use Illuminate\Container\Container;
+use PHPUnit\Framework\TestCase;
 use Valet\CommandLine;
 use Valet\Contracts\PackageManager;
 use Valet\Contracts\ServiceManager;
-use Illuminate\Container\Container;
-use PHPUnit\Framework\TestCase;
+use Valet\DnsMasq;
+use Valet\Filesystem;
 
 class DnsMasqTest extends TestCase
 {
@@ -19,7 +19,7 @@ class DnsMasqTest extends TestCase
 
     public function tearDown()
     {
-        exec('rm -rf '.__DIR__.'/output');
+        exec('rm -rf ' . __DIR__ . '/output');
         mkdir(__DIR__ . '/output');
         touch(__DIR__ . '/output/.gitkeep');
 
@@ -39,7 +39,7 @@ class DnsMasqTest extends TestCase
 
         $dnsMasq->createCustomConfigFile('test');
 
-        $this->assertSame('address=/.test/127.0.0.1'.PHP_EOL, file_get_contents(__DIR__ . '/output/valet'));
+        $this->assertSame('address=/.test/127.0.0.1' . PHP_EOL, file_get_contents(__DIR__ . '/output/valet'));
     }
 
     public function test_update_domain_removes_old_resolver_and_reinstalls()
@@ -49,7 +49,7 @@ class DnsMasqTest extends TestCase
         $cli = Mockery::mock(Filesystem::class);
         $files = Mockery::mock(CommandLine::class);
 
-        $dnsMasq = Mockery::mock(DnsMasq::class.'[createCustomConfigFile,fixResolved]', [$pm, $sm, $cli, $files]);
+        $dnsMasq = Mockery::mock(DnsMasq::class . '[createCustomConfigFile,fixResolved]', [$pm, $sm, $cli, $files]);
 
         $dnsMasq->shouldReceive('createCustomConfigFile')->once()->with('new');
         $sm->shouldReceive('restart')->once()->with('dnsmasq');

@@ -1,37 +1,36 @@
 <?php
 
 use Illuminate\Container\Container;
-use Symfony\Component\Process\Process;
-use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 /**
  * Define the ~/.valet path as a constant.
  */
-define('VALET_HOME_PATH', $_SERVER['HOME'].'/.valet');
+define('VALET_HOME_PATH', $_SERVER['HOME'] . '/.valet');
 define('VALET_SERVER_PATH', realpath(__DIR__ . '/../../server.php'));
 define('VALET_STATIC_PREFIX', '41c270e4-5535-4daa-b23e-c269744c2f45');
 
 /**
  * Output the given text to the console.
  *
- * @param  string  $output
+ * @param string $output
  * @return void
  */
 function info($output)
 {
-    output('<info>'.$output.'</info>');
+    output('<info>' . $output . '</info>');
 }
 
 /**
  * Output the given text to the console.
  *
- * @param  string  $output
+ * @param string $output
  * @return void
  */
 function warning($output)
 {
-    output('<fg=red>'.$output.'</>');
+    output('<fg=red>' . $output . '</>');
 }
 
 /**
@@ -53,7 +52,7 @@ function table(array $headers = [], array $rows = [])
 /**
  * Output the given text to the console.
  *
- * @param  string  $output
+ * @param string $output
  * @return void
  */
 function output($output)
@@ -65,11 +64,11 @@ function output($output)
     (new ConsoleOutput)->writeln($output);
 }
 
-if (! function_exists('resolve')) {
+if (!function_exists('resolve')) {
     /**
      * Resolve the given class from the container.
      *
-     * @param  string  $class
+     * @param string $class
      * @return mixed
      */
     function resolve($class)
@@ -81,8 +80,8 @@ if (! function_exists('resolve')) {
 /**
  * Swap the given class implementation in the container.
  *
- * @param  string  $class
- * @param  mixed  $instance
+ * @param string $class
+ * @param mixed  $instance
  * @return void
  */
 function swap($class, $instance)
@@ -90,13 +89,13 @@ function swap($class, $instance)
     Container::getInstance()->instance($class, $instance);
 }
 
-if (! function_exists('retry')) {
+if (!function_exists('retry')) {
     /**
      * Retry the given function N times.
      *
-     * @param  int  $retries
-     * @param  callable  $retries
-     * @param  int  $sleep
+     * @param int      $retries
+     * @param callable $retries
+     * @param int      $sleep
      * @return mixed
      */
     function retry($retries, $fn, $sleep = 0)
@@ -105,7 +104,7 @@ if (! function_exists('retry')) {
         try {
             return $fn();
         } catch (Exception $e) {
-            if (! $retries) {
+            if (!$retries) {
                 throw $e;
             }
 
@@ -127,17 +126,17 @@ if (! function_exists('retry')) {
  */
 function should_be_sudo()
 {
-    if (! isset($_SERVER['SUDO_USER'])) {
+    if (!isset($_SERVER['SUDO_USER'])) {
         throw new Exception('This command must be run with sudo.');
     }
 }
 
-if (! function_exists('tap')) {
+if (!function_exists('tap')) {
     /**
      * Tap the given value.
      *
-     * @param  mixed  $value
-     * @param  callable  $callback
+     * @param mixed    $value
+     * @param callable $callback
      * @return mixed
      */
     function tap($value, callable $callback)
@@ -148,21 +147,22 @@ if (! function_exists('tap')) {
     }
 }
 
-if (! function_exists('ends_with')) {
+if (!function_exists('ends_with')) {
     /**
      * Determine if a given string ends with a given substring.
      *
-     * @param  string  $haystack
-     * @param  string|array  $needles
+     * @param string       $haystack
+     * @param string|array $needles
      * @return bool
      */
     function ends_with($haystack, $needles)
     {
-        foreach ((array) $needles as $needle) {
-            if (substr($haystack, -strlen($needle)) === (string) $needle) {
+        foreach ((array)$needles as $needle) {
+            if (substr($haystack, -strlen($needle)) === (string)$needle) {
                 return true;
             }
         }
+
         return false;
     }
 }
@@ -172,7 +172,7 @@ if (! function_exists('ends_with')) {
  */
 function user()
 {
-    if (! isset($_SERVER['SUDO_USER'])) {
+    if (!isset($_SERVER['SUDO_USER'])) {
         return $_SERVER['USER'];
     }
 
@@ -184,17 +184,17 @@ function user()
  */
 function group()
 {
-    if (! isset($_SERVER['SUDO_USER'])) {
-        return exec('id -gn '.$_SERVER['USER']);
+    if (!isset($_SERVER['SUDO_USER'])) {
+        return exec('id -gn ' . $_SERVER['USER']);
     }
 
-    return exec('id -gn '.$_SERVER['SUDO_USER']);
+    return exec('id -gn ' . $_SERVER['SUDO_USER']);
 }
 
 /**
  * Search and replace using associative array
  *
- * @param array $searchAndReplace
+ * @param array  $searchAndReplace
  * @param string $subject
  * @return string
  */

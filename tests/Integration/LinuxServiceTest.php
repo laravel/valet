@@ -1,9 +1,9 @@
 <?php
 
-use Valet\CommandLine;
 use Illuminate\Container\Container;
-use Valet\ServiceManagers\LinuxService;
 use PHPUnit\Framework\TestCase;
+use Valet\CommandLine;
+use Valet\ServiceManagers\LinuxService;
 
 class LinuxServiceTest extends TestCase
 {

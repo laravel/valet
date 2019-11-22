@@ -1,13 +1,13 @@
 <?php
 
-use Valet\Filesystem;
 use PHPUnit\Framework\TestCase;
+use Valet\Filesystem;
 
 class FilesystemTest extends TestCase
 {
     public function tearDown()
     {
-        exec('rm -rf '.__DIR__.'/output');
+        exec('rm -rf ' . __DIR__ . '/output');
         mkdir(__DIR__ . '/output');
         touch(__DIR__ . '/output/.gitkeep');
     }
