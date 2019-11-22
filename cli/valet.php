@@ -30,7 +30,7 @@ Valet::environmentSetup();
 /**
  * Allow Valet to be run more conveniently by allowing the Node proxy to run password-less sudo.
  */
-$app->command('install [--ignore-selinux]', function ($ignoreSELinux) {
+$app->command('install [--ignore-selinux]', static function ($ignoreSELinux) {
     passthru(dirname(__FILE__).'/scripts/update.sh'); // Clean up cruft
 
     Requirements::setIgnoreSELinux($ignoreSELinux)->check();
@@ -59,7 +59,7 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Get or set the domain currently being used by Valet.
      */
-    $app->command('domain [domain]', function ($domain = null) {
+    $app->command('domain [domain]', static function ($domain = null) {
         if ($domain === null) {
             return info(Configuration::read()['domain']);
         }
@@ -79,7 +79,7 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Get or set the port number currently being used by Valet.
      */
-    $app->command('port [port] [--https]', function ($port = null, $https) {
+    $app->command('port [port] [--https]', static function ($port = null, $https = false) {
         if ($port === null) {
             info('Current Nginx port (HTTP): ' . Configuration::get('port', 80));
             info('Current Nginx port (HTTPS): ' . Configuration::get('https_port', 443));
@@ -107,7 +107,7 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Determine if the site is secured or not
      */
-    $app->command('secured [site]', function ($site) {
+    $app->command('secured [site]', static function ($site) {
         if (Site::secured()->contains($site)) {
             info("{$site} is secured.");
             return 1;
@@ -120,7 +120,7 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Add the current working directory to the paths configuration.
      */
-    $app->command('park [path]', function ($path = null) {
+    $app->command('park [path]', static function ($path = null) {
         Configuration::addPath($path ?: getcwd());
 
         info(($path === null ? "This" : "The [{$path}]") . " directory has been added to Valet's paths.");
@@ -129,7 +129,7 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Remove the current working directory from the paths configuration.
      */
-    $app->command('forget [path]', function ($path = null) {
+    $app->command('forget [path]', static function ($path = null) {
         Configuration::removePath($path ?: getcwd());
 
         info(($path === null ? "This" : "The [{$path}]") . " directory has been removed from Valet's paths.");
@@ -146,7 +146,7 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Register a symbolic link with Valet.
      */
-    $app->command('link [name]', function ($name) {
+    $app->command('link [name]', static function ($name) {
         $linkPath = Site::link(getcwd(), $name = $name ?: basename(getcwd()));
 
         info('A ['.$name.'] symbolic link has been created in ['.$linkPath.'].');
@@ -155,7 +155,7 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Display all of the registered symbolic links.
      */
-    $app->command('links', function () {
+    $app->command('links', static function () {
         $links = Site::links();
 
         table(['Site', 'SSL', 'URL', 'Path'], $links->all());
@@ -164,7 +164,7 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Unlink a link from the Valet links directory.
      */
-    $app->command('unlink [name]', function ($name) {
+    $app->command('unlink [name]', static function ($name) {
         Site::unlink($name = $name ?: basename(getcwd()));
 
         info('The ['.$name.'] symbolic link has been removed.');
@@ -173,7 +173,7 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Secure the given domain with a trusted TLS certificate.
      */
-    $app->command('secure [domain]', function ($domain = null) {
+    $app->command('secure [domain]', static function ($domain = null) {
         $url = ($domain ?: Site::host(getcwd())).'.'.Configuration::read()['domain'];
 
         Site::secure($url);
@@ -186,7 +186,7 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Stop serving the given domain over HTTPS and remove the trusted TLS certificate.
      */
-    $app->command('unsecure [domain]', function ($domain = null) {
+    $app->command('unsecure [domain]', static function ($domain = null) {
         $url = ($domain ?: Site::host(getcwd())).'.'.Configuration::read()['domain'];
 
         Site::unsecure($url);
@@ -199,7 +199,7 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Determine which Valet driver the current directory is using.
      */
-    $app->command('which', function () {
+    $app->command('which', static function () {
         require __DIR__.'/drivers/require.php';
 
         $driver = ValetDriver::assign(getcwd(), basename(getcwd()), '/');
@@ -214,7 +214,7 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Display all of the registered paths.
      */
-    $app->command('paths', function () {
+    $app->command('paths', static function () {
         $paths = Configuration::read()['paths'];
 
         if (count($paths) > 0) {
@@ -227,7 +227,7 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Open the current directory in the browser.
      */
-     $app->command('open [domain]', function ($domain = null) {
+     $app->command('open [domain]', static function ($domain = null) {
         $url = 'http://'.($domain ?: Site::host(getcwd())).'.'.Configuration::read()['domain'].'/';
 
         passthru('xdg-open '.escapeshellarg($url));
@@ -236,21 +236,21 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Generate a publicly accessible URL for your project.
      */
-    $app->command('share', function () {
+    $app->command('share', static function () {
         warning("It looks like you are running `cli/valet.php` directly, please use the `valet` script in the project root instead.");
     })->descriptions('Generate a publicly accessible URL for your project');
 
     /**
      * Echo the currently tunneled URL.
      */
-    $app->command('fetch-share-url', function () {
+    $app->command('fetch-share-url', static function () {
         output(Ngrok::currentTunnelUrl());
     })->descriptions('Get the URL to the current Ngrok tunnel');
 
     /**
      * Start the daemon services.
      */
-    $app->command('start', function () {
+    $app->command('start', static function () {
         PhpFpm::restart();
         Nginx::restart();
 
@@ -260,7 +260,7 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Restart the daemon services.
      */
-    $app->command('restart', function () {
+    $app->command('restart', static function () {
         PhpFpm::restart();
         Nginx::restart();
 
@@ -270,7 +270,7 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Stop the daemon services.
      */
-    $app->command('stop', function () {
+    $app->command('stop', static function () {
         PhpFpm::stop();
         Nginx::stop();
 
@@ -280,7 +280,7 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Uninstall Valet entirely.
      */
-    $app->command('uninstall', function () {
+    $app->command('uninstall', static function () {
         Nginx::uninstall();
         PhpFpm::uninstall();
         DnsMasq::uninstall();
@@ -293,7 +293,7 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Determine if this is the latest release of Valet.
      */
-    $app->command('update', function () use ($version) {
+    $app->command('update', static function () use ($version) {
         $script = dirname(__FILE__).'/scripts/update.sh';
 
         if (Valet::onLatestVersion($version)) {
@@ -309,7 +309,7 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Change the PHP version to the desired one.
      */
-    $app->command('use [preferedversion]', function ($preferedversion = null) {
+    $app->command('use [preferedversion]', static function ($preferedversion = null) {
         info('Changing php-fpm version...');
         info('This does not affect php -v.');
         PhpFpm::changeVersion($preferedversion);

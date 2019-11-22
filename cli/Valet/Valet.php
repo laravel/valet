@@ -43,7 +43,7 @@ class Valet
      */
     public function symlinkToUsersBin()
     {
-        $this->cli->run('ln -snf '.realpath(__DIR__.'/../../valet').' '.$this->valetBin);
+        $this->cli->run('ln -snf '. dirname(__DIR__, 2) . '/valet' .' '.$this->valetBin);
     }
 
     /**
@@ -70,10 +70,10 @@ class Valet
         }
 
         return collect($this->files->scandir(VALET_HOME_PATH.'/Extensions'))
-                    ->reject(function ($file) {
+                    ->reject(static function ($file) {
                         return is_dir($file);
                     })
-                    ->map(function ($file) {
+                    ->map(static function ($file) {
                         return VALET_HOME_PATH.'/Extensions/'.$file;
                     })
                     ->values()->all();
@@ -82,10 +82,11 @@ class Valet
     /**
      * Determine if this is the latest version of Valet.
      *
-     * @param  string  $currentVersion
+     * @param string $currentVersion
      * @return bool
+     * @throws \Httpful\Exception\ConnectionErrorException
      */
-    public function onLatestVersion($currentVersion)
+    public function onLatestVersion($currentVersion): bool
     {
         $response = \Httpful\Request::get($this->github)->send();
 
@@ -118,7 +119,7 @@ class Valet
      *
      * @return string
      */
-    public function getAvailablePackageManager()
+    public function getAvailablePackageManager(): string
     {
         return collect([
             Apt::class,
@@ -127,9 +128,9 @@ class Valet
             Yum::class,
             PackageKit::class,
             Eopkg::class
-        ])->first(function ($pm) {
+        ])->first(static function ($pm) {
             return resolve($pm)->isAvailable();
-        }, function () {
+        }, static function () {
             throw new DomainException("No compatible package manager found.");
         });
     }
@@ -154,9 +155,9 @@ class Valet
         return collect([
             LinuxService::class,
             Systemd::class,
-        ])->first(function ($pm) {
+        ])->first(static function ($pm) {
             return resolve($pm)->isAvailable();
-        }, function () {
+        }, static function () {
             throw new DomainException("No compatible service manager found.");
         });
     }
