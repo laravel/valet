@@ -3,7 +3,7 @@
 set -e
 
 SOURCE="${BASH_SOURCE[0]}"
-SUDOCMDS="uninstall install start restart stop unsecure secure"
+SUDOCMDS="uninstall install start restart stop unsecure secure use"
 HOMEPATH=$HOME
 
 function check_dependencies() {
@@ -41,7 +41,7 @@ fi
 # If we are in the global Composer "bin" directory, we need to bump our
 # current directory up two, so that we will correctly proxy into the
 # Valet CLI script which is written in PHP. Will use PHP to do it.
-if [ ! -f "$DIR/cli/valet.php" ]
+if [[ ! -f "$DIR/cli/valet.php" ]]
 then
     DIR=$(php -r "echo realpath('$DIR/../laravel/valet');")
 fi
@@ -81,13 +81,13 @@ then
     PORT=$(cat "$HOME/.valet/config.json" | jq -r ".port")
 
     for linkname in ~/.valet/Sites/*; do
-        if [[ "$(readlink $linkname)" = "$PWD" ]]
+        if [[ "$(readlink ${linkname})" = "$PWD" ]]
         then
             HOST="${linkname##*/}"
         fi
     done
 
-    # Decide the correct PORT to use according if the site has a secure 
+    # Decide the correct PORT to use according if the site has a secure
     # config or not.
     if grep --no-messages --quiet 443 ~/.valet/Nginx/$HOST*
     then

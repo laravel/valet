@@ -23,13 +23,13 @@ if [ $# -gt 0 ]; then
     vagrant halt "$@"
 
   # Destroy given development environment
-  elif [ "$1" == "destroy" ]; then
+  elif [[ "$1" == "destroy" ]]; then
     cd "$VAGRANT_FOLDER/$2" && \
     shift 2 && \
     vagrant destroy "$@"
 
   # Destroy all development environments
-  elif [ "$1" == "destroy-all" ]; then
+  elif [[ "$1" == "destroy-all" ]]; then
     for DIRECTORY in `find $VAGRANT_FOLDER -maxdepth 1 -type d`; do
           if [[ "$DIRECTORY" != $VAGRANT_FOLDER ]]; then
             ./develop destroy ${DIRECTORY##*/} -f
