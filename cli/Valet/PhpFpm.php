@@ -205,7 +205,7 @@ class PhpFpm
             '/etc/php/' . $this->version . '/fpm/pool.d', // Ubuntu
             '/etc/php' . $this->version . '/fpm/pool.d', // Ubuntu
             '/etc/php-fpm.d', // Fedora
-            '/etc/php/php-fpm.d', // Arch
+            '/etc/php' . str_replace('.', '', $this->version) . '/php-fpm.d', // Arch
             '/etc/php7/fpm/php-fpm.d', // openSUSE
         ])->first(function ($path) {
             return is_dir($path);
