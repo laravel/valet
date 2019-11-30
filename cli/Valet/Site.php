@@ -484,6 +484,37 @@ class Site
         ));
     }
 
+    function unsecureAll()
+    {
+        $tld = $this->config->read()['tld'];
+
+        $secured = $this->parked()
+            ->merge($this->links())
+            ->sort()
+            ->where('secured', ' X');
+
+        if ($secured->count() === 0) {
+            return info('No sites to unsecure. You may list all servable sites or links by running <comment>valet parked</comment> or <comment>valet links</comment>.');
+        }
+
+        info('Attempting to unsecure the following sites:');
+        table(['Site', 'SSL', 'URL', 'Path'], $secured->toArray());
+
+        foreach ($secured->pluck('site') as $url) {
+            $this->unsecure($url . '.' . $tld);
+        }
+
+        $remaining = $this->parked()
+            ->merge($this->links())
+            ->sort()
+            ->where('secured', ' X');
+        if ($remaining->count() > 0) {
+            warning('We were not succesful in unsecuring the following sites:');
+            table(['Site', 'SSL', 'URL', 'Path'], $remaining->toArray());
+        }
+        info('unsecure --all was successful.');
+    }
+
     /**
      * Get the path to the linked Valet sites.
      *
