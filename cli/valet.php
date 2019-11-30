@@ -298,6 +298,7 @@ if (is_dir(VALET_HOME_PATH)) {
 
         Nginx::restart();
         info(sprintf('Valet is now using %s.', $newVersion));
+        info('Note that you might need to run <comment>composer global update</comment> if your PHP version change affects the dependencies of global packages required by composer.');
     })->descriptions('Change the version of PHP used by valet', [
         'phpVersion' => 'The PHP version you want to use, e.g php@7.2',
     ]);
