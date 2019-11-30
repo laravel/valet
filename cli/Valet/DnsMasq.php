@@ -49,6 +49,11 @@ class DnsMasq
         info('Valet is configured to serve for TLD [.'.$tld.']');
     }
 
+    function restart()
+    {
+        $this->brew->restartService('dnsmasq');
+    }
+
     /**
      * Append the custom DnsMasq configuration file to the main configuration file.
      *
