@@ -8,6 +8,7 @@ class Brew
 {
     const SUPPORTED_PHP_VERSIONS = [
         'php',
+        'php@7.4',
         'php@7.3',
         'php@7.2',
         'php@7.1',
@@ -20,7 +21,7 @@ class Brew
         'php56'
     ];
 
-    const LATEST_PHP_VERSION = 'php@7.3';
+    const LATEST_PHP_VERSION = 'php@7.4';
 
     var $cli, $files;
 
@@ -242,7 +243,7 @@ class Brew
         $matches = $this->getParsedLinkedPhp();
         $resolvedPhpVersion = $matches[3] ?: $matches[2];
 
-        return $this->supportedPhpVersions()->first(   
+        return $this->supportedPhpVersions()->first(
             function ($version) use ($resolvedPhpVersion) {
                 $resolvedVersionNormalized = preg_replace('/[^\d]/', '', $resolvedPhpVersion);
                 $versionNormalized = preg_replace('/[^\d]/', '', $version);
