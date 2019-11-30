@@ -83,7 +83,7 @@ php7');
 
         $brew = Mockery::mock(Brew::class.'[installed]', [new CommandLine, new Filesystem]);
         $brew->shouldReceive('installed')->with('php')->andReturn(false);
-        $brew->shouldReceive('installed')->with('php77')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php74')->andReturn(false);
         $brew->shouldReceive('installed')->with('php73')->andReturn(false);
         $brew->shouldReceive('installed')->with('php72')->andReturn(false);
         $brew->shouldReceive('installed')->with('php71')->andReturn(true);
