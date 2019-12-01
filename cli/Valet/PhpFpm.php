@@ -54,21 +54,35 @@ class PhpFpm
     {
         info('Updating PHP configuration...');
 
-        $contents = $this->files->get($this->fpmConfigPath());
+        $fpmConfigFile = $this->fpmConfigPath();
 
-        $contents = preg_replace('/^user = .+$/m', 'user = '.user(), $contents);
-        $contents = preg_replace('/^group = .+$/m', 'group = staff', $contents);
-        $contents = preg_replace('/^listen = .+$/m', 'listen = '.VALET_HOME_PATH.'/valet.sock', $contents);
-        $contents = preg_replace('/^;?listen\.owner = .+$/m', 'listen.owner = '.user(), $contents);
-        $contents = preg_replace('/^;?listen\.group = .+$/m', 'listen.group = staff', $contents);
-        $contents = preg_replace('/^;?listen\.mode = .+$/m', 'listen.mode = 0777', $contents);
+        $this->files->ensureDirExists(dirname($fpmConfigFile), user());
 
-        $this->files->put($this->fpmConfigPath(), $contents);
+        // rename (to disable) old FPM Pool configuration, regardless of whether it's a default config or one customized by an older Valet version
+        $oldFile = dirname($fpmConfigFile) . '/www.conf';
+        if (file_exists($oldFile)) {
+            rename($oldFile, $oldFile . '-backup');
+        }
 
+        if (false === strpos($fpmConfigFile, '5.6')) {
+            // for PHP 7 we can simply drop in a valet-specific fpm pool config, and not touch the default config
+            $contents = $this->files->get(__DIR__.'/../stubs/etc-phpfpm-valet.conf');
+            $contents = str_replace(['VALET_USER', 'VALET_HOME_PATH'], [user(), VALET_HOME_PATH], $contents);
+        } else {
+            // for PHP 5 we must do a direct edit of the fpm pool config to switch it to Valet's needs
+            $contents = $this->files->get($fpmConfigFile);
+            $contents = preg_replace('/^user = .+$/m', 'user = '.user(), $contents);
+            $contents = preg_replace('/^group = .+$/m', 'group = staff', $contents);
+            $contents = preg_replace('/^listen = .+$/m', 'listen = '.VALET_HOME_PATH.'/valet.sock', $contents);
+            $contents = preg_replace('/^;?listen\.owner = .+$/m', 'listen.owner = '.user(), $contents);
+            $contents = preg_replace('/^;?listen\.group = .+$/m', 'listen.group = staff', $contents);
+            $contents = preg_replace('/^;?listen\.mode = .+$/m', 'listen.mode = 0777', $contents);
+        }
+        $this->files->put($fpmConfigFile, $contents);
 
         $contents = $this->files->get(__DIR__.'/../stubs/php-memory-limits.ini');
 
-        $destFile = dirname($this->fpmConfigPath());
+        $destFile = dirname($fpmConfigFile);
         $destFile = str_replace('/php-fpm.d', '', $destFile);
         $destFile .= '/conf.d/php-memory-limits.ini';
         $this->files->ensureDirExists(dirname($destFile), user());
@@ -116,7 +130,7 @@ class PhpFpm
 
         return $versionNormalized === '5.6'
             ? '/usr/local/etc/php/5.6/php-fpm.conf'
-            : "/usr/local/etc/php/${versionNormalized}/php-fpm.d/www.conf";
+            : "/usr/local/etc/php/${versionNormalized}/php-fpm.d/valet-fpm.conf";
     }
 
     /**
