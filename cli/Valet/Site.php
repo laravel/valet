@@ -125,14 +125,21 @@ class Site
 
         $certs = $this->getCertificates($certsPath);
 
+        $links = $this->getSites($this->sitesPath(), $certs);
+
         $config = $this->config->read();
         $parkedLinks = collect();
-        foreach ($config['paths'] as $path) {
+        foreach (array_reverse($config['paths']) as $path) {
             if ($path === $this->sitesPath()) {
                 continue;
             }
 
-            $parkedLinks = $parkedLinks->merge($this->getSites($path, $certs));
+            // Only merge on the parked sites that don't interfere with the linked sites
+            $sites = $this->getSites($path, $certs)->filter(function ($site, $key) use ($links) {
+                return !$links->has($key);
+            });
+
+            $parkedLinks = $parkedLinks->merge($sites);
         }
 
         return $parkedLinks;
