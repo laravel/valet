@@ -41,7 +41,7 @@ class NginxTest extends PHPUnit_Framework_TestCase
     }
 
 
-    public function test_install_caddy_directories_creates_location_for_site_specific_configuration()
+    public function test_install_nginx_directories_creates_location_for_site_specific_configuration()
     {
         $files = Mockery::mock(Filesystem::class);
         $files->shouldReceive('isDir')->with(VALET_HOME_PATH.'/Nginx')->andReturn(false);
