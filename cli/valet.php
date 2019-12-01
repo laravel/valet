@@ -261,9 +261,46 @@ if (is_dir(VALET_HOME_PATH)) {
      * Uninstall Valet entirely.
      */
     $app->command('uninstall', function () {
-        Nginx::uninstall();
+        output("WAIT! Before you uninstall things, consider cleaning things up in the following order. (Or skip to the bottom for troubleshooting suggestions.):
+<info>The uninstall of Valet is not automated</info>, since a forced removal may delete your custom configuration information.
 
-        info('Valet has been uninstalled.');
+<info>1. Valet Keychain Certificates</info>
+Before removing Valet configuration files, we recommend that you run <comment>valet unsecure --all</comment> to clean up the certificates that Valet inserted into your Keychain. 
+Alternatively you can do a search for <comment>@laravel.valet</comment> in KeychainAccess and delete those certificates there manually. 
+You may also run <comment>valet parked</comment> to see a list of all sites Valet could serve.
+
+<info>2. Homebrew Services</info>
+<fg=red>You may remove the core services (php, nginx, dnsmasq) by running:</> <comment>brew uninstall --force php nginx dnsmasq</comment>
+<fg=red>You can then remove selected leftover configurations for these services manually</> in your <comment>/usr/local/etc/</comment> subdirectory.
+<error>BEWARE:</error> Uninstalling PHP via Homebrew will leave your Mac with its original PHP version, which may not be compatible with other composer dependencies you have installed. Thus you may get unexpected errors.
+
+<info>3. Valet Configuration Files</info>
+<fg=red>You may remove your user-specific Valet config files by running:</>  <comment>rm -rf ~/.config/valet</comment>
+
+<info>4. Other Housekeeping</info>
+Some additional services which you may have installed (but which Valet does not directly configure or manage) include: <comment>mariadb mysql mailhog</comment>.
+If you wish to also remove them, you may manually run <comment>brew uninstall SERVICENAME</comment> and clean up their configurations in /usr/local/etc if necessary.
+
+You can discover more homebrew services by running: <comment>brew services list</comment>
+
+<info>5. Remove Valet package</info>
+You can run <comment>composer global remove laravel/valet</comment> to uninstall the Valet package.
+
+<info>6. GENERAL TROUBLESHOOTING</info>
+If your reasons for considering an uninstall are more for troubleshooting purposes, consider running <comment>brew doctor</comment> and/or <comment>brew cleanup</comment> to see if any problems exist there.
+Also consider running <comment>sudo nginx -t</comment> to test your nginx configs in case there are failures/errors there preventing nginx from running. 
+Most of the nginx configs used by Valet are in your ~/.config/valet/Nginx directory.
+
+You might also want to investigate your global composer configs. Helpful commands there include:
+<comment>composer global diagnose</comment> and <comment>composer global outdated</comment>
+as well as <comment>composer global update</comment>
+");
+
+        // Stopping PHP so the ~/.config/valet/valet.sock file is released so the directory can be deleted if desired
+        PhpFpm::stopRunning();
+
+        Nginx::uninstall(); // this currently only calls stop()
+
     })->descriptions('Uninstall the Valet services');
 
     /**
