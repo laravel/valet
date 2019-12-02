@@ -118,7 +118,7 @@ class Nginx
         $this->cli->run(
             'sudo nginx -c '.static::NGINX_CONF.' -t',
             function ($exitCode, $outputMessage) {
-                throw new DomainException("Nginx cannot start, please check your nginx.conf [$exitCode: $outputMessage].");
+                throw new DomainException("Nginx cannot start; please check your nginx.conf [$exitCode: $outputMessage].");
             }
         );
     }
