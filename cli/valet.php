@@ -271,8 +271,8 @@ if (is_dir(VALET_HOME_PATH)) {
 <info>The uninstall of Valet is not automated</info>, since a forced removal may delete your custom configuration information.
 
 <info>1. Valet Keychain Certificates</info>
-Before removing Valet configuration files, we recommend that you run <comment>valet unsecure --all</comment> to clean up the certificates that Valet inserted into your Keychain. 
-Alternatively you can do a search for <comment>@laravel.valet</comment> in KeychainAccess and delete those certificates there manually. 
+Before removing Valet configuration files, we recommend that you run <comment>valet unsecure --all</comment> to clean up the certificates that Valet inserted into your Keychain.
+Alternatively you can do a search for <comment>@laravel.valet</comment> in KeychainAccess and delete those certificates there manually.
 You may also run <comment>valet parked</comment> to see a list of all sites Valet could serve.
 
 <info>2. Homebrew Services</info>
@@ -294,7 +294,7 @@ You can run <comment>composer global remove laravel/valet</comment> to uninstall
 
 <info>6. GENERAL TROUBLESHOOTING</info>
 If your reasons for considering an uninstall are more for troubleshooting purposes, consider running <comment>brew doctor</comment> and/or <comment>brew cleanup</comment> to see if any problems exist there.
-Also consider running <comment>sudo nginx -t</comment> to test your nginx configs in case there are failures/errors there preventing nginx from running. 
+Also consider running <comment>sudo nginx -t</comment> to test your nginx configs in case there are failures/errors there preventing nginx from running.
 Most of the nginx configs used by Valet are in your ~/.config/valet/Nginx directory.
 
 You might also want to investigate your global composer configs. Helpful commands there include:
@@ -341,7 +341,7 @@ as well as <comment>composer global update</comment>
 
         Nginx::restart();
         info(sprintf('Valet is now using %s.', $newVersion));
-        info('Note that you might need to run <comment>composer global update</comment> if your PHP version change affects the dependencies of global packages required by composer.');
+        info('Note that you might need to run <comment>composer global update</comment> if your PHP version change affects the dependencies of global packages required by Composer.');
     })->descriptions('Change the version of PHP used by valet', [
         'phpVersion' => 'The PHP version you want to use, e.g php@7.2',
     ]);
