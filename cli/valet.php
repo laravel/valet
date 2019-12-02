@@ -234,6 +234,8 @@ if (is_dir(VALET_HOME_PATH)) {
      * Start the daemon services.
      */
     $app->command('start', function () {
+        DnsMasq::restart();
+
         PhpFpm::restart();
 
         Nginx::restart();
@@ -245,6 +247,8 @@ if (is_dir(VALET_HOME_PATH)) {
      * Restart the daemon services.
      */
     $app->command('restart', function () {
+        DnsMasq::restart();
+
         PhpFpm::restart();
 
         Nginx::restart();
