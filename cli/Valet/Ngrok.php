@@ -14,16 +14,16 @@ class Ngrok
      *
      * @return string
      */
-    function currentTunnelUrl()
+    function currentTunnelUrl($domain = null)
     {
-        return retry(20, function () {
+        return retry(20, function () use ($domain) {
             $body = Request::get($this->tunnelsEndpoint)->send()->body;
 
             // If there are active tunnels on the Ngrok instance we will spin through them and
             // find the one responding on HTTP. Each tunnel has an HTTP and a HTTPS address
             // but for local testing purposes we just desire the plain HTTP URL endpoint.
             if (isset($body->tunnels) && count($body->tunnels) > 0) {
-                return $this->findHttpTunnelUrl($body->tunnels);
+                return $this->findHttpTunnelUrl($body->tunnels, $domain);
             } else {
                 throw new DomainException("Tunnel not established.");
             }
@@ -36,10 +36,10 @@ class Ngrok
      * @param  array  $tunnels
      * @return string|null
      */
-    function findHttpTunnelUrl($tunnels)
+    function findHttpTunnelUrl($tunnels, $domain)
     {
         foreach ($tunnels as $tunnel) {
-            if ($tunnel->proto === 'http') {
+            if ($tunnel->proto === 'http' && strpos($tunnel->config->addr, $domain) ) {
                 return $tunnel->public_url;
             }
         }
