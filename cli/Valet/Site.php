@@ -365,7 +365,7 @@ class Site
         $this->createPrivateKey($keyPath);
         $this->createSigningRequest($url, $keyPath, $csrPath, $confPath);
 
-        $caSrlParam = '-CAserial ' . $caSrlPath;
+        $caSrlParam = '-CAserial "' . $caSrlPath . '"';
         if (! $this->files->exists($caSrlPath)) {
             $caSrlParam .= ' -CAcreateserial';
         }
@@ -420,7 +420,7 @@ class Site
     function trustCa($caPemPath)
     {
         $this->cli->run(sprintf(
-            'sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain %s', $caPemPath
+            'sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain "%s"', $caPemPath
         ));
     }
 
@@ -433,7 +433,7 @@ class Site
     function trustCertificate($crtPath)
     {
         $this->cli->run(sprintf(
-            'sudo security add-trusted-cert -d -r trustAsRoot -k /Library/Keychains/System.keychain %s', $crtPath
+            'sudo security add-trusted-cert -d -r trustAsRoot -k /Library/Keychains/System.keychain "%s"', $crtPath
         ));
     }
 
