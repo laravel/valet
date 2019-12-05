@@ -177,7 +177,7 @@ if (is_dir(VALET_HOME_PATH)) {
      * Secure the given domain with a trusted TLS certificate.
      */
     $app->command('secure [domain]', function ($domain = null) {
-        $url = ($domain ?: Site::host(getcwd())) . '.' . Configuration::read()['domain'];
+        $url = rtrim(($domain ?: Site::host(getcwd())), '/') . '.' . Configuration::read()['domain'];
 
         Site::secure($url);
         PhpFpm::restart();
@@ -190,7 +190,7 @@ if (is_dir(VALET_HOME_PATH)) {
      * Stop serving the given domain over HTTPS and remove the trusted TLS certificate.
      */
     $app->command('unsecure [domain]', function ($domain = null) {
-        $url = ($domain ?: Site::host(getcwd())) . '.' . Configuration::read()['domain'];
+        $url = rtrim(($domain ?: Site::host(getcwd())), '/') . '.' . Configuration::read()['domain'];
 
         Site::unsecure($url);
         PhpFpm::restart();
