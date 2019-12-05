@@ -38,18 +38,21 @@ class DnsMasqTest extends PHPUnit_Framework_TestCase
 
         $dnsMasq = resolve(StubForCreatingCustomDnsMasqConfigFiles::class);
 
-        $dnsMasq->exampleConfigPath = __DIR__.'/files/dnsmasq.conf';
-        $dnsMasq->configPath = __DIR__.'/output/dnsmasq.conf';
+
+        $dnsMasq->dnsmasqMasterConfigFile = __DIR__.'/output/dnsmasq.conf';
+        $dnsMasq->dnsmasqSystemConfDir = __DIR__.'/output/dnsmasq.d';
         $dnsMasq->resolverPath = __DIR__.'/output/resolver';
+
+        file_put_contents($dnsMasq->dnsmasqMasterConfigFile, file_get_contents(__DIR__.'/files/dnsmasq.conf'));
 
         $dnsMasq->install('test');
 
         $this->assertSame('nameserver 127.0.0.1'.PHP_EOL, file_get_contents(__DIR__.'/output/resolver/test'));
-        $this->assertSame('address=/.test/127.0.0.1'.PHP_EOL.'listen-address=127.0.0.1'.PHP_EOL, file_get_contents(__DIR__.'/output/custom-dnsmasq.conf'));
+        $this->assertSame('address=/.test/127.0.0.1'.PHP_EOL.'listen-address=127.0.0.1'.PHP_EOL, file_get_contents(__DIR__.'/output/tld-test.conf'));
         $this->assertSame('test-contents
-
-conf-file='.__DIR__.'/output/custom-dnsmasq.conf
-', file_get_contents(__DIR__.'/output/dnsmasq.conf'));
+' . PHP_EOL . 'conf-dir=/usr/local/etc/dnsmasq.d/,*.conf' . PHP_EOL, 
+            file_get_contents($dnsMasq->dnsmasqMasterConfigFile)
+        );
     }
 
 
@@ -66,8 +69,8 @@ conf-file='.__DIR__.'/output/custom-dnsmasq.conf
 
 class StubForCreatingCustomDnsMasqConfigFiles extends DnsMasq
 {
-    public function customConfigPath()
+    public function dnsmasqUserConfigDir()
     {
-        return __DIR__.'/output/custom-dnsmasq.conf';
+        return __DIR__.'/output/';
     }
 }
