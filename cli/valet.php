@@ -226,8 +226,8 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Echo the currently tunneled URL.
      */
-    $app->command('fetch-share-url', function () {
-        output(Ngrok::currentTunnelUrl());
+    $app->command('fetch-share-url [domain]', function ($domain = null) {
+        output(Ngrok::currentTunnelUrl($domain ?: Site::host(getcwd()).'.'.Configuration::read()['tld']));
     })->descriptions('Get the URL to the current Ngrok tunnel');
 
     /**
