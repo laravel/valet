@@ -32,7 +32,7 @@ if (is_dir(VALET_LEGACY_HOME_PATH) && !is_dir(VALET_HOME_PATH)) {
  */
 Container::setInstance(new Container);
 
-$version = '2.5.4';
+$version = '2.6.0';
 
 $app = new Application('Laravel Valet', $version);
 
@@ -311,7 +311,7 @@ Optional:
 Additionally you might also want to open Keychain Access and search for <comment>valet</comment> to remove any leftover trust certificates.
 ");
         }
-        
+
         output("WAIT! Before you uninstall things, consider cleaning things up in the following order. (Or skip to the bottom for troubleshooting suggestions.):
 <info>You did not pass the <fg=red>--force</> parameter so we are NOT ACTUALLY uninstalling anything.</info>
 A --force removal WILL delete your custom configuration information, so you will want to make backups first.
