@@ -35,6 +35,16 @@ class Valet
     }
 
     /**
+     * Remove the symlink from the user's local bin.
+     *
+     * @return void
+     */
+    function unlinkFromUsersBin()
+    {
+        $this->cli->quietlyAsUser('rm '.$this->valetBin);
+    }
+
+    /**
      * Get the paths to all of the Valet extensions.
      *
      * @return array
@@ -80,5 +90,31 @@ class Valet
 
         $this->files->put('/etc/sudoers.d/valet', 'Cmnd_Alias VALET = /usr/local/bin/valet *
 %admin ALL=(root) NOPASSWD:SETENV: VALET'.PHP_EOL);
+    }
+
+    /**
+     * Remove the "sudoers.d" entry for running Valet.
+     *
+     * @return void
+     */
+    function removeSudoersEntry()
+    {
+        $this->cli->quietly('rm /etc/sudoers.d/valet');
+    }
+
+    /**
+     * Run composer global diagnose
+     */
+    function composerGlobalDiagnose()
+    {
+        $this->cli->runAsUser('composer global diagnose');
+    }
+
+    /**
+     * Run composer global update
+     */
+    function composerGlobalUpdate()
+    {
+        $this->cli->runAsUser('composer global update');
     }
 }

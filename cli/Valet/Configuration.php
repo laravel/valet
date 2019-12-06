@@ -35,6 +35,16 @@ class Configuration
     }
 
     /**
+     * Forcefully delete the Valet home configuration directory and contents.
+     * 
+     * @return void
+     */
+    function uninstall()
+    {
+        $this->files->unlink(VALET_HOME_PATH);
+    }
+
+    /**
      * Create the Valet configuration directory.
      *
      * @return void

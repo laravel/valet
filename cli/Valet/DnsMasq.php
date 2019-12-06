@@ -51,6 +51,23 @@ class DnsMasq
         info('Valet is configured to serve for TLD [.'.$tld.']');
     }
 
+    /**
+     * Forcefully uninstall dnsmasq.
+     * 
+     * @return void
+     */
+    function uninstall()
+    {
+        $this->brew->stopService('dnsmasq');
+        $this->brew->uninstallFormula('dnsmasq');
+        $this->cli->run('rm -rf /usr/local/etc/dnsmasq.d/dnsmasq-valet.conf');
+    }
+
+    /**
+     * Tell Homebrew to restart dnsmasq
+     * 
+     * @return void
+     */
     function restart()
     {
         $this->brew->restartService('dnsmasq');

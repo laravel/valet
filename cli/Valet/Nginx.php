@@ -160,12 +160,14 @@ class Nginx
     }
 
     /**
-     * Prepare Nginx for uninstallation.
+     * Forcefully uninstall Nginx.
      *
      * @return void
      */
     function uninstall()
     {
-        $this->stop();
+        $this->brew->stopService(['nginx', 'nginx-full']);
+        $this->brew->uninstallFormula('nginx nginx-full');
+        $this->cli->quietly('rm -rf /usr/local/etc/nginx /usr/local/var/log/nginx');
     }
 }

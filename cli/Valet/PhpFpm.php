@@ -46,6 +46,18 @@ class PhpFpm
     }
 
     /**
+     * Forcefully uninstall all of Valet's supported PHP versions and configurations
+     * 
+     * @return void
+     */
+    function uninstall()
+    {
+        $this->brew->uninstallAllPhpVersions();
+        rename('/usr/local/etc/php', '/usr/local/etc/php-valet-bak'.time());
+        $this->cli->run('rm -rf /usr/local/var/log/php-fpm.log');
+    }
+
+    /**
      * Update the PHP FPM configuration.
      *
      * @return void

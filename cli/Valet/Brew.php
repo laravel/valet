@@ -62,7 +62,7 @@ class Brew
     }
 
     /**
-     * Get a list of supported PHP versions
+     * Get a list of supported PHP versions.
      *
      * @return \Illuminate\Support\Collection
      */
@@ -83,7 +83,7 @@ class Brew
     }
 
     /**
-     * Return name of the nginx service installed via Homebrewed.
+     * Return name of the nginx service installed via Homebrew.
      *
      * @return string
      */
@@ -185,7 +185,7 @@ class Brew
     }
 
     /**
-     * Determine if php is currently linked
+     * Determine if php is currently linked.
      *
      * @return bool
      */
@@ -195,7 +195,7 @@ class Brew
     }
 
     /**
-     * Get the linked php parsed
+     * Get the linked php parsed.
      *
      * @return mixed
      */
@@ -277,7 +277,17 @@ class Brew
     }
 
     /**
-     * Link passed formula
+     * Remove the "sudoers.d" entry for running Brew.
+     *
+     * @return void
+     */
+    function removeSudoersEntry()
+    {
+        $this->cli->quietly('rm /etc/sudoers.d/brew');
+    }
+
+    /**
+     * Link passed formula.
      *
      * @param $formula
      * @param bool $force
@@ -297,7 +307,7 @@ class Brew
     }
 
     /**
-     * Unlink passed formula
+     * Unlink passed formula.
      * @param $formula
      *
      * @return string
@@ -315,7 +325,7 @@ class Brew
     }
 
     /**
-     * Get the currently running brew services
+     * Get the currently running brew services.
      *
      * @return \Illuminate\Support\Collection
      */
@@ -329,5 +339,46 @@ class Brew
                 throw new DomainException('Brew was unable to check which services are running.');
             }
         ))));
+    }
+
+    /**
+     * Tell Homebrew to forcefully remove all PHP versions that Valet supports.
+     * 
+     * @return string
+     */
+    function uninstallAllPhpVersions()
+    {
+        $this->supportedPhpVersions()->each(function ($formula) {
+            $this->uninstallFormula($formula);
+        });
+
+        return 'PHP versions removed.';
+    }
+
+    /**
+     * Uninstall a Homebrew app by formula name.
+     * @param  string $formula
+     * 
+     * @return void
+     */
+    function uninstallFormula($formula)
+    {
+        $this->cli->runAsUser('brew uninstall --force '.$formula);
+        $this->cli->run('rm -rf /usr/local/Cellar/'.$formula);
+    }
+
+    /**
+     * Run Homebrew's cleanup commands.
+     * 
+     * @return string
+     */
+    function cleanupBrew()
+    {
+        return $this->cli->runAsUser(
+            'brew cleanup && brew services cleanup',
+            function ($exitCode, $errorOutput) {
+                output($errorOutput);
+            }
+        );
     }
 }
