@@ -16,6 +16,9 @@ class Ngrok
      */
     function currentTunnelUrl($domain = null)
     {
+        // wait a second for ngrok to start before attempting to find available tunnels
+        sleep(1);
+
         return retry(20, function () use ($domain) {
             $body = Request::get($this->tunnelsEndpoint)->send()->body;
 
