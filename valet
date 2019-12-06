@@ -31,18 +31,38 @@ fi
 # process to retrieve the live Ngrok tunnel URL in the background.
 if [[ "$1" = "share" ]]
 then
+    # check for parameters to passthru to ngrok (they start with '-' or '--')
+    PARAMS=${3:-$2}
+    if [[ ${PARAMS:0:1} != '-' ]]; then
+        PARAMS=''
+    fi
+
     HOST="${PWD##*/}"
+
+    # check for custom domain passed through to the share command ($2 w/o '-' prefix)
+    if [[ ${2:0:1} != '-' ]]; then
+        # if not blank and is a link or is the cwd use it
+        if [[ ! -z $2 && (-L ~/.config/valet/Sites/$2 || $2 == $HOST) ]]; then
+            HOST=$2
+            CLIHOST=$2
+        fi
+    fi
+
+    # if no custom domain passed then check if there's a linked site for cwd
+    if [[ -z $CLIHOST ]]; then
+        # find the first linked site for the current dir, if one exists
+        for linkname in ~/.config/valet/Sites/*; do
+            if [[ "$(readlink $linkname)" = "$PWD" ]]
+            then
+                HOST="${linkname##*/}"
+                break
+            fi
+        done
+    fi
+
     TLD=$(php "$DIR/cli/valet.php" tld)
 
-    for linkname in ~/.config/valet/Sites/*; do
-        if [[ "$(readlink $linkname)" = "$PWD" ]]
-        then
-            HOST="${linkname##*/}"
-        fi
-    done
-
-	# Decide the correct PORT to use according if the site has a secure
-	# config or not.
+	# Decide the correct PORT: uses 60 for secure, else 80
 	if grep --quiet --no-messages 443 ~/.config/valet/Nginx/$HOST*
 	then
 		PORT=60
@@ -51,8 +71,8 @@ then
 	fi
 
 	# Fetch Ngrok URL In Background...
-	bash "$DIR/cli/scripts/fetch-share-url.sh" &
-	sudo -u "$(logname)" "$DIR/bin/ngrok" http "$HOST.$TLD:$PORT" -host-header=rewrite ${*:2}
+	bash "$DIR/cli/scripts/fetch-share-url.sh" "$HOST" &
+	sudo -u "$(logname)" "$DIR/bin/ngrok" http "$HOST.$TLD:$PORT" -host-header=rewrite $PARAMS
     exit
 
 # Finally, for every other command we will just proxy into the PHP tool
