@@ -48,14 +48,14 @@ if (is_dir(VALET_HOME_PATH)) {
 /**
  * Install Valet and any required services.
  */
-$app->command('install', function () {
+$app->command('install', function ($output) {
     Nginx::stop();
 
-    Configuration::install();
-    Nginx::install();
-    PhpFpm::install();
-    DnsMasq::install(Configuration::read()['tld']);
-    Nginx::restart();
+    Configuration::install($output->getVerbosity());
+    Nginx::install($output->getVerbosity());
+    PhpFpm::install($output->getVerbosity());
+    DnsMasq::install(Configuration::read()['tld'], $output->getVerbosity());
+    Nginx::restart($output->getVerbosity());
     Valet::symlinkToUsersBin();
 
     output(PHP_EOL.'<info>Valet installed successfully!</info>');
@@ -234,12 +234,12 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Start the daemon services.
      */
-    $app->command('start', function () {
-        DnsMasq::restart();
+    $app->command('start', function ($output) {
+        DnsMasq::restart($output->getVerbosity());
 
-        PhpFpm::restart();
+        PhpFpm::restart($output->getVerbosity());
 
-        Nginx::restart();
+        Nginx::restart($output->getVerbosity());
 
         info('Valet services have been started.');
     })->descriptions('Start the Valet services');
@@ -247,12 +247,12 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Restart the daemon services.
      */
-    $app->command('restart', function () {
-        DnsMasq::restart();
+    $app->command('restart', function ($output) {
+        DnsMasq::restart($output->getVerbosity());
 
-        PhpFpm::restart();
+        PhpFpm::restart($output->getVerbosity());
 
-        Nginx::restart();
+        Nginx::restart($output->getVerbosity());
 
         info('Valet services have been restarted.');
     })->descriptions('Restart the Valet services');

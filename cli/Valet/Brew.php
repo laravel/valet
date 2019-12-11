@@ -152,7 +152,7 @@ class Brew
      *
      * @param
      */
-    function restartService($services)
+    function restartService($services, $verbosity)
     {
         $services = is_array($services) ? $services : func_get_args();
 
@@ -160,8 +160,16 @@ class Brew
             if ($this->installed($service)) {
                 info("Restarting {$service}...");
 
-                $this->cli->quietly('sudo brew services stop '.$service);
-                $this->cli->quietly('sudo brew services start '.$service);
+                $output = $this->cli->runAsUser(
+                    'sudo brew services restart '.$service.($verbosity > 32 ? ' -vv' : ''),
+                    function ($exitCode, $errorOutput) {
+                        output($errorOutput);
+                    }
+                );
+
+                if ($verbosity > 32) {
+                    output($output);
+                }
             }
         }
     }
@@ -258,9 +266,9 @@ class Brew
      *
      * @return void
      */
-    function restartLinkedPhp()
+    function restartLinkedPhp($verbosity)
     {
-        $this->restartService($this->getLinkedPhpFormula());
+        $this->restartService($this->getLinkedPhpFormula(), $verbosity);
     }
 
     /**
@@ -297,7 +305,7 @@ class Brew
     function link($formula, $force = false)
     {
         return $this->cli->runAsUser(
-            sprintf('brew link %s%s', $formula, $force ? ' --force': ''),
+            sprintf('brew link %s%s -v', $formula, $force ? ' --force': ''),
             function ($exitCode, $errorOutput) use ($formula) {
                 output($errorOutput);
 
@@ -315,7 +323,7 @@ class Brew
     function unlink($formula)
     {
         return $this->cli->runAsUser(
-            sprintf('brew unlink %s', $formula),
+            sprintf('brew unlink %s -v', $formula),
             function ($exitCode, $errorOutput) use ($formula) {
                 output($errorOutput);
 

@@ -32,7 +32,7 @@ class PhpFpm
      *
      * @return void
      */
-    function install()
+    function install($verbosity)
     {
         if (! $this->brew->hasInstalledPhp()) {
             $this->brew->ensureInstalled('php', [], $this->taps);
@@ -42,7 +42,7 @@ class PhpFpm
 
         $this->updateConfiguration();
 
-        $this->restart();
+        $this->restart($verbosity);
     }
 
     /**
@@ -107,9 +107,9 @@ class PhpFpm
      *
      * @return void
      */
-    function restart()
+    function restart($verbosity)
     {
-        $this->brew->restartLinkedPhp();
+        $this->brew->restartLinkedPhp($verbosity);
     }
 
     /**

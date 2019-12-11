@@ -33,7 +33,7 @@ class DnsMasq
      *
      * @return void
      */
-    function install($tld = 'test')
+    function install($tld = 'test', $verbosity)
     {
         $this->brew->ensureInstalled('dnsmasq');
 
@@ -46,7 +46,7 @@ class DnsMasq
 
         $this->createTldResolver($tld);
 
-        $this->brew->restartService('dnsmasq');
+        $this->brew->restartService('dnsmasq', $verbosity);
 
         info('Valet is configured to serve for TLD [.'.$tld.']');
     }
@@ -68,9 +68,9 @@ class DnsMasq
      * 
      * @return void
      */
-    function restart()
+    function restart($verbosity)
     {
-        $this->brew->restartService('dnsmasq');
+        $this->brew->restartService('dnsmasq', $verbosity);
     }
 
     /**

@@ -140,11 +140,11 @@ class Nginx
      *
      * @return void
      */
-    function restart()
+    function restart($verbosity)
     {
         $this->lint();
 
-        $this->brew->restartService($this->brew->nginxServiceName());
+        $this->brew->restartService($this->brew->nginxServiceName(), $verbosity);
     }
 
     /**
