@@ -19,8 +19,9 @@ KillMode=process
 
 ; Use a minimal /dev
 PrivateDevices=true
-; Hide /home, /root, and /run/user. Nobody will steal your SSH-keys.
-ProtectHome=true
+; Sadly home needs to be unprotected for PHP 7.4 (Any updates will fix this)
+ProtectHome=false
+CapabilityBoundingSet=
 
 [Install]
 WantedBy=multi-user.target
