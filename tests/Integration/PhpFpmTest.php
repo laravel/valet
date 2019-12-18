@@ -55,4 +55,9 @@ class StubForUpdatingFpmConfigFiles extends PhpFpm
     {
         return '7.1';
     }
+
+    public function systemdDropInOverride()
+    {
+        return;
+    }
 }

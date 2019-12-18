@@ -58,6 +58,10 @@ class PhpFpm
      */
     public function uninstall()
     {
+        if ($this->files->exists('/etc/systemd/system/php-fpm.service.d/valet.conf')) {
+            unlink('/etc/systemd/system/php-fpm.service.d/valet.conf');
+        }
+
         if ($this->files->exists($this->fpmConfigPath() . '/valet.conf')) {
             $this->files->unlink($this->fpmConfigPath() . '/valet.conf');
             $this->stop();
@@ -126,6 +130,24 @@ class PhpFpm
                 'VALET_GROUP' => group(),
                 'VALET_HOME_PATH' => VALET_HOME_PATH,
             ], $contents)
+        );
+
+        if (($this->sm) instanceof \Valet\ServiceManagers\Systemd) {
+            $this->systemdDropInOverride();
+        }
+    }
+
+    /**
+     * Install Drop-In systemd override for php-fpm service
+     *
+     * @return void
+     */
+    public function systemdDropInOverride()
+    {
+        $this->files->ensureDirExists('/etc/systemd/system/php-fpm.service.d');
+        $this->files->putAsUser(
+            '/etc/systemd/system/php-fpm.service.d/valet.conf',
+            $this->files->get(__DIR__ . '/../stubs/php-fpm.service.d/valet.conf')
         );
     }
 
