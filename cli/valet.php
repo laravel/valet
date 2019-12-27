@@ -462,6 +462,25 @@ You might also want to investigate your global Composer configs. Helpful command
 
         passthru($command);
     })->descriptions('Tail log file');
+
+    /**
+      * Configure or display the directory-listing setting.
+      */
+    $app->command('directory-listing [status]', function ($status = null) {
+        $key = 'directory-listing';
+        $config = Configuration::read();
+
+        if (in_array($status, ['on', 'off'])) {
+            $config[$key] = $status;
+            Configuration::write($config);
+            return output('Directory listing setting is now: '.$status);
+        }
+
+        $current = isset($config[$key]) ? $config[$key] : 'off';
+        output('Directory listing is '.$current);
+    })->descriptions('Determine directory-listing behavior. Default is off, which means a 404 will display.', [
+        'status' => 'on or off. (default=off) will show a 404 page; [on] will display a listing if project folder exists but requested URI not found'
+    ]);
 }
 
 /**
