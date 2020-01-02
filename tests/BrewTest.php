@@ -34,36 +34,36 @@ class BrewTest extends PHPUnit_Framework_TestCase
     public function test_installed_returns_true_when_given_formula_is_installed()
     {
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('runAsUser')->once()->with('brew list | grep php71')->andReturn('php71');
+        $cli->shouldReceive('runAsUser')->once()->with('brew list | grep php@7.4')->andReturn('php@7.4');
         swap(CommandLine::class, $cli);
-        $this->assertTrue(resolve(Brew::class)->installed('php71'));
+        $this->assertTrue(resolve(Brew::class)->installed('php@7.4'));
 
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('runAsUser')->once()->with('brew list | grep php71')->andReturn('php71-mcrypt
-php71');
+        $cli->shouldReceive('runAsUser')->once()->with('brew list | grep php')->andReturn('php
+php@7.4');
         swap(CommandLine::class, $cli);
-        $this->assertTrue(resolve(Brew::class)->installed('php71'));
+        $this->assertTrue(resolve(Brew::class)->installed('php'));
     }
 
 
     public function test_installed_returns_false_when_given_formula_is_not_installed()
     {
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('runAsUser')->once()->with('brew list | grep php71')->andReturn('');
+        $cli->shouldReceive('runAsUser')->once()->with('brew list | grep php@7.4')->andReturn('');
         swap(CommandLine::class, $cli);
-        $this->assertFalse(resolve(Brew::class)->installed('php71'));
+        $this->assertFalse(resolve(Brew::class)->installed('php@7.4'));
 
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('runAsUser')->once()->with('brew list | grep php71')->andReturn('php71-mcrypt');
+        $cli->shouldReceive('runAsUser')->once()->with('brew list | grep php@7.4')->andReturn('php');
         swap(CommandLine::class, $cli);
-        $this->assertFalse(resolve(Brew::class)->installed('php71'));
+        $this->assertFalse(resolve(Brew::class)->installed('php@7.4'));
 
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('runAsUser')->once()->with('brew list | grep php71')->andReturn('php71-mcrypt
-php71-something-else
+        $cli->shouldReceive('runAsUser')->once()->with('brew list | grep php@7.4')->andReturn('php
+something-else-php@7.4
 php7');
         swap(CommandLine::class, $cli);
-        $this->assertFalse(resolve(Brew::class)->installed('php71'));
+        $this->assertFalse(resolve(Brew::class)->installed('php@7.4'));
     }
 
 
@@ -71,78 +71,114 @@ php7');
     {
         $brew = Mockery::mock(Brew::class.'[installed]', [new CommandLine, new Filesystem]);
         $brew->shouldReceive('installed')->with('php')->andReturn(true);
-        $brew->shouldReceive('installed')->with('php72')->andReturn(true);
-        $brew->shouldReceive('installed')->with('php71')->andReturn(false);
-        $brew->shouldReceive('installed')->with('php70')->andReturn(false);
-        $brew->shouldReceive('installed')->with('php56')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php@7.4')->andReturn(true);
+        $brew->shouldReceive('installed')->with('php@7.3')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.2')->andReturn(true);
         $brew->shouldReceive('installed')->with('php@7.1')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.0')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@5.6')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php74')->andReturn(true);
+        $brew->shouldReceive('installed')->with('php73')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php72')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php71')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php70')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php56')->andReturn(false);
+        $this->assertTrue($brew->hasInstalledPhp());
+
+        $brew = Mockery::mock(Brew::class.'[installed]', [new CommandLine, new Filesystem]);
+        $brew->shouldReceive('installed')->with('php')->andReturn(true);
+        $brew->shouldReceive('installed')->with('php@7.4')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php@7.3')->andReturn(true);
+        $brew->shouldReceive('installed')->with('php@7.2')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php@7.1')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php@7.0')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php@5.6')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php74')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php73')->andReturn(true);
+        $brew->shouldReceive('installed')->with('php72')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php71')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php70')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php56')->andReturn(false);
+        $this->assertTrue($brew->hasInstalledPhp());
+
+        $brew = Mockery::mock(Brew::class.'[installed]', [new CommandLine, new Filesystem]);
+        $brew->shouldReceive('installed')->with('php')->andReturn(true);
+        $brew->shouldReceive('installed')->with('php@7.4')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php@7.3')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php@7.2')->andReturn(true);
+        $brew->shouldReceive('installed')->with('php@7.1')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php@7.0')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php@5.6')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php74')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php73')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php72')->andReturn(true);
+        $brew->shouldReceive('installed')->with('php71')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php70')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php56')->andReturn(false);
         $this->assertTrue($brew->hasInstalledPhp());
 
         $brew = Mockery::mock(Brew::class.'[installed]', [new CommandLine, new Filesystem]);
         $brew->shouldReceive('installed')->with('php')->andReturn(false);
-        $brew->shouldReceive('installed')->with('php74')->andReturn(false);
-        $brew->shouldReceive('installed')->with('php73')->andReturn(false);
-        $brew->shouldReceive('installed')->with('php72')->andReturn(false);
-        $brew->shouldReceive('installed')->with('php71')->andReturn(true);
-        $brew->shouldReceive('installed')->with('php70')->andReturn(false);
-        $brew->shouldReceive('installed')->with('php56')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.4')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.3')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.2')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.1')->andReturn(true);
         $brew->shouldReceive('installed')->with('php@7.0')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@5.6')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php74')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php73')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php72')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php71')->andReturn(true);
+        $brew->shouldReceive('installed')->with('php70')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php56')->andReturn(false);
         $this->assertTrue($brew->hasInstalledPhp());
 
         $brew = Mockery::mock(Brew::class.'[installed]', [new CommandLine, new Filesystem]);
         $brew->shouldReceive('installed')->with('php')->andReturn(false);
-        $brew->shouldReceive('installed')->with('php74')->andReturn(false);
-        $brew->shouldReceive('installed')->with('php73')->andReturn(false);
-        $brew->shouldReceive('installed')->with('php72')->andReturn(false);
-        $brew->shouldReceive('installed')->with('php71')->andReturn(false);
-        $brew->shouldReceive('installed')->with('php70')->andReturn(true);
-        $brew->shouldReceive('installed')->with('php56')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.4')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.3')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.2')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.1')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.0')->andReturn(true);
         $brew->shouldReceive('installed')->with('php@5.6')->andReturn(false);
-        $this->assertTrue($brew->hasInstalledPhp());
-
-        $brew = Mockery::mock(Brew::class.'[installed]', [new CommandLine, new Filesystem]);
-        $brew->shouldReceive('installed')->with('php')->andReturn(false);
         $brew->shouldReceive('installed')->with('php74')->andReturn(false);
         $brew->shouldReceive('installed')->with('php73')->andReturn(false);
         $brew->shouldReceive('installed')->with('php72')->andReturn(false);
         $brew->shouldReceive('installed')->with('php71')->andReturn(false);
-        $brew->shouldReceive('installed')->with('php70')->andReturn(false);
-        $brew->shouldReceive('installed')->with('php56')->andReturn(true);
+        $brew->shouldReceive('installed')->with('php70')->andReturn(true);
+        $brew->shouldReceive('installed')->with('php56')->andReturn(false);
+        $this->assertTrue($brew->hasInstalledPhp());
+
+        $brew = Mockery::mock(Brew::class.'[installed]', [new CommandLine, new Filesystem]);
+        $brew->shouldReceive('installed')->with('php')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.4')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.3')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.2')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.1')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.0')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@5.6')->andReturn(true);
-        $this->assertTrue($brew->hasInstalledPhp());
-
-        $brew = Mockery::mock(Brew::class.'[installed]', [new CommandLine, new Filesystem]);
-        $brew->shouldReceive('installed')->with('php')->andReturn(false);
         $brew->shouldReceive('installed')->with('php74')->andReturn(false);
         $brew->shouldReceive('installed')->with('php73')->andReturn(false);
         $brew->shouldReceive('installed')->with('php72')->andReturn(false);
         $brew->shouldReceive('installed')->with('php71')->andReturn(false);
         $brew->shouldReceive('installed')->with('php70')->andReturn(false);
-        $brew->shouldReceive('installed')->with('php56')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php56')->andReturn(true);
+        $this->assertTrue($brew->hasInstalledPhp());
+
+        $brew = Mockery::mock(Brew::class.'[installed]', [new CommandLine, new Filesystem]);
+        $brew->shouldReceive('installed')->with('php')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.4')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.3')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.2')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.1')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.0')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@5.6')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php74')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php73')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php72')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php71')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php70')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php56')->andReturn(false);
         $this->assertFalse($brew->hasInstalledPhp());
     }
 
@@ -150,11 +186,11 @@ php7');
     public function test_tap_taps_the_given_homebrew_repository()
     {
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('passthru')->once()->with('sudo -u "'.user().'" brew tap php71');
-        $cli->shouldReceive('passthru')->once()->with('sudo -u "'.user().'" brew tap php70');
-        $cli->shouldReceive('passthru')->once()->with('sudo -u "'.user().'" brew tap php56');
+        $cli->shouldReceive('passthru')->once()->with('sudo -u "'.user().'" brew tap php@7.1');
+        $cli->shouldReceive('passthru')->once()->with('sudo -u "'.user().'" brew tap php@7.0');
+        $cli->shouldReceive('passthru')->once()->with('sudo -u "'.user().'" brew tap php@5.6');
         swap(CommandLine::class, $cli);
-        resolve(Brew::class)->tap('php71', 'php70', 'php56');
+        resolve(Brew::class)->tap('php@7.1', 'php@7.0', 'php@5.6');
     }
 
 
@@ -186,6 +222,10 @@ php7');
             $brewMock->shouldReceive('hasLinkedPhp')->once()->andReturn(true);
             return $brewMock;
         };
+
+        $files = Mockery::mock(Filesystem::class);
+        $files->shouldReceive('readLink')->once()->with('/usr/local/bin/php')->andReturn('/test/path/php/7.4.0/test');
+        $this->assertSame('php@7.4', $getBrewMock($files)->linkedPhp());
 
         $files = Mockery::mock(Filesystem::class);
         $files->shouldReceive('readLink')->once()->with('/usr/local/bin/php')->andReturn('/test/path/php/7.3.0/test');
