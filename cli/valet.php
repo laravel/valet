@@ -235,81 +235,79 @@ if (is_dir(VALET_HOME_PATH)) {
      * Start the daemon services.
      */
     $app->command('start [service]', function ($service) {
-        switch($service) {
+        switch ($service) {
             case '':
                 DnsMasq::restart();
                 PhpFpm::restart();
                 Nginx::restart();
 
-                info('Valet services have been started.');
-                return;
-            case 'dns-masq':
+                return info('Valet services have been started.');
+            case 'dnsmasq':
                 DnsMasq::restart();
-                info('dnsmasq has been started.');
-                return;
+
+                return info('dnsmasq has been started.');
             case 'nginx':
                 Nginx::restart();
-                info('Nginx has been started.');
-                return;
+
+                return info('Nginx has been started.');
             case 'php':
                 PhpFpm::restart();
-                info('PHP has been started.');
-                return;
+
+                return info('PHP has been started.');
         }
 
-        return warning(sprintf('Invalid valet service name [%s]',$service));
+        return warning(sprintf('Invalid valet service name [%s]', $service));
     })->descriptions('Start the Valet services');
 
     /**
      * Restart the daemon services.
      */
     $app->command('restart [service]', function ($service) {
-        switch($service) {
+        switch ($service) {
             case '':
                 DnsMasq::restart();
                 PhpFpm::restart();
                 Nginx::restart();
 
-                info('Valet services have been restarted.');
-                return;
-            case 'dns-masq':
+                return info('Valet services have been restarted.');
+            case 'dnsmasq':
                 DnsMasq::restart();
-                info('dnsmasq has been restarted.');
-                return;
+
+                return info('dnsmasq has been restarted.');
             case 'nginx':
                 Nginx::restart();
-                info('Nginx has been restarted.');
-                return;
+
+                return info('Nginx has been restarted.');
             case 'php':
                 PhpFpm::restart();
-                info('PHP has been restarted.');
-                return;
+
+                return info('PHP has been restarted.');
         }
         
-        return warning(sprintf('Invalid valet service name [%s]',$service));
+        return warning(sprintf('Invalid valet service name [%s]', $service));
     })->descriptions('Restart the Valet services');
 
     /**
      * Stop the daemon services.
      */
     $app->command('stop [service]', function ($service) {
-        switch($service) {
+        switch ($service) {
             case '':
                 PhpFpm::stopRunning();
                 Nginx::stop();
-                info('Valet services have been stopped.');
-                return ;
+
+                return info('Valet services have been stopped.');
             case 'nginx':
                 Nginx::stop();
-                info('Nginx has been stopped.');
-                return;
+
+                return info('Nginx has been stopped.');
             case 'php':
                 PhpFpm::stop();
-                info('PHP has been stopped.');
-                return;
+                
+                return info('PHP has been stopped.');
         }
 
-        return warning(sprintf('Invalid valet service name [%s]',$service));
+        return warning(sprintf('Invalid valet service name [%s]', $service));
     })->descriptions('Stop the Valet services');
 
     /**
