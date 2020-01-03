@@ -302,7 +302,7 @@ if (is_dir(VALET_HOME_PATH)) {
 
                 return info('Nginx has been stopped.');
             case 'php':
-                PhpFpm::stop();
+                PhpFpm::stopRunning();
                 
                 return info('PHP has been stopped.');
         }
