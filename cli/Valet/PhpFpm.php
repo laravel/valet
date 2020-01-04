@@ -167,17 +167,7 @@ class PhpFpm
      */
     function useVersion($version)
     {
-        // If passed php7.2 or php72 formats, convert to php@7.2 format:
-        $version = preg_replace('/(php)([0-9+])(?:.)?([0-9+])/i', '$1@$2.$3', $version);
-
-        if (!$this->brew->supportedPhpVersions()->contains($version)) {
-            throw new DomainException(
-                sprintf(
-                    'Valet doesn\'t support PHP version: %s (try something like \'php7.2\' instead)',
-                    $version
-                )
-            );
-        }
+        $version = $this->validateRequestedVersion($version);
 
         // Install the relevant formula if not already installed
         $this->brew->ensureInstalled($version);
@@ -193,6 +183,39 @@ class PhpFpm
         $this->brew->link($version, true);
 
         $this->install();
+
+        return $version === 'php' ? $this->brew->determineAliasedVersion($version) : $version;
+    }
+
+    /**
+     * Validate the requested version to be sure we can support it.
+     *
+     * @param $version
+     * @return string
+     */
+    function validateRequestedVersion($version)
+    {
+        // If passed php7.2 or php72 formats, normalize to php@7.2 format:
+        $version = preg_replace('/(php)([0-9+])(?:.)?([0-9+])/i', '$1@$2.$3', $version);
+
+        if ($version === 'php') {
+            if (strpos($this->brew->determineAliasedVersion($version), '@')) {
+                return $version;
+            }
+        
+            if ($this->brew->hasInstalledPhp()) {
+                throw new DomainException('Brew is already using PHP '.PHP_VERSION.' as \'php\' in Homebrew. To use another version, please specify. eg: php@7.3');
+            }
+        }
+
+        if (!$this->brew->supportedPhpVersions()->contains($version)) {
+            throw new DomainException(
+                sprintf(
+                    'Valet doesn\'t support PHP version: %s (try something like \'php@7.3\' instead)',
+                    $version
+                )
+            );
+        }
 
         return $version;
     }
