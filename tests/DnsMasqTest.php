@@ -4,6 +4,7 @@ use Valet\Brew;
 use Valet\DnsMasq;
 use Valet\Filesystem;
 use Valet\CommandLine;
+use Valet\Configuration;
 use function Valet\user;
 use function Valet\resolve;
 use function Valet\swap;
@@ -60,7 +61,8 @@ class DnsMasqTest extends PHPUnit_Framework_TestCase
     {
         $cli = Mockery::mock(CommandLine::class);
         $cli->shouldReceive('quietly')->with('rm /etc/resolver/old');
-        $dnsMasq = Mockery::mock(DnsMasq::class.'[install]', [resolve(Brew::class), $cli, new Filesystem]);
+        swap(Configuration::class, $config = Mockery::spy(Configuration::class, ['read' => ['tld' => 'test']]));
+        $dnsMasq = Mockery::mock(DnsMasq::class.'[install]', [resolve(Brew::class), $cli, new Filesystem, $config]);
         $dnsMasq->shouldReceive('install')->with('new');
         $dnsMasq->updateTld('old', 'new');
     }

@@ -7,7 +7,7 @@ use Symfony\Component\Process\Process;
 
 class DnsMasq
 {
-    var $brew, $cli, $files;
+    var $brew, $cli, $files, $configuration;
 
     var $dnsmasqMasterConfigFile = '/usr/local/etc/dnsmasq.conf';
     var $dnsmasqSystemConfDir = '/usr/local/etc/dnsmasq.d';
@@ -21,11 +21,12 @@ class DnsMasq
      * @param  Filesystem  $files
      * @return void
      */
-    function __construct(Brew $brew, CommandLine $cli, Filesystem $files)
+    function __construct(Brew $brew, CommandLine $cli, Filesystem $files, Configuration $configuration)
     {
         $this->cli = $cli;
         $this->brew = $brew;
         $this->files = $files;
+        $this->configuration = $configuration;
     }
 
     /**
@@ -61,6 +62,8 @@ class DnsMasq
         $this->brew->stopService('dnsmasq');
         $this->brew->uninstallFormula('dnsmasq');
         $this->cli->run('rm -rf /usr/local/etc/dnsmasq.d/dnsmasq-valet.conf');
+        $tld = $this->configuration->read()['tld'];
+        $this->files->unlink($this->resolverPath.'/'.$tld);
     }
 
     /**
@@ -145,6 +148,7 @@ class DnsMasq
     function updateTld($oldTld, $newTld)
     {
         $this->files->unlink($this->resolverPath.'/'.$oldTld);
+        $this->files->unlink($this->dnsmasqUserConfigDir() . 'tld-' . $oldTld . '.conf');
 
         $this->install($newTld);
     }
