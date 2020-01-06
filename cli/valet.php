@@ -32,7 +32,7 @@ if (is_dir(VALET_LEGACY_HOME_PATH) && !is_dir(VALET_HOME_PATH)) {
  */
 Container::setInstance(new Container);
 
-$version = '2.7.1';
+$version = '2.8.0';
 
 $app = new Application('Laravel Valet', $version);
 
@@ -283,7 +283,7 @@ if (is_dir(VALET_HOME_PATH)) {
 
                 return info('PHP has been restarted.');
         }
-        
+
         return warning(sprintf('Invalid valet service name [%s]', $service));
     })->descriptions('Restart the Valet services');
 
@@ -303,7 +303,7 @@ if (is_dir(VALET_HOME_PATH)) {
                 return info('Nginx has been stopped.');
             case 'php':
                 PhpFpm::stopRunning();
-                
+
                 return info('PHP has been stopped.');
         }
 
