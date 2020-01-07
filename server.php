@@ -18,6 +18,35 @@ function show_valet_404()
 }
 
 /**
+ * Show directory listing or 404 if directory doesn't exist.
+ */
+function show_directory_listing($valetSitePath, $uri)
+{ 
+    $is_root = ($uri == '/');
+    $directory = ($is_root) ? $valetSitePath : $valetSitePath.$uri;
+
+    if (!file_exists($directory)) { 
+        show_valet_404(); 
+    }
+
+    // Sort directories at the top
+    $paths = glob("$directory/*");
+    usort($paths, function ($a, $b) {
+        return (is_dir($a) == is_dir($b)) ? strnatcasecmp($a, $b) : (is_dir($a) ? -1 : 1);
+    });
+
+    // Output the HTML for the directory listing
+    echo "<h1>Index of $uri</h1>";
+    echo "<hr>";
+    echo implode("<br>\n", array_map(function ($path) use ($uri, $is_root) {
+        $file = basename($path);
+        return ($is_root) ? "<a href='/$file'>/$file</a>" : "<a href='$uri/$file'>$uri/$file/</a>";
+    }, $paths));
+
+    exit;
+}
+
+/**
  * You may use wildcard DNS providers xip.io or nip.io as a tool for testing your site via an IP address.
  * It's simple to use: First determine the IP address of your local computer (like 192.168.0.10).
  * Then simply use http://project.your-ip.xip.io - ie: http://laravel.192.168.0.10.xip.io
@@ -150,6 +179,10 @@ $frontControllerPath = $valetDriver->frontControllerPath(
 );
 
 if (! $frontControllerPath) {
+    if (isset($valetConfig['directory-listing']) && $valetConfig['directory-listing'] == 'on') {
+        show_directory_listing($valetSitePath, $uri);
+    }
+
     show_valet_404();
 }
 
