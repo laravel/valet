@@ -29,7 +29,7 @@ class Eopkg implements PackageManager
      */
     public function packages($package)
     {
-        $query = "dpkg -l {$package} | grep '^ii' | sed 's/\s\+/ /g' | cut -d' ' -f2";
+        $query = "eopkg li | cut -d ' ' -f 1";
 
         return explode(PHP_EOL, $this->cli->run($query));
     }
