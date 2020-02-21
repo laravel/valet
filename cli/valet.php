@@ -182,6 +182,35 @@ if (is_dir(VALET_HOME_PATH)) {
     })->descriptions('Stop serving the given domain over HTTPS and remove the trusted TLS certificate');
 
     /**
+     * Create an Nginx proxy config for the specified domain
+     */
+    $app->command('proxy domain host', function ($domain, $host) {
+
+        Site::proxyCreate($domain, $host);
+        Nginx::restart();
+
+    })->descriptions('Create an Nginx proxy site for the specified host. Useful for docker, mailhog etc.');
+
+    /**
+     * Delete an Nginx proxy config
+     */
+    $app->command('unproxy domain', function ($domain) {
+
+        Site::proxyDelete($domain);
+        Nginx::restart();
+
+    })->descriptions('Delete an Nginx proxy config.');
+
+    /**
+     * Display all of the sites that are proxies.
+     */
+    $app->command('proxies', function () {
+        $proxies = Site::proxies();
+
+        table(['Site', 'SSL', 'URL', 'Host'], $proxies->all());
+    })->descriptions('Display all of the proxy sites');
+
+    /**
      * Determine which Valet driver the current directory is using.
      */
     $app->command('which', function () {
