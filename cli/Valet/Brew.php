@@ -47,9 +47,7 @@ class Brew
      */
     function prefix() {
         if (!$this->prefix_loaded) {
-            $binary = $this->cli->runCommand('which brew');
-//          while dirname()) is primitive, homebrew strongly suggests using primitive paths to the install.
-//          we use nested dirname because we want to shift off the bin directory.
+            $binary = $this->cli->runCommand('brew --prefix');
             if (strlen($binary) > 0) {
                 $this->homebrew_prefix = dirname(dirname($binary));
             }
