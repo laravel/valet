@@ -37,8 +37,8 @@ class PhpFpm
         if (! $this->brew->hasInstalledPhp()) {
             $this->brew->ensureInstalled('php', [], $this->taps);
         }
-
-        $this->files->ensureDirExists('/usr/local/var/log', user());
+        $prefix = $this->brew->prefix();
+        $this->files->ensureDirExists($prefix.'/var/log', user());
 
         $this->updateConfiguration();
 
@@ -47,14 +47,16 @@ class PhpFpm
 
     /**
      * Forcefully uninstall all of Valet's supported PHP versions and configurations
-     * 
+     *
      * @return void
      */
     function uninstall()
     {
         $this->brew->uninstallAllPhpVersions();
-        rename('/usr/local/etc/php', '/usr/local/etc/php-valet-bak'.time());
-        $this->cli->run('rm -rf /usr/local/var/log/php-fpm.log');
+        $prefix = $this->brew->prefix();
+
+        rename($prefix.'/etc/php', $prefix.'/etc/php-valet-bak'.time());
+        $this->cli->run("rm -rf ${prefix}/var/log/php-fpm.log");
     }
 
     /**
@@ -132,6 +134,7 @@ class PhpFpm
      */
     function fpmConfigPath()
     {
+        $prefix = $this->brew->prefix();
         $version = $this->brew->linkedPhp();
 
         $versionNormalized = preg_replace(
@@ -141,8 +144,8 @@ class PhpFpm
         );
 
         return $versionNormalized === '5.6'
-            ? '/usr/local/etc/php/5.6/php-fpm.conf'
-            : "/usr/local/etc/php/${versionNormalized}/php-fpm.d/valet-fpm.conf";
+            ? "${prefix}/etc/php/5.6/php-fpm.conf"
+            : "${prefix}/etc/php/${versionNormalized}/php-fpm.d/valet-fpm.conf";
     }
 
     /**
@@ -202,7 +205,7 @@ class PhpFpm
             if (strpos($this->brew->determineAliasedVersion($version), '@')) {
                 return $version;
             }
-        
+
             if ($this->brew->hasInstalledPhp()) {
                 throw new DomainException('Brew is already using PHP '.PHP_VERSION.' as \'php\' in Homebrew. To use another version, please specify. eg: php@7.3');
             }

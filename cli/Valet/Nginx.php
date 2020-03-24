@@ -11,7 +11,7 @@ class Nginx
     var $files;
     var $configuration;
     var $site;
-    const NGINX_CONF = '/usr/local/etc/nginx/nginx.conf';
+    const NGINX_CONF = '/etc/nginx/nginx.conf';
 
     /**
      * Create a new Nginx instance.
@@ -59,9 +59,10 @@ class Nginx
         info('Installing nginx configuration...');
 
         $contents = $this->files->get(__DIR__.'/../stubs/nginx.conf');
+        $prefix = $this->brew->prefix();
 
         $this->files->putAsUser(
-            static::NGINX_CONF,
+            $prefix.static::NGINX_CONF,
             str_replace(['VALET_USER', 'VALET_HOME_PATH'], [user(), VALET_HOME_PATH], $contents)
         );
     }
@@ -73,10 +74,11 @@ class Nginx
      */
     function installServer()
     {
-        $this->files->ensureDirExists('/usr/local/etc/nginx/valet');
+        $prefix = $this->brew->prefix();
+        $this->files->ensureDirExists("${prefix}/etc/nginx/valet");
 
         $this->files->putAsUser(
-            '/usr/local/etc/nginx/valet/valet.conf',
+            "${prefix}/etc/nginx/valet/valet.conf",
             str_replace(
                 ['VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_STATIC_PREFIX'],
                 [VALET_HOME_PATH, VALET_SERVER_PATH, VALET_STATIC_PREFIX],
@@ -85,7 +87,7 @@ class Nginx
         );
 
         $this->files->putAsUser(
-            '/usr/local/etc/nginx/fastcgi_params',
+            "${prefix}/etc/nginx/fastcgi_params",
             $this->files->get(__DIR__.'/../stubs/fastcgi_params')
         );
     }
@@ -166,8 +168,9 @@ class Nginx
      */
     function uninstall()
     {
+        $prefix = $this->brew->prefix();
         $this->brew->stopService(['nginx', 'nginx-full']);
         $this->brew->uninstallFormula('nginx nginx-full');
-        $this->cli->quietly('rm -rf /usr/local/etc/nginx /usr/local/var/log/nginx');
+        $this->cli->quietly("rm -rf ${prefix}/etc/nginx ${prefix}/var/log/nginx");
     }
 }

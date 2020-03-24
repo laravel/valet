@@ -23,7 +23,7 @@ class Brew
 
     const LATEST_PHP_VERSION = 'php@7.4';
 
-    var $cli, $files;
+    var $cli, $files, $homebrew_prefix, $prefix_loaded;
 
     /**
      * Create a new Brew instance.
@@ -36,6 +36,26 @@ class Brew
     {
         $this->cli = $cli;
         $this->files = $files;
+        $this->homebrew_prefix = '/usr/local';
+        $this->prefix_loaded = false;
+    }
+
+    /**
+     * Determine HOMEBREW_PREFIX
+     *
+     * @return string
+     */
+    function prefix() {
+        if (!$this->prefix_loaded) {
+            $binary = $this->cli->runCommand('which brew');
+//          while dirname()) is primitive, homebrew strongly suggests using primitive paths to the install.
+//          we use nested dirname because we want to shift off the bin directory.
+            if (strlen($binary) > 0) {
+                $this->homebrew_prefix = dirname(dirname($binary));
+            }
+            $this->prefix_loaded = true;
+         }
+        return $this->homebrew_prefix;
     }
 
     /**
@@ -200,7 +220,7 @@ class Brew
      */
     function hasLinkedPhp()
     {
-        return $this->files->isLink('/usr/local/bin/php');
+        return $this->files->isLink($this->prefix() . '/bin/php');
     }
 
     /**
@@ -214,7 +234,7 @@ class Brew
             throw new DomainException("Homebrew PHP appears not to be linked.");
         }
 
-        $resolvedPath = $this->files->readLink('/usr/local/bin/php');
+        $resolvedPath = $this->files->readLink( $this->prefix() . '/bin/php');
 
         /**
          * Typical homebrew path resolutions are like:
@@ -280,9 +300,9 @@ class Brew
     function createSudoersEntry()
     {
         $this->files->ensureDirExists('/etc/sudoers.d');
-
-        $this->files->put('/etc/sudoers.d/brew', 'Cmnd_Alias BREW = /usr/local/bin/brew *
-%admin ALL=(root) NOPASSWD:SETENV: BREW'.PHP_EOL);
+        $prefix = $this->prefix();
+        $this->files->put('/etc/sudoers.d/brew', "Cmnd_Alias BREW = ${prefix}/bin/brew *
+%admin ALL=(root) NOPASSWD:SETENV: BREW".PHP_EOL);
     }
 
     /**
@@ -352,7 +372,7 @@ class Brew
 
     /**
      * Tell Homebrew to forcefully remove all PHP versions that Valet supports.
-     * 
+     *
      * @return string
      */
     function uninstallAllPhpVersions()
@@ -367,18 +387,19 @@ class Brew
     /**
      * Uninstall a Homebrew app by formula name.
      * @param  string $formula
-     * 
+     *
      * @return void
      */
     function uninstallFormula($formula)
     {
+        $prefix = $this->prefix();
         $this->cli->runAsUser('brew uninstall --force '.$formula);
-        $this->cli->run('rm -rf /usr/local/Cellar/'.$formula);
+        $this->cli->run("rm -rf ${prefix}/Cellar/${formula}");
     }
 
     /**
      * Run Homebrew's cleanup commands.
-     * 
+     *
      * @return string
      */
     function cleanupBrew()

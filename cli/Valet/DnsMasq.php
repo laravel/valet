@@ -6,8 +6,8 @@ class DnsMasq
 {
     var $brew, $cli, $files, $configuration;
 
-    var $dnsmasqMasterConfigFile = '/usr/local/etc/dnsmasq.conf';
-    var $dnsmasqSystemConfDir = '/usr/local/etc/dnsmasq.d';
+    var $dnsmasqMasterConfigFile = '/etc/dnsmasq.conf';
+    var $dnsmasqSystemConfDir = '/etc/dnsmasq.d';
     var $resolverPath = '/etc/resolver';
 
     /**
@@ -30,7 +30,7 @@ class DnsMasq
     {
         $this->brew->ensureInstalled('dnsmasq');
 
-        // For DnsMasq, we enable its feature of loading *.conf from /usr/local/etc/dnsmasq.d/
+        // For DnsMasq, we enable its feature of loading *.conf from ${prefix}/etc/dnsmasq.d/
         // and then we put a valet config file in there to point to the user's home .config/valet/dnsmasq.d
         // This allows Valet to make changes to our own files without needing to modify the core dnsmasq configs
         $this->ensureUsingDnsmasqDForConfigs();
@@ -46,21 +46,22 @@ class DnsMasq
 
     /**
      * Forcefully uninstall dnsmasq.
-     * 
+     *
      * @return void
      */
     function uninstall()
     {
+        $prefix = $this->brew->prefix();
         $this->brew->stopService('dnsmasq');
         $this->brew->uninstallFormula('dnsmasq');
-        $this->cli->run('rm -rf /usr/local/etc/dnsmasq.d/dnsmasq-valet.conf');
+        $this->cli->run("rm -rf ${prefix}/etc/dnsmasq.d/dnsmasq-valet.conf");
         $tld = $this->configuration->read()['tld'];
         $this->files->unlink($this->resolverPath.'/'.$tld);
     }
 
     /**
      * Tell Homebrew to restart dnsmasq
-     * 
+     *
      * @return void
      */
     function restart()
@@ -76,20 +77,21 @@ class DnsMasq
     function ensureUsingDnsmasqDForConfigs()
     {
         info('Updating Dnsmasq configuration...');
+        $prefix = $this->brew->prefix();
 
-        // set primary config to look for configs in /usr/local/etc/dnsmasq.d/*.conf
-        $contents = $this->files->get($this->dnsmasqMasterConfigFile);
+        // set primary config to look for configs in $prefix . /etc/dnsmasq.d/*.conf
+        $contents = $this->files->get($prefix . $this->dnsmasqMasterConfigFile);
         // ensure the line we need to use is present, and uncomment it if needed
-        if (false === strpos($contents, 'conf-dir=/usr/local/etc/dnsmasq.d/,*.conf')) {
-            $contents .= PHP_EOL . 'conf-dir=/usr/local/etc/dnsmasq.d/,*.conf' . PHP_EOL;
+        if (false === strpos($contents, "conf-dir=${prefix}/etc/dnsmasq.d/,*.conf")) {
+            $contents .= PHP_EOL . "conf-dir=${prefix}/etc/dnsmasq.d/,*.conf" . PHP_EOL;
         }
-        $contents = str_replace('#conf-dir=/usr/local/etc/dnsmasq.d/,*.conf', 'conf-dir=/usr/local/etc/dnsmasq.d/,*.conf', $contents);
+        $contents = str_replace("#conf-dir=${prefix}/etc/dnsmasq.d/,*.conf", "conf-dir=${prefix}/etc/dnsmasq.d/,*.conf", $contents);
 
         // remove entries used by older Valet versions:
         $contents = preg_replace('/^conf-file.*valet.*$/m', '', $contents);
 
         // save the updated config file
-        $this->files->put($this->dnsmasqMasterConfigFile, $contents);
+        $this->files->put($prefix . $this->dnsmasqMasterConfigFile, $contents);
 
         // remove old ~/.config/valet/dnsmasq.conf file because things are moved to the ~/.config/valet/dnsmasq.d/ folder now
         if (file_exists($file = dirname($this->dnsmasqUserConfigDir()) . '/dnsmasq.conf')) {
@@ -99,8 +101,8 @@ class DnsMasq
         // add a valet-specific config file to point to user's home directory valet config
         $contents = $this->files->get(__DIR__.'/../stubs/etc-dnsmasq-valet.conf');
         $contents = str_replace('VALET_HOME_PATH', VALET_HOME_PATH, $contents);
-        $this->files->ensureDirExists($this->dnsmasqSystemConfDir, user());
-        $this->files->putAsUser($this->dnsmasqSystemConfDir . '/dnsmasq-valet.conf', $contents);
+        $this->files->ensureDirExists($prefix . $this->dnsmasqSystemConfDir, user());
+        $this->files->putAsUser($prefix . $this->dnsmasqSystemConfDir . '/dnsmasq-valet.conf', $contents);
 
         $this->files->ensureDirExists(VALET_HOME_PATH . '/dnsmasq.d', user());
     }

@@ -6,20 +6,21 @@ use Httpful\Request;
 
 class Valet
 {
-    var $cli, $files;
-
-    var $valetBin = '/usr/local/bin/valet';
+    var $cli, $files, $brew;
+    var $valetBin = '/bin/valet';
 
     /**
      * Create a new Valet instance.
      *
      * @param  CommandLine  $cli
      * @param  Filesystem  $files
+     * @param  Brew $brew
      */
-    function __construct(CommandLine $cli, Filesystem $files)
+    function __construct(CommandLine $cli, Filesystem $files, Brew $brew)
     {
         $this->cli = $cli;
         $this->files = $files;
+        $this->brew = $brew;
     }
 
     /**
@@ -29,9 +30,10 @@ class Valet
      */
     function symlinkToUsersBin()
     {
+        $prefix = $this->brew->prefix();
         $this->unlinkFromUsersBin();
 
-        $this->cli->runAsUser('ln -s "'.realpath(__DIR__.'/../../valet').'" '.$this->valetBin);
+        $this->cli->runAsUser('ln -s "'.realpath(__DIR__.'/../../valet').'" '.$prefix.$this->valetBin);
     }
 
     /**
@@ -41,7 +43,8 @@ class Valet
      */
     function unlinkFromUsersBin()
     {
-        $this->cli->quietlyAsUser('rm '.$this->valetBin);
+        $prefix = $this->brew->prefix();
+        $this->cli->quietlyAsUser('rm '.$prefix.$this->valetBin);
     }
 
     /**
@@ -87,9 +90,11 @@ class Valet
     function createSudoersEntry()
     {
         $this->files->ensureDirExists('/etc/sudoers.d');
+        $prefix = $this->brew->prefix();
 
-        $this->files->put('/etc/sudoers.d/valet', 'Cmnd_Alias VALET = /usr/local/bin/valet *
-%admin ALL=(root) NOPASSWD:SETENV: VALET'.PHP_EOL);
+
+        $this->files->put('/etc/sudoers.d/valet', "Cmnd_Alias VALET = ${prefix}/bin/valet *
+%admin ALL=(root) NOPASSWD:SETENV: VALET".PHP_EOL);
     }
 
     /**

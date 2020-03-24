@@ -344,7 +344,7 @@ NOTE: Composer may have other dependencies for other global apps you have instal
 Thus, you may need to delete things from your <info>~/.composer/composer.json</info> file before running <info>composer global update</info> successfully.
 Then to finish removing any Composer fragments of Valet:
 Run <info>composer global remove laravel/valet</info>
-and then <info>rm /usr/local/bin/valet</info> to remove the Valet bin link if it still exists.
+and then from the homebrew directory (normally installed at /usr/local)<info>rm bin/valet</info> to remove the Valet bin link if it still exists.
 Optional:
 - <info>brew list</info> will show any other Homebrew services installed, in case you want to make changes to those as well.
 - <info>brew doctor</info> can indicate if there might be any broken things left behind.
@@ -373,7 +373,7 @@ You can run <comment>composer global remove laravel/valet</comment> to uninstall
 
 <info>4. Homebrew Services</info>
 <fg=red>You may remove the core services (php, nginx, dnsmasq) by running:</> <comment>brew uninstall --force php nginx dnsmasq</comment>
-<fg=red>You can then remove selected leftover configurations for these services manually</> in both <comment>/usr/local/etc/</comment> and <comment>/usr/local/logs/</comment>.
+<fg=red>You can then remove selected leftover configurations for these services manually from the homebrew directory (normally installed at /usr/local)</> in both <comment>/etc/</comment> and <comment>/logs/</comment>.
 (If you have other PHP versions installed, run <info>brew list | grep php</info> to see which versions you should also uninstall manually.)
 
 <error>BEWARE:</error> Uninstalling PHP via Homebrew will leave your Mac with its original PHP version, which may not be compatible with other Composer dependencies you have installed. Thus you may get unexpected errors.
@@ -451,11 +451,12 @@ You might also want to investigate your global Composer configs. Helpful command
      * Tail log file.
      */
     $app->command('log [-f|--follow] [-l|--lines=] [key]', function ($follow, $lines, $key = null) {
+        $prefix = Brew::prefix();
         $defaultLogs = [
-            'php-fpm' => '/usr/local/var/log/php-fpm.log',
+            'php-fpm' => "${$prefix}/var/log/php-fpm.log",
             'nginx' => VALET_HOME_PATH.'/Log/nginx-error.log',
-            'mailhog' => '/usr/local/var/log/mailhog.log',
-            'redis' => '/usr/local/var/log/redis.log',
+            'mailhog' => "${$prefix}/var/log/mailhog.log",
+            'redis' => "${$prefix}/var/log/redis.log",
         ];
 
         $configLogs = data_get(Configuration::read(), 'logs');
