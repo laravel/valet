@@ -57,23 +57,25 @@ class Diagnose
     /**
      * Run diagnostics.
      */
-    function run($print)
+    function run($print, $plainText)
     {
         $this->print = $print;
 
         $this->beforeRun();
 
-        $result = collect($this->commands)->map(function ($command) {
+        $results = collect($this->commands)->map(function ($command) {
             $this->beforeCommand($command);
 
             $output = $this->cli->runAsUser($command);
 
             $this->afterCommand($command, $output);
 
-            return implode(PHP_EOL, ["$ $command", trim($output)]);
-        })->implode(PHP_EOL.str_repeat('-', 25).PHP_EOL);
+            return compact('command', 'output');
+        });
 
-        $this->files->put('valet_diagnostics.txt', $result);
+        $output = $this->format($results, $plainText);
+
+        $this->files->put('valet_diagnostics.txt', $output);
 
         $this->cli->run('pbcopy < valet_diagnostics.txt');
 
@@ -116,5 +118,22 @@ class Diagnose
         } else {
             $this->progressBar->advance();
         }
+    }
+
+    function format($results, $plainText)
+    {
+        return $results->map(function ($result) use ($plainText) {
+            $command = $result['command'];
+            $output = trim($result['output']);
+
+            if ($plainText) {
+                return implode(PHP_EOL, ["$ {$command}", $output]);
+            }
+
+            return sprintf(
+                '<details>%s<summary>%s</summary>%s<pre>%s</pre>%s</details>',
+                PHP_EOL, $command, PHP_EOL, $output, PHP_EOL
+            );
+        })->implode($plainText ? PHP_EOL.str_repeat('-', 20).PHP_EOL : PHP_EOL);
     }
 }
