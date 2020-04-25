@@ -2,6 +2,9 @@
 
 namespace Valet;
 
+use Symfony\Component\Console\Helper\ProgressBar;
+use Symfony\Component\Console\Output\ConsoleOutput;
+
 class Diagnose
 {
     var $commands = [
@@ -36,7 +39,7 @@ class Diagnose
         'ls -al /Library/LaunchDaemons',
     ];
 
-    var $cli, $files;
+    var $cli, $files, $print, $progressBar;
 
     /**
      * Create a new Diagnose instance.
@@ -56,14 +59,16 @@ class Diagnose
      */
     function run($print)
     {
-        $result = collect($this->commands)->map(function ($command) use ($print) {
+        $this->print = $print;
+
+        $this->beforeRun();
+
+        $result = collect($this->commands)->map(function ($command) {
+            $this->beforeCommand($command);
+
             $output = $this->cli->runAsUser($command);
 
-            if ($print) {
-                output(str_repeat('-', 25));
-                info("$ $command");
-                output(trim($output));
-            }
+            $this->afterCommand($command, $output);
 
             return implode(PHP_EOL, ["$ $command", trim($output)]);
         })->implode(PHP_EOL.str_repeat('-', 25).PHP_EOL);
@@ -73,5 +78,43 @@ class Diagnose
         $this->cli->run('pbcopy < valet_diagnostics.txt');
 
         $this->files->unlink('valet_diagnostics.txt');
+
+        $this->afterRun();
+    }
+
+    function beforeRun()
+    {
+        if ($this->print) {
+            return;
+        }
+
+        $this->progressBar = new ProgressBar(new ConsoleOutput, count($this->commands));
+
+        $this->progressBar->start();
+    }
+
+    function afterRun()
+    {
+        if ($this->progressBar) {
+            $this->progressBar->finish();
+        }
+
+        output('');
+    }
+
+    function beforeCommand($command)
+    {
+        if ($this->print) {
+            info(PHP_EOL."$ $command");
+        }
+    }
+
+    function afterCommand($command, $output)
+    {
+        if ($this->print) {
+            output(trim($output));
+        } else {
+            $this->progressBar->advance();
+        }
     }
 }
