@@ -537,13 +537,15 @@ You might also want to investigate your global Composer configs. Helpful command
     /**
      * Output diagnostics to aid in debugging Valet.
      */
-    $app->command('diagnose', function () {
+    $app->command('diagnose [-p|--print]', function ($print) {
         info('Running diagnostics...');
 
-        Diagnose::run();
+        Diagnose::run($print);
 
         info('Diagnostics output has been copied to your clipboard.');
-    })->descriptions('Output diagnostics to aid in debugging Valet.');
+    })->descriptions('Output diagnostics to aid in debugging Valet.', [
+        '--print' => 'print diagnostics output while running'
+    ]);
 }
 
 /**

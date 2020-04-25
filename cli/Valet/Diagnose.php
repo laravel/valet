@@ -54,10 +54,16 @@ class Diagnose
     /**
      * Run diagnostics.
      */
-    function run()
+    function run($print)
     {
-        $result = collect($this->commands)->map(function ($command) {
+        $result = collect($this->commands)->map(function ($command) use ($print) {
             $output = $this->cli->runAsUser($command);
+
+            if ($print) {
+                output(str_repeat('-', 25));
+                info("$ $command");
+                output(trim($output));
+            }
 
             return implode(PHP_EOL, ["$ $command", trim($output)]);
         })->implode(PHP_EOL.str_repeat('-', 25).PHP_EOL);
