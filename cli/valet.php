@@ -538,7 +538,7 @@ You might also want to investigate your global Composer configs. Helpful command
      * Output diagnostics to aid in debugging Valet.
      */
     $app->command('diagnose [-p|--print] [--plain]', function ($print, $plain) {
-        info('Running diagnostics...');
+        info('Running diagnostics... (this may take a while)');
 
         Diagnose::run($print, $plain);
 
