@@ -68,10 +68,12 @@ class Diagnose
 
             $output = $this->runCommand($command);
 
+            if ($this->ignoreOutput($command)) return;
+
             $this->afterCommand($command, $output);
 
             return compact('command', 'output');
-        });
+        })->filter()->values();
 
         $output = $this->format($results, $plainText);
 
@@ -125,6 +127,11 @@ class Diagnose
         } else {
             $this->progressBar->advance();
         }
+    }
+
+    function ignoreOutput($command)
+    {
+        return strpos($command, '> /dev/null 2>&1') !== false;
     }
 
     function format($results, $plainText)
