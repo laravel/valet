@@ -66,7 +66,7 @@ class Diagnose
         $results = collect($this->commands)->map(function ($command) {
             $this->beforeCommand($command);
 
-            $output = $this->cli->runAsUser($command);
+            $output = $this->runCommand($command);
 
             $this->afterCommand($command, $output);
 
@@ -102,6 +102,13 @@ class Diagnose
         }
 
         output('');
+    }
+
+    function runCommand($command)
+    {
+        return strpos($command, 'sudo ') === 0
+            ? $this->cli->run($command)
+            : $this->cli->runAsUser($command);
     }
 
     function beforeCommand($command)
