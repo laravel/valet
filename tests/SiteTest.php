@@ -314,6 +314,12 @@ class SiteTest extends PHPUnit_Framework_TestCase
 
     public function test_lists_proxies()
     {
+        $config = Mockery::mock(Configuration::class);
+        $config->shouldReceive('read')
+            ->andReturn(['tld' => 'test']);
+
+        swap(Configuration::class, $config);
+
         /** @var FixturesSiteFake $site */
         $site = resolve(FixturesSiteFake::class);
 
@@ -338,6 +344,12 @@ class SiteTest extends PHPUnit_Framework_TestCase
 
     public function test_add_proxy()
     {
+        $config = Mockery::mock(Configuration::class);
+        $config->shouldReceive('read')
+            ->andReturn(['tld' => 'test']);
+
+        swap(Configuration::class, $config);
+
         swap(CommandLine::class, resolve(CommandLineFake::class));
 
         /** @var FixturesSiteFake $site */
@@ -366,6 +378,12 @@ class SiteTest extends PHPUnit_Framework_TestCase
 
     public function test_add_proxy_clears_previous_proxy_certificate()
     {
+        $config = Mockery::mock(Configuration::class);
+        $config->shouldReceive('read')
+            ->andReturn(['tld' => 'test']);
+
+        swap(Configuration::class, $config);
+
         swap(CommandLine::class, resolve(CommandLineFake::class));
 
         /** @var FixturesSiteFake $site */
@@ -405,6 +423,12 @@ class SiteTest extends PHPUnit_Framework_TestCase
 
     public function test_add_proxy_clears_previous_non_proxy_certificate()
     {
+        $config = Mockery::mock(Configuration::class);
+        $config->shouldReceive('read')
+            ->andReturn(['tld' => 'test']);
+
+        swap(Configuration::class, $config);
+
         swap(CommandLine::class, resolve(CommandLineFake::class));
 
         /** @var FixturesSiteFake $site */
@@ -440,6 +464,12 @@ class SiteTest extends PHPUnit_Framework_TestCase
 
     public function test_remove_proxy()
     {
+        $config = Mockery::mock(Configuration::class);
+        $config->shouldReceive('read')
+            ->andReturn(['tld' => 'test']);
+
+        swap(Configuration::class, $config);
+
         swap(CommandLine::class, resolve(CommandLineFake::class));
 
         /** @var FixturesSiteFake $site */
