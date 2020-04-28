@@ -220,7 +220,7 @@ class Site
      */
     function getCertificates($path = null)
     {
-        $path = is_null($path) ? $this->certificatesPath() : $path;
+        $path = $path ?: $this->certificatesPath();
 
         $this->files->ensureDirExists($path, user());
 
