@@ -33,6 +33,7 @@ class Brew extends Facade {}
 class Nginx extends Facade {}
 class CommandLine extends Facade {}
 class Configuration extends Facade {}
+class Diagnose extends Facade {}
 class DnsMasq extends Facade {}
 class Filesystem extends Facade {}
 class Ngrok extends Facade {}
