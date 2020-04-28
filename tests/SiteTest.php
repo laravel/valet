@@ -1,5 +1,6 @@
 <?php
 
+use Valet\CommandLine;
 use Valet\Site;
 use Valet\Filesystem;
 use Valet\Configuration;
@@ -35,6 +36,9 @@ class SiteTest extends PHPUnit_Framework_TestCase
             ->once()
             ->with($certPath = '/Users/testuser/.config/valet/Certificates')
             ->andReturn(['helloworld.multi.segment.tld.com.crt']);
+        $files->shouldReceive('ensureDirExists')
+            ->once()
+            ->with('/Users/testuser/.config/valet/Certificates', user());
         $config = Mockery::mock(Configuration::class);
         $config->shouldReceive('read')
             ->once()
@@ -64,6 +68,9 @@ class SiteTest extends PHPUnit_Framework_TestCase
             ->twice()
             ->andReturn($dirPath . '/sitetwo', $dirPath . '/sitethree');
         $files->shouldReceive('isDir')->andReturn(true);
+        $files->shouldReceive('ensureDirExists')
+            ->once()
+            ->with($dirPath, user());
 
         $config = Mockery::mock(Configuration::class);
         $config->shouldReceive('read')
@@ -119,6 +126,9 @@ class SiteTest extends PHPUnit_Framework_TestCase
             ->with($dirPath . '/sitetwo')
             ->andReturn($dirPath . '/sitetwo');
         $files->shouldReceive('isDir')->once()->with($dirPath . '/sitetwo')->andReturn(true);
+        $files->shouldReceive('ensureDirExists')
+            ->once()
+            ->with($dirPath, user());
 
         $config = Mockery::mock(Configuration::class);
         $config->shouldReceive('read')
@@ -154,6 +164,9 @@ class SiteTest extends PHPUnit_Framework_TestCase
         $files->shouldReceive('realpath')->andReturn($dirPath . '/sitetwo', $dirPath . '/siteone');
         $files->shouldReceive('isDir')->twice()
             ->andReturn(false, true);
+        $files->shouldReceive('ensureDirExists')
+            ->once()
+            ->with($dirPath, user());
 
         $config = Mockery::mock(Configuration::class);
         $config->shouldReceive('read')
@@ -194,6 +207,9 @@ class SiteTest extends PHPUnit_Framework_TestCase
             ->with($dirPath . '/siteone')
             ->andReturn($linkedPath = '/Users/usertest/linkedpath/siteone');
         $files->shouldReceive('isDir')->andReturn(true);
+        $files->shouldReceive('ensureDirExists')
+            ->once()
+            ->with($dirPath, user());
 
         $config = Mockery::mock(Configuration::class);
         $config->shouldReceive('read')
@@ -261,6 +277,9 @@ class SiteTest extends PHPUnit_Framework_TestCase
     public function test_certificates_trim_tld_for_custom_tlds()
     {
         $files = Mockery::mock(Filesystem::class);
+        $files->shouldReceive('ensureDirExists')
+            ->once()
+            ->with('fake-cert-path', user());
         $files->shouldReceive('scandir')->once()->andReturn([
             'threeletters.dev.crt',
             'fiveletters.local.crt',
@@ -280,13 +299,309 @@ class SiteTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('threeletters', $certs->first());
         $this->assertEquals('fiveletters', $certs->last());
     }
+
+
+    public function test_no_proxies()
+    {
+        /** @var FixturesSiteFake $site */
+        $site = resolve(FixturesSiteFake::class);
+
+        $site->useOutput();
+
+        $this->assertEquals([], $site->proxies()->all());
+    }
+
+
+    public function test_lists_proxies()
+    {
+        /** @var FixturesSiteFake $site */
+        $site = resolve(FixturesSiteFake::class);
+
+        $site->useFixture('Proxies');
+
+        $this->assertEquals([
+            'some-proxy.com' => [
+                'site' => 'some-proxy.com',
+                'secured' => ' X',
+                'url' => 'https://some-proxy.com.test',
+                'path' => 'https://127.0.0.1:8443',
+            ],
+            'some-other-proxy.com' => [
+                'site' => 'some-other-proxy.com',
+                'secured' => '',
+                'url' => 'http://some-other-proxy.com.test',
+                'path' => 'https://127.0.0.1:8443',
+            ],
+        ], $site->proxies()->all());
+    }
+
+
+    public function test_add_proxy()
+    {
+        swap(CommandLine::class, resolve(CommandLineFake::class));
+
+        /** @var FixturesSiteFake $site */
+        $site = resolve(FixturesSiteFake::class);
+
+        $site->useOutput();
+
+        $site->assertCertificateNotExists('my-new-proxy.com.test');
+        $site->assertNginxNotExists('my-new-proxy.com.test');
+
+        $site->proxyCreate('my-new-proxy.com', 'https://127.0.0.1:9443');
+
+        $site->assertCertificateExistsWithCounterValue('my-new-proxy.com.test', 0);
+        $site->assertNginxExists('my-new-proxy.com.test');
+
+        $this->assertEquals([
+            'my-new-proxy.com' => [
+                'site' => 'my-new-proxy.com',
+                'secured' => ' X',
+                'url' => 'https://my-new-proxy.com.test',
+                'path' => 'https://127.0.0.1:9443',
+            ],
+        ], $site->proxies()->all());
+    }
+
+
+    public function test_add_proxy_clears_previous_proxy_certificate()
+    {
+        swap(CommandLine::class, resolve(CommandLineFake::class));
+
+        /** @var FixturesSiteFake $site */
+        $site = resolve(FixturesSiteFake::class);
+
+        $site->useOutput();
+
+        $site->proxyCreate('my-new-proxy.com', 'https://127.0.0.1:7443');
+
+        $site->assertCertificateExistsWithCounterValue('my-new-proxy.com.test', 0);
+
+        $this->assertEquals([
+            'my-new-proxy.com' => [
+                'site' => 'my-new-proxy.com',
+                'secured' => ' X',
+                'url' => 'https://my-new-proxy.com.test',
+                'path' => 'https://127.0.0.1:7443',
+            ],
+        ], $site->proxies()->all());
+
+        // Note: different proxy port
+        $site->proxyCreate('my-new-proxy.com', 'https://127.0.0.1:9443');
+
+        // This shows we created a new certificate.
+        $site->assertCertificateExistsWithCounterValue('my-new-proxy.com.test', 1);
+
+        $this->assertEquals([
+            'my-new-proxy.com' => [
+                'site' => 'my-new-proxy.com',
+                'secured' => ' X',
+                'url' => 'https://my-new-proxy.com.test',
+                'path' => 'https://127.0.0.1:9443',
+            ],
+        ], $site->proxies()->all());
+    }
+
+
+    public function test_add_proxy_clears_previous_non_proxy_certificate()
+    {
+        swap(CommandLine::class, resolve(CommandLineFake::class));
+
+        /** @var FixturesSiteFake $site */
+        $site = resolve(FixturesSiteFake::class);
+
+        $site->useOutput();
+
+        $site->fakeSecure('my-new-proxy.com.test');
+
+        // For this to test the correct scenario, we need to ensure the
+        // certificate exists but there is not already a proxy Nginx
+        // configuration in place.
+        $site->assertCertificateExistsWithCounterValue('my-new-proxy.com.test', 0);
+        $site->assertNginxNotExists('my-new-proxy.com.test');
+
+        $site->proxyCreate('my-new-proxy.com', 'https://127.0.0.1:9443');
+
+        // This shows we created a new certificate.
+        $site->assertCertificateExistsWithCounterValue('my-new-proxy.com.test', 1);
+
+        $site->assertNginxExists('my-new-proxy.com.test');
+
+        $this->assertEquals([
+            'my-new-proxy.com' => [
+                'site' => 'my-new-proxy.com',
+                'secured' => ' X',
+                'url' => 'https://my-new-proxy.com.test',
+                'path' => 'https://127.0.0.1:9443',
+            ],
+        ], $site->proxies()->all());
+    }
+
+
+    public function test_remove_proxy()
+    {
+        swap(CommandLine::class, resolve(CommandLineFake::class));
+
+        /** @var FixturesSiteFake $site */
+        $site = resolve(FixturesSiteFake::class);
+
+        $site->useOutput();
+
+        $site->assertCertificateNotExists('my-new-proxy.com.test');
+        $site->assertNginxNotExists('my-new-proxy.com.test');
+
+        $this->assertEquals([], $site->proxies()->all());
+
+        $site->proxyCreate('my-new-proxy.com', 'https://127.0.0.1:9443');
+
+        $this->assertEquals([
+            'my-new-proxy.com' => [
+                'site' => 'my-new-proxy.com',
+                'secured' => ' X',
+                'url' => 'https://my-new-proxy.com.test',
+                'path' => 'https://127.0.0.1:9443',
+            ],
+        ], $site->proxies()->all());
+
+        $site->assertCertificateExists('my-new-proxy.com.test');
+        $site->assertNginxExists('my-new-proxy.com.test');
+
+        $site->proxyDelete('my-new-proxy.com');
+
+        $site->assertCertificateNotExists('my-new-proxy.com.test');
+        $site->assertNginxNotExists('my-new-proxy.com.test');
+
+        $this->assertEquals([], $site->proxies()->all());
+    }
+}
+
+
+class CommandLineFake extends CommandLine
+{
+    public function runCommand($command, callable $onError = null)
+    {
+        // noop
+        //
+        // This let's us pretend like every command executes correctly
+        // so we can (elsewhere) ensure the things we meant to do
+        // (like "create a certificate") look like they
+        // happened without actually running any
+        // commands for real.
+    }
+}
+
+
+class FixturesSiteFake extends Site
+{
+    private $valetHomePath;
+    private $crtCounter = 0;
+
+    public function valetHomePath()
+    {
+        if (! isset($this->valetHomePath)) {
+            throw new \RuntimeException(static::class.' needs to be configured using useFixtures or useOutput');
+        }
+
+        return $this->valetHomePath;
+    }
+
+    /**
+     * Use a named fixture (tests/fixtures/[Name]) for this
+     * instance of the Site.
+     */
+    public function useFixture($fixtureName)
+    {
+        $this->valetHomePath = __DIR__.'/fixtures/'.$fixtureName;
+    }
+
+    /**
+     * Use the output directory (tests/output) for this instance
+     * of the Site.
+     */
+    public function useOutput()
+    {
+        $this->valetHomePath = __DIR__.'/output';
+    }
+
+    public function createCa()
+    {
+        // noop
+        //
+        // Most of our certificate testing is primitive and not super
+        // "correct" so we're not going to even bother creating the
+        // CA for our faked Site.
+    }
+
+    public function createCertificate($urlWithTld)
+    {
+        // We're not actually going to generate a real certificate
+        // here. We are going to do something basic to include
+        // the URL and a counter so we can see if this
+        // method was called when we expect and also
+        // ensure a file is written out in the
+        // expected and correct place.
+
+        $crtPath = $this->certificatesPath($urlWithTld, 'crt');
+        $keyPath = $this->certificatesPath($urlWithTld, 'key');
+
+        $counter = $this->crtCounter++;
+
+        file_put_contents($crtPath, 'crt:'.$urlWithTld.':'.$counter);
+        file_put_contents($keyPath, 'key:'.$urlWithTld.':'.$counter);
+    }
+
+    public function fakeSecure($urlWithTld)
+    {
+        // This method is just used to ensure we all understand that we are
+        // forcing a fake creation of a URL (including .tld) and passes
+        // through to createCertificate() directly.
+        $this->files->ensureDirExists($this->certificatesPath(), user());
+        $this->createCertificate($urlWithTld);
+    }
+
+    public function assertNginxExists($urlWithTld)
+    {
+        SiteTest::assertFileExists($this->nginxPath($urlWithTld));
+    }
+
+    public function assertNginxNotExists($urlWithTld)
+    {
+        SiteTest::assertFileNotExists($this->nginxPath($urlWithTld));
+    }
+
+    public function assertCertificateExists($urlWithTld)
+    {
+        SiteTest::assertFileExists($this->certificatesPath($urlWithTld, 'crt'));
+        SiteTest::assertFileExists($this->certificatesPath($urlWithTld, 'key'));
+    }
+
+    public function assertCertificateNotExists($urlWithTld)
+    {
+        SiteTest::assertFileNotExists($this->certificatesPath($urlWithTld, 'crt'));
+        SiteTest::assertFileNotExists($this->certificatesPath($urlWithTld, 'key'));
+    }
+
+    public function assertCertificateExistsWithCounterValue($urlWithTld, $counter)
+    {
+        // Simple test to assert the certificate for the specified
+        // URL (including .tld) exists and has the expected
+        // fake contents.
+
+        $this->assertCertificateExists($urlWithTld);
+
+        $crtPath = $this->certificatesPath($urlWithTld, 'crt');
+        $keyPath = $this->certificatesPath($urlWithTld, 'key');
+
+        SiteTest::assertEquals('crt:'.$urlWithTld.':'.$counter, file_get_contents($crtPath));
+        SiteTest::assertEquals('key:'.$urlWithTld.':'.$counter, file_get_contents($keyPath));
+    }
 }
 
 
 class StubForRemovingLinks extends Site
 {
-    function sitesPath()
+    public function sitesPath($additionalPath = null)
     {
-        return __DIR__.'/output';
+        return __DIR__.'/output'.($additionalPath ? '/'.$additionalPath : '');
     }
 }
