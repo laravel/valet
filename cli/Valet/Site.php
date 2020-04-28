@@ -221,6 +221,20 @@ class Site
     }
 
     /**
+     * Get Stub file for securing site
+     *
+     * @return string
+     */
+    function getSiteStub()
+    {
+        $default = __DIR__.'/../stubs/secure.valet.conf';
+
+        $custom = VALET_HOME_PATH.'/stubs/secure.valet.conf';
+
+        return file_exists($custom) ? $custom : $default;
+    }
+
+    /**
      * Unlink the given symbolic link.
      *
      * @param  string  $name
@@ -462,7 +476,7 @@ class Site
         return str_replace(
             ['VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_STATIC_PREFIX', 'VALET_SITE', 'VALET_CERT', 'VALET_KEY'],
             [VALET_HOME_PATH, VALET_SERVER_PATH, VALET_STATIC_PREFIX, $url, $path.'/'.$url.'.crt', $path.'/'.$url.'.key'],
-            $this->files->get(__DIR__.'/../stubs/secure.valet.conf')
+            $this->files->get($this->getSiteStub())
         );
     }
 
