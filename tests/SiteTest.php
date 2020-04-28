@@ -303,6 +303,12 @@ class SiteTest extends PHPUnit_Framework_TestCase
 
     public function test_no_proxies()
     {
+        $config = Mockery::mock(Configuration::class);
+        $config->shouldReceive('read')
+            ->andReturn(['tld' => 'test']);
+
+        swap(Configuration::class, $config);
+
         /** @var FixturesSiteFake $site */
         $site = resolve(FixturesSiteFake::class);
 
