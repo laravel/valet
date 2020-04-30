@@ -68,7 +68,7 @@ class Site
     function host($path)
     {
         foreach ($this->files->scandir($this->sitesPath()) as $link) {
-            if ($resolved = realpath($this->sitesPath().'/'.$link) === $path) {
+            if ($resolved = realpath($this->sitesPath($link)) === $path) {
                 return $link;
             }
         }
@@ -103,7 +103,7 @@ class Site
      */
     function links()
     {
-        $certsPath = VALET_HOME_PATH.'/Certificates';
+        $certsPath = $this->certificatesPath();
 
         $this->files->ensureDirExists($certsPath, user());
 
@@ -119,11 +119,7 @@ class Site
      */
     function parked()
     {
-        $certsPath = VALET_HOME_PATH.'/Certificates';
-
-        $this->files->ensureDirExists($certsPath, user());
-
-        $certs = $this->getCertificates($certsPath);
+        $certs = $this->getCertificates();
 
         $links = $this->getSites($this->sitesPath(), $certs);
 
@@ -146,13 +142,88 @@ class Site
     }
 
     /**
+     * Get all sites which are proxies (not Links, and contain proxy_pass directive)
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    function proxies()
+    {
+        $dir = $this->nginxPath();
+        $tld = $this->config->read()['tld'];
+        $links = $this->links();
+        $certs = $this->getCertificates();
+
+        if (! $this->files->exists($dir)) {
+            return collect();
+        }
+
+        $proxies = collect($this->files->scandir($dir))
+        ->filter(function ($site, $key) use ($tld) {
+            // keep sites that match our TLD
+            return ends_with($site, '.'.$tld);
+        })->map(function ($site, $key) use ($tld) {
+            // remove the TLD suffix for consistency
+            return str_replace('.'.$tld, '', $site);
+        })->reject(function ($site, $key) use ($links) {
+            return $links->has($site);
+        })->mapWithKeys(function ($site) {
+            $host = $this->getProxyHostForSite($site) ?: '(other)';
+            return [$site => $host];
+        })->reject(function ($host, $site) {
+            // If proxy host is null, it may be just a normal SSL stub, or something else; either way we exclude it from the list
+            return $host === '(other)';
+        })->map(function ($host, $site) use ($certs, $tld) {
+            $secured = $certs->has($site);
+            $url = ($secured ? 'https': 'http').'://'.$site.'.'.$tld;
+
+            return [
+                'site' => $site,
+                'secured' => $secured ? ' X': '',
+                'url' => $url,
+                'path' => $host,
+            ];
+        });
+
+        return $proxies;
+    }
+
+    /**
+     * Identify whether a site is for a proxy by reading the host name from its config file.
+     *
+     * @param string $site Site name without TLD
+     * @param string $configContents Config file contents
+     * @return string|null
+     */
+    function getProxyHostForSite($site, $configContents = null)
+    {
+        $siteConf = $configContents ?: $this->getSiteConfigFileContents($site);
+        $host = null;
+        if (preg_match('~proxy_pass\s+(?<host>https?://.*)\s*;~', $siteConf, $patterns)) {
+            $host = trim($patterns['host']);
+        }
+        return $host;
+    }
+
+    function getSiteConfigFileContents($site)
+    {
+        $config = $this->config->read();
+        $suffix = '.'.$config['tld'];
+        $file = str_replace($suffix,'',$site).$suffix;
+        return $this->files->get($this->nginxPath($file));
+    }
+
+    /**
      * Get all certificates from config folder.
      *
      * @param string $path
      * @return \Illuminate\Support\Collection
      */
-    function getCertificates($path)
+    function getCertificates($path = null)
     {
+        $path = $path ?: $this->certificatesPath();
+
+        $this->files->ensureDirExists($path, user());
+
         $config = $this->config->read();
 
         return collect($this->files->scandir($path))->filter(function ($value, $key) {
@@ -196,6 +267,8 @@ class Site
     {
         $config = $this->config->read();
 
+        $this->files->ensureDirExists($path, user());
+
         return collect($this->files->scandir($path))->mapWithKeys(function ($site) use ($path) {
             $sitePath = $path.'/'.$site;
 
@@ -230,7 +303,7 @@ class Site
     {
         $name = $this->getRealSiteName($name);
 
-        if ($this->files->exists($path = $this->sitesPath().'/'.$name)) {
+        if ($this->files->exists($path = $this->sitesPath($name))) {
             $this->files->unlink($path);
         }
 
@@ -265,12 +338,41 @@ class Site
         $secured = $this->secured();
 
         foreach ($secured as $url) {
-            $this->unsecure($url);
-        }
+            $newUrl = str_replace('.'.$oldTld, '.'.$tld, $url);
+            $siteConf = $this->getSiteConfigFileContents($url);
 
-        foreach ($secured as $url) {
-            $this->secure(str_replace('.'.$oldTld, '.'.$tld, $url));
+            if (strpos($siteConf, '# valet stub: proxy.valet.conf') === 0) {
+                $this->unsecure($url);
+                $this->secure($newUrl, $this->replaceOldDomainWithNew($siteConf, '.'.$url, '.'.$newUrl));
+            } else {
+                $this->unsecure($url);
+                $this->secure($newUrl);
+            }
         }
+    }
+
+    /**
+     * Parse Nginx site config file contents to swap old domain to new.
+     *
+     * @param  string $siteConf Nginx site config content
+     * @param  string $old  Old domain
+     * @param  string $new  New domain
+     * @return string
+     */
+    function replaceOldDomainWithNew($siteConf, $old, $new)
+    {
+        $lookups = [];
+        $lookups[] = '~server_name .*;~';
+        $lookups[] = '~error_log .*;~';
+
+        foreach ($lookups as $lookup) {
+            preg_match($lookup, $siteConf, $matches);
+            foreach ($matches as $match) {
+                $replaced = str_replace($old, $new, $match);
+                $siteConf = str_replace($match, $replaced, $siteConf);
+            }
+        }
+        return $siteConf;
     }
 
     /**
@@ -290,9 +392,10 @@ class Site
      * Secure the given host with TLS.
      *
      * @param  string  $url
+     * @param  string  $siteConf  pregenerated Nginx config file contents
      * @return void
      */
-    function secure($url)
+    function secure($url, $siteConf = null)
     {
         $this->unsecure($url);
 
@@ -300,12 +403,14 @@ class Site
 
         $this->files->ensureDirExists($this->certificatesPath(), user());
 
+        $this->files->ensureDirExists($this->nginxPath(), user());
+
         $this->createCa();
 
         $this->createCertificate($url);
 
         $this->files->putAsUser(
-            VALET_HOME_PATH.'/Nginx/'.$url, $this->buildSecureNginxServer($url)
+            $this->nginxPath($url), $this->buildSecureNginxServer($url, $siteConf)
         );
     }
 
@@ -316,8 +421,8 @@ class Site
      */
     function createCa()
     {
-        $caPemPath = $this->caPath().'/LaravelValetCASelfSigned.pem';
-        $caKeyPath = $this->caPath().'/LaravelValetCASelfSigned.key';
+        $caPemPath = $this->caPath('LaravelValetCASelfSigned.pem');
+        $caKeyPath = $this->caPath('LaravelValetCASelfSigned.key');
 
         if ($this->files->exists($caKeyPath) && $this->files->exists($caPemPath)) {
             return;
@@ -353,13 +458,13 @@ class Site
      */
     function createCertificate($url)
     {
-        $caPemPath = $this->caPath().'/LaravelValetCASelfSigned.pem';
-        $caKeyPath = $this->caPath().'/LaravelValetCASelfSigned.key';
-        $caSrlPath = $this->caPath().'/LaravelValetCASelfSigned.srl';
-        $keyPath = $this->certificatesPath().'/'.$url.'.key';
-        $csrPath = $this->certificatesPath().'/'.$url.'.csr';
-        $crtPath = $this->certificatesPath().'/'.$url.'.crt';
-        $confPath = $this->certificatesPath().'/'.$url.'.conf';
+        $caPemPath = $this->caPath('LaravelValetCASelfSigned.pem');
+        $caKeyPath = $this->caPath('LaravelValetCASelfSigned.key');
+        $caSrlPath = $this->caPath('LaravelValetCASelfSigned.srl');
+        $keyPath = $this->certificatesPath($url, 'key');
+        $csrPath = $this->certificatesPath($url, 'csr');
+        $crtPath = $this->certificatesPath($url, 'crt');
+        $confPath = $this->certificatesPath($url, 'conf');
 
         $this->buildCertificateConf($confPath, $url);
         $this->createPrivateKey($keyPath);
@@ -453,16 +558,26 @@ class Site
      * Build the TLS secured Nginx server for the given URL.
      *
      * @param  string  $url
+     * @param  string  $siteConf  (optional) Nginx site config file content
      * @return string
      */
-    function buildSecureNginxServer($url)
+    function buildSecureNginxServer($url, $siteConf = null)
     {
-        $path = $this->certificatesPath();
+        if ($siteConf === null) {
+            $siteConf = $this->files->get(__DIR__.'/../stubs/secure.valet.conf');
+        }
 
         return str_replace(
             ['VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_STATIC_PREFIX', 'VALET_SITE', 'VALET_CERT', 'VALET_KEY'],
-            [VALET_HOME_PATH, VALET_SERVER_PATH, VALET_STATIC_PREFIX, $url, $path.'/'.$url.'.crt', $path.'/'.$url.'.key'],
-            $this->files->get(__DIR__.'/../stubs/secure.valet.conf')
+            [
+                $this->valetHomePath(),
+                VALET_SERVER_PATH,
+                VALET_STATIC_PREFIX,
+                $url,
+                $this->certificatesPath($url, 'crt'),
+                $this->certificatesPath($url, 'key'),
+            ],
+            $siteConf
         );
     }
 
@@ -474,13 +589,13 @@ class Site
      */
     function unsecure($url)
     {
-        if ($this->files->exists($this->certificatesPath().'/'.$url.'.crt')) {
-            $this->files->unlink(VALET_HOME_PATH.'/Nginx/'.$url);
+        if ($this->files->exists($this->certificatesPath($url, 'crt'))) {
+            $this->files->unlink($this->nginxPath($url));
 
-            $this->files->unlink($this->certificatesPath().'/'.$url.'.conf');
-            $this->files->unlink($this->certificatesPath().'/'.$url.'.key');
-            $this->files->unlink($this->certificatesPath().'/'.$url.'.csr');
-            $this->files->unlink($this->certificatesPath().'/'.$url.'.crt');
+            $this->files->unlink($this->certificatesPath($url, 'conf'));
+            $this->files->unlink($this->certificatesPath($url, 'key'));
+            $this->files->unlink($this->certificatesPath($url, 'csr'));
+            $this->files->unlink($this->certificatesPath($url, 'crt'));
         }
 
         $this->cli->run(sprintf('sudo security delete-certificate -c "%s" /Library/Keychains/System.keychain', $url));
@@ -523,13 +638,76 @@ class Site
     }
 
     /**
+     * Build the Nginx proxy config for the specified domain
+     *
+     * @param  string  $url The domain name to serve
+     * @param  string  $host The URL to proxy to, eg: http://127.0.0.1:8080
+     * @return string
+     */
+    function proxyCreate($url, $host)
+    {
+        if (!preg_match('~^https?://.*$~', $host)) {
+            throw new \InvalidArgumentException(sprintf('"%s" is not a valid URL', $host));
+        }
+
+        $tld = $this->config->read()['tld'];
+        if (!ends_with($url, '.'.$tld)) {
+            $url .= '.'.$tld;
+        }
+
+        $siteConf = $this->files->get(__DIR__.'/../stubs/proxy.valet.conf');
+
+        $siteConf = str_replace(
+            ['VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_STATIC_PREFIX', 'VALET_SITE', 'VALET_PROXY_HOST'],
+            [$this->valetHomePath(), VALET_SERVER_PATH, VALET_STATIC_PREFIX, $url, $host],
+            $siteConf
+        );
+
+        $this->secure($url, $siteConf);
+
+        info('Valet will now proxy [https://'.$url.'] traffic to ['.$host.'].');
+    }
+
+    /**
+     * Unsecure the given URL so that it will use HTTP again.
+     *
+     * @param  string  $url
+     * @return void
+     */
+    function proxyDelete($url)
+    {
+        $tld = $this->config->read()['tld'];
+        if (!ends_with($url, '.'.$tld)) {
+            $url .= '.'.$tld;
+        }
+
+        $this->unsecure($url);
+        $this->files->unlink($this->nginxPath($url));
+
+        info('Valet will no longer proxy [https://'.$url.'].');
+    }
+
+    function valetHomePath()
+    {
+        return VALET_HOME_PATH;
+    }
+
+    /**
+     * Get the path to Nginx site configuration files.
+     */
+    function nginxPath($additionalPath = null)
+    {
+        return $this->valetHomePath().'/Nginx'.($additionalPath ? '/'.$additionalPath : '');
+    }
+
+    /**
      * Get the path to the linked Valet sites.
      *
      * @return string
      */
-    function sitesPath()
+    function sitesPath($link = null)
     {
-        return VALET_HOME_PATH.'/Sites';
+        return $this->valetHomePath().'/Sites'.($link ? '/'.$link : '');
     }
 
     /**
@@ -537,9 +715,9 @@ class Site
      *
      * @return string
      */
-    function caPath()
+    function caPath($caFile = null)
     {
-        return VALET_HOME_PATH.'/CA';
+        return $this->valetHomePath().'/CA'.($caFile ? '/'.$caFile : '');
     }
 
     /**
@@ -547,8 +725,11 @@ class Site
      *
      * @return string
      */
-    function certificatesPath()
+    function certificatesPath($url = null, $extension = null)
     {
-        return VALET_HOME_PATH.'/Certificates';
+        $url = $url ? '/'.$url : '';
+        $extension = $extension ? '.'.$extension : '';
+
+        return $this->valetHomePath().'/Certificates'.$url.$extension;
     }
 }

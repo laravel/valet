@@ -1,0 +1,90 @@
+# valet stub: proxy.valet.conf
+
+server {
+    listen 127.0.0.1:80;
+    server_name not-a-proxy.com.test www.not-a-proxy.com.test *.not-a-proxy.com.test;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 127.0.0.1:443 ssl http2;
+    server_name not-a-proxy.com.test www.not-a-proxy.com.test *.not-a-proxy.com.test;
+    root /;
+    charset utf-8;
+    client_max_body_size 128M;
+    http2_push_preload on;
+
+    location /41c270e4-5535-4daa-b23e-c269744c2f45/ {
+        internal;
+        alias /;
+        try_files $uri $uri/;
+    }
+
+    ssl_certificate "/home/nobody/.config/valet/Certificates/not-a-proxy.com.test.crt";
+    ssl_certificate_key "/home/nobody/.config/valet/Certificates/not-a-proxy.com.test.key";
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt  { access_log off; log_not_found off; }
+
+    access_log off;
+    error_log "/home/nobody/.config/valet/Log/not-a-proxy.com.test-error.log";
+
+    error_page 404 "/home/nobody/.composer/vendor/laravel/valet/server.php";
+
+    location ~ \.php$ {
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        fastcgi_pass php:9000;
+        fastcgi_index index.php;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_intercept_errors off;
+        fastcgi_buffer_size 16k;
+        fastcgi_buffers 4 16k;
+        fastcgi_param PHP_VALUE "memory_limit = -1";
+    }
+
+    location ~ /\.ht {
+        deny all;
+    }
+}
+
+server {
+    listen 127.0.0.1:60;
+    server_name not-a-proxy.com.test www.not-a-proxy.com.test *.not-a-proxy.com.test;
+    root /;
+    charset utf-8;
+    client_max_body_size 128M;
+
+    add_header X-Robots-Tag 'noindex, nofollow, nosnippet, noarchive';
+
+    location /41c270e4-5535-4daa-b23e-c269744c2f45/ {
+        internal;
+        alias /;
+        try_files $uri $uri/;
+    }
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt  { access_log off; log_not_found off; }
+
+    access_log off;
+    error_log "/home/nobody/.config/valet/Log/not-a-proxy.com.test-error.log";
+
+    error_page 404 "/home/nobody/.composer/vendor/laravel/valet/server.php";
+
+    location ~ \.php$ {
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        fastcgi_pass php:9000;
+        fastcgi_index index.php;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_intercept_errors off;
+        fastcgi_buffer_size 16k;
+        fastcgi_buffers 4 16k;
+        fastcgi_param PHP_VALUE "memory_limit = -1";
+    }
+
+    location ~ /\.ht {
+        deny all;
+    }
+}
+
