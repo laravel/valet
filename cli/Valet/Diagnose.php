@@ -37,9 +37,9 @@ class Diagnose
         'which -a php-fpm',
         '/usr/local/opt/php/sbin/php-fpm -v',
         'sudo /usr/local/opt/php/sbin/php-fpm -y '.PHP_SYSCONFDIR.'/php-fpm.conf --test',
-        'ls -al ~/Library/LaunchAgents',
-        'ls -al /Library/LaunchAgents',
-        'ls -al /Library/LaunchDaemons',
+        'ls -al ~/Library/LaunchAgents | grep homebrew',
+        'ls -al /Library/LaunchAgents | grep homebrew',
+        'ls -al /Library/LaunchDaemons | grep homebrew',
     ];
 
     var $cli, $files, $print, $progressBar;
