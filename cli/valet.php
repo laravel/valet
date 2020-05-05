@@ -243,22 +243,24 @@ if (is_dir(VALET_HOME_PATH)) {
      * Set the default browser when opening a URL using Valet.
      */
     $app->command('browser', function ($input, $output) {
-        info('Your Valet default browser is: '.Configuration::get('browser', 'None (system default)'));
-
-        $options = [
+        $browsers = [
             "Chrome" => "Google\\ Chrome",
             "Firefox" => "Firefox",
             "Safari" => "Safari",
             "Brave" => "Brave\\ Browser",
-            "None (system default)" => null,
+            "None (system default)" => "",
         ];
+
+        $current = array_flip($browsers)[Configuration::get('browser', 'None (system default)')];
+        info('Your Valet browser is: '.$current);
+
         $helper = $this->getHelperSet()->get('question');
-        $question = new ChoiceQuestion('Which browser should Valet use when opening a URL?', array_keys($options));
-        $browser = $helper->ask($input, $output, $question);
+        $question = new ChoiceQuestion('Which browser should Valet use when opening a URL?', array_keys($browsers));
+        $selected = $helper->ask($input, $output, $question);
 
-        Configuration::updateKey('browser', $options[$browser]);
+        Configuration::updateKey('browser', $browsers[$selected]);
 
-        info('Your Valet default browser has been updated to ['.$browser.'].');
+        info('Your Valet browser has been updated to: '.$selected);
     })->descriptions('Set the default browser when opening a URL using Valet.');
 
     /**
