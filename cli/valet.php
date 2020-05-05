@@ -14,6 +14,7 @@ if (file_exists(__DIR__.'/../vendor/autoload.php')) {
 
 use Silly\Application;
 use Illuminate\Container\Container;
+use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use function Valet\info;
 use function Valet\output;
@@ -237,6 +238,28 @@ if (is_dir(VALET_HOME_PATH)) {
             info('No paths have been registered.');
         }
     })->descriptions('Get all of the paths registered with Valet');
+
+    /**
+     * Set the default browser when opening a URL using Valet.
+     */
+    $app->command('browser', function ($input, $output) {
+        info('Your Valet default browser is: '.Configuration::get('browser', 'None (system default)'));
+
+        $options = [
+            "Chrome" => "Google\\ Chrome",
+            "Firefox" => "Firefox",
+            "Safari" => "Safari",
+            "Brave" => "Brave\\ Browser",
+            "None (system default)" => null,
+        ];
+        $helper = $this->getHelperSet()->get('question');
+        $question = new ChoiceQuestion('Which browser should Valet use when opening a URL?', array_keys($options));
+        $browser = $helper->ask($input, $output, $question);
+
+        Configuration::updateKey('browser', $options[$browser]);
+
+        info('Your Valet default browser has been updated to ['.$browser.'].');
+    })->descriptions('Set the default browser when opening a URL using Valet.');
 
     /**
      * Open the current or given directory in the browser.
