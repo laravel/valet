@@ -242,8 +242,10 @@ if (is_dir(VALET_HOME_PATH)) {
      * Open the current or given directory in the browser.
      */
     $app->command('open [domain]', function ($domain = null) {
-        $url = "http://".($domain ?: Site::host(getcwd())).'.'.Configuration::read()['tld'];
-        CommandLine::runAsUser("open ".escapeshellarg($url));
+        $url = 'http://'.($domain ?: Site::host(getcwd())).'.'.Configuration::get('tld');
+        $command = ($browser = Configuration::get('browser')) ? 'open -a '.$browser : 'open';
+
+        CommandLine::runAsUser($command.' '.escapeshellarg($url));
     })->descriptions('Open the site for the current (or specified) directory in your browser');
 
     /**
