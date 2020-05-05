@@ -2,6 +2,8 @@
 
 namespace Valet;
 
+use Tightenco\Collect\Support\Arr;
+
 class Configuration
 {
     var $files;
@@ -213,6 +215,17 @@ class Configuration
     function read()
     {
         return json_decode($this->files->get($this->path()), true);
+    }
+
+    /**
+     * Get a specified key from the configuration.
+     *
+     * @param  string  $key
+     * @return mixed
+     */
+    function get($key, $default = null)
+    {
+        return Arr::get($this->read(), $key, $default);
     }
 
     /**
