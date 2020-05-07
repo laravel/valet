@@ -23,9 +23,6 @@ server {
     ssl_certificate "/home/nobody/.config/valet/Certificates/some-proxy.com.test.crt";
     ssl_certificate_key "/home/nobody/.config/valet/Certificates/some-proxy.com.test.key";
 
-    location = /favicon.ico { access_log off; log_not_found off; }
-    location = /robots.txt  { access_log off; log_not_found off; }
-
     access_log off;
     error_log "/home/nobody/.config/valet/Log/some-proxy.com.test-error.log";
 
@@ -71,9 +68,6 @@ server {
         alias /;
         try_files $uri $uri/;
     }
-
-    location = /favicon.ico { access_log off; log_not_found off; }
-    location = /robots.txt  { access_log off; log_not_found off; }
 
     access_log off;
     error_log "/home/nobody/.config/valet/Log/some-proxy.com.test-error.log";
