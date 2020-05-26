@@ -51,7 +51,7 @@ function show_directory_listing($valetSitePath, $uri)
  * It's simple to use: First determine the IP address of your local computer (like 192.168.0.10).
  * Then simply use http://project.your-ip.xip.io - ie: http://laravel.192.168.0.10.xip.io
  */
-function valet_support_wildcard_dns($domain)
+function valet_support_wildcard_dns($domain, $config)
 {
     $services = [
         '.*.*.*.*.xip.io',
