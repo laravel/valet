@@ -118,7 +118,7 @@ if (is_dir(VALET_HOME_PATH)) {
         Configuration::removePath($path ?: getcwd());
 
         info(($path === null ? "This" : "The [{$path}]") . " directory has been removed from Valet's paths.");
-    })->descriptions('Remove the current working (or specified) directory from Valet\'s list of paths');
+    }, ['unpark'])->descriptions('Remove the current working (or specified) directory from Valet\'s list of paths');
 
     /**
      * Register a symbolic link with Valet.
