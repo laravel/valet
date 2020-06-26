@@ -2,38 +2,51 @@
 
 namespace Valet;
 
+use Httpful\Exception\ConnectionErrorException;
 use Httpful\Request;
 use DomainException;
 
 class Ngrok
 {
-    var $tunnelsEndpoints = [
-        'http://127.0.0.1:4040/api/tunnels',
-        'http://127.0.0.1:4041/api/tunnels',
-    ];
+    const STARTING_PORT = 4040;
+
+    const TUNNELS_ENDPOINT = 'http://127.0.0.1:{port}/api/tunnels';
 
     /**
      * Get the current tunnel URL from the Ngrok API.
      *
-     * @return string
+     * @return array
      */
-    function currentTunnelUrl($domain = null)
+    function currentTunnelsUrls($domain = null)
     {
         // wait a second for ngrok to start before attempting to find available tunnels
         sleep(1);
 
-        foreach ($this->tunnelsEndpoints as $endpoint) {
-            $response = retry(20, function () use ($endpoint, $domain) {
+        $responses = [];
+        $port = self::STARTING_PORT;
+        $loop = true;
+        while ($loop) {
+            $endpoint = str_replace('{port}', $port, self::TUNNELS_ENDPOINT);
+            try {
+                Request::get($endpoint)->whenError(
+                    static function () use (&$loop) {
+                    $loop = false;
+                })->send();
+            } catch (ConnectionErrorException $e) {
+                break;
+            }
+            $responses[] = retry(20, function () use ($endpoint, $domain) {
                 $body = Request::get($endpoint)->send()->body;
 
                 if (isset($body->tunnels) && count($body->tunnels) > 0) {
                     return $this->findHttpTunnelUrl($body->tunnels, $domain);
                 }
             }, 250);
+            $port++;
+        }
 
-            if (!empty($response)) {
-                return $response;
-            }
+        if (!empty($responses)) {
+            return $responses;
         }
 
         throw new DomainException("Tunnel not established.");

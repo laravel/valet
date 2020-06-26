@@ -57,7 +57,7 @@ function table(array $headers = [], array $rows = [])
 /**
  * Output the given text to the console.
  *
- * @param  string  $output
+ * @param  string|iterable  $output
  * @return void
  */
 function output($output)
