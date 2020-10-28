@@ -8,6 +8,8 @@ class Brew
 {
     const SUPPORTED_PHP_VERSIONS = [
         'php',
+        'php@8.1',
+        'php@8.0',
         'php@7.4',
         'php@7.3',
         'php@7.2',

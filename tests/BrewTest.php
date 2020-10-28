@@ -71,6 +71,8 @@ php7');
     {
         $brew = Mockery::mock(Brew::class.'[installed]', [new CommandLine, new Filesystem]);
         $brew->shouldReceive('installed')->with('php')->andReturn(true);
+        $brew->shouldReceive('installed')->with('php@8.1')->andReturn(true);
+        $brew->shouldReceive('installed')->with('php@8.0')->andReturn(true);
         $brew->shouldReceive('installed')->with('php@7.4')->andReturn(true);
         $brew->shouldReceive('installed')->with('php@7.3')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.2')->andReturn(true);
@@ -87,6 +89,8 @@ php7');
 
         $brew = Mockery::mock(Brew::class.'[installed]', [new CommandLine, new Filesystem]);
         $brew->shouldReceive('installed')->with('php')->andReturn(true);
+        $brew->shouldReceive('installed')->with('php@8.1')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php@8.0')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.4')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.3')->andReturn(true);
         $brew->shouldReceive('installed')->with('php@7.2')->andReturn(false);
@@ -103,6 +107,8 @@ php7');
 
         $brew = Mockery::mock(Brew::class.'[installed]', [new CommandLine, new Filesystem]);
         $brew->shouldReceive('installed')->with('php')->andReturn(true);
+        $brew->shouldReceive('installed')->with('php@8.1')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php@8.0')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.4')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.3')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.2')->andReturn(true);
@@ -119,6 +125,8 @@ php7');
 
         $brew = Mockery::mock(Brew::class.'[installed]', [new CommandLine, new Filesystem]);
         $brew->shouldReceive('installed')->with('php')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php@8.1')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php@8.0')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.4')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.3')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.2')->andReturn(false);
@@ -135,6 +143,8 @@ php7');
 
         $brew = Mockery::mock(Brew::class.'[installed]', [new CommandLine, new Filesystem]);
         $brew->shouldReceive('installed')->with('php')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php@8.1')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php@8.0')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.4')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.3')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.2')->andReturn(false);
@@ -151,6 +161,8 @@ php7');
 
         $brew = Mockery::mock(Brew::class.'[installed]', [new CommandLine, new Filesystem]);
         $brew->shouldReceive('installed')->with('php')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php@8.1')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php@8.0')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.4')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.3')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.2')->andReturn(false);
@@ -167,6 +179,8 @@ php7');
 
         $brew = Mockery::mock(Brew::class.'[installed]', [new CommandLine, new Filesystem]);
         $brew->shouldReceive('installed')->with('php')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php@8.1')->andReturn(false);
+        $brew->shouldReceive('installed')->with('php@8.0')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.4')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.3')->andReturn(false);
         $brew->shouldReceive('installed')->with('php@7.2')->andReturn(false);
