@@ -165,8 +165,8 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Stop serving the given domain over HTTPS and remove the trusted TLS certificate.
      */
-    $app->command('unsecure [domain] [--all]', function ($domain = null, $all) {
 
+    $app->command('unsecure [domain] [--all]', function ($domain = null, $all = false) {
         if ($all) {
             Site::unsecureAll();
             return;
