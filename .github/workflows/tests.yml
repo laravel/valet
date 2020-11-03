@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        php: [5.6, 7.0, 7.1, 7.2, 7.3, 7.4]
+        php: [5.6, 7.0, 7.1, 7.2, 7.3, 7.4, 8.0]
 
     name: PHP ${{ matrix.php }}
 
@@ -28,7 +28,7 @@ jobs:
           coverage: none
 
       - name: Install dependencies
-        run: composer install --no-interaction --prefer-dist
+        run: composer install --no-interaction --prefer-dist --ignore-platform-req=php
 
       - name: Execute tests
         env:
