@@ -197,6 +197,11 @@ class Site
     function getProxyHostForSite($site, $configContents = null)
     {
         $siteConf = $configContents ?: $this->getSiteConfigFileContents($site);
+
+        if (empty($siteConf)) {
+            return null;
+        }
+
         $host = null;
         if (preg_match('~proxy_pass\s+(?<host>https?://.*)\s*;~', $siteConf, $patterns)) {
             $host = trim($patterns['host']);
@@ -204,12 +209,12 @@ class Site
         return $host;
     }
 
-    function getSiteConfigFileContents($site)
+    function getSiteConfigFileContents($site, $suffix = null)
     {
         $config = $this->config->read();
-        $suffix = '.'.$config['tld'];
+        $suffix = $suffix ?: '.'.$config['tld'];
         $file = str_replace($suffix,'',$site).$suffix;
-        return $this->files->get($this->nginxPath($file));
+        return $this->files->exists($this->nginxPath($file)) ? $this->files->get($this->nginxPath($file)) : null;
     }
 
     /**
@@ -339,12 +344,14 @@ class Site
 
         foreach ($secured as $url) {
             $newUrl = str_replace('.'.$oldTld, '.'.$tld, $url);
-            $siteConf = $this->getSiteConfigFileContents($url);
+            $siteConf = $this->getSiteConfigFileContents($url, '.'.$oldTld);
 
-            if (strpos($siteConf, '# valet stub: proxy.valet.conf') === 0) {
+            if (!empty($siteConf) && strpos($siteConf, '# valet stub: proxy.valet.conf') === 0) {
+                // proxy config
                 $this->unsecure($url);
                 $this->secure($newUrl, $this->replaceOldDomainWithNew($siteConf, '.'.$url, '.'.$newUrl));
             } else {
+                // normal config
                 $this->unsecure($url);
                 $this->secure($newUrl);
             }
