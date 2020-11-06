@@ -51,18 +51,33 @@ function show_directory_listing($valetSitePath, $uri)
  * It's simple to use: First determine the IP address of your local computer (like 192.168.0.10).
  * Then simply use http://project.your-ip.xip.io - ie: http://laravel.192.168.0.10.xip.io
  */
-function valet_support_wildcard_dns($domain)
+function valet_support_wildcard_dns($domain, $config)
 {
-    if (in_array(substr($domain, -7), ['.xip.io', '.nip.io'])) {
-        // support only ip v4 for now
-        $domainPart = explode('.', $domain);
-        if (count($domainPart) > 6) {
-            $domain = implode('.', array_reverse(array_slice(array_reverse($domainPart), 6)));
-        }
+    $services = [
+        '.*.*.*.*.xip.io',
+        '.*.*.*.*.nip.io',
+        '-*-*-*-*.nip.io',
+    ];
+
+    if (isset($config['tunnel_services'])) {
+        $services = array_merge($services, (array) $config['tunnel_services']);
+    }
+
+    $patterns = [];
+    foreach ($services as $service) {
+        $pattern = preg_quote($service, '#');
+        $pattern = str_replace('\*', '.*', $pattern);
+        $patterns[] = '(.*)' . $pattern;
+    }
+
+    $pattern = implode('|', $patterns);
+
+    if (preg_match('#(?:' . $pattern . ')\z#u', $domain, $matches)) {
+        $domain = array_pop($matches);
     }
 
     if (strpos($domain, ':') !== false) {
-        $domain = explode(':',$domain)[0];
+        $domain = explode(':', $domain)[0];
     }
 
     return $domain;
@@ -98,7 +113,7 @@ $uri = rawurldecode(
 
 $siteName = basename(
     // Filter host to support wildcard dns feature
-    valet_support_wildcard_dns($_SERVER['HTTP_HOST']),
+    valet_support_wildcard_dns($_SERVER['HTTP_HOST'], $valetConfig),
     '.'.$valetConfig['tld']
 );
 
