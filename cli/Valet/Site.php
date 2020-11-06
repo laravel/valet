@@ -349,7 +349,7 @@ class Site
             if (!empty($siteConf) && strpos($siteConf, '# valet stub: proxy.valet.conf') === 0) {
                 // proxy config
                 $this->unsecure($url);
-                $this->secure($newUrl, $this->replaceOldDomainWithNew($siteConf, '.'.$url, '.'.$newUrl));
+                $this->secure($newUrl, $this->replaceOldDomainWithNew($siteConf, $url, $newUrl));
             } else {
                 // normal config
                 $this->unsecure($url);
@@ -371,6 +371,8 @@ class Site
         $lookups = [];
         $lookups[] = '~server_name .*;~';
         $lookups[] = '~error_log .*;~';
+        $lookups[] = '~ssl_certificate_key .*;~';
+        $lookups[] = '~ssl_certificate .*;~';
 
         foreach ($lookups as $lookup) {
             preg_match($lookup, $siteConf, $matches);
