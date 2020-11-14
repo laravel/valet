@@ -202,7 +202,7 @@ class Brew
      */
     function hasLinkedPhp()
     {
-        return $this->files->isLink('/usr/local/bin/php');
+        return $this->files->isLink(PHP_BINARY_PATH);
     }
 
     /**
@@ -216,7 +216,7 @@ class Brew
             throw new DomainException("Homebrew PHP appears not to be linked.");
         }
 
-        $resolvedPath = $this->files->readLink('/usr/local/bin/php');
+        $resolvedPath = $this->files->readLink(PHP_BINARY_PATH);
 
         /**
          * Typical homebrew path resolutions are like:
