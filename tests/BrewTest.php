@@ -238,27 +238,27 @@ php7');
         };
 
         $files = Mockery::mock(Filesystem::class);
-        $files->shouldReceive('readLink')->once()->with(PHP_BINARY_PATH)->andReturn('/test/path/php/7.4.0/test');
+        $files->shouldReceive('readLink')->once()->with(BREW_PREFIX.'/bin/php')->andReturn('/test/path/php/7.4.0/test');
         $this->assertSame('php@7.4', $getBrewMock($files)->linkedPhp());
 
         $files = Mockery::mock(Filesystem::class);
-        $files->shouldReceive('readLink')->once()->with(PHP_BINARY_PATH)->andReturn('/test/path/php/7.3.0/test');
+        $files->shouldReceive('readLink')->once()->with(BREW_PREFIX.'/bin/php')->andReturn('/test/path/php/7.3.0/test');
         $this->assertSame('php@7.3', $getBrewMock($files)->linkedPhp());
 
         $files = Mockery::mock(Filesystem::class);
-        $files->shouldReceive('readLink')->once()->with(PHP_BINARY_PATH)->andReturn('/test/path/php@7.2/7.2.13/test');
+        $files->shouldReceive('readLink')->once()->with(BREW_PREFIX.'/bin/php')->andReturn('/test/path/php@7.2/7.2.13/test');
         $this->assertSame('php@7.2', $getBrewMock($files)->linkedPhp());
 
         $files = Mockery::mock(Filesystem::class);
-        $files->shouldReceive('readLink')->once()->with(PHP_BINARY_PATH)->andReturn('/test/path/php/7.2.9_2/test');
+        $files->shouldReceive('readLink')->once()->with(BREW_PREFIX.'/bin/php')->andReturn('/test/path/php/7.2.9_2/test');
         $this->assertSame('php@7.2', $getBrewMock($files)->linkedPhp());
 
         $files = Mockery::mock(Filesystem::class);
-        $files->shouldReceive('readLink')->once()->with(PHP_BINARY_PATH)->andReturn('/test/path/php72/7.2.9_2/test');
+        $files->shouldReceive('readLink')->once()->with(BREW_PREFIX.'/bin/php')->andReturn('/test/path/php72/7.2.9_2/test');
         $this->assertSame('php@7.2', $getBrewMock($files)->linkedPhp());
 
         $files = Mockery::mock(Filesystem::class);
-        $files->shouldReceive('readLink')->once()->with(PHP_BINARY_PATH)->andReturn('/test/path/php56/test');
+        $files->shouldReceive('readLink')->once()->with(BREW_PREFIX.'/bin/php')->andReturn('/test/path/php56/test');
         $this->assertSame('php@5.6', $getBrewMock($files)->linkedPhp());
     }
 
@@ -277,7 +277,7 @@ php7');
     public function test_has_linked_php_returns_true_if_php_link_exists()
     {
         $files = Mockery::mock(Filesystem::class);
-        $files->shouldReceive('isLink')->twice()->with(PHP_BINARY_PATH)->andReturn(false, true);
+        $files->shouldReceive('isLink')->twice()->with(BREW_PREFIX.'/bin/php')->andReturn(false, true);
         swap(Filesystem::class, $files);
         $brew = resolve(Brew::class);
 
@@ -292,8 +292,8 @@ php7');
     public function test_linked_php_throws_exception_if_unsupported_php_version_is_linked()
     {
         $files = Mockery::mock(Filesystem::class);
-        $files->shouldReceive('isLink')->once()->with(PHP_BINARY_PATH)->andReturn(true);
-        $files->shouldReceive('readLink')->once()->with(PHP_BINARY_PATH)->andReturn('/test/path/php/5.4.14/test');
+        $files->shouldReceive('isLink')->once()->with(BREW_PREFIX.'/bin/php')->andReturn(true);
+        $files->shouldReceive('readLink')->once()->with(BREW_PREFIX.'/bin/php')->andReturn('/test/path/php/5.4.14/test');
         swap(Filesystem::class, $files);
         resolve(Brew::class)->linkedPhp();
     }
@@ -449,7 +449,7 @@ php7');
         };
 
         $files = Mockery::mock(Filesystem::class);
-        $files->shouldReceive('readLink')->once()->with(PHP_BINARY_PATH)->andReturn($path);
+        $files->shouldReceive('readLink')->once()->with(BREW_PREFIX.'/bin/php')->andReturn($path);
         $this->assertSame($matches, $getBrewMock($files)->getParsedLinkedPhp());
     }
 

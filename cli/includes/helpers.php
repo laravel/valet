@@ -16,7 +16,7 @@ define('VALET_STATIC_PREFIX', '41c270e4-5535-4daa-b23e-c269744c2f45');
 
 define('VALET_LEGACY_HOME_PATH', $_SERVER['HOME'].'/.valet');
 
-define('PHP_BINARY_PATH', (new CommandLine())->runAsUser('printf $(brew --prefix)/bin/php'));
+define('BREW_PREFIX', (new CommandLine())->runAsUser('printf $(brew --prefix)'));
 
 /**
  * Output the given text to the console.
