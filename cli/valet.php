@@ -401,13 +401,13 @@ You can run <comment>composer global remove laravel/valet</comment> to uninstall
 
 <info>4. Homebrew Services</info>
 <fg=red>You may remove the core services (php, nginx, dnsmasq) by running:</> <comment>brew uninstall --force php nginx dnsmasq</comment>
-<fg=red>You can then remove selected leftover configurations for these services manually</> in both <comment>/usr/local/etc/</comment> and <comment>/usr/local/logs/</comment>.
+<fg=red>You can then remove selected leftover configurations for these services manually</> in both <comment>".BREW_PREFIX."/etc/</comment> and <comment>".BREW_PREFIX."/logs/</comment>.
 (If you have other PHP versions installed, run <info>brew list | grep php</info> to see which versions you should also uninstall manually.)
 
 <error>BEWARE:</error> Uninstalling PHP via Homebrew will leave your Mac with its original PHP version, which may not be compatible with other Composer dependencies you have installed. Thus you may get unexpected errors.
 
 Some additional services which you may have installed (but which Valet does not directly configure or manage) include: <comment>mariadb mysql mailhog</comment>.
-If you wish to also remove them, you may manually run <comment>brew uninstall SERVICENAME</comment> and clean up their configurations in /usr/local/etc if necessary.
+If you wish to also remove them, you may manually run <comment>brew uninstall SERVICENAME</comment> and clean up their configurations in ".BREW_PREFIX."/etc if necessary.
 
 You can discover more Homebrew services by running: <comment>brew services list</comment> and <comment>brew list</comment>
 
@@ -480,10 +480,10 @@ You might also want to investigate your global Composer configs. Helpful command
      */
     $app->command('log [-f|--follow] [-l|--lines=] [key]', function ($follow, $lines, $key = null) {
         $defaultLogs = [
-            'php-fpm' => '/usr/local/var/log/php-fpm.log',
+            'php-fpm' => BREW_PREFIX.'/var/log/php-fpm.log',
             'nginx' => VALET_HOME_PATH.'/Log/nginx-error.log',
-            'mailhog' => '/usr/local/var/log/mailhog.log',
-            'redis' => '/usr/local/var/log/redis.log',
+            'mailhog' => BREW_PREFIX.'/var/log/mailhog.log',
+            'redis' => BREW_PREFIX.'/var/log/redis.log',
         ];
 
         $configLogs = data_get(Configuration::read(), 'logs');

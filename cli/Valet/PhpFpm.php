@@ -53,8 +53,8 @@ class PhpFpm
     function uninstall()
     {
         $this->brew->uninstallAllPhpVersions();
-        rename('/usr/local/etc/php', '/usr/local/etc/php-valet-bak'.time());
-        $this->cli->run('rm -rf /usr/local/var/log/php-fpm.log');
+        rename(BREW_PREFIX.'/etc/php', BREW_PREFIX.'/etc/php-valet-bak'.time());
+        $this->cli->run('rm -rf '.BREW_PREFIX.'/var/log/php-fpm.log');
     }
 
     /**
@@ -141,8 +141,8 @@ class PhpFpm
         );
 
         return $versionNormalized === '5.6'
-            ? '/usr/local/etc/php/5.6/php-fpm.conf'
-            : "/usr/local/etc/php/${versionNormalized}/php-fpm.d/valet-fpm.conf";
+            ? BREW_PREFIX.'/etc/php/5.6/php-fpm.conf'
+            : BREW_PREFIX."/etc/php/${versionNormalized}/php-fpm.d/valet-fpm.conf";
     }
 
     /**

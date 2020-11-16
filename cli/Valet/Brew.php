@@ -202,7 +202,7 @@ class Brew
      */
     function hasLinkedPhp()
     {
-        return $this->files->isLink('/usr/local/bin/php');
+        return $this->files->isLink(BREW_PREFIX.'/bin/php');
     }
 
     /**
@@ -216,7 +216,7 @@ class Brew
             throw new DomainException("Homebrew PHP appears not to be linked.");
         }
 
-        $resolvedPath = $this->files->readLink('/usr/local/bin/php');
+        $resolvedPath = $this->files->readLink(BREW_PREFIX.'/bin/php');
 
         /**
          * Typical homebrew path resolutions are like:
@@ -283,7 +283,7 @@ class Brew
     {
         $this->files->ensureDirExists('/etc/sudoers.d');
 
-        $this->files->put('/etc/sudoers.d/brew', 'Cmnd_Alias BREW = /usr/local/bin/brew *
+        $this->files->put('/etc/sudoers.d/brew', 'Cmnd_Alias BREW = '.BREW_PREFIX.'/bin/brew *
 %admin ALL=(root) NOPASSWD:SETENV: BREW'.PHP_EOL);
     }
 
@@ -375,7 +375,7 @@ class Brew
     function uninstallFormula($formula)
     {
         $this->cli->runAsUser('brew uninstall --force '.$formula);
-        $this->cli->run('rm -rf /usr/local/Cellar/'.$formula);
+        $this->cli->run('rm -rf '.BREW_PREFIX.'/Cellar/'.$formula);
     }
 
     /**

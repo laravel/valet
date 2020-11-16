@@ -30,7 +30,7 @@ class NginxTest extends PHPUnit_Framework_TestCase
         $files = Mockery::mock(Filesystem::class.'[putAsUser]');
 
         $files->shouldReceive('putAsUser')->andReturnUsing(function ($path, $contents) {
-            $this->assertSame('/usr/local/etc/nginx/nginx.conf', $path);
+            $this->assertSame(BREW_PREFIX.'/etc/nginx/nginx.conf', $path);
             $this->assertContains('include "'.VALET_HOME_PATH.'/Nginx/*"', $contents);
         })->once();
 
