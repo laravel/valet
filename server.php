@@ -123,19 +123,24 @@ if (strpos($siteName, 'www.') === 0) {
 
 /**
  * Determine the fully qualified path to the site.
+ * Inspects registered path directories, case-sensitive.
  */
 $valetSitePath = null;
 $domain = array_slice(explode('.', $siteName), -1)[0];
 
 foreach ($valetConfig['paths'] as $path) {
-    if (is_dir($path.'/'.$siteName)) {
-        $valetSitePath = $path.'/'.$siteName;
-        break;
-    }
+    if ($handle = opendir($path)) {
+        while (false !== ($file = readdir($handle))) {
+            if (! is_dir($path.'/'.$file)) continue;
+            if (in_array($file, ['.', '..', '.DS_Store'])) continue;
 
-    if (is_dir($path.'/'.$domain)) {
-        $valetSitePath = $path.'/'.$domain;
-        break;
+            // match dir for lowercase, because Nginx only tells us lowercase names
+            if (strtolower($file) === $siteName || strtolower($file) === $domain) {
+                $valetSitePath = $path.'/'.$file;
+                break;
+            }
+        }
+        closedir($handle);
     }
 }
 
