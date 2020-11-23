@@ -126,7 +126,6 @@ if (strpos($siteName, 'www.') === 0) {
  * Inspects registered path directories, case-sensitive.
  */
 $valetSitePath = null;
-$valetSitePathByDomain = null;
 $domain = array_slice(explode('.', $siteName), -1)[0];
 
 foreach ($valetConfig['paths'] as $path) {
@@ -141,14 +140,12 @@ foreach ($valetConfig['paths'] as $path) {
                 break;
             }
             if (strtolower($file) === $domain) {
-                $valetSitePathByDomain = $path.'/'.$file;
+                $valetSitePath = $path.'/'.$file;
             }
         }
         closedir($handle);
     }
 }
-
-$valetSitePath = $valetSitePath ?: $valetSitePathByDomain;
 
 if (is_null($valetSitePath) && is_null($valetSitePath = valet_default_site_path($valetConfig))) {
     show_valet_404();
