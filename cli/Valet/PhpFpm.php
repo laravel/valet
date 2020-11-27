@@ -38,7 +38,7 @@ class PhpFpm
             $this->brew->ensureInstalled('php', [], $this->taps);
         }
 
-        $this->files->ensureDirExists('/usr/local/var/log', user());
+        $this->files->ensureDirExists(VALET_HOME_PATH . '/Log', user());
 
         $this->updateConfiguration();
 
@@ -47,7 +47,7 @@ class PhpFpm
 
     /**
      * Forcefully uninstall all of Valet's supported PHP versions and configurations
-     * 
+     *
      * @return void
      */
     function uninstall()
@@ -77,7 +77,7 @@ class PhpFpm
         }
 
         if (false === strpos($fpmConfigFile, '5.6')) {
-            // for PHP 7 we can simply drop in a valet-specific fpm pool config, and not touch the default config
+            // since PHP 7 we can simply drop in a valet-specific fpm pool config, and not touch the default config
             $contents = $this->files->get(__DIR__.'/../stubs/etc-phpfpm-valet.conf');
             $contents = str_replace(['VALET_USER', 'VALET_HOME_PATH'], [user(), VALET_HOME_PATH], $contents);
         } else {
@@ -93,13 +93,21 @@ class PhpFpm
         $this->files->put($fpmConfigFile, $contents);
 
         $contents = $this->files->get(__DIR__.'/../stubs/php-memory-limits.ini');
-
         $destFile = dirname($fpmConfigFile);
         $destFile = str_replace('/php-fpm.d', '', $destFile);
         $destFile .= '/conf.d/php-memory-limits.ini';
         $this->files->ensureDirExists(dirname($destFile), user());
-
         $this->files->putAsUser($destFile, $contents);
+
+        $contents = $this->files->get(__DIR__.'/../stubs/etc-phpfpm-error_log.ini');
+        $contents = str_replace(['VALET_USER', 'VALET_HOME_PATH'], [user(), VALET_HOME_PATH], $contents);
+        $destFile = dirname($fpmConfigFile);
+        $destFile = str_replace('/php-fpm.d', '', $destFile);
+        $destFile .= '/conf.d/error_log.ini';
+        $this->files->ensureDirExists(dirname($destFile), user());
+        $this->files->putAsUser($destFile, $contents);
+        $this->files->ensureDirExists(VALET_HOME_PATH . '/Log', user());
+        $this->files->touch(VALET_HOME_PATH . '/Log/php-fpm.log', user());
     }
 
     /**
@@ -202,7 +210,7 @@ class PhpFpm
             if (strpos($this->brew->determineAliasedVersion($version), '@')) {
                 return $version;
             }
-        
+
             if ($this->brew->hasInstalledPhp()) {
                 throw new DomainException('Brew is already using PHP '.PHP_VERSION.' as \'php\' in Homebrew. To use another version, please specify. eg: php@7.3');
             }
