@@ -18,7 +18,7 @@ class Diagnose
         'brew update > /dev/null 2>&1',
         'brew config',
         'brew services list',
-        'brew list --versions | grep -E "(php|nginx|dnsmasq|mariadb|mysql|mailhog|openssl)(@\d\..*)?\s"',
+        'brew list --formula --versions | grep -E "(php|nginx|dnsmasq|mariadb|mysql|mailhog|openssl)(@\d\..*)?\s"',
         'brew outdated',
         'php -v',
         'which -a php',

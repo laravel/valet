@@ -34,12 +34,12 @@ class BrewTest extends PHPUnit_Framework_TestCase
     public function test_installed_returns_true_when_given_formula_is_installed()
     {
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('runAsUser')->once()->with('brew list | grep php@7.4')->andReturn('php@7.4');
+        $cli->shouldReceive('runAsUser')->once()->with('brew list --formula | grep php@7.4')->andReturn('php@7.4');
         swap(CommandLine::class, $cli);
         $this->assertTrue(resolve(Brew::class)->installed('php@7.4'));
 
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('runAsUser')->once()->with('brew list | grep php')->andReturn('php
+        $cli->shouldReceive('runAsUser')->once()->with('brew list --formula | grep php')->andReturn('php
 php@7.4');
         swap(CommandLine::class, $cli);
         $this->assertTrue(resolve(Brew::class)->installed('php'));
@@ -49,17 +49,17 @@ php@7.4');
     public function test_installed_returns_false_when_given_formula_is_not_installed()
     {
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('runAsUser')->once()->with('brew list | grep php@7.4')->andReturn('');
+        $cli->shouldReceive('runAsUser')->once()->with('brew list --formula | grep php@7.4')->andReturn('');
         swap(CommandLine::class, $cli);
         $this->assertFalse(resolve(Brew::class)->installed('php@7.4'));
 
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('runAsUser')->once()->with('brew list | grep php@7.4')->andReturn('php');
+        $cli->shouldReceive('runAsUser')->once()->with('brew list --formula | grep php@7.4')->andReturn('php');
         swap(CommandLine::class, $cli);
         $this->assertFalse(resolve(Brew::class)->installed('php@7.4'));
 
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('runAsUser')->once()->with('brew list | grep php@7.4')->andReturn('php
+        $cli->shouldReceive('runAsUser')->once()->with('brew list --formula | grep php@7.4')->andReturn('php
 something-else-php@7.4
 php7');
         swap(CommandLine::class, $cli);
@@ -211,7 +211,7 @@ php7');
     public function test_restart_restarts_the_service_using_homebrew_services()
     {
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('runAsUser')->once()->with('brew list | grep dnsmasq')->andReturn('dnsmasq');
+        $cli->shouldReceive('runAsUser')->once()->with('brew list --formula | grep dnsmasq')->andReturn('dnsmasq');
         $cli->shouldReceive('quietly')->once()->with('sudo brew services stop dnsmasq');
         $cli->shouldReceive('quietly')->once()->with('sudo brew services start dnsmasq');
         swap(CommandLine::class, $cli);
@@ -222,7 +222,7 @@ php7');
     public function test_stop_stops_the_service_using_homebrew_services()
     {
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('runAsUser')->once()->with('brew list | grep dnsmasq')->andReturn('dnsmasq');
+        $cli->shouldReceive('runAsUser')->once()->with('brew list --formula | grep dnsmasq')->andReturn('dnsmasq');
         $cli->shouldReceive('quietly')->once()->with('sudo brew services stop dnsmasq');
         swap(CommandLine::class, $cli);
         resolve(Brew::class)->stopService('dnsmasq');

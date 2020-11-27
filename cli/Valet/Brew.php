@@ -48,7 +48,7 @@ class Brew
      */
     function installed($formula)
     {
-        return in_array($formula, explode(PHP_EOL, $this->cli->runAsUser('brew list | grep '.$formula)));
+        return in_array($formula, explode(PHP_EOL, $this->cli->runAsUser('brew list --formula | grep '.$formula)));
     }
 
     /**
@@ -354,7 +354,7 @@ class Brew
 
     /**
      * Tell Homebrew to forcefully remove all PHP versions that Valet supports.
-     * 
+     *
      * @return string
      */
     function uninstallAllPhpVersions()
@@ -369,7 +369,7 @@ class Brew
     /**
      * Uninstall a Homebrew app by formula name.
      * @param  string $formula
-     * 
+     *
      * @return void
      */
     function uninstallFormula($formula)
@@ -380,7 +380,7 @@ class Brew
 
     /**
      * Run Homebrew's cleanup commands.
-     * 
+     *
      * @return string
      */
     function cleanupBrew()
