@@ -1,4 +1,4 @@
-# valet stub: proxy.valet.conf
+# valet stub: secure.proxy.valet.conf
 
 server {
     listen 127.0.0.1:80;

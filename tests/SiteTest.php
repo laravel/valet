@@ -382,6 +382,40 @@ class SiteTest extends PHPUnit_Framework_TestCase
     }
 
 
+    public function test_add_non_secure_proxy()
+    {
+        $config = Mockery::mock(Configuration::class);
+        $config->shouldReceive('read')
+            ->andReturn(['tld' => 'test']);
+
+        swap(Configuration::class, $config);
+
+        swap(CommandLine::class, resolve(CommandLineFake::class));
+
+        /** @var FixturesSiteFake $site */
+        $site = resolve(FixturesSiteFake::class);
+
+        $site->useOutput();
+
+        $site->assertCertificateNotExists('my-new-proxy.com.test');
+        $site->assertNginxNotExists('my-new-proxy.com.test');
+
+        $site->proxyCreate('my-new-proxy.com', 'http://127.0.0.1:9443', true);
+
+        $site->assertCertificateNotExists('my-new-proxy.com.test');
+        $site->assertNginxExists('my-new-proxy.com.test');
+
+        $this->assertEquals([
+            'my-new-proxy.com' => [
+                'site' => 'my-new-proxy.com',
+                'secured' => '',
+                'url' => 'http://my-new-proxy.com.test',
+                'path' => 'http://127.0.0.1:9443',
+            ],
+        ], $site->proxies()->all());
+    }
+
+
     public function test_add_proxy_clears_previous_proxy_certificate()
     {
         $config = Mockery::mock(Configuration::class);

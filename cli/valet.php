@@ -183,9 +183,9 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Create an Nginx proxy config for the specified domain
      */
-    $app->command('proxy domain host', function ($domain, $host) {
+    $app->command('proxy domain host [--unsecure]', function ($domain, $host, $unsecure) {
 
-        Site::proxyCreate($domain, $host);
+        Site::proxyCreate($domain, $host, $unsecure);
         Nginx::restart();
 
     })->descriptions('Create an Nginx proxy site for the specified host. Useful for docker, mailhog etc.');

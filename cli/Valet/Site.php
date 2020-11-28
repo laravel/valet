@@ -651,9 +651,10 @@ class Site
      *
      * @param  string  $url The domain name to serve
      * @param  string  $host The URL to proxy to, eg: http://127.0.0.1:8080
+     * @param  bool    $unsecure
      * @return string
      */
-    function proxyCreate($url, $host)
+    function proxyCreate($url, $host, $unsecure = false)
     {
         if (!preg_match('~^https?://.*$~', $host)) {
             throw new \InvalidArgumentException(sprintf('"%s" is not a valid URL', $host));
@@ -664,7 +665,9 @@ class Site
             $url .= '.'.$tld;
         }
 
-        $siteConf = $this->files->get(__DIR__.'/../stubs/proxy.valet.conf');
+        $siteConf = $this->files->get(
+            $unsecure ? __DIR__.'/../stubs/proxy.valet.conf' : __DIR__.'/../stubs/secure.proxy.valet.conf'
+        );
 
         $siteConf = str_replace(
             ['VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_STATIC_PREFIX', 'VALET_SITE', 'VALET_PROXY_HOST'],
@@ -672,9 +675,15 @@ class Site
             $siteConf
         );
 
-        $this->secure($url, $siteConf);
+        if ($unsecure) {
+            $this->put($url, $siteConf);
+        } else {
+            $this->secure($url, $siteConf);
+        }
 
-        info('Valet will now proxy [https://'.$url.'] traffic to ['.$host.'].');
+        $protocol = $unsecure ? 'http' : 'https';
+
+        info('Valet will now proxy ['.$protocol.'://'.$url.'] traffic to ['.$host.'].');
     }
 
     /**
@@ -694,6 +703,24 @@ class Site
         $this->files->unlink($this->nginxPath($url));
 
         info('Valet will no longer proxy [https://'.$url.'].');
+    }
+
+    /**
+     * Put the given host.
+     *
+     * @param  string  $url
+     * @param  string  $siteConf  pregenerated Nginx config file contents
+     * @return void
+     */
+    function put($url, $siteConf)
+    {
+        $this->unsecure($url);
+
+        $this->files->ensureDirExists($this->nginxPath(), user());
+
+        $this->files->putAsUser(
+            $this->nginxPath($url), $siteConf
+        );
     }
 
     function valetHomePath()
