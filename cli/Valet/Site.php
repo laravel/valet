@@ -706,7 +706,7 @@ class Site
     }
 
     /**
-     * Put the given host.
+     * Create the given nginx host.
      *
      * @param  string  $url
      * @param  string  $siteConf  pregenerated Nginx config file contents
