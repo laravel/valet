@@ -188,7 +188,9 @@ if (is_dir(VALET_HOME_PATH)) {
         Site::proxyCreate($domain, $host, $unsecure);
         Nginx::restart();
 
-    })->descriptions('Create an Nginx proxy site for the specified host. Useful for docker, mailhog etc.');
+    })->descriptions('Create an Nginx proxy site for the specified host. Useful for docker, mailhog etc.', [
+        '--unsecure' => 'Create a proxy without SSL'
+    ]);
 
     /**
      * Delete an Nginx proxy config
