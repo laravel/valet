@@ -10,6 +10,7 @@ class PhpFpm
 
     var $taps = [
         'homebrew/homebrew-core',
+        'shivammathur/php',
     ];
 
     /**
