@@ -9,7 +9,7 @@ class PhpFpm
     var $brew, $cli, $files;
 
     var $taps = [
-        'homebrew/homebrew-core'
+        'homebrew/homebrew-core',
     ];
 
     /**
@@ -168,14 +168,26 @@ class PhpFpm
      * Use a specific version of php
      *
      * @param $version
+     * @param $force
      * @return string
      */
-    function useVersion($version)
+    function useVersion($version, $force = false)
     {
         $version = $this->validateRequestedVersion($version);
 
-        // Install the relevant formula if not already installed
-        $this->brew->ensureInstalled($version);
+        try {
+            if ($this->brew->linkedPhp() === $version && !$force) {
+                output(sprintf('<info>Valet is already using version: <comment>%s</comment>.</info> To re-link and re-configure use the --force parameter.' . PHP_EOL,
+                    $version));
+                exit();
+            }
+        } catch (DomainException $e)
+        { /* ignore thrown exception when no linked php is found */ }
+
+        if (!$this->brew->installed($version)) {
+            // Install the relevant formula if not already installed
+            $this->brew->ensureInstalled($version, [], $this->taps);
+        }
 
         // Unlink the current php if there is one
         if ($this->brew->hasLinkedPhp()) {
@@ -187,6 +199,9 @@ class PhpFpm
         info(sprintf('Linking new version: %s', $version));
         $this->brew->link($version, true);
 
+        $this->stopRunning();
+
+        // ensure configuration is correct and start the linked version
         $this->install();
 
         return $version === 'php' ? $this->brew->determineAliasedVersion($version) : $version;
@@ -211,16 +226,6 @@ class PhpFpm
     {
         $version = $this->normalizePhpVersion($version);
 
-        if ($version === 'php') {
-            if (strpos($this->brew->determineAliasedVersion($version), '@')) {
-                return $version;
-            }
-
-            if ($this->brew->hasInstalledPhp()) {
-                throw new DomainException('Brew is already using PHP '.PHP_VERSION.' as \'php\' in Homebrew. To use another version, please specify. eg: php@7.3');
-            }
-        }
-
         if (!$this->brew->supportedPhpVersions()->contains($version)) {
             throw new DomainException(
                 sprintf(
@@ -228,6 +233,20 @@ class PhpFpm
                     $version
                 )
             );
+        }
+
+        if (strpos($aliasedVersion = $this->brew->determineAliasedVersion($version), '@')) {
+            return $aliasedVersion;
+        }
+
+        if ($version === 'php') {
+            if (strpos($aliasedVersion = $this->brew->determineAliasedVersion($version), '@')) {
+                return $aliasedVersion;
+            }
+
+            if ($this->brew->hasInstalledPhp()) {
+                throw new DomainException('Brew is already using PHP '.PHP_VERSION.' as \'php\' in Homebrew. To use another version, please specify. eg: php@7.3');
+            }
         }
 
         return $version;
