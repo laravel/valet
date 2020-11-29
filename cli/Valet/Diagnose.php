@@ -40,6 +40,8 @@ class Diagnose
         'ls -al ~/Library/LaunchAgents | grep homebrew',
         'ls -al /Library/LaunchAgents | grep homebrew',
         'ls -al /Library/LaunchDaemons | grep homebrew',
+        'ls -aln /etc/resolv.conf',
+        'cat /etc/resolv.conf',
     ];
 
     var $cli, $files, $print, $progressBar;
