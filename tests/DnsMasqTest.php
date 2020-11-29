@@ -1,5 +1,7 @@
 <?php
 
+use PHPUnit\Framework\TestCase;
+use Symfony\Bridge\PhpUnit\SetUpTearDownTrait;
 use Valet\Brew;
 use Valet\DnsMasq;
 use Valet\Filesystem;
@@ -10,17 +12,18 @@ use function Valet\resolve;
 use function Valet\swap;
 use Illuminate\Container\Container;
 
-class DnsMasqTest extends PHPUnit_Framework_TestCase
+class DnsMasqTest extends TestCase
 {
-    public function setUp()
+    use SetUpTearDownTrait;
+
+    public function doSetUp()
     {
         $_SERVER['SUDO_USER'] = user();
 
         Container::setInstance(new Container);
     }
 
-
-    public function tearDown()
+    public function doTearDown()
     {
         exec('rm -rf '.__DIR__.'/output');
         mkdir(__DIR__.'/output');
@@ -28,7 +31,6 @@ class DnsMasqTest extends PHPUnit_Framework_TestCase
 
         Mockery::close();
     }
-
 
     public function test_install_installs_and_places_configuration_files_in_proper_locations()
     {
@@ -56,7 +58,6 @@ class DnsMasqTest extends PHPUnit_Framework_TestCase
         );
     }
 
-
     public function test_update_tld_removes_old_resolver_and_reinstalls()
     {
         $cli = Mockery::mock(CommandLine::class);
@@ -67,7 +68,6 @@ class DnsMasqTest extends PHPUnit_Framework_TestCase
         $dnsMasq->updateTld('old', 'new');
     }
 }
-
 
 class StubForCreatingCustomDnsMasqConfigFiles extends DnsMasq
 {

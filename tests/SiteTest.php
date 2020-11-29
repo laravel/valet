@@ -1,5 +1,7 @@
 <?php
 
+use PHPUnit\Framework\TestCase;
+use Symfony\Bridge\PhpUnit\SetUpTearDownTrait;
 use Valet\CommandLine;
 use Valet\Site;
 use Valet\Filesystem;
@@ -9,17 +11,18 @@ use function Valet\resolve;
 use function Valet\swap;
 use Illuminate\Container\Container;
 
-class SiteTest extends PHPUnit_Framework_TestCase
+class SiteTest extends TestCase
 {
-    public function setUp()
+    use SetUpTearDownTrait;
+
+    public function doSetUp()
     {
         $_SERVER['SUDO_USER'] = user();
 
         Container::setInstance(new Container);
     }
 
-
-    public function tearDown()
+    public function doTearDown()
     {
         exec('rm -rf '.__DIR__.'/output');
         mkdir(__DIR__.'/output');
@@ -27,7 +30,6 @@ class SiteTest extends PHPUnit_Framework_TestCase
 
         Mockery::close();
     }
-
 
     public function test_get_certificates_will_return_with_multi_segment_tld()
     {
@@ -52,7 +54,6 @@ class SiteTest extends PHPUnit_Framework_TestCase
         $certs = $site->getCertificates($certPath);
         $this->assertSame(['helloworld' => 0], $certs->all());
     }
-
 
     public function test_get_sites_will_return_if_secured()
     {
@@ -108,7 +109,6 @@ class SiteTest extends PHPUnit_Framework_TestCase
         ], $sites->last());
     }
 
-
     public function test_get_sites_will_work_with_non_symlinked_path()
     {
         $files = Mockery::mock(Filesystem::class);
@@ -151,7 +151,6 @@ class SiteTest extends PHPUnit_Framework_TestCase
         ], $sites->first());
     }
 
-
     public function test_get_sites_will_not_return_if_path_is_not_directory()
     {
         $files = Mockery::mock(Filesystem::class);
@@ -188,7 +187,6 @@ class SiteTest extends PHPUnit_Framework_TestCase
             'path' => $dirPath . '/siteone',
         ], $sites->first());
     }
-
 
     public function test_get_sites_will_work_with_symlinked_path()
     {
@@ -248,20 +246,18 @@ class SiteTest extends PHPUnit_Framework_TestCase
         $this->assertSame(VALET_HOME_PATH.'/Sites/link', $linkPath);
     }
 
-
     public function test_unlink_removes_existing_symlink()
     {
         file_put_contents(__DIR__.'/output/file.out', 'test');
         symlink(__DIR__.'/output/file.out', __DIR__.'/output/link');
         $site = resolve(StubForRemovingLinks::class);
         $site->unlink('link');
-        $this->assertFileNotExists(__DIR__.'/output/link');
+        $this->assertFileDoesNotExist(__DIR__.'/output/link');
 
         $site = resolve(StubForRemovingLinks::class);
         $site->unlink('link');
-        $this->assertFileNotExists(__DIR__.'/output/link');
+        $this->assertFileDoesNotExist(__DIR__.'/output/link');
     }
-
 
     public function test_prune_links_removes_broken_symlinks_in_sites_path()
     {
@@ -270,9 +266,8 @@ class SiteTest extends PHPUnit_Framework_TestCase
         unlink(__DIR__.'/output/file.out');
         $site = resolve(StubForRemovingLinks::class);
         $site->pruneLinks();
-        $this->assertFileNotExists(__DIR__.'/output/link');
+        $this->assertFileDoesNotExist(__DIR__.'/output/link');
     }
-
 
     public function test_certificates_trim_tld_for_custom_tlds()
     {
@@ -300,7 +295,6 @@ class SiteTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('fiveletters', $certs->last());
     }
 
-
     public function test_no_proxies()
     {
         $config = Mockery::mock(Configuration::class);
@@ -316,7 +310,6 @@ class SiteTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals([], $site->proxies()->all());
     }
-
 
     public function test_lists_proxies()
     {
@@ -346,7 +339,6 @@ class SiteTest extends PHPUnit_Framework_TestCase
             ],
         ], $site->proxies()->all());
     }
-
 
     public function test_add_proxy()
     {
@@ -380,7 +372,6 @@ class SiteTest extends PHPUnit_Framework_TestCase
             ],
         ], $site->proxies()->all());
     }
-
 
     public function test_add_proxy_clears_previous_proxy_certificate()
     {
@@ -426,7 +417,6 @@ class SiteTest extends PHPUnit_Framework_TestCase
         ], $site->proxies()->all());
     }
 
-
     public function test_add_proxy_clears_previous_non_proxy_certificate()
     {
         $config = Mockery::mock(Configuration::class);
@@ -466,7 +456,6 @@ class SiteTest extends PHPUnit_Framework_TestCase
             ],
         ], $site->proxies()->all());
     }
-
 
     public function test_remove_proxy()
     {
@@ -602,7 +591,7 @@ class FixturesSiteFake extends Site
 
     public function assertNginxNotExists($urlWithTld)
     {
-        SiteTest::assertFileNotExists($this->nginxPath($urlWithTld));
+        SiteTest::assertFileDoesNotExist($this->nginxPath($urlWithTld));
     }
 
     public function assertCertificateExists($urlWithTld)
@@ -613,8 +602,8 @@ class FixturesSiteFake extends Site
 
     public function assertCertificateNotExists($urlWithTld)
     {
-        SiteTest::assertFileNotExists($this->certificatesPath($urlWithTld, 'crt'));
-        SiteTest::assertFileNotExists($this->certificatesPath($urlWithTld, 'key'));
+        SiteTest::assertFileDoesNotExist($this->certificatesPath($urlWithTld, 'crt'));
+        SiteTest::assertFileDoesNotExist($this->certificatesPath($urlWithTld, 'key'));
     }
 
     public function assertCertificateExistsWithCounterValue($urlWithTld, $counter)

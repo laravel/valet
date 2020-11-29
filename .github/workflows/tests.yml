@@ -29,13 +29,8 @@ jobs:
 
       - name: Install dependencies
         run: composer install --no-interaction --prefer-dist
-        if: matrix.php != 8.0
-
-      - name: Install dependencies
-        run: composer install --no-interaction --prefer-dist --ignore-platform-req=php
-        if: matrix.php == 8.0
 
       - name: Execute tests
         env:
           APP_ENV: testing
-        run: vendor/bin/phpunit --verbose
+        run: vendor/bin/simple-phpunit --verbose

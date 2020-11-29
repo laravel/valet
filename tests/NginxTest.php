@@ -1,5 +1,7 @@
 <?php
 
+use PHPUnit\Framework\TestCase;
+use Symfony\Bridge\PhpUnit\SetUpTearDownTrait;
 use Valet\Site;
 use Valet\Nginx;
 use Valet\Filesystem;
@@ -9,21 +11,21 @@ use function Valet\resolve;
 use function Valet\swap;
 use Illuminate\Container\Container;
 
-class NginxTest extends PHPUnit_Framework_TestCase
+class NginxTest extends TestCase
 {
-    public function setUp()
+    use SetUpTearDownTrait;
+
+    public function doSetUp()
     {
         $_SERVER['SUDO_USER'] = user();
 
         Container::setInstance(new Container);
     }
 
-
-    public function tearDown()
+    public function doTearDown()
     {
         Mockery::close();
     }
-
 
     public function test_install_nginx_configuration_places_nginx_base_configuration_in_proper_location()
     {
@@ -31,7 +33,7 @@ class NginxTest extends PHPUnit_Framework_TestCase
 
         $files->shouldReceive('putAsUser')->andReturnUsing(function ($path, $contents) {
             $this->assertSame(BREW_PREFIX.'/etc/nginx/nginx.conf', $path);
-            $this->assertContains('include "'.VALET_HOME_PATH.'/Nginx/*"', $contents);
+            $this->assertStringContainsString('include "'.VALET_HOME_PATH.'/Nginx/*"', $contents);
         })->once();
 
         swap(Filesystem::class, $files);
@@ -39,7 +41,6 @@ class NginxTest extends PHPUnit_Framework_TestCase
         $nginx = resolve(Nginx::class);
         $nginx->installConfiguration();
     }
-
 
     public function test_install_nginx_directories_creates_location_for_site_specific_configuration()
     {
@@ -56,7 +57,6 @@ class NginxTest extends PHPUnit_Framework_TestCase
         $nginx->installNginxDirectory();
     }
 
-
     public function test_nginx_directory_is_never_created_if_it_already_exists()
     {
         $files = Mockery::mock(Filesystem::class);
@@ -71,7 +71,6 @@ class NginxTest extends PHPUnit_Framework_TestCase
         $nginx = resolve(Nginx::class);
         $nginx->installNginxDirectory();
     }
-
 
     public function test_install_nginx_directories_rewrites_secure_nginx_files()
     {
