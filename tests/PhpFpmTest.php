@@ -79,8 +79,13 @@ class PhpFpmTest extends PHPUnit_Framework_TestCase
             'php@5.6',
         ]));
         $brewMock->shouldReceive('hasLinkedPhp')->andReturn(false);
-        $brewMock->shouldReceive('ensureInstalled')->with('php@7.2');
+        $brewMock->shouldReceive('ensureInstalled')->with('php@7.2', [], $phpFpmMock->taps);
+        $brewMock->shouldReceive('determineAliasedVersion')->with('php@7.2')->andReturn('php@7.2');
         $brewMock->shouldReceive('link')->withArgs(['php@7.2', true]);
+        $brewMock->shouldReceive('linkedPhp');
+        $brewMock->shouldReceive('installed');
+        $brewMock->shouldReceive('getRunningServices')->andReturn(collect());
+        $brewMock->shouldReceive('stopService');
 
         // Test both non prefixed and prefixed
         $this->assertSame('php@7.2', $phpFpmMock->useVersion('php7.2'));
@@ -120,8 +125,13 @@ class PhpFpmTest extends PHPUnit_Framework_TestCase
         $brewMock->shouldReceive('hasLinkedPhp')->andReturn(true);
         $brewMock->shouldReceive('getLinkedPhpFormula')->andReturn('php@7.1');
         $brewMock->shouldReceive('unlink')->with('php@7.1');
-        $brewMock->shouldReceive('ensureInstalled')->with('php@7.2');
+        $brewMock->shouldReceive('ensureInstalled')->with('php@7.2', [], $phpFpmMock->taps);
+        $brewMock->shouldReceive('determineAliasedVersion')->with('php@7.2')->andReturn('php@7.2');
         $brewMock->shouldReceive('link')->withArgs(['php@7.2', true]);
+        $brewMock->shouldReceive('linkedPhp');
+        $brewMock->shouldReceive('installed');
+        $brewMock->shouldReceive('getRunningServices')->andReturn(collect());
+        $brewMock->shouldReceive('stopService');
 
         // Test both non prefixed and prefixed
         $this->assertSame('php@7.2', $phpFpmMock->useVersion('php@7.2'));
