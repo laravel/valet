@@ -23,7 +23,7 @@ class Brew
         'php56'
     ];
 
-    const LATEST_PHP_VERSION = 'php@7.4';
+    const LATEST_PHP_VERSION = 'php@8.0';
 
     var $cli, $files;
 
