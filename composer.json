@@ -33,7 +33,6 @@
     },
     "require-dev": {
         "mockery/mockery": "^1.2.3",
-        "phpunit/phpunit": ">=5.7",
         "symfony/phpunit-bridge": "^5.1"
     },
     "bin": [
