@@ -462,7 +462,11 @@ You might also want to investigate your global Composer configs. Helpful command
     /**
      * Allow the user to change the version of php valet uses
      */
-    $app->command('use phpVersion', function ($phpVersion) {
+    $app->command('use [phpVersion]', function ($phpVersion) {
+        if (!$phpVersion) {
+            return info('Valet is using ' . Brew::linkedPhp());
+        }
+
         PhpFpm::validateRequestedVersion($phpVersion);
 
         PhpFpm::stopRunning();
