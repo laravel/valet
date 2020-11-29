@@ -142,11 +142,8 @@ class PhpFpm
     {
         $version = $this->brew->linkedPhp();
 
-        $versionNormalized = preg_replace(
-            '/php@?(\d)\.?(\d)/',
-            '$1.$2',
-            $version === 'php' ? Brew::LATEST_PHP_VERSION : $version
-        );
+        $versionNormalized = $this->normalizePhpVersion($version === 'php' ? Brew::LATEST_PHP_VERSION : $version);
+        $versionNormalized = preg_replace('~[^\d\.]~', '', $versionNormalized);
 
         return $versionNormalized === '5.6'
             ? BREW_PREFIX.'/etc/php/5.6/php-fpm.conf'
@@ -195,6 +192,15 @@ class PhpFpm
         return $version === 'php' ? $this->brew->determineAliasedVersion($version) : $version;
     }
 
+
+    /**
+     * If passed php7.4 or php74 formats, normalize to php@7.4 format.
+     */
+    function normalizePhpVersion($version)
+    {
+        return preg_replace('/(php)([0-9+])(?:.)?([0-9+])/i', '$1@$2.$3', $version);
+    }
+
     /**
      * Validate the requested version to be sure we can support it.
      *
@@ -203,8 +209,7 @@ class PhpFpm
      */
     function validateRequestedVersion($version)
     {
-        // If passed php7.2 or php72 formats, normalize to php@7.2 format:
-        $version = preg_replace('/(php)([0-9+])(?:.)?([0-9+])/i', '$1@$2.$3', $version);
+        $version = $this->normalizePhpVersion($version);
 
         if ($version === 'php') {
             if (strpos($this->brew->determineAliasedVersion($version), '@')) {
