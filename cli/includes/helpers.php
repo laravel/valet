@@ -172,6 +172,26 @@ if (! function_exists('ends_with')) {
     }
 }
 
+if (! function_exists('starts_with')) {
+    /**
+     * Determine if a given string starts with a given substring.
+     *
+     * @param  string  $haystack
+     * @param  string|string[]  $needles
+     * @return bool
+     */
+    function starts_with($haystack, $needles)
+    {
+        foreach ((array) $needles as $needle) {
+            if ((string) $needle !== '' && strncmp($haystack, $needle, strlen($needle)) === 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+
 /**
  * Get the user
  */
