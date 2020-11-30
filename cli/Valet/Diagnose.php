@@ -20,6 +20,7 @@ class Diagnose
         'brew services list',
         'brew list --formula --versions | grep -E "(php|nginx|dnsmasq|mariadb|mysql|mailhog|openssl)(@\d\..*)?\s"',
         'brew outdated',
+        'brew tap',
         'php -v',
         'which -a php',
         'php --ini',
@@ -40,6 +41,8 @@ class Diagnose
         'ls -al ~/Library/LaunchAgents | grep homebrew',
         'ls -al /Library/LaunchAgents | grep homebrew',
         'ls -al /Library/LaunchDaemons | grep homebrew',
+        'ls -aln /etc/resolv.conf',
+        'cat /etc/resolv.conf',
     ];
 
     var $cli, $files, $print, $progressBar;

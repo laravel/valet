@@ -9,21 +9,19 @@ use function Valet\resolve;
 use function Valet\swap;
 use Illuminate\Container\Container;
 
-class ConfigurationTest extends PHPUnit_Framework_TestCase
+class ConfigurationTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 {
-    public function setUp()
+    public function set_up()
     {
         $_SERVER['SUDO_USER'] = user();
 
         Container::setInstance(new Container);
     }
 
-
-    public function tearDown()
+    public function tear_down()
     {
         Mockery::close();
     }
-
 
     public function test_configuration_directory_is_created_if_it_doesnt_exist()
     {
@@ -34,7 +32,6 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase
         swap(Filesystem::class, $files);
         resolve(Configuration::class)->createConfigurationDirectory();
     }
-
 
     public function test_drivers_directory_is_created_with_sample_driver_if_it_doesnt_exist()
     {
@@ -76,7 +73,6 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase
         $config->addPath('path-3');
     }
 
-
     public function test_paths_may_be_removed_from_the_configuration()
     {
         $config = Mockery::mock(Configuration::class.'[read,write]', [new Filesystem]);
@@ -88,7 +84,6 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase
         ]);
         $config->removePath('path-2');
     }
-
 
     public function test_prune_removes_directories_from_paths_that_no_longer_exist()
     {
@@ -107,7 +102,6 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase
         $config->prune();
     }
 
-
     public function test_prune_doesnt_execute_if_configuration_directory_doesnt_exist()
     {
         $files = Mockery::mock(Filesystem::class.'[exists]');
@@ -119,7 +113,6 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase
         $config->prune();
     }
 
-
     public function test_update_key_updates_the_specified_configuration_key()
     {
         $config = Mockery::mock(Configuration::class.'[read,write]', [new Filesystem]);
@@ -127,7 +120,6 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase
         $config->shouldReceive('write')->once()->with(['foo' => 'bar', 'bar' => 'baz']);
         $config->updateKey('bar', 'baz');
     }
-
 
     public function test_trust_adds_the_sudoer_files()
     {
