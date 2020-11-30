@@ -33,7 +33,7 @@
     },
     "require-dev": {
         "mockery/mockery": "^1.2.3",
-        "phpunit/phpunit": "~5.7"
+        "yoast/phpunit-polyfills": "^0.2.0"
     },
     "bin": [
         "valet"

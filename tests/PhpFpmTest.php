@@ -9,17 +9,16 @@ use function Valet\swap;
 use function Valet\resolve;
 use Illuminate\Container\Container;
 
-class PhpFpmTest extends PHPUnit_Framework_TestCase
+class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 {
-    public function setUp()
+    public function set_up()
     {
         $_SERVER['SUDO_USER'] = user();
 
         Container::setInstance(new Container);
     }
 
-
-    public function tearDown()
+    public function tear_down()
     {
         exec('rm -rf '.__DIR__.'/output');
         mkdir(__DIR__.'/output');
@@ -35,9 +34,9 @@ class PhpFpmTest extends PHPUnit_Framework_TestCase
         copy(__DIR__.'/files/php-memory-limits.ini', __DIR__.'/output/conf.d/php-memory-limits.ini');
         resolve(StubForUpdatingFpmConfigFiles::class)->updateConfiguration();
         $contents = file_get_contents(__DIR__.'/output/fpm.conf');
-        $this->assertContains(sprintf("\nuser = %s", user()), $contents);
-        $this->assertContains("\ngroup = staff", $contents);
-        $this->assertContains("\nlisten = ".VALET_HOME_PATH."/valet.sock", $contents);
+        $this->assertStringContainsString(sprintf("\nuser = %s", user()), $contents);
+        $this->assertStringContainsString("\ngroup = staff", $contents);
+        $this->assertStringContainsString("\nlisten = ".VALET_HOME_PATH."/valet.sock", $contents);
     }
 
     public function test_stopRunning_will_pass_filtered_result_of_getRunningServices_to_stopService()
@@ -87,11 +86,10 @@ class PhpFpmTest extends PHPUnit_Framework_TestCase
         $this->assertSame('php@7.2', $phpFpmMock->useVersion('php72'));
     }
 
-    /**
-     * @expectedException DomainException
-     */
     public function test_use_version_will_throw_if_version_not_supported()
     {
+        $this->expectException(DomainException::class);
+
         $brewMock = Mockery::mock(Brew::class);
         swap(Brew::class, $brewMock);
 
