@@ -436,7 +436,7 @@ You might also want to investigate your global Composer configs. Helpful command
             output('Yes');
         } else {
             output(sprintf('Your version of Valet (%s) is not the latest version available.', $version));
-            output('Upgrade instructions can be found in the docs: https://laravel.com/docs/valet#upgrading');
+            output('Upgrade instructions can be found in the docs: https://laravel.com/docs/valet#upgrading-valet');
         }
     })->descriptions('Determine if this is the latest version of Valet');
 
