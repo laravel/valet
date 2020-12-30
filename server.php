@@ -137,10 +137,11 @@ foreach ($valetConfig['paths'] as $path) {
             // match dir for lowercase, because Nginx only tells us lowercase names
             if (strtolower($file) === $siteName) {
                 $valetSitePath = $path.'/'.$file;
-                break;
+                break 2;
             }
             if (strtolower($file) === $domain) {
                 $valetSitePath = $path.'/'.$file;
+                break 2;
             }
         }
         closedir($handle);
