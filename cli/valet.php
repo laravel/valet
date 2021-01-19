@@ -372,7 +372,7 @@ NOTE: Composer may have other dependencies for other global apps you have instal
 Thus, you may need to delete things from your <info>~/.composer/composer.json</info> file before running <info>composer global update</info> successfully.
 Then to finish removing any Composer fragments of Valet:
 Run <info>composer global remove laravel/valet</info>
-and then <info>rm /usr/local/bin/valet</info> to remove the Valet bin link if it still exists.
+and then <info>rm ".BREW_PREFIX."/bin/valet</info> to remove the Valet bin link if it still exists.
 Optional:
 - <info>brew list --formula</info> will show any other Homebrew services installed, in case you want to make changes to those as well.
 - <info>brew doctor</info> can indicate if there might be any broken things left behind.
