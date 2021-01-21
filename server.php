@@ -141,9 +141,14 @@ foreach ($valetConfig['paths'] as $path) {
             }
             if (strtolower($file) === $domain) {
                 $valetSitePath = $path.'/'.$file;
+                break;
             }
         }
         closedir($handle);
+        
+        if ($valetSitePath) {
+            break;
+        }
     }
 }
 
