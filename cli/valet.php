@@ -32,7 +32,7 @@ if (is_dir(VALET_LEGACY_HOME_PATH) && !is_dir(VALET_HOME_PATH)) {
  */
 Container::setInstance(new Container);
 
-$version = '2.13.18';
+$version = '2.13.19';
 
 $app = new Application('Laravel Valet', $version);
 
