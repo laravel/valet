@@ -77,7 +77,7 @@ if (is_dir(VALET_HOME_PATH)) {
      */
     $app->command('tld [tld]', function ($tld = null) {
         if ($tld === null) {
-            return info(Configuration::read()['tld']);
+            return output(Configuration::read()['tld']);
         }
 
         DnsMasq::updateTld(
