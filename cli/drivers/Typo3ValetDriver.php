@@ -17,7 +17,7 @@ class Typo3ValetDriver extends ValetDriver
     | to '', if you don't use a subdirectory but valet link directly.
     |
     */
-    protected $documentRoot = '/web';
+    protected $documentRoot = '/public';
 
     /*
     |--------------------------------------------------------------------------
