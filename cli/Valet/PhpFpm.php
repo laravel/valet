@@ -204,13 +204,21 @@ class PhpFpm
      *
      * @return string
      */
-    public function fpmServiceName()
+    public function fpmServiceName($serviceName = null)
     {
-        $service = 'php' . $this->version . '-fpm';
+        if($serviceName === null){
+            $service = "php{$this->version}-fpm";
+        }else{
+            $service = $serviceName;
+        }
         $status = $this->sm->status($service);
-
         if (strpos($status, 'not-found') || strpos($status, 'not be found')) {
-            return new DomainException("Unable to determine PHP service name.");
+                $secondTry = $this->fpmServiceName("php-fpm{$this->version}");
+                if($secondTry instanceof DomainException){
+                    return new DomainException("Unable to determine PHP service name.");
+                }
+
+                return $secondTry;
         }
 
         return $service;
@@ -226,6 +234,7 @@ class PhpFpm
         return collect([
             '/etc/php/' . $this->version . '/fpm/pool.d', // Ubuntu
             '/etc/php' . $this->version . '/fpm/pool.d', // Ubuntu
+            '/etc/php' . $this->version . '/php-fpm.d', // Manjaro
             '/etc/php-fpm.d', // Fedora
             '/etc/php/php-fpm.d', // Arch
             '/etc/php7/fpm/php-fpm.d', // openSUSE

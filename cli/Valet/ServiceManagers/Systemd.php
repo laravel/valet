@@ -218,7 +218,7 @@ class Systemd implements ServiceManager
     {
         return collect($service)->first(
             function ($service) {
-                return strpos($this->cli->run("systemctl status {$service} | grep Loaded"), 'Loaded: loaded');
+                return strpos($this->cli->run("systemctl status {$service} | grep Loaded"), 'Loaded: loaded') >= 0;
             },
             function () {
                 throw new DomainException("Unable to determine service name.");
