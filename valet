@@ -92,8 +92,6 @@ then
     if grep --no-messages --quiet 443 ~/.valet/Nginx/$HOST*
     then
         PORT=88
-    else
-        PORT=80
     fi
 
     # Fetch Ngrok URL In Background...
