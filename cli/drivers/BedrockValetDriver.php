@@ -49,6 +49,7 @@ class BedrockValetDriver extends BasicValetDriver
     {
         $_SERVER['PHP_SELF'] = $uri;
         $_SERVER['SERVER_NAME'] = $_SERVER['HTTP_HOST'];
+        $_SERVER['DOCUMENT_ROOT'] = $sitePath.'/web';
 
         if (strpos($uri, '/wp/') === 0) {
             return is_dir($sitePath.'/web'.$uri)
