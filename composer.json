@@ -42,17 +42,17 @@
     },
     "require": {
         "php": ">=7.0",
-        "illuminate/container": "~5.3|^6.0|^7.0",
+        "illuminate/container": "~5.3|^6.0|^7.0|^8.0",
         "mnapoli/silly": "~1.1",
         "symfony/process": "~2.7|~3.0|~4.0|~5.0",
         "nategood/httpful": "~0.2",
-        "tightenco/collect": "~5.3|^6.0|^7.0",
+        "tightenco/collect": "~5.3|^6.0|^7.0|^8.0",
         "ext-posix": "*",
         "ext-json": "*"
     },
     "require-dev": {
         "mockery/mockery": "~0.9.4",
-        "phpunit/phpunit": "~5.5"
+        "phpunit/phpunit": "~5.5|^9.0"
     },
     "scripts": {
         "post-install-cmd": [
