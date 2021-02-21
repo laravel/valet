@@ -385,6 +385,61 @@ class Site
     }
 
     /**
+     * Resecure all currently secured sites with a fresh loopback address.
+     *
+     * @param  string  $oldLoopback
+     * @param  string  $loopback
+     * @return void
+     */
+    function resecureForNewLoopback($oldLoopback, $loopback)
+    {
+        if (! $this->files->exists($this->certificatesPath())) {
+            return;
+        }
+
+        $secured = $this->secured();
+
+        foreach ($secured as $url) {
+            $siteConf = $this->getSiteConfigFileContents($url);
+
+            if (!empty($siteConf) && strpos($siteConf, '# valet stub: proxy.valet.conf') === 0) {
+                // proxy config
+                $this->unsecure($url);
+                $this->secure($url, $this->replaceOldLoopbackWithNew($siteConf, $oldLoopback, $loopback));
+            } else {
+                // normal config
+                $this->unsecure($url);
+                $this->secure($url);
+            }
+        }
+    }
+
+    /**
+     * Parse Nginx site config file contents to swap old loopback address to new.
+     *
+     * @param  string $siteConf Nginx site config content
+     * @param  string $old  Old loopback address
+     * @param  string $new  New loopback address
+     * @return string
+     */
+    function replaceOldLoopbackWithNew($siteConf, $old, $new)
+    {
+        $lookups = [];
+        $lookups[] = '~listen .*:80;~';
+        $lookups[] = '~listen .*:443 ssl http2;~';
+        $lookups[] = '~listen .*:60;~';
+
+        foreach ($lookups as $lookup) {
+            preg_match($lookup, $siteConf, $matches);
+            foreach ($matches as $match) {
+                $replaced = str_replace($old, $new, $match);
+                $siteConf = str_replace($match, $replaced, $siteConf);
+            }
+        }
+        return $siteConf;
+    }
+
+    /**
      * Get all of the URLs that are currently secured.
      *
      * @return array
@@ -577,8 +632,9 @@ class Site
         }
 
         return str_replace(
-            ['VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_STATIC_PREFIX', 'VALET_SITE', 'VALET_CERT', 'VALET_KEY'],
+            ['VALET_LOOPBACK', 'VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_STATIC_PREFIX', 'VALET_SITE', 'VALET_CERT', 'VALET_KEY'],
             [
+                $this->valetLoopback(),
                 $this->valetHomePath(),
                 VALET_SERVER_PATH,
                 VALET_STATIC_PREFIX,
@@ -667,8 +723,8 @@ class Site
         $siteConf = $this->files->get(__DIR__.'/../stubs/proxy.valet.conf');
 
         $siteConf = str_replace(
-            ['VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_STATIC_PREFIX', 'VALET_SITE', 'VALET_PROXY_HOST'],
-            [$this->valetHomePath(), VALET_SERVER_PATH, VALET_STATIC_PREFIX, $url, $host],
+            ['VALET_LOOPBACK', 'VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_STATIC_PREFIX', 'VALET_SITE', 'VALET_PROXY_HOST'],
+            [$this->valetLoopback(), $this->valetHomePath(), VALET_SERVER_PATH, VALET_STATIC_PREFIX, $url, $host],
             $siteConf
         );
 
@@ -699,6 +755,11 @@ class Site
     function valetHomePath()
     {
         return VALET_HOME_PATH;
+    }
+
+    function valetLoopback()
+    {
+        return $this->config->read()['loopback'];
     }
 
     /**

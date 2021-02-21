@@ -11,6 +11,7 @@ use Symfony\Component\Console\Helper\Table;
 /**
  * Define the ~/.config/valet path as a constant.
  */
+define('VALET_LOOPBACK', '127.0.0.1');
 define('VALET_HOME_PATH', $_SERVER['HOME'].'/.config/valet');
 define('VALET_SERVER_PATH', realpath(__DIR__ . '/../../server.php'));
 define('VALET_STATIC_PREFIX', '41c270e4-5535-4daa-b23e-c269744c2f45');

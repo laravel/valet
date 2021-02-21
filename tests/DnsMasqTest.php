@@ -46,8 +46,10 @@ class DnsMasqTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $dnsMasq->install('test');
 
-        $this->assertSame('nameserver 127.0.0.1'.PHP_EOL, file_get_contents(__DIR__.'/output/resolver/test'));
-        $this->assertSame('address=/.test/127.0.0.1'.PHP_EOL.'listen-address=127.0.0.1'.PHP_EOL, file_get_contents(__DIR__.'/output/tld-test.conf'));
+        $loopback = \Configuration::read()['loopback'];
+
+        $this->assertSame('nameserver '.$loopback.PHP_EOL, file_get_contents(__DIR__.'/output/resolver/test'));
+        $this->assertSame('address=/.test/'.$loopback.PHP_EOL.'listen-address='.$loopback.PHP_EOL, file_get_contents(__DIR__.'/output/tld-test.conf'));
         $this->assertSame('test-contents
 ' . PHP_EOL . 'conf-dir='.BREW_PREFIX.'/etc/dnsmasq.d/,*.conf' . PHP_EOL,
             file_get_contents($dnsMasq->dnsmasqMasterConfigFile)

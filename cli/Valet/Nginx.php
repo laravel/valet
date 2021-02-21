@@ -75,11 +75,13 @@ class Nginx
     {
         $this->files->ensureDirExists(BREW_PREFIX.'/etc/nginx/valet');
 
+        $loopback = $this->configuration->read()['loopback'];
+
         $this->files->putAsUser(
             BREW_PREFIX.'/etc/nginx/valet/valet.conf',
             str_replace(
-                ['VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_STATIC_PREFIX'],
-                [VALET_HOME_PATH, VALET_SERVER_PATH, VALET_STATIC_PREFIX],
+                ['VALET_LOOPBACK', 'VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_STATIC_PREFIX'],
+                [$loopback, VALET_HOME_PATH, VALET_SERVER_PATH, VALET_STATIC_PREFIX],
                 $this->files->get(__DIR__.'/../stubs/valet.conf')
             )
         );
@@ -131,8 +133,10 @@ class Nginx
     function rewriteSecureNginxFiles()
     {
         $tld = $this->configuration->read()['tld'];
+        $loopback = $this->configuration->read()['loopback'];
 
         $this->site->resecureForNewTld($tld, $tld);
+        $this->site->resecureForNewLoopback($loopback, $loopback);
     }
 
     /**

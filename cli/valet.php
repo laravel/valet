@@ -73,6 +73,13 @@ if (is_dir(VALET_HOME_PATH)) {
     }
 
     /**
+     * Upgrade helper: ensure the loopback config exists
+     */
+    if (empty(Configuration::read()['loopback'])) {
+        Configuration::writeBaseConfiguration();
+    }
+
+    /**
      * Get or set the TLD currently being used by Valet.
      */
     $app->command('tld [tld]', function ($tld = null) {
@@ -92,6 +99,28 @@ if (is_dir(VALET_HOME_PATH)) {
 
         info('Your Valet TLD has been updated to ['.$tld.'].');
     }, ['domain'])->descriptions('Get or set the TLD used for Valet sites.');
+
+    /**
+     * Get or set the loopback address currently being used by Valet.
+     */
+    $app->command('loopback [loopback]', function ($loopback = null) {
+        if ($loopback === null) {
+            return output(Configuration::read()['loopback']);
+        }
+
+        $oldLoopback = Configuration::read()['loopback'];
+
+        Configuration::updateKey('loopback', $loopback = trim($loopback, '.'));
+
+        DnsMasq::refreshConfiguration();
+        Site::resecureForNewLoopback($oldLoopback, $loopback);
+        Nginx::installServer();
+        PhpFpm::restart();
+        Nginx::restart();
+
+        info('Your valet loopback address has been updated to ['.$loopback.']');
+
+    }, ['address'])->descriptions('Get or set the loopback address used for Valet sites');
 
     /**
      * Add the current working directory to the paths configuration.
