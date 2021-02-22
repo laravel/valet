@@ -120,7 +120,7 @@ if (is_dir(VALET_HOME_PATH)) {
 
         info('Your valet loopback address has been updated to ['.$loopback.']');
 
-    }, ['address'])->descriptions('Get or set the loopback address used for Valet sites');
+    })->descriptions('Get or set the loopback address used for Valet sites');
 
     /**
      * Add the current working directory to the paths configuration.
