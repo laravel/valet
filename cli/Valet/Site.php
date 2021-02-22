@@ -424,15 +424,26 @@ class Site
      */
     function replaceOldLoopbackWithNew($siteConf, $old, $new)
     {
+        $shouldComment = $new === VALET_LOOPBACK;
+
         $lookups = [];
-        $lookups[] = '~listen .*:80;~';
-        $lookups[] = '~listen .*:443 ssl http2;~';
-        $lookups[] = '~listen .*:60;~';
+        $lookups[] = '~#?listen .*:80; # valet loopback~';
+        $lookups[] = '~#?listen .*:443 ssl http2; # valet loopback~';
+        $lookups[] = '~#?listen .*:60; # valet loopback~';
 
         foreach ($lookups as $lookup) {
             preg_match($lookup, $siteConf, $matches);
             foreach ($matches as $match) {
                 $replaced = str_replace($old, $new, $match);
+
+                if ($shouldComment && strpos($replaced, '#') !== 0) {
+                    $replaced = '#'.$replaced;
+                }
+
+                if (! $shouldComment) {
+                    $replaced = ltrim($replaced, '#');
+                }
+
                 $siteConf = str_replace($match, $replaced, $siteConf);
             }
         }
@@ -752,6 +763,62 @@ class Site
         info('Valet will no longer proxy [https://'.$url.'].');
     }
 
+    /**
+     * Remove old loopback interface alias and new one if necessary.
+     *
+     * @param  string  $oldLoopback
+     * @param  string  $loopback
+     * @return void
+     */
+    function aliasLoopback($oldLoopback, $loopback)
+    {
+        if ($oldLoopback !== VALET_LOOPBACK) {
+            $this->cli->run(sprintf(
+                'sudo ifconfig lo0 -alias %s', $oldLoopback
+            ));
+
+            info('Old loopback interface alias removed ['.$oldLoopback.']');
+        }
+
+        if ($loopback !== VALET_LOOPBACK) {
+            $this->cli->run(sprintf(
+                'sudo ifconfig lo0 alias %s', $loopback
+            ));
+
+            info('New loopback interface alias added ['.$loopback.']');
+        }
+
+        $this->updatePlist($loopback);
+    }
+
+    /**
+     * Remove old LaunchDaemon and create a new one if necessary.
+     *
+     * @param  string  $loopback
+     * @return void
+     */
+    function updatePlist($loopback)
+    {
+        if ($this->files->exists($this->plistPath())) {
+            $this->files->unlink($this->plistPath());
+
+            info('Old plist file removed ['.$this->plistPath().']');
+        }
+
+        if ($loopback !== VALET_LOOPBACK) {
+            $this->files->put(
+                $this->plistPath(),
+                str_replace(
+                    'VALET_LOOPBACK',
+                    $loopback,
+                    $this->files->get(__DIR__.'/../stubs/ifconfig.plist')
+                )
+            );
+
+            info('New plist file added ['.$this->plistPath().']');
+        }
+    }
+
     function valetHomePath()
     {
         return VALET_HOME_PATH;
@@ -760,6 +827,16 @@ class Site
     function valetLoopback()
     {
         return $this->config->read()['loopback'];
+    }
+
+    /**
+     * Get the path to loopback LaunchDaemon.
+     *
+     * @return string
+     */
+    function plistPath()
+    {
+        return '/Library/LaunchDaemons/com.laravel.valet.ifconfig.plist';
     }
 
     /**

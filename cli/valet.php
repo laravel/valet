@@ -113,6 +113,7 @@ if (is_dir(VALET_HOME_PATH)) {
         Configuration::updateKey('loopback', $loopback = trim($loopback, '.'));
 
         DnsMasq::refreshConfiguration();
+        Site::aliasLoopback($oldLoopback, $loopback);
         Site::resecureForNewLoopback($oldLoopback, $loopback);
         Nginx::installServer();
         PhpFpm::restart();
