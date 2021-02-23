@@ -101,9 +101,14 @@ if (is_dir(VALET_HOME_PATH)) {
             return output(Configuration::read()['loopback']);
         }
 
+        if (filter_var($loopback, FILTER_VALIDATE_IP) === false) {
+            warning('['.$loopback.'] is not a valid IP address');
+            return 1;
+        }
+
         $oldLoopback = Configuration::read()['loopback'];
 
-        Configuration::updateKey('loopback', $loopback = trim($loopback, '.'));
+        Configuration::updateKey('loopback', $loopback);
 
         DnsMasq::refreshConfiguration();
         Site::aliasLoopback($oldLoopback, $loopback);
