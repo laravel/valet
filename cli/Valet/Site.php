@@ -756,7 +756,7 @@ class Site
     }
 
     /**
-     * Remove old loopback interface alias and new one if necessary.
+     * Remove old loopback interface alias and add a new one if necessary.
      *
      * @param  string  $oldLoopback
      * @param  string  $loopback
