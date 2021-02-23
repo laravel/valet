@@ -343,12 +343,12 @@ class Site
         $secured = $this->secured();
 
         $defaultTld = $this->config->read()['tld'];
-        $oldTld = isset($old['tld']) && ! empty($old['tld']) ? $old['tld'] : $defaultTld;
-        $tld = isset($new['tld']) && ! empty($new['tld']) ? $new['tld'] : $defaultTld;
+        $oldTld = !empty($old['tld']) ? $old['tld'] : $defaultTld;
+        $tld = !empty($new['tld']) ? $new['tld'] : $defaultTld;
 
         $defaultLoopback = $this->config->read()['loopback'];
-        $oldLoopback = isset($old['loopback']) && ! empty($old['loopback']) ? $old['loopback'] : $defaultLoopback;
-        $loopback = isset($new['loopback']) && ! empty($new['loopback']) ? $new['loopback'] : $defaultLoopback;
+        $oldLoopback = !empty($old['loopback']) ? $old['loopback'] : $defaultLoopback;
+        $loopback = !empty($new['loopback']) ? $new['loopback'] : $defaultLoopback;
 
         foreach ($secured as $url) {
             $newUrl = str_replace('.'.$oldTld, '.'.$tld, $url);
@@ -824,11 +824,8 @@ class Site
     /**
      * Get the path to loopback LaunchDaemon.
      *
-     * @return string
-     */
-    function plistPath()
-    {
-        return '/Library/LaunchDaemons/com.laravel.valet.loopback.plist';
+     * @return
+        return '/Library/LaunchDaemons.plist';
     }
 
     /**
