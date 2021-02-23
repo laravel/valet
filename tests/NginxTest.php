@@ -82,6 +82,8 @@ class NginxTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $nginx = resolve(Nginx::class);
         $nginx->installNginxDirectory();
 
-        $site->shouldHaveReceived('resecureForNewTld', ['test', 'test']);
+        $data = ['tld' => 'test', 'loopback' => '127.0.0.1'];
+
+        $site->shouldHaveReceived('resecureForNewConfiguration', [$data, $data]);
     }
 }

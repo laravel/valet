@@ -3,7 +3,7 @@
 <plist version="1.0">
   <dict>
     <key>Label</key>
-    <string>com.laravel.valet.ifconfig</string>
+    <string>com.laravel.valet.loopback</string>
     <key>RunAtLoad</key>
     <true/>
     <key>ProgramArguments</key>

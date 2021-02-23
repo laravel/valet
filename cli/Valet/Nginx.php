@@ -98,7 +98,7 @@ class Nginx
             return $siteConf;
         }
 
-        $str = '#listen VALET_LOOPBACK:80 default_server; # valet loopback';
+        $str = '#listen VALET_LOOPBACK:80; # valet loopback';
 
         return str_replace(
             $str,
@@ -150,8 +150,9 @@ class Nginx
         $tld = $this->configuration->read()['tld'];
         $loopback = $this->configuration->read()['loopback'];
 
-        $this->site->resecureForNewTld($tld, $tld);
-        $this->site->resecureForNewLoopback($loopback, $loopback);
+        $config = compact('tld', 'loopback');
+
+        $this->site->resecureForNewConfiguration($config, $config);
     }
 
     /**

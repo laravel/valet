@@ -66,16 +66,9 @@ $app->command('install', function () {
  */
 if (is_dir(VALET_HOME_PATH)) {
     /**
-     * Upgrade helper: ensure the tld config exists
+     * Upgrade helper: ensure the tld config exists or the loopback config exists
      */
-    if (empty(Configuration::read()['tld'])) {
-        Configuration::writeBaseConfiguration();
-    }
-
-    /**
-     * Upgrade helper: ensure the loopback config exists
-     */
-    if (empty(Configuration::read()['loopback'])) {
+    if (empty(Configuration::read()['tld']) || empty(Configuration::read()['loopback'])) {
         Configuration::writeBaseConfiguration();
     }
 
@@ -93,7 +86,7 @@ if (is_dir(VALET_HOME_PATH)) {
 
         Configuration::updateKey('tld', $tld);
 
-        Site::resecureForNewTld($oldTld, $tld);
+        Site::resecureForNewConfiguration(['tld' => $oldTld], ['tld' => $tld]);
         PhpFpm::restart();
         Nginx::restart();
 
@@ -114,9 +107,9 @@ if (is_dir(VALET_HOME_PATH)) {
 
         DnsMasq::refreshConfiguration();
         Site::aliasLoopback($oldLoopback, $loopback);
-        Site::resecureForNewLoopback($oldLoopback, $loopback);
-        Nginx::installServer();
+        Site::resecureForNewConfiguration(['loopback' => $oldLoopback], ['loopback' => $loopback]);
         PhpFpm::restart();
+        Nginx::installServer();
         Nginx::restart();
 
         info('Your valet loopback address has been updated to ['.$loopback.']');
