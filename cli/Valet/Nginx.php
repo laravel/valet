@@ -150,6 +150,10 @@ class Nginx
         $tld = $this->configuration->read()['tld'];
         $loopback = $this->configuration->read()['loopback'];
 
+        if ($loopback !== VALET_LOOPBACK) {
+            $this->site->aliasLoopback(VALET_LOOPBACK, $loopback);
+        }
+
         $config = compact('tld', 'loopback');
 
         $this->site->resecureForNewConfiguration($config, $config);
