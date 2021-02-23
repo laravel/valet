@@ -102,8 +102,7 @@ if (is_dir(VALET_HOME_PATH)) {
         }
 
         if (filter_var($loopback, FILTER_VALIDATE_IP) === false) {
-            warning('['.$loopback.'] is not a valid IP address');
-            return 1;
+            return warning('['.$loopback.'] is not a valid IP address');
         }
 
         $oldLoopback = Configuration::read()['loopback'];
@@ -383,6 +382,8 @@ if (is_dir(VALET_HOME_PATH)) {
             Nginx::uninstall();
             info('Removing Dnsmasq and configs...');
             DnsMasq::uninstall();
+            info('Removing loopback customization...');
+            Site::uninstallLoopback();
             info('Removing Valet configs and customizations...');
             Configuration::uninstall();
             info('Removing PHP versions and configs...');

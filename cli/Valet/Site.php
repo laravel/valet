@@ -330,6 +330,10 @@ class Site
     /**
      * Resecure all currently secured sites with a fresh configuration.
      *
+     * There are only two supported values: tld and loopback
+     * And those must be submitted in pairs else unexpected results may occur.
+     * eg: both $old and $new should contain the same indexes.
+     *
      * @param  array  $old
      * @param  array  $new
      * @return void
@@ -765,22 +769,44 @@ class Site
     function aliasLoopback($oldLoopback, $loopback)
     {
         if ($oldLoopback !== VALET_LOOPBACK) {
-            $this->cli->run(sprintf(
-                'sudo ifconfig lo0 -alias %s', $oldLoopback
-            ));
-
-            info('Old loopback interface alias removed ['.$oldLoopback.']');
+            $this->removeLoopbackAlias($oldLoopback);
         }
 
         if ($loopback !== VALET_LOOPBACK) {
-            $this->cli->run(sprintf(
-                'sudo ifconfig lo0 alias %s', $loopback
-            ));
-
-            info('New loopback interface alias added ['.$loopback.']');
+            $this->addLoopbackAlias($loopback);
         }
 
-        $this->updatePlist($loopback);
+        $this->updateLoopbackPlist($loopback);
+    }
+
+    /**
+     * Remove loopback interface alias.
+     *
+     * @param  string  $loopback
+     * @return void
+     */
+    function removeLoopbackAlias($loopback)
+    {
+        $this->cli->run(sprintf(
+            'sudo ifconfig lo0 -alias %s', $loopback
+        ));
+
+        info('['.$loopback.'] loopback interface alias removed.');
+    }
+
+    /**
+     * Remove loopback interface alias.
+     *
+     * @param  string  $loopback
+     * @return void
+     */
+    function addLoopbackAlias($loopback)
+    {
+        $this->cli->run(sprintf(
+            'sudo ifconfig lo0 alias %s', $loopback
+        ));
+
+        info('['.$loopback.'] loopback interface alias added.');
     }
 
     /**
@@ -789,13 +815,9 @@ class Site
      * @param  string  $loopback
      * @return void
      */
-    function updatePlist($loopback)
+    function updateLoopbackPlist($loopback)
     {
-        if ($this->files->exists($this->plistPath())) {
-            $this->files->unlink($this->plistPath());
-
-            info('Old plist file removed ['.$this->plistPath().']');
-        }
+        $this->removeLoopbackPlist();
 
         if ($loopback !== VALET_LOOPBACK) {
             $this->files->put(
@@ -807,8 +829,36 @@ class Site
                 )
             );
 
-            info('New plist file added ['.$this->plistPath().']');
+            info('['.$this->plistPath().'] persistent loopback interface alias launch daemon added.');
         }
+    }
+
+    /**
+     * Remove loopback interface alias launch daemon plist file.
+     *
+     * @return void
+     */
+    function removeLoopbackPlist()
+    {
+        if ($this->files->exists($this->plistPath())) {
+            $this->files->unlink($this->plistPath());
+
+            info('['.$this->plistPath().'] persistent loopback interface alias launch daemon removed.');
+        }
+    }
+
+    /**
+     * Remove loopback interface alias and launch daemon plist file for uninstall purpose.
+     *
+     * @return void
+     */
+    function uninstallLoopback()
+    {
+        if (($loopback = $this->valetLoopback()) !== VALET_LOOPBACK) {
+            $this->removeLoopbackAlias($loopback);
+        }
+
+        $this->removeLoopbackPlist();
     }
 
     function valetHomePath()
@@ -824,8 +874,11 @@ class Site
     /**
      * Get the path to loopback LaunchDaemon.
      *
-     * @return
-        return '/Library/LaunchDaemons.plist';
+     * @return string
+     */
+    function plistPath()
+    {
+        return '/Library/LaunchDaemons/com.laravel.valet.loopback.plist';
     }
 
     /**
