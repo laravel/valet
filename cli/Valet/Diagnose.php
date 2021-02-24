@@ -50,10 +50,6 @@ class Diagnose
         'sh -c \'for file in ~/.config/valet/nginx/*; do echo "------\n~/.config/valet/nginx/$(basename $file)\n---\n"; cat $file | grep -n "# valet loopback"; echo "\n------\n"; done\'',
     ];
 
-    var $methods = [
-
-    ];
-
     var $cli, $files, $print, $progressBar;
 
     /**
