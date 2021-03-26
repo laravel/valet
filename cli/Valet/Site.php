@@ -594,7 +594,9 @@ class Site
     function buildSecureNginxServer($url, $siteConf = null)
     {
 
-        $siteConf = $this->files->get($this->getSiteStub($siteConf));
+        if ($siteConf === null) {
+            $siteConf = $this->files->get($this->getSiteStub('site'));
+        }
 
         return str_replace(
             ['VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_STATIC_PREFIX', 'VALET_SITE', 'VALET_CERT', 'VALET_KEY'],
@@ -684,7 +686,7 @@ class Site
             $url .= '.'.$tld;
         }
 
-        $siteConf = $this->files->get($this->getSiteStub('proxy'))
+        $siteConf = $this->files->get($this->getSiteStub('proxy'));
 
         $siteConf = str_replace(
             ['VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_STATIC_PREFIX', 'VALET_SITE', 'VALET_PROXY_HOST'],
