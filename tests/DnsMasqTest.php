@@ -10,17 +10,16 @@ use function Valet\resolve;
 use function Valet\swap;
 use Illuminate\Container\Container;
 
-class DnsMasqTest extends PHPUnit_Framework_TestCase
+class DnsMasqTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 {
-    public function setUp()
+    public function set_up()
     {
         $_SERVER['SUDO_USER'] = user();
 
         Container::setInstance(new Container);
     }
 
-
-    public function tearDown()
+    public function tear_down()
     {
         exec('rm -rf '.__DIR__.'/output');
         mkdir(__DIR__.'/output');
@@ -28,7 +27,6 @@ class DnsMasqTest extends PHPUnit_Framework_TestCase
 
         Mockery::close();
     }
-
 
     public function test_install_installs_and_places_configuration_files_in_proper_locations()
     {
@@ -51,11 +49,10 @@ class DnsMasqTest extends PHPUnit_Framework_TestCase
         $this->assertSame('nameserver 127.0.0.1'.PHP_EOL, file_get_contents(__DIR__.'/output/resolver/test'));
         $this->assertSame('address=/.test/127.0.0.1'.PHP_EOL.'listen-address=127.0.0.1'.PHP_EOL, file_get_contents(__DIR__.'/output/tld-test.conf'));
         $this->assertSame('test-contents
-' . PHP_EOL . 'conf-dir=/usr/local/etc/dnsmasq.d/,*.conf' . PHP_EOL, 
+' . PHP_EOL . 'conf-dir='.BREW_PREFIX.'/etc/dnsmasq.d/,*.conf' . PHP_EOL,
             file_get_contents($dnsMasq->dnsmasqMasterConfigFile)
         );
     }
-
 
     public function test_update_tld_removes_old_resolver_and_reinstalls()
     {
@@ -67,7 +64,6 @@ class DnsMasqTest extends PHPUnit_Framework_TestCase
         $dnsMasq->updateTld('old', 'new');
     }
 }
-
 
 class StubForCreatingCustomDnsMasqConfigFiles extends DnsMasq
 {

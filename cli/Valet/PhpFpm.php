@@ -9,7 +9,8 @@ class PhpFpm
     var $brew, $cli, $files;
 
     var $taps = [
-        'homebrew/homebrew-core'
+        'homebrew/homebrew-core',
+        'shivammathur/php',
     ];
 
     /**
@@ -38,7 +39,7 @@ class PhpFpm
             $this->brew->ensureInstalled('php', [], $this->taps);
         }
 
-        $this->files->ensureDirExists('/usr/local/var/log', user());
+        $this->files->ensureDirExists(VALET_HOME_PATH . '/Log', user());
 
         $this->updateConfiguration();
 
@@ -47,14 +48,14 @@ class PhpFpm
 
     /**
      * Forcefully uninstall all of Valet's supported PHP versions and configurations
-     * 
+     *
      * @return void
      */
     function uninstall()
     {
         $this->brew->uninstallAllPhpVersions();
-        rename('/usr/local/etc/php', '/usr/local/etc/php-valet-bak'.time());
-        $this->cli->run('rm -rf /usr/local/var/log/php-fpm.log');
+        rename(BREW_PREFIX.'/etc/php', BREW_PREFIX.'/etc/php-valet-bak'.time());
+        $this->cli->run('rm -rf '.BREW_PREFIX.'/var/log/php-fpm.log');
     }
 
     /**
@@ -77,7 +78,7 @@ class PhpFpm
         }
 
         if (false === strpos($fpmConfigFile, '5.6')) {
-            // for PHP 7 we can simply drop in a valet-specific fpm pool config, and not touch the default config
+            // since PHP 7 we can simply drop in a valet-specific fpm pool config, and not touch the default config
             $contents = $this->files->get(__DIR__.'/../stubs/etc-phpfpm-valet.conf');
             $contents = str_replace(['VALET_USER', 'VALET_HOME_PATH'], [user(), VALET_HOME_PATH], $contents);
         } else {
@@ -93,13 +94,21 @@ class PhpFpm
         $this->files->put($fpmConfigFile, $contents);
 
         $contents = $this->files->get(__DIR__.'/../stubs/php-memory-limits.ini');
-
         $destFile = dirname($fpmConfigFile);
         $destFile = str_replace('/php-fpm.d', '', $destFile);
         $destFile .= '/conf.d/php-memory-limits.ini';
         $this->files->ensureDirExists(dirname($destFile), user());
-
         $this->files->putAsUser($destFile, $contents);
+
+        $contents = $this->files->get(__DIR__.'/../stubs/etc-phpfpm-error_log.ini');
+        $contents = str_replace(['VALET_USER', 'VALET_HOME_PATH'], [user(), VALET_HOME_PATH], $contents);
+        $destFile = dirname($fpmConfigFile);
+        $destFile = str_replace('/php-fpm.d', '', $destFile);
+        $destFile .= '/conf.d/error_log.ini';
+        $this->files->ensureDirExists(dirname($destFile), user());
+        $this->files->putAsUser($destFile, $contents);
+        $this->files->ensureDirExists(VALET_HOME_PATH . '/Log', user());
+        $this->files->touch(VALET_HOME_PATH . '/Log/php-fpm.log', user());
     }
 
     /**
@@ -134,15 +143,12 @@ class PhpFpm
     {
         $version = $this->brew->linkedPhp();
 
-        $versionNormalized = preg_replace(
-            '/php@?(\d)\.?(\d)/',
-            '$1.$2',
-            $version === 'php' ? Brew::LATEST_PHP_VERSION : $version
-        );
+        $versionNormalized = $this->normalizePhpVersion($version === 'php' ? Brew::LATEST_PHP_VERSION : $version);
+        $versionNormalized = preg_replace('~[^\d\.]~', '', $versionNormalized);
 
         return $versionNormalized === '5.6'
-            ? '/usr/local/etc/php/5.6/php-fpm.conf'
-            : "/usr/local/etc/php/${versionNormalized}/php-fpm.d/valet-fpm.conf";
+            ? BREW_PREFIX.'/etc/php/5.6/php-fpm.conf'
+            : BREW_PREFIX."/etc/php/${versionNormalized}/php-fpm.d/valet-fpm.conf";
     }
 
     /**
@@ -163,14 +169,26 @@ class PhpFpm
      * Use a specific version of php
      *
      * @param $version
+     * @param $force
      * @return string
      */
-    function useVersion($version)
+    function useVersion($version, $force = false)
     {
         $version = $this->validateRequestedVersion($version);
 
-        // Install the relevant formula if not already installed
-        $this->brew->ensureInstalled($version);
+        try {
+            if ($this->brew->linkedPhp() === $version && !$force) {
+                output(sprintf('<info>Valet is already using version: <comment>%s</comment>.</info> To re-link and re-configure use the --force parameter.' . PHP_EOL,
+                    $version));
+                exit();
+            }
+        } catch (DomainException $e)
+        { /* ignore thrown exception when no linked php is found */ }
+
+        if (!$this->brew->installed($version)) {
+            // Install the relevant formula if not already installed
+            $this->brew->ensureInstalled($version, [], $this->taps);
+        }
 
         // Unlink the current php if there is one
         if ($this->brew->hasLinkedPhp()) {
@@ -182,9 +200,25 @@ class PhpFpm
         info(sprintf('Linking new version: %s', $version));
         $this->brew->link($version, true);
 
+        $this->stopRunning();
+
+        // remove any orphaned valet.sock files that PHP didn't clean up due to version conflicts
+        $this->files->unlink(VALET_HOME_PATH.'/valet.sock');
+        $this->cli->quietly('sudo rm ' . VALET_HOME_PATH.'/valet.sock');
+
+        // ensure configuration is correct and start the linked version
         $this->install();
 
         return $version === 'php' ? $this->brew->determineAliasedVersion($version) : $version;
+    }
+
+
+    /**
+     * If passed php7.4 or php74 formats, normalize to php@7.4 format.
+     */
+    function normalizePhpVersion($version)
+    {
+        return preg_replace('/(php)([0-9+])(?:.)?([0-9+])/i', '$1@$2.$3', $version);
     }
 
     /**
@@ -195,18 +229,7 @@ class PhpFpm
      */
     function validateRequestedVersion($version)
     {
-        // If passed php7.2 or php72 formats, normalize to php@7.2 format:
-        $version = preg_replace('/(php)([0-9+])(?:.)?([0-9+])/i', '$1@$2.$3', $version);
-
-        if ($version === 'php') {
-            if (strpos($this->brew->determineAliasedVersion($version), '@')) {
-                return $version;
-            }
-        
-            if ($this->brew->hasInstalledPhp()) {
-                throw new DomainException('Brew is already using PHP '.PHP_VERSION.' as \'php\' in Homebrew. To use another version, please specify. eg: php@7.3');
-            }
-        }
+        $version = $this->normalizePhpVersion($version);
 
         if (!$this->brew->supportedPhpVersions()->contains($version)) {
             throw new DomainException(
@@ -215,6 +238,20 @@ class PhpFpm
                     $version
                 )
             );
+        }
+
+        if (strpos($aliasedVersion = $this->brew->determineAliasedVersion($version), '@')) {
+            return $aliasedVersion;
+        }
+
+        if ($version === 'php') {
+            if (strpos($aliasedVersion = $this->brew->determineAliasedVersion($version), '@')) {
+                return $aliasedVersion;
+            }
+
+            if ($this->brew->hasInstalledPhp()) {
+                throw new DomainException('Brew is already using PHP '.PHP_VERSION.' as \'php\' in Homebrew. To use another version, please specify. eg: php@7.3');
+            }
         }
 
         return $version;

@@ -180,6 +180,11 @@ class Configuration
      */
     function removePath($path)
     {
+        if ($path == VALET_HOME_PATH.'/Sites') {
+            info("Cannot remove this directory because this is where Valet stores its site definitions.\nRun [valet paths] for a list of parked paths.");
+            die();
+        }
+
         $this->write(tap($this->read(), function (&$config) use ($path) {
             $config['paths'] = collect($config['paths'])->reject(function ($value) use ($path) {
                 return $value === $path;

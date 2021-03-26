@@ -9,29 +9,27 @@ use function Valet\resolve;
 use function Valet\swap;
 use Illuminate\Container\Container;
 
-class NginxTest extends PHPUnit_Framework_TestCase
+class NginxTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 {
-    public function setUp()
+    public function set_up()
     {
         $_SERVER['SUDO_USER'] = user();
 
         Container::setInstance(new Container);
     }
 
-
-    public function tearDown()
+    public function tear_down()
     {
         Mockery::close();
     }
-
 
     public function test_install_nginx_configuration_places_nginx_base_configuration_in_proper_location()
     {
         $files = Mockery::mock(Filesystem::class.'[putAsUser]');
 
         $files->shouldReceive('putAsUser')->andReturnUsing(function ($path, $contents) {
-            $this->assertSame('/usr/local/etc/nginx/nginx.conf', $path);
-            $this->assertContains('include "'.VALET_HOME_PATH.'/Nginx/*"', $contents);
+            $this->assertSame(BREW_PREFIX.'/etc/nginx/nginx.conf', $path);
+            $this->assertStringContainsString('include "'.VALET_HOME_PATH.'/Nginx/*"', $contents);
         })->once();
 
         swap(Filesystem::class, $files);
@@ -39,7 +37,6 @@ class NginxTest extends PHPUnit_Framework_TestCase
         $nginx = resolve(Nginx::class);
         $nginx->installConfiguration();
     }
-
 
     public function test_install_nginx_directories_creates_location_for_site_specific_configuration()
     {
@@ -56,7 +53,6 @@ class NginxTest extends PHPUnit_Framework_TestCase
         $nginx->installNginxDirectory();
     }
 
-
     public function test_nginx_directory_is_never_created_if_it_already_exists()
     {
         $files = Mockery::mock(Filesystem::class);
@@ -71,7 +67,6 @@ class NginxTest extends PHPUnit_Framework_TestCase
         $nginx = resolve(Nginx::class);
         $nginx->installNginxDirectory();
     }
-
 
     public function test_install_nginx_directories_rewrites_secure_nginx_files()
     {
@@ -89,5 +84,4 @@ class NginxTest extends PHPUnit_Framework_TestCase
 
         $site->shouldHaveReceived('resecureForNewTld', ['test', 'test']);
     }
-
 }

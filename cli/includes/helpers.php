@@ -2,6 +2,7 @@
 
 namespace Valet;
 
+use Exception;
 use Illuminate\Container\Container;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -15,6 +16,8 @@ define('VALET_SERVER_PATH', realpath(__DIR__ . '/../../server.php'));
 define('VALET_STATIC_PREFIX', '41c270e4-5535-4daa-b23e-c269744c2f45');
 
 define('VALET_LEGACY_HOME_PATH', $_SERVER['HOME'].'/.valet');
+
+define('BREW_PREFIX', (new CommandLine())->runAsUser('printf $(brew --prefix)'));
 
 /**
  * Output the given text to the console.
@@ -166,6 +169,26 @@ if (! function_exists('ends_with')) {
                 return true;
             }
         }
+        return false;
+    }
+}
+
+if (! function_exists('starts_with')) {
+    /**
+     * Determine if a given string starts with a given substring.
+     *
+     * @param  string  $haystack
+     * @param  string|string[]  $needles
+     * @return bool
+     */
+    function starts_with($haystack, $needles)
+    {
+        foreach ((array) $needles as $needle) {
+            if ((string) $needle !== '' && strncmp($haystack, $needle, strlen($needle)) === 0) {
+                return true;
+            }
+        }
+
         return false;
     }
 }

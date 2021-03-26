@@ -6,8 +6,8 @@ class DnsMasq
 {
     var $brew, $cli, $files, $configuration;
 
-    var $dnsmasqMasterConfigFile = '/usr/local/etc/dnsmasq.conf';
-    var $dnsmasqSystemConfDir = '/usr/local/etc/dnsmasq.d';
+    var $dnsmasqMasterConfigFile = BREW_PREFIX.'/etc/dnsmasq.conf';
+    var $dnsmasqSystemConfDir = BREW_PREFIX.'/etc/dnsmasq.d';
     var $resolverPath = '/etc/resolver';
 
     /**
@@ -53,7 +53,7 @@ class DnsMasq
     {
         $this->brew->stopService('dnsmasq');
         $this->brew->uninstallFormula('dnsmasq');
-        $this->cli->run('rm -rf /usr/local/etc/dnsmasq.d/dnsmasq-valet.conf');
+        $this->cli->run('rm -rf '.BREW_PREFIX.'/etc/dnsmasq.d/dnsmasq-valet.conf');
         $tld = $this->configuration->read()['tld'];
         $this->files->unlink($this->resolverPath.'/'.$tld);
     }
@@ -80,10 +80,10 @@ class DnsMasq
         // set primary config to look for configs in /usr/local/etc/dnsmasq.d/*.conf
         $contents = $this->files->get($this->dnsmasqMasterConfigFile);
         // ensure the line we need to use is present, and uncomment it if needed
-        if (false === strpos($contents, 'conf-dir=/usr/local/etc/dnsmasq.d/,*.conf')) {
-            $contents .= PHP_EOL . 'conf-dir=/usr/local/etc/dnsmasq.d/,*.conf' . PHP_EOL;
+        if (false === strpos($contents, 'conf-dir='.BREW_PREFIX.'/etc/dnsmasq.d/,*.conf')) {
+            $contents .= PHP_EOL . 'conf-dir='.BREW_PREFIX.'/etc/dnsmasq.d/,*.conf' . PHP_EOL;
         }
-        $contents = str_replace('#conf-dir=/usr/local/etc/dnsmasq.d/,*.conf', 'conf-dir=/usr/local/etc/dnsmasq.d/,*.conf', $contents);
+        $contents = str_replace('#conf-dir='.BREW_PREFIX.'/etc/dnsmasq.d/,*.conf', 'conf-dir='.BREW_PREFIX.'/etc/dnsmasq.d/,*.conf', $contents);
 
         // remove entries used by older Valet versions:
         $contents = preg_replace('/^conf-file.*valet.*$/m', '', $contents);

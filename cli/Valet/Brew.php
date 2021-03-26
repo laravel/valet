@@ -8,6 +8,8 @@ class Brew
 {
     const SUPPORTED_PHP_VERSIONS = [
         'php',
+        'php@8.1',
+        'php@8.0',
         'php@7.4',
         'php@7.3',
         'php@7.2',
@@ -21,7 +23,7 @@ class Brew
         'php56'
     ];
 
-    const LATEST_PHP_VERSION = 'php@7.4';
+    const LATEST_PHP_VERSION = 'php@8.0';
 
     var $cli, $files;
 
@@ -39,14 +41,23 @@ class Brew
     }
 
     /**
-     * Determine if the given formula is installed.
+     * Ensure the formula exists in the current Homebrew configuration
      *
      * @param  string  $formula
      * @return bool
      */
     function installed($formula)
     {
-        return in_array($formula, explode(PHP_EOL, $this->cli->runAsUser('brew list | grep '.$formula)));
+        $result = $this->cli->runAsUser("brew info $formula --json");
+
+        // should be a json response, but if not installed then "Error: No available formula ..."
+        if (starts_with($result, 'Error: No')) {
+            return false;
+        }
+
+        $details = json_decode($result);
+
+        return !empty($details[0]->installed);
     }
 
     /**
@@ -56,9 +67,11 @@ class Brew
      */
     function hasInstalledPhp()
     {
-        return $this->supportedPhpVersions()->contains(function ($version) {
-            return $this->installed($version);
+        $installed = $this->installedPhpFormulae()->first(function ($formula) {
+            return $this->supportedPhpVersions()->contains($formula);
         });
+
+        return !empty($installed);
     }
 
     /**
@@ -71,13 +84,25 @@ class Brew
         return collect(static::SUPPORTED_PHP_VERSIONS);
     }
 
+    function installedPhpFormulae()
+    {
+        return collect(
+            explode(PHP_EOL, $this->cli->runAsUser('brew list --formula | grep php'))
+        );
+    }
+
     /**
      * Get the aliased formula version from Homebrew
      */
     function determineAliasedVersion($formula)
     {
         $details = json_decode($this->cli->runAsUser("brew info $formula --json"));
-        return $details[0]->aliases[0] ?: 'ERROR - NO BREW ALIAS FOUND';
+
+        if (!empty($details[0]->aliases[0])) {
+            return $details[0]->aliases[0];
+        }
+
+        return 'ERROR - NO BREW ALIAS FOUND';
     }
 
     /**
@@ -133,6 +158,9 @@ class Brew
         }
 
         output('<info>['.$formula.'] is not installed, installing it now via Brew...</info> 🍻');
+        if ($formula !== 'php' && starts_with($formula, 'php') && preg_replace('/[^\d]/', '', $formula) < '73') {
+            warning('Note: older PHP versions may take 10+ minutes to compile from source. Please wait ...');
+        }
 
         $this->cli->runAsUser(trim('brew install '.$formula.' '.implode(' ', $options)), function ($exitCode, $errorOutput) use ($formula) {
             output($errorOutput);
@@ -200,7 +228,7 @@ class Brew
      */
     function hasLinkedPhp()
     {
-        return $this->files->isLink('/usr/local/bin/php');
+        return $this->files->isLink(BREW_PREFIX.'/bin/php');
     }
 
     /**
@@ -211,16 +239,16 @@ class Brew
     function getParsedLinkedPhp()
     {
         if (! $this->hasLinkedPhp()) {
-            throw new DomainException("Homebrew PHP appears not to be linked.");
+            throw new DomainException("Homebrew PHP appears not to be linked. Please run [valet use php@X.Y]");
         }
 
-        $resolvedPath = $this->files->readLink('/usr/local/bin/php');
+        $resolvedPath = $this->files->readLink(BREW_PREFIX.'/bin/php');
 
         /**
          * Typical homebrew path resolutions are like:
-         * "../Cellar/php@7.2/7.2.13/bin/php"
+         * "../Cellar/php@7.4/7.4.13/bin/php"
          * or older styles:
-         * "../Cellar/php/7.2.9_2/bin/php
+         * "../Cellar/php/7.4.9_2/bin/php
          * "../Cellar/php55/bin/php
          */
         preg_match('~\w{3,}/(php)(@?\d\.?\d)?/(\d\.\d)?([_\d\.]*)?/?\w{3,}~', $resolvedPath, $matches);
@@ -229,12 +257,11 @@ class Brew
     }
 
     /**
-     * Gets the currently linked formula
-     * E.g if under php, will be php, if under php@7.3 will be that
-     * Different to ->linkedPhp() in that this will just get the linked directory name (whether that is php, php55 or
-     * php@7.2)
+     * Gets the currently linked formula by identifying the symlink in the hombrew bin directory.
+     * Different to ->linkedPhp() in that this will just get the linked directory name,
+     * whether that is php, php74 or php@7.4
      *
-     * @return mixed
+     * @return string
      */
     function getLinkedPhpFormula()
     {
@@ -281,7 +308,7 @@ class Brew
     {
         $this->files->ensureDirExists('/etc/sudoers.d');
 
-        $this->files->put('/etc/sudoers.d/brew', 'Cmnd_Alias BREW = /usr/local/bin/brew *
+        $this->files->put('/etc/sudoers.d/brew', 'Cmnd_Alias BREW = '.BREW_PREFIX.'/bin/brew *
 %admin ALL=(root) NOPASSWD:SETENV: BREW'.PHP_EOL);
     }
 
@@ -352,7 +379,7 @@ class Brew
 
     /**
      * Tell Homebrew to forcefully remove all PHP versions that Valet supports.
-     * 
+     *
      * @return string
      */
     function uninstallAllPhpVersions()
@@ -367,18 +394,18 @@ class Brew
     /**
      * Uninstall a Homebrew app by formula name.
      * @param  string $formula
-     * 
+     *
      * @return void
      */
     function uninstallFormula($formula)
     {
         $this->cli->runAsUser('brew uninstall --force '.$formula);
-        $this->cli->run('rm -rf /usr/local/Cellar/'.$formula);
+        $this->cli->run('rm -rf '.BREW_PREFIX.'/Cellar/'.$formula);
     }
 
     /**
      * Run Homebrew's cleanup commands.
-     * 
+     *
      * @return string
      */
     function cleanupBrew()

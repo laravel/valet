@@ -32,7 +32,7 @@ if (is_dir(VALET_LEGACY_HOME_PATH) && !is_dir(VALET_HOME_PATH)) {
  */
 Container::setInstance(new Container);
 
-$version = '2.9.2';
+$version = '2.13.19';
 
 $app = new Application('Laravel Valet', $version);
 
@@ -77,7 +77,7 @@ if (is_dir(VALET_HOME_PATH)) {
      */
     $app->command('tld [tld]', function ($tld = null) {
         if ($tld === null) {
-            return info(Configuration::read()['tld']);
+            return output(Configuration::read()['tld']);
         }
 
         DnsMasq::updateTld(
@@ -118,7 +118,7 @@ if (is_dir(VALET_HOME_PATH)) {
         Configuration::removePath($path ?: getcwd());
 
         info(($path === null ? "This" : "The [{$path}]") . " directory has been removed from Valet's paths.");
-    })->descriptions('Remove the current working (or specified) directory from Valet\'s list of paths');
+    }, ['unpark'])->descriptions('Remove the current working (or specified) directory from Valet\'s list of paths');
 
     /**
      * Register a symbolic link with Valet.
@@ -165,8 +165,7 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Stop serving the given domain over HTTPS and remove the trusted TLS certificate.
      */
-    $app->command('unsecure [domain] [--all]', function ($domain = null, $all) {
-
+    $app->command('unsecure [domain] [--all]', function ($domain = null, $all = null) {
         if ($all) {
             Site::unsecureAll();
             return;
@@ -180,6 +179,35 @@ if (is_dir(VALET_HOME_PATH)) {
 
         info('The ['.$url.'] site will now serve traffic over HTTP.');
     })->descriptions('Stop serving the given domain over HTTPS and remove the trusted TLS certificate');
+
+    /**
+     * Create an Nginx proxy config for the specified domain
+     */
+    $app->command('proxy domain host', function ($domain, $host) {
+
+        Site::proxyCreate($domain, $host);
+        Nginx::restart();
+
+    })->descriptions('Create an Nginx proxy site for the specified host. Useful for docker, mailhog etc.');
+
+    /**
+     * Delete an Nginx proxy config
+     */
+    $app->command('unproxy domain', function ($domain) {
+
+        Site::proxyDelete($domain);
+        Nginx::restart();
+
+    })->descriptions('Delete an Nginx proxy config.');
+
+    /**
+     * Display all of the sites that are proxies.
+     */
+    $app->command('proxies', function () {
+        $proxies = Site::proxies();
+
+        table(['Site', 'SSL', 'URL', 'Host'], $proxies->all());
+    })->descriptions('Display all of the proxy sites');
 
     /**
      * Determine which Valet driver the current directory is using.
@@ -344,9 +372,9 @@ NOTE: Composer may have other dependencies for other global apps you have instal
 Thus, you may need to delete things from your <info>~/.composer/composer.json</info> file before running <info>composer global update</info> successfully.
 Then to finish removing any Composer fragments of Valet:
 Run <info>composer global remove laravel/valet</info>
-and then <info>rm /usr/local/bin/valet</info> to remove the Valet bin link if it still exists.
+and then <info>rm ".BREW_PREFIX."/bin/valet</info> to remove the Valet bin link if it still exists.
 Optional:
-- <info>brew list</info> will show any other Homebrew services installed, in case you want to make changes to those as well.
+- <info>brew list --formula</info> will show any other Homebrew services installed, in case you want to make changes to those as well.
 - <info>brew doctor</info> can indicate if there might be any broken things left behind.
 - <info>brew cleanup</info> can purge old cached Homebrew downloads.
 <fg=red>If you had customized your Mac DNS settings in System Preferences->Network, you will need to remove 127.0.0.1 from that list.</>
@@ -373,15 +401,15 @@ You can run <comment>composer global remove laravel/valet</comment> to uninstall
 
 <info>4. Homebrew Services</info>
 <fg=red>You may remove the core services (php, nginx, dnsmasq) by running:</> <comment>brew uninstall --force php nginx dnsmasq</comment>
-<fg=red>You can then remove selected leftover configurations for these services manually</> in both <comment>/usr/local/etc/</comment> and <comment>/usr/local/logs/</comment>.
-(If you have other PHP versions installed, run <info>brew list | grep php</info> to see which versions you should also uninstall manually.)
+<fg=red>You can then remove selected leftover configurations for these services manually</> in both <comment>".BREW_PREFIX."/etc/</comment> and <comment>".BREW_PREFIX."/logs/</comment>.
+(If you have other PHP versions installed, run <info>brew list --formula | grep php</info> to see which versions you should also uninstall manually.)
 
 <error>BEWARE:</error> Uninstalling PHP via Homebrew will leave your Mac with its original PHP version, which may not be compatible with other Composer dependencies you have installed. Thus you may get unexpected errors.
 
 Some additional services which you may have installed (but which Valet does not directly configure or manage) include: <comment>mariadb mysql mailhog</comment>.
-If you wish to also remove them, you may manually run <comment>brew uninstall SERVICENAME</comment> and clean up their configurations in /usr/local/etc if necessary.
+If you wish to also remove them, you may manually run <comment>brew uninstall SERVICENAME</comment> and clean up their configurations in ".BREW_PREFIX."/etc if necessary.
 
-You can discover more Homebrew services by running: <comment>brew services list</comment> and <comment>brew list</comment>
+You can discover more Homebrew services by running: <comment>brew services list</comment> and <comment>brew list --formula</comment>
 
 <fg=red>If you have customized your Mac DNS settings in System Preferences->Network, you may need to add or remove 127.0.0.1 from the top of that list.</>
 
@@ -408,7 +436,7 @@ You might also want to investigate your global Composer configs. Helpful command
             output('Yes');
         } else {
             output(sprintf('Your version of Valet (%s) is not the latest version available.', $version));
-            output('Upgrade instructions can be found in the docs: https://laravel.com/docs/valet#upgrading');
+            output('Upgrade instructions can be found in the docs: https://laravel.com/docs/valet#upgrading-valet');
         }
     })->descriptions('Determine if this is the latest version of Valet');
 
@@ -434,11 +462,14 @@ You might also want to investigate your global Composer configs. Helpful command
     /**
      * Allow the user to change the version of php valet uses
      */
-    $app->command('use phpVersion', function ($phpVersion) {
+    $app->command('use [phpVersion] [--force]', function ($phpVersion, $force) {
+        if (!$phpVersion) {
+            return info('Valet is using ' . Brew::linkedPhp());
+        }
+
         PhpFpm::validateRequestedVersion($phpVersion);
 
-        PhpFpm::stopRunning();
-        $newVersion = PhpFpm::useVersion($phpVersion);
+        $newVersion = PhpFpm::useVersion($phpVersion, $force);
 
         Nginx::restart();
         info(sprintf('Valet is now using %s.', $newVersion) . PHP_EOL);
@@ -452,10 +483,10 @@ You might also want to investigate your global Composer configs. Helpful command
      */
     $app->command('log [-f|--follow] [-l|--lines=] [key]', function ($follow, $lines, $key = null) {
         $defaultLogs = [
-            'php-fpm' => '/usr/local/var/log/php-fpm.log',
+            'php-fpm' => BREW_PREFIX.'/var/log/php-fpm.log',
             'nginx' => VALET_HOME_PATH.'/Log/nginx-error.log',
-            'mailhog' => '/usr/local/var/log/mailhog.log',
-            'redis' => '/usr/local/var/log/redis.log',
+            'mailhog' => BREW_PREFIX.'/var/log/mailhog.log',
+            'redis' => BREW_PREFIX.'/var/log/redis.log',
         ];
 
         $configLogs = data_get(Configuration::read(), 'logs');
@@ -532,6 +563,20 @@ You might also want to investigate your global Composer configs. Helpful command
         output('Directory listing is '.$current);
     })->descriptions('Determine directory-listing behavior. Default is off, which means a 404 will display.', [
         'status' => 'on or off. (default=off) will show a 404 page; [on] will display a listing if project folder exists but requested URI not found'
+    ]);
+
+    /**
+     * Output diagnostics to aid in debugging Valet.
+     */
+    $app->command('diagnose [-p|--print] [--plain]', function ($print, $plain) {
+        info('Running diagnostics... (this may take a while)');
+
+        Diagnose::run($print, $plain);
+
+        info('Diagnostics output has been copied to your clipboard.');
+    })->descriptions('Output diagnostics to aid in debugging Valet.', [
+        '--print' => 'print diagnostics output while running',
+        '--plain' => 'format clipboard output as plain text',
     ]);
 }
 

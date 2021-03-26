@@ -22,7 +22,7 @@ fi
 
 if [[ "$EUID" -ne 0 ]]
 then
-    sudo --preserve-env "$SOURCE" "$@"
+    sudo USER="$USER" --preserve-env "$SOURCE" "$@"
     exit
 fi
 
@@ -78,7 +78,7 @@ then
 	# Fetch Ngrok URL In Background...
 	bash "$DIR/cli/scripts/fetch-share-url.sh" "$HOST" &
     
-	sudo -u "$(logname)" "$DIR/bin/ngrok" http "$HOST.$TLD:$PORT" -host-header=rewrite $PARAMS
+	sudo -u "$USER" "$DIR/bin/ngrok" http "$HOST.$TLD:$PORT" -host-header=rewrite $PARAMS
     exit
 
 # Finally, for every other command we will just proxy into the PHP tool
