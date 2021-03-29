@@ -41,8 +41,13 @@ class Diagnose
         'ls -al ~/Library/LaunchAgents | grep homebrew',
         'ls -al /Library/LaunchAgents | grep homebrew',
         'ls -al /Library/LaunchDaemons | grep homebrew',
+        'ls -al /Library/LaunchDaemons | grep "com.laravel.valet."',
         'ls -aln /etc/resolv.conf',
         'cat /etc/resolv.conf',
+        'ifconfig lo0',
+        'sh -c \'echo "------\n'.BREW_PREFIX.'/etc/nginx/valet/valet.conf\n---\n"; cat '.BREW_PREFIX.'/etc/nginx/valet/valet.conf | grep -n "# valet loopback"; echo "\n------\n"\'',
+        'sh -c \'for file in ~/.config/valet/dnsmasq.d/*; do echo "------\n~/.config/valet/dnsmasq.d/$(basename $file)\n---\n"; cat $file; echo "\n------\n"; done\'',
+        'sh -c \'for file in ~/.config/valet/nginx/*; do echo "------\n~/.config/valet/nginx/$(basename $file)\n---\n"; cat $file | grep -n "# valet loopback"; echo "\n------\n"; done\'',
     ];
 
     var $cli, $files, $print, $progressBar;

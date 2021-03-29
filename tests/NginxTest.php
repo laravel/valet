@@ -46,7 +46,7 @@ class NginxTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $files->shouldReceive('putAsUser')->with(VALET_HOME_PATH.'/Nginx/.keep', "\n")->once();
 
         swap(Filesystem::class, $files);
-        swap(Configuration::class, $config = Mockery::spy(Configuration::class, ['read' => ['tld' => 'test']]));
+        swap(Configuration::class, $config = Mockery::spy(Configuration::class, ['read' => ['tld' => 'test', 'loopback' => VALET_LOOPBACK]]));
         swap(Site::class, Mockery::spy(Site::class));
 
         $nginx = resolve(Nginx::class);
@@ -61,7 +61,7 @@ class NginxTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $files->shouldReceive('putAsUser')->with(VALET_HOME_PATH.'/Nginx/.keep', "\n")->once();
 
         swap(Filesystem::class, $files);
-        swap(Configuration::class, $config = Mockery::spy(Configuration::class, ['read' => ['tld' => 'test']]));
+        swap(Configuration::class, $config = Mockery::spy(Configuration::class, ['read' => ['tld' => 'test', 'loopback' => VALET_LOOPBACK]]));
         swap(Site::class, Mockery::spy(Site::class));
 
         $nginx = resolve(Nginx::class);
@@ -76,12 +76,14 @@ class NginxTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $files->shouldReceive('putAsUser')->with(VALET_HOME_PATH.'/Nginx/.keep', "\n")->once();
 
         swap(Filesystem::class, $files);
-        swap(Configuration::class, $config = Mockery::spy(Configuration::class, ['read' => ['tld' => 'test']]));
+        swap(Configuration::class, $config = Mockery::spy(Configuration::class, ['read' => ['tld' => 'test', 'loopback' => VALET_LOOPBACK]]));
         swap(Site::class, $site = Mockery::spy(Site::class));
 
         $nginx = resolve(Nginx::class);
         $nginx->installNginxDirectory();
 
-        $site->shouldHaveReceived('resecureForNewTld', ['test', 'test']);
+        $data = ['tld' => 'test', 'loopback' => '127.0.0.1'];
+
+        $site->shouldHaveReceived('resecureForNewConfiguration', [$data, $data]);
     }
 }

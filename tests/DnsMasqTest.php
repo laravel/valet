@@ -34,6 +34,7 @@ class DnsMasqTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $brew->shouldReceive('ensureInstalled')->once()->with('dnsmasq');
         $brew->shouldReceive('restartService')->once()->with('dnsmasq');
         swap(Brew::class, $brew);
+        swap(Configuration::class, $config = Mockery::spy(Configuration::class, ['read' => ['tld' => 'test', 'loopback' => VALET_LOOPBACK]]));
 
         $dnsMasq = resolve(StubForCreatingCustomDnsMasqConfigFiles::class);
 
@@ -46,8 +47,8 @@ class DnsMasqTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $dnsMasq->install('test');
 
-        $this->assertSame('nameserver 127.0.0.1'.PHP_EOL, file_get_contents(__DIR__.'/output/resolver/test'));
-        $this->assertSame('address=/.test/127.0.0.1'.PHP_EOL.'listen-address=127.0.0.1'.PHP_EOL, file_get_contents(__DIR__.'/output/tld-test.conf'));
+        $this->assertSame('nameserver '.VALET_LOOPBACK.PHP_EOL, file_get_contents(__DIR__.'/output/resolver/test'));
+        $this->assertSame('address=/.test/'.VALET_LOOPBACK.PHP_EOL.'listen-address='.VALET_LOOPBACK.PHP_EOL, file_get_contents(__DIR__.'/output/tld-test.conf'));
         $this->assertSame('test-contents
 ' . PHP_EOL . 'conf-dir='.BREW_PREFIX.'/etc/dnsmasq.d/,*.conf' . PHP_EOL,
             file_get_contents($dnsMasq->dnsmasqMasterConfigFile)
