@@ -4,20 +4,22 @@ namespace Valet;
 
 use Exception;
 use Illuminate\Container\Container;
-use Symfony\Component\Process\Process;
-use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 /**
- * Define the ~/.config/valet path as a constant.
+ * Define constants
  */
-define('VALET_HOME_PATH', $_SERVER['HOME'].'/.config/valet');
-define('VALET_SERVER_PATH', realpath(__DIR__ . '/../../server.php'));
-define('VALET_STATIC_PREFIX', '41c270e4-5535-4daa-b23e-c269744c2f45');
+if (! defined('VALET_LOOPBACK')) {
+    define('VALET_LOOPBACK', '127.0.0.1');
+    define('VALET_HOME_PATH', $_SERVER['HOME'] . '/.config/valet');
+    define('VALET_SERVER_PATH', realpath(__DIR__ . '/../../server.php'));
+    define('VALET_STATIC_PREFIX', '41c270e4-5535-4daa-b23e-c269744c2f45');
 
-define('VALET_LEGACY_HOME_PATH', $_SERVER['HOME'].'/.valet');
+    define('VALET_LEGACY_HOME_PATH', $_SERVER['HOME'] . '/.valet');
 
-define('BREW_PREFIX', (new CommandLine())->runAsUser('printf $(brew --prefix)'));
+    define('BREW_PREFIX', (new CommandLine())->runAsUser('printf $(brew --prefix)'));
+}
 
 /**
  * Output the given text to the console.
@@ -27,7 +29,7 @@ define('BREW_PREFIX', (new CommandLine())->runAsUser('printf $(brew --prefix)'))
  */
 function info($output)
 {
-    output('<info>'.$output.'</info>');
+    output('<info>' . $output . '</info>');
 }
 
 /**
@@ -38,7 +40,7 @@ function info($output)
  */
 function warning($output)
 {
-    output('<fg=red>'.$output.'</>');
+    output('<fg=red>' . $output . '</>');
 }
 
 /**
@@ -69,7 +71,7 @@ function output($output)
         return;
     }
 
-    (new ConsoleOutput)->writeln($output);
+    (new ConsoleOutput())->writeln($output);
 }
 
 if (! function_exists('resolve')) {

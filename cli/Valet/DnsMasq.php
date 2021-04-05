@@ -46,7 +46,7 @@ class DnsMasq
 
     /**
      * Forcefully uninstall dnsmasq.
-     * 
+     *
      * @return void
      */
     function uninstall()
@@ -60,7 +60,7 @@ class DnsMasq
 
     /**
      * Tell Homebrew to restart dnsmasq
-     * 
+     *
      * @return void
      */
     function restart()
@@ -113,12 +113,13 @@ class DnsMasq
     function createDnsmasqTldConfigFile($tld)
     {
         $tldConfigFile = $this->dnsmasqUserConfigDir() . 'tld-' . $tld . '.conf';
+        $loopback = $this->configuration->read()['loopback'];
 
-        $this->files->putAsUser($tldConfigFile, 'address=/.'.$tld.'/127.0.0.1'.PHP_EOL.'listen-address=127.0.0.1'.PHP_EOL);
+        $this->files->putAsUser($tldConfigFile, 'address=/.'.$tld.'/'.$loopback.PHP_EOL.'listen-address='.$loopback.PHP_EOL);
     }
 
     /**
-     * Create the resolver file to point the configured TLD to 127.0.0.1.
+     * Create the resolver file to point the configured TLD to configured loopback address.
      *
      * @param  string  $tld
      * @return void
@@ -126,8 +127,9 @@ class DnsMasq
     function createTldResolver($tld)
     {
         $this->files->ensureDirExists($this->resolverPath);
+        $loopback = $this->configuration->read()['loopback'];
 
-        $this->files->put($this->resolverPath.'/'.$tld, 'nameserver 127.0.0.1'.PHP_EOL);
+        $this->files->put($this->resolverPath.'/'.$tld, 'nameserver '.$loopback.PHP_EOL);
     }
 
     /**
@@ -143,6 +145,18 @@ class DnsMasq
         $this->files->unlink($this->dnsmasqUserConfigDir() . 'tld-' . $oldTld . '.conf');
 
         $this->install($newTld);
+    }
+
+    /**
+     * Refresh the DnsMasq configuration.
+     *
+     * @return void
+     */
+    function refreshConfiguration()
+    {
+        $tld = $this->configuration->read()['tld'];
+
+        $this->updateTld($tld, $tld);
     }
 
     /**

@@ -32,7 +32,7 @@ if (is_dir(VALET_LEGACY_HOME_PATH) && !is_dir(VALET_HOME_PATH)) {
  */
 Container::setInstance(new Container);
 
-$version = '2.13.19';
+$version = '2.14.1';
 
 $app = new Application('Laravel Valet', $version);
 
@@ -66,9 +66,9 @@ $app->command('install', function () {
  */
 if (is_dir(VALET_HOME_PATH)) {
     /**
-     * Upgrade helper: ensure the tld config exists
+     * Upgrade helper: ensure the tld config exists or the loopback config exists
      */
-    if (empty(Configuration::read()['tld'])) {
+    if (empty(Configuration::read()['tld']) || empty(Configuration::read()['loopback'])) {
         Configuration::writeBaseConfiguration();
     }
 
@@ -86,12 +86,39 @@ if (is_dir(VALET_HOME_PATH)) {
 
         Configuration::updateKey('tld', $tld);
 
-        Site::resecureForNewTld($oldTld, $tld);
+        Site::resecureForNewConfiguration(['tld' => $oldTld], ['tld' => $tld]);
         PhpFpm::restart();
         Nginx::restart();
 
         info('Your Valet TLD has been updated to ['.$tld.'].');
     }, ['domain'])->descriptions('Get or set the TLD used for Valet sites.');
+
+    /**
+     * Get or set the loopback address currently being used by Valet.
+     */
+    $app->command('loopback [loopback]', function ($loopback = null) {
+        if ($loopback === null) {
+            return output(Configuration::read()['loopback']);
+        }
+
+        if (filter_var($loopback, FILTER_VALIDATE_IP) === false) {
+            return warning('['.$loopback.'] is not a valid IP address');
+        }
+
+        $oldLoopback = Configuration::read()['loopback'];
+
+        Configuration::updateKey('loopback', $loopback);
+
+        DnsMasq::refreshConfiguration();
+        Site::aliasLoopback($oldLoopback, $loopback);
+        Site::resecureForNewConfiguration(['loopback' => $oldLoopback], ['loopback' => $loopback]);
+        PhpFpm::restart();
+        Nginx::installServer();
+        Nginx::restart();
+
+        info('Your valet loopback address has been updated to ['.$loopback.']');
+
+    })->descriptions('Get or set the loopback address used for Valet sites');
 
     /**
      * Add the current working directory to the paths configuration.
@@ -355,6 +382,8 @@ if (is_dir(VALET_HOME_PATH)) {
             Nginx::uninstall();
             info('Removing Dnsmasq and configs...');
             DnsMasq::uninstall();
+            info('Removing loopback customization...');
+            Site::uninstallLoopback();
             info('Removing Valet configs and customizations...');
             Configuration::uninstall();
             info('Removing PHP versions and configs...');

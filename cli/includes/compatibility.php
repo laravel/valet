@@ -1,5 +1,10 @@
 <?php
 
+if (php_sapi_name() !== "cli") {
+    // Allow bypassing these checks if using Valet in a non-CLI app
+    return;
+}
+
 /**
  * Check the system's compatibility with Valet.
  */

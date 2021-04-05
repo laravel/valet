@@ -36,7 +36,7 @@ class Configuration
 
     /**
      * Forcefully delete the Valet home configuration directory and contents.
-     * 
+     *
      * @return void
      */
     function uninstall()
@@ -130,7 +130,7 @@ class Configuration
     function writeBaseConfiguration()
     {
         if (! $this->files->exists($this->path())) {
-            $this->write(['tld' => 'test', 'paths' => []]);
+            $this->write(['tld' => 'test', 'loopback' => VALET_LOOPBACK, 'paths' => []]);
         }
 
         /**
@@ -138,11 +138,13 @@ class Configuration
          */
         $config = $this->read();
 
-        if (isset($config['tld'])) {
-            return;
+        if (! isset($config['tld'])) {
+            $this->updateKey('tld', !empty($config['domain']) ? $config['domain'] : 'test');
         }
 
-        $this->updateKey('tld', !empty($config['domain']) ? $config['domain'] : 'test');
+        if (! isset($config['loopback'])) {
+            $this->updateKey('loopback', VALET_LOOPBACK);
+        }
     }
 
     /**

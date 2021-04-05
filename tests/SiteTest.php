@@ -339,7 +339,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
     {
         $config = Mockery::mock(Configuration::class);
         $config->shouldReceive('read')
-            ->andReturn(['tld' => 'test']);
+            ->andReturn(['tld' => 'test', 'loopback' => VALET_LOOPBACK]);
 
         swap(Configuration::class, $config);
 
@@ -372,7 +372,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
     {
         $config = Mockery::mock(Configuration::class);
         $config->shouldReceive('read')
-            ->andReturn(['tld' => 'test']);
+            ->andReturn(['tld' => 'test', 'loopback' => VALET_LOOPBACK]);
 
         swap(Configuration::class, $config);
 
@@ -416,7 +416,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
     {
         $config = Mockery::mock(Configuration::class);
         $config->shouldReceive('read')
-            ->andReturn(['tld' => 'test']);
+            ->andReturn(['tld' => 'test', 'loopback' => VALET_LOOPBACK]);
 
         swap(Configuration::class, $config);
 
@@ -456,7 +456,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
     {
         $config = Mockery::mock(Configuration::class);
         $config->shouldReceive('read')
-            ->andReturn(['tld' => 'test']);
+            ->andReturn(['tld' => 'test', 'loopback' => VALET_LOOPBACK]);
 
         swap(Configuration::class, $config);
 
