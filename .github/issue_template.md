@@ -4,6 +4,12 @@ NOTE: If your issue is a feature request, please feel to delete this template an
 ------
 <!-- End note -->
 
+<!-- DID YOU KNOW? MOST PROBLEMS CAN BE RESOLVED BY RUNNING 3 COMMANDS:
+`composer self-update`
+`composer global update`
+`brew upgrade`
+... in fact it's good to run these commands at least once a month! -->
+
 ## Clear description of your problem
 <!-- Please provide a general summary of the issue here -->
 

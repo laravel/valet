@@ -8,7 +8,7 @@ class Valet
 {
     var $cli, $files;
 
-    var $valetBin = '/usr/local/bin/valet';
+    var $valetBin = BREW_PREFIX.'/bin/valet';
 
     /**
      * Create a new Valet instance.
@@ -88,7 +88,7 @@ class Valet
     {
         $this->files->ensureDirExists('/etc/sudoers.d');
 
-        $this->files->put('/etc/sudoers.d/valet', 'Cmnd_Alias VALET = /usr/local/bin/valet *
+        $this->files->put('/etc/sudoers.d/valet', 'Cmnd_Alias VALET = '.BREW_PREFIX.'/bin/valet *
 %admin ALL=(root) NOPASSWD:SETENV: VALET'.PHP_EOL);
     }
 

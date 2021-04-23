@@ -328,19 +328,31 @@ class Site
     }
 
     /**
-     * Resecure all currently secured sites with a fresh tld.
+     * Resecure all currently secured sites with a fresh configuration.
      *
-     * @param  string  $oldTld
-     * @param  string  $tld
+     * There are only two supported values: tld and loopback
+     * And those must be submitted in pairs else unexpected results may occur.
+     * eg: both $old and $new should contain the same indexes.
+     *
+     * @param  array  $old
+     * @param  array  $new
      * @return void
      */
-    function resecureForNewTld($oldTld, $tld)
+    function resecureForNewConfiguration(array $old, array $new)
     {
         if (! $this->files->exists($this->certificatesPath())) {
             return;
         }
 
         $secured = $this->secured();
+
+        $defaultTld = $this->config->read()['tld'];
+        $oldTld = !empty($old['tld']) ? $old['tld'] : $defaultTld;
+        $tld = !empty($new['tld']) ? $new['tld'] : $defaultTld;
+
+        $defaultLoopback = $this->config->read()['loopback'];
+        $oldLoopback = !empty($old['loopback']) ? $old['loopback'] : $defaultLoopback;
+        $loopback = !empty($new['loopback']) ? $new['loopback'] : $defaultLoopback;
 
         foreach ($secured as $url) {
             $newUrl = str_replace('.'.$oldTld, '.'.$tld, $url);
@@ -349,7 +361,14 @@ class Site
             if (!empty($siteConf) && strpos($siteConf, '# valet stub: proxy.valet.conf') === 0) {
                 // proxy config
                 $this->unsecure($url);
-                $this->secure($newUrl, $this->replaceOldDomainWithNew($siteConf, $url, $newUrl));
+                $this->secure(
+                    $newUrl,
+                    $this->replaceOldLoopbackWithNew(
+                        $this->replaceOldDomainWithNew($siteConf, $url, $newUrl),
+                        $oldLoopback,
+                        $loopback
+                    )
+                );
             } else {
                 // normal config
                 $this->unsecure($url);
@@ -378,6 +397,42 @@ class Site
             preg_match($lookup, $siteConf, $matches);
             foreach ($matches as $match) {
                 $replaced = str_replace($old, $new, $match);
+                $siteConf = str_replace($match, $replaced, $siteConf);
+            }
+        }
+        return $siteConf;
+    }
+
+    /**
+     * Parse Nginx site config file contents to swap old loopback address to new.
+     *
+     * @param  string $siteConf Nginx site config content
+     * @param  string $old  Old loopback address
+     * @param  string $new  New loopback address
+     * @return string
+     */
+    function replaceOldLoopbackWithNew($siteConf, $old, $new)
+    {
+        $shouldComment = $new === VALET_LOOPBACK;
+
+        $lookups = [];
+        $lookups[] = '~#?listen .*:80; # valet loopback~';
+        $lookups[] = '~#?listen .*:443 ssl http2; # valet loopback~';
+        $lookups[] = '~#?listen .*:60; # valet loopback~';
+
+        foreach ($lookups as $lookup) {
+            preg_match($lookup, $siteConf, $matches);
+            foreach ($matches as $match) {
+                $replaced = str_replace($old, $new, $match);
+
+                if ($shouldComment && strpos($replaced, '#') !== 0) {
+                    $replaced = '#'.$replaced;
+                }
+
+                if (! $shouldComment) {
+                    $replaced = ltrim($replaced, '#');
+                }
+
                 $siteConf = str_replace($match, $replaced, $siteConf);
             }
         }
@@ -573,7 +628,11 @@ class Site
     function buildSecureNginxServer($url, $siteConf = null)
     {
         if ($siteConf === null) {
-            $siteConf = $this->files->get(__DIR__.'/../stubs/secure.valet.conf');
+            $siteConf = $this->replaceOldLoopbackWithNew(
+                $this->files->get(__DIR__.'/../stubs/secure.valet.conf'),
+                'VALET_LOOPBACK',
+                $this->valetLoopback()
+            );
         }
 
         return str_replace(
@@ -665,8 +724,12 @@ class Site
             $url .= '.'.$tld;
         }
 
-        $siteConf = $this->files->get(
-            $unsecure ? __DIR__.'/../stubs/proxy.valet.conf' : __DIR__.'/../stubs/secure.proxy.valet.conf'
+        $siteConf = $this->replaceOldLoopbackWithNew(
+            $this->files->get(
+                $unsecure ? __DIR__.'/../stubs/proxy.valet.conf' : __DIR__.'/../stubs/secure.proxy.valet.conf'
+            ),
+            'VALET_LOOPBACK',
+            $this->valetLoopback()
         );
 
         $siteConf = str_replace(
@@ -723,9 +786,126 @@ class Site
         );
     }
 
+    /**
+     * Remove old loopback interface alias and add a new one if necessary.
+     *
+     * @param  string  $oldLoopback
+     * @param  string  $loopback
+     * @return void
+     */
+    function aliasLoopback($oldLoopback, $loopback)
+    {
+        if ($oldLoopback !== VALET_LOOPBACK) {
+            $this->removeLoopbackAlias($oldLoopback);
+        }
+
+        if ($loopback !== VALET_LOOPBACK) {
+            $this->addLoopbackAlias($loopback);
+        }
+
+        $this->updateLoopbackPlist($loopback);
+    }
+
+    /**
+     * Remove loopback interface alias.
+     *
+     * @param  string  $loopback
+     * @return void
+     */
+    function removeLoopbackAlias($loopback)
+    {
+        $this->cli->run(sprintf(
+            'sudo ifconfig lo0 -alias %s', $loopback
+        ));
+
+        info('['.$loopback.'] loopback interface alias removed.');
+    }
+
+    /**
+     * Add loopback interface alias.
+     *
+     * @param  string  $loopback
+     * @return void
+     */
+    function addLoopbackAlias($loopback)
+    {
+        $this->cli->run(sprintf(
+            'sudo ifconfig lo0 alias %s', $loopback
+        ));
+
+        info('['.$loopback.'] loopback interface alias added.');
+    }
+
+    /**
+     * Remove old LaunchDaemon and create a new one if necessary.
+     *
+     * @param  string  $loopback
+     * @return void
+     */
+    function updateLoopbackPlist($loopback)
+    {
+        $this->removeLoopbackPlist();
+
+        if ($loopback !== VALET_LOOPBACK) {
+            $this->files->put(
+                $this->plistPath(),
+                str_replace(
+                    'VALET_LOOPBACK',
+                    $loopback,
+                    $this->files->get(__DIR__.'/../stubs/loopback.plist')
+                )
+            );
+
+            info('['.$this->plistPath().'] persistent loopback interface alias launch daemon added.');
+        }
+    }
+
+    /**
+     * Remove loopback interface alias launch daemon plist file.
+     *
+     * @return void
+     */
+    function removeLoopbackPlist()
+    {
+        if ($this->files->exists($this->plistPath())) {
+            $this->files->unlink($this->plistPath());
+
+            info('['.$this->plistPath().'] persistent loopback interface alias launch daemon removed.');
+        }
+    }
+
+    /**
+     * Remove loopback interface alias and launch daemon plist file for uninstall purpose.
+     *
+     * @return void
+     */
+    function uninstallLoopback()
+    {
+        if (($loopback = $this->valetLoopback()) !== VALET_LOOPBACK) {
+            $this->removeLoopbackAlias($loopback);
+        }
+
+        $this->removeLoopbackPlist();
+    }
+
     function valetHomePath()
     {
         return VALET_HOME_PATH;
+    }
+
+    function valetLoopback()
+    {
+        return $this->config->read()['loopback'];
+    }
+
+    /**
+     * Get the path to loopback LaunchDaemon.
+     *
+     * @return string
+     */
+    function plistPath()
+    {
+        return '/Library/LaunchDaemons/com.laravel.valet.loopback.plist';
     }
 
     /**
