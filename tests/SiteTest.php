@@ -353,7 +353,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $site->assertCertificateNotExists('my-new-proxy.com.test');
         $site->assertNginxNotExists('my-new-proxy.com.test');
 
-        $site->proxyCreate('my-new-proxy.com', 'https://127.0.0.1:9443');
+        $site->proxyCreate('my-new-proxy.com', 'https://127.0.0.1:9443', true);
 
         $site->assertCertificateExistsWithCounterValue('my-new-proxy.com.test', 0);
         $site->assertNginxExists('my-new-proxy.com.test');
@@ -387,7 +387,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $site->assertCertificateNotExists('my-new-proxy.com.test');
         $site->assertNginxNotExists('my-new-proxy.com.test');
 
-        $site->proxyCreate('my-new-proxy.com', 'http://127.0.0.1:9443', true);
+        $site->proxyCreate('my-new-proxy.com', 'http://127.0.0.1:9443', false);
 
         $site->assertCertificateNotExists('my-new-proxy.com.test');
         $site->assertNginxExists('my-new-proxy.com.test');
@@ -418,7 +418,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $site->useOutput();
 
-        $site->proxyCreate('my-new-proxy.com', 'https://127.0.0.1:7443');
+        $site->proxyCreate('my-new-proxy.com', 'https://127.0.0.1:7443', true);
 
         $site->assertCertificateExistsWithCounterValue('my-new-proxy.com.test', 0);
 
@@ -432,7 +432,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         ], $site->proxies()->all());
 
         // Note: different proxy port
-        $site->proxyCreate('my-new-proxy.com', 'https://127.0.0.1:9443');
+        $site->proxyCreate('my-new-proxy.com', 'https://127.0.0.1:9443', true);
 
         // This shows we created a new certificate.
         $site->assertCertificateExistsWithCounterValue('my-new-proxy.com.test', 1);
@@ -470,7 +470,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $site->assertCertificateExistsWithCounterValue('my-new-proxy.com.test', 0);
         $site->assertNginxNotExists('my-new-proxy.com.test');
 
-        $site->proxyCreate('my-new-proxy.com', 'https://127.0.0.1:9443');
+        $site->proxyCreate('my-new-proxy.com', 'https://127.0.0.1:9443', true);
 
         // This shows we created a new certificate.
         $site->assertCertificateExistsWithCounterValue('my-new-proxy.com.test', 1);
@@ -507,7 +507,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $this->assertEquals([], $site->proxies()->all());
 
-        $site->proxyCreate('my-new-proxy.com', 'https://127.0.0.1:9443');
+        $site->proxyCreate('my-new-proxy.com', 'https://127.0.0.1:9443', true);
 
         $this->assertEquals([
             'my-new-proxy.com' => [

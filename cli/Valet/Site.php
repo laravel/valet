@@ -710,10 +710,10 @@ class Site
      *
      * @param  string  $url The domain name to serve
      * @param  string  $host The URL to proxy to, eg: http://127.0.0.1:8080
-     * @param  bool    $insecure
+     * @param  bool    $secure
      * @return string
      */
-    function proxyCreate($url, $host, $insecure = false)
+    function proxyCreate($url, $host, $secure = false)
     {
         if (!preg_match('~^https?://.*$~', $host)) {
             throw new \InvalidArgumentException(sprintf('"%s" is not a valid URL', $host));
@@ -726,7 +726,7 @@ class Site
 
         $siteConf = $this->replaceOldLoopbackWithNew(
             $this->files->get(
-                $insecure ? __DIR__.'/../stubs/insecure.proxy.valet.conf' : __DIR__.'/../stubs/secure.proxy.valet.conf'
+                $secure ? __DIR__.'/../stubs/secure.proxy.valet.conf' : __DIR__.'/../stubs/proxy.valet.conf'
             ),
             'VALET_LOOPBACK',
             $this->valetLoopback()
@@ -738,13 +738,13 @@ class Site
             $siteConf
         );
 
-        if ($insecure) {
-            $this->putInsecurely($url, $siteConf);
-        } else {
+        if ($secure) {
             $this->secure($url, $siteConf);
+        } else {
+            $this->put($url, $siteConf);
         }
 
-        $protocol = $insecure ? 'http' : 'https';
+        $protocol = $secure ? 'https' : 'http';
 
         info('Valet will now proxy ['.$protocol.'://'.$url.'] traffic to ['.$host.'].');
     }
@@ -775,7 +775,7 @@ class Site
      * @param  string  $siteConf  pregenerated Nginx config file contents
      * @return void
      */
-    function putInsecurely($url, $siteConf)
+    function put($url, $siteConf)
     {
         $this->unsecure($url);
 
