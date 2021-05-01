@@ -710,9 +710,10 @@ class Site
      *
      * @param  string  $url The domain name to serve
      * @param  string  $host The URL to proxy to, eg: http://127.0.0.1:8080
+     * @param  bool    $secure
      * @return string
      */
-    function proxyCreate($url, $host)
+    function proxyCreate($url, $host, $secure = false)
     {
         if (!preg_match('~^https?://.*$~', $host)) {
             throw new \InvalidArgumentException(sprintf('"%s" is not a valid URL', $host));
@@ -724,7 +725,9 @@ class Site
         }
 
         $siteConf = $this->replaceOldLoopbackWithNew(
-            $this->files->get(__DIR__.'/../stubs/proxy.valet.conf'),
+            $this->files->get(
+                $secure ? __DIR__.'/../stubs/secure.proxy.valet.conf' : __DIR__.'/../stubs/proxy.valet.conf'
+            ),
             'VALET_LOOPBACK',
             $this->valetLoopback()
         );
@@ -735,9 +738,15 @@ class Site
             $siteConf
         );
 
-        $this->secure($url, $siteConf);
+        if ($secure) {
+            $this->secure($url, $siteConf);
+        } else {
+            $this->put($url, $siteConf);
+        }
 
-        info('Valet will now proxy [https://'.$url.'] traffic to ['.$host.'].');
+        $protocol = $secure ? 'https' : 'http';
+
+        info('Valet will now proxy ['.$protocol.'://'.$url.'] traffic to ['.$host.'].');
     }
 
     /**
@@ -757,6 +766,24 @@ class Site
         $this->files->unlink($this->nginxPath($url));
 
         info('Valet will no longer proxy [https://'.$url.'].');
+    }
+
+    /**
+     * Create the given nginx host.
+     *
+     * @param  string  $url
+     * @param  string  $siteConf  pregenerated Nginx config file contents
+     * @return void
+     */
+    function put($url, $siteConf)
+    {
+        $this->unsecure($url);
+
+        $this->files->ensureDirExists($this->nginxPath(), user());
+
+        $this->files->putAsUser(
+            $this->nginxPath($url), $siteConf
+        );
     }
 
     /**
