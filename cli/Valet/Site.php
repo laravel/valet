@@ -212,11 +212,45 @@ class Site
     {
         $this->unsecure($url);
 
+        $this->files->ensureDirExists($this->caPath(), user());
+
         $this->files->ensureDirExists($this->certificatesPath(), user());
+
+        $this->createCa();
 
         $this->createCertificate($url);
 
         $this->createSecureNginxServer($url);
+    }
+
+    /**
+     * If CA and root certificates are nonexistent, create them and trust the root cert.
+     *
+     * @return void
+     */
+    public function createCa()
+    {
+        $caPemPath = $this->caPath() . '/LaravelValetCASelfSigned.pem';
+        $caKeyPath = $this->caPath() . '/LaravelValetCASelfSigned.key';
+        if ($this->files->exists($caKeyPath) && $this->files->exists($caPemPath)) {
+            return;
+        }
+        $oName = 'Laravel Valet CA Self Signed Organization';
+        $cName = 'Laravel Valet CA Self Signed CN';
+        if ($this->files->exists($caKeyPath)) {
+            $this->files->unlink($caKeyPath);
+        }
+        if ($this->files->exists($caPemPath)) {
+            $this->files->unlink($caPemPath);
+        }
+        $this->cli->runAsUser(sprintf(
+            'openssl req -new -newkey rsa:2048 -days 730 -nodes -x509 -subj "/O=%s/commonName=%s/organizationalUnitName=Developers/emailAddress=%s/" -keyout "%s" -out "%s"',
+            $oName,
+            $cName,
+            'rootcertificate@laravel.valet',
+            $caKeyPath,
+            $caPemPath
+        ));
     }
 
     /**
@@ -227,6 +261,9 @@ class Site
      */
     public function createCertificate($url)
     {
+        $caPemPath = $this->caPath() . '/LaravelValetCASelfSigned.pem';
+        $caKeyPath = $this->caPath() . '/LaravelValetCASelfSigned.key';
+        $caSrlPath = $this->caPath() . '/LaravelValetCASelfSigned.srl';
         $keyPath = $this->certificatesPath() . '/' . $url . '.key';
         $csrPath = $this->certificatesPath() . '/' . $url . '.csr';
         $crtPath = $this->certificatesPath() . '/' . $url . '.crt';
@@ -236,9 +273,18 @@ class Site
         $this->createPrivateKey($keyPath);
         $this->createSigningRequest($url, $keyPath, $csrPath, $confPath);
 
+        $caSrlParam = ' -CAcreateserial';
+        if ($this->files->exists($caSrlPath)) {
+            $caSrlParam = ' -CAserial ' . $caSrlPath;
+        }
         $this->cli->runAsUser(sprintf(
-            'openssl x509 -req -sha256 -days 365 -in %s -signkey %s -out %s -extensions v3_req -extfile %s',
-            $csrPath, $keyPath, $crtPath, $confPath
+            'openssl x509 -req -sha256 -days 365 -CA "%s" -CAkey "%s"%s -in "%s" -out "%s" -extensions v3_req -extfile "%s"',
+            $caPemPath,
+            $caKeyPath,
+            $caSrlParam,
+            $csrPath,
+            $crtPath,
+            $confPath
         ));
 
         $this->trustCertificate($crtPath, $url);
@@ -265,7 +311,10 @@ class Site
     {
         $this->cli->runAsUser(sprintf(
             'openssl req -new -key %s -out %s -subj "/C=US/ST=MN/O=Valet/localityName=Valet/commonName=%s/organizationalUnitName=Valet/emailAddress=valet/" -config %s -passin pass:',
-            $keyPath, $csrPath, $url, $confPath
+            $keyPath,
+            $csrPath,
+            $url,
+            $confPath
         ));
     }
 
@@ -290,11 +339,15 @@ class Site
     public function trustCertificate($crtPath, $url)
     {
         $this->cli->run(sprintf(
-            'certutil -d sql:$HOME/.pki/nssdb -A -t TC -n "%s" -i "%s"', $url, $crtPath
+            'certutil -d sql:$HOME/.pki/nssdb -A -t TC -n "%s" -i "%s"',
+            $url,
+            $crtPath
         ));
 
         $this->cli->run(sprintf(
-            'certutil -d $HOME/.mozilla/firefox/*.default -A -t TC -n "%s" -i "%s"', $url, $crtPath
+            'certutil -d $HOME/.mozilla/firefox/*.default -A -t TC -n "%s" -i "%s"',
+            $url,
+            $crtPath
         ));
     }
 
@@ -376,6 +429,16 @@ class Site
     public function sitesPath()
     {
         return VALET_HOME_PATH . '/Sites';
+    }
+
+    /**
+     * Get the path to the Valet CA certificates.
+     *
+     * @return string
+     */
+    public function caPath()
+    {
+        return VALET_HOME_PATH . '/CA';
     }
 
     /**
