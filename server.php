@@ -125,10 +125,10 @@ if (strpos($siteName, 'www.') === 0) {
  * Determine the fully qualified path to the site.
  * Inspects registered path directories, case-sensitive.
  */
-function get_valet_site_path($valtetConfig, $domain, $siteName)
+function get_valet_site_path($valetConfig, $siteName, $domain)
 {
     $valetSitePath = null;
-    foreach ($valtetConfig['paths'] as $path) {
+    foreach ($valetConfig['paths'] as $path) {
         if ($handle = opendir($path)) {
             while (false !== ($file = readdir($handle))) {
                 if (! is_dir($path.'/'.$file)) continue;
