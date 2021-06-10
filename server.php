@@ -125,32 +125,31 @@ if (strpos($siteName, 'www.') === 0) {
  * Determine the fully qualified path to the site.
  * Inspects registered path directories, case-sensitive.
  */
-$valetSitePath = null;
-$domain = array_slice(explode('.', $siteName), -1)[0];
+function get_valet_site_path($valetConfig, $siteName, $domain)
+{
+    $valetSitePath = null;
+    foreach ($valetConfig['paths'] as $path) {
+        if ($handle = opendir($path)) {
+            while (false !== ($file = readdir($handle))) {
+                if (! is_dir($path.'/'.$file)) continue;
+                if (in_array($file, ['.', '..', '.DS_Store'])) continue;
 
-foreach ($valetConfig['paths'] as $path) {
-    if ($handle = opendir($path)) {
-        while (false !== ($file = readdir($handle))) {
-            if (! is_dir($path.'/'.$file)) continue;
-            if (in_array($file, ['.', '..', '.DS_Store'])) continue;
-
-            // match dir for lowercase, because Nginx only tells us lowercase names
-            if (strtolower($file) === $siteName) {
-                $valetSitePath = $path.'/'.$file;
-                break;
+                // match dir for lowercase, because Nginx only tells us lowercase names
+                if (strtolower($file) === $siteName || strtolower($file) === $domain) {
+                    $valetSitePath = $path.'/'.$file;
+                }
             }
-            if (strtolower($file) === $domain) {
-                $valetSitePath = $path.'/'.$file;
-                break;
+            closedir($handle);
+            
+            if ($valetSitePath) {
+                return $valetSitePath;
             }
-        }
-        closedir($handle);
-        
-        if ($valetSitePath) {
-            break;
         }
     }
 }
+
+$domain = array_slice(explode('.', $siteName), -1)[0];
+$valetSitePath = get_valet_site_path($valetConfig, $siteName, $domain);
 
 if (is_null($valetSitePath) && is_null($valetSitePath = valet_default_site_path($valetConfig))) {
     show_valet_404();
