@@ -197,7 +197,11 @@ class Brew
             if ($this->installed($service)) {
                 info("Restarting {$service}...");
 
+                // first we ensure that the service is not incorrectly running as non-root
+                $this->cli->quietly('brew services stop '.$service);
+                // stop the actual/correct sudo version
                 $this->cli->quietly('sudo brew services stop '.$service);
+                // start correctly as root
                 $this->cli->quietly('sudo brew services start '.$service);
             }
         }
@@ -216,6 +220,10 @@ class Brew
             if ($this->installed($service)) {
                 info("Stopping {$service}...");
 
+                // first we ensure that the service is not incorrectly running as non-root
+                $this->cli->quietly('brew services stop '.$service);
+
+                // stop the sudo version
                 $this->cli->quietly('sudo brew services stop '.$service);
             }
         }
