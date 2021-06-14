@@ -128,32 +128,39 @@ if (strpos($siteName, 'www.') === 0) {
 function get_valet_site_path($valetConfig, $siteName, $domain)
 {
     $valetSitePath = null;
+
     foreach ($valetConfig['paths'] as $path) {
-        if ($handle = opendir($path)) {
-            $dirs = [];
-            while (false !== ($file = readdir($handle))) {
-                if (! is_dir($path.'/'.$file)) continue;
-                if (in_array($file, ['.', '..', '.DS_Store'])) continue;
+        $handle = opendir($path);
+
+        if ($handle === false) {
+            continue;
+        }
+
+        $dirs = [];
+
+        while (false !== ($file = readdir($handle))) {
+            if (is_dir($path.'/'.$file) && ! in_array($file, ['.', '..', '.DS_Store'])) {
                 $dirs[] = $file;
             }
-            closedir($handle);
+        }
 
-            // Note: strtolower used below because Nginx only tells us lowercase names
-            foreach ($dirs as $dir) {
-                if (strtolower($dir) === $siteName) {
-                    // early return when exact match for linked subdomain
-                    return $path.'/'.$dir;
-                }
+        closedir($handle);
 
-                if (strtolower($dir) === $domain) {
-                    // no early return here because the foreach may still have some subdomains to process with higher priority
-                    $valetSitePath = $path.'/'.$dir;
-                }
+        // Note: strtolower used below because Nginx only tells us lowercase names
+        foreach ($dirs as $dir) {
+            if (strtolower($dir) === $siteName) {
+                // early return when exact match for linked subdomain
+                return $path.'/'.$dir;
             }
 
-            if ($valetSitePath) {
-                return $valetSitePath;
+            if (strtolower($dir) === $domain) {
+                // no early return here because the foreach may still have some subdomains to process with higher priority
+                $valetSitePath = $path.'/'.$dir;
             }
+        }
+
+        if ($valetSitePath) {
+            return $valetSitePath;
         }
     }
 }
