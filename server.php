@@ -139,7 +139,7 @@ function get_valet_site_path($valetConfig, $siteName, $domain)
         $dirs = [];
 
         while (false !== ($file = readdir($handle))) {
-            if (is_dir($path.'/'.$file) && ! in_array($file, ['.', '..', '.DS_Store'])) {
+            if (is_dir($path.'/'.$file) && ! in_array($file, ['.', '..'])) {
                 $dirs[] = $file;
             }
         }
