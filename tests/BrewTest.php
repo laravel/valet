@@ -117,6 +117,7 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
     {
         $cli = Mockery::mock(CommandLine::class);
         $cli->shouldReceive('runAsUser')->once()->with('brew info dnsmasq --json')->andReturn('[{"name":"dnsmasq","full_name":"dnsmasq","aliases":[],"versioned_formulae":[],"versions":{"stable":"1"},"installed":[{"version":"1"}]}]');
+        $cli->shouldReceive('quietly')->once()->with('brew services stop dnsmasq');
         $cli->shouldReceive('quietly')->once()->with('sudo brew services stop dnsmasq');
         $cli->shouldReceive('quietly')->once()->with('sudo brew services start dnsmasq');
         swap(CommandLine::class, $cli);
@@ -127,6 +128,7 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
     {
         $cli = Mockery::mock(CommandLine::class);
         $cli->shouldReceive('runAsUser')->once()->with('brew info dnsmasq --json')->andReturn('[{"name":"dnsmasq","full_name":"dnsmasq","aliases":[],"versioned_formulae":[],"versions":{"stable":"1"},"installed":[{"version":"1"}]}]');
+        $cli->shouldReceive('quietly')->once()->with('brew services stop dnsmasq');
         $cli->shouldReceive('quietly')->once()->with('sudo brew services stop dnsmasq');
         swap(CommandLine::class, $cli);
         resolve(Brew::class)->stopService('dnsmasq');
