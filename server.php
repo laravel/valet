@@ -130,22 +130,27 @@ function get_valet_site_path($valetConfig, $siteName, $domain)
     $valetSitePath = null;
     foreach ($valetConfig['paths'] as $path) {
         if ($handle = opendir($path)) {
+            $dirs = [];
             while (false !== ($file = readdir($handle))) {
                 if (! is_dir($path.'/'.$file)) continue;
                 if (in_array($file, ['.', '..', '.DS_Store'])) continue;
-
-                // match dir for lowercase, because Nginx only tells us lowercase names
-                if (strtolower($file) === $siteName) {
-                    $valetSitePath = $path.'/'.$file;
-                    break;
-                }
-
-                if (strtolower($file) === $domain) {
-                    $valetSitePath = $path.'/'.$file;
-                }
+                $dirs[] = $file;
             }
             closedir($handle);
-            
+
+            // Note: strtolower used below because Nginx only tells us lowercase names
+            foreach ($dirs as $dir) {
+                if (strtolower($dir) === $siteName) {
+                    // early return when exact match for linked subdomain
+                    return $path.'/'.$dir;
+                }
+
+                if (strtolower($dir) === $domain) {
+                    // no early return here because the foreach may still have some subdomains to process with higher priority
+                    $valetSitePath = $path.'/'.$dir;
+                }
+            }
+
             if ($valetSitePath) {
                 return $valetSitePath;
             }
