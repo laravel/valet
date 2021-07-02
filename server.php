@@ -21,12 +21,12 @@ function show_valet_404()
  * Show directory listing or 404 if directory doesn't exist.
  */
 function show_directory_listing($valetSitePath, $uri)
-{ 
+{
     $is_root = ($uri == '/');
     $directory = ($is_root) ? $valetSitePath : $valetSitePath.$uri;
 
-    if (!file_exists($directory)) { 
-        show_valet_404(); 
+    if (!file_exists($directory)) {
+        show_valet_404();
     }
 
     // Sort directories at the top
@@ -232,4 +232,5 @@ if (! $frontControllerPath) {
 
 chdir(dirname($frontControllerPath));
 
+$_SERVER['SCRIPT_FILENAME'] = $frontControllerPath;
 require $frontControllerPath;
