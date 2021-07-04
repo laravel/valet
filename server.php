@@ -232,5 +232,4 @@ if (! $frontControllerPath) {
 
 chdir(dirname($frontControllerPath));
 
-$_SERVER['SCRIPT_FILENAME'] = $frontControllerPath;
 require $frontControllerPath;
