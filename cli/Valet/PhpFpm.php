@@ -112,6 +112,20 @@ class PhpFpm
             info('Changing version failed');
             throw $exception;
         }
+
+        $this->updateCliVersion();
+    }
+
+    /**
+     * Update the PHP CLI version.
+     *
+     * @return void
+     */
+    protected function updateCliVersion()
+    {
+        $path = $this->cli->run("which php{$this->version}");
+
+        $this->cli->run("update-alternatives --set php $path");
     }
 
     /**
