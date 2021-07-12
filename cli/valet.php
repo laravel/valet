@@ -79,7 +79,7 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Get or set the port number currently being used by Valet.
      */
-    $app->command('port [port] [--https]', function ($port = null, $https) {
+    $app->command('port [port] [--https]', function ($port = null, $https = null) {
         if ($port === null) {
             info('Current Nginx port (HTTP): ' . Configuration::get('port', 80));
             info('Current Nginx port (HTTPS): ' . Configuration::get('https_port', 443));
