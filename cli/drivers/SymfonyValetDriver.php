@@ -51,6 +51,9 @@ class SymfonyValetDriver extends ValetDriver
         } elseif (file_exists($frontControllerPath = $sitePath . '/web/app.php')) {
             return $frontControllerPath;
         } elseif (file_exists($frontControllerPath = $sitePath . '/public/index.php')) {
+            // enable support for Symfony 5.3 with Runtime component
+            $_SERVER['SCRIPT_FILENAME'] = $frontControllerPath;
+
             return $frontControllerPath;
         }
     }
