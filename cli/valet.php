@@ -451,7 +451,7 @@ Most of the nginx configs used by Valet are in your ~/.config/valet/Nginx direct
 
 You might also want to investigate your global Composer configs. Helpful commands include:
 <comment>composer global update</comment> to apply updates to packages
-<comment>composer global outdated</comment> to indentify outdated packages
+<comment>composer global outdated</comment> to identify outdated packages
 <comment>composer global diagnose</comment> to run diagnostics
 ");
         // Stopping PHP so the ~/.config/valet/valet.sock file is released so the directory can be deleted if desired
