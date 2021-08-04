@@ -495,7 +495,15 @@ You might also want to investigate your global Composer configs. Helpful command
      */
     $app->command('use [phpVersion] [--force]', function ($phpVersion, $force) {
         if (!$phpVersion) {
-            return info('Valet is using ' . Brew::linkedPhp());
+            if (file_exists($path = getcwd() . '/.valetrc')) {
+                if ($phpVersion = trim(file_get_contents($path))) {
+                    info('Found \'' . $path . '/.valetrc\' with version <' . $phpVersion . '>');
+                } else {
+                    return info('.valetrc does not contain a valid PHP version' . $phpVersion);
+                }
+            } else {
+                return info('Valet is using ' . Brew::linkedPhp());
+            }
         }
 
         PhpFpm::validateRequestedVersion($phpVersion);
