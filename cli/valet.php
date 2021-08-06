@@ -495,14 +495,14 @@ You might also want to investigate your global Composer configs. Helpful command
      */
     $app->command('use [phpVersion] [--force]', function ($phpVersion, $force) {
         if (!$phpVersion) {
-            $path = getcwd() . '/.valetrc';
+            $path = getcwd() . '/.valetphprc';
             $linkedVersion = Brew::linkedPhp();
             if (!file_exists($path)) {
                 return info(sprintf('Valet is using %s.', $linkedVersion));
             }
 
             $phpVersion = trim(file_get_contents($path));
-            info('Found \'' . $path . '\' with version: ' . $phpVersion);
+            info('Found \'' . $path . '\' specifying version: ' . $phpVersion);
 
             if ($linkedVersion == $phpVersion) {
                 return info(sprintf('Valet is already using %s.', $linkedVersion));
