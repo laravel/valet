@@ -479,7 +479,7 @@ class Site
     }
 
     /**
-     * If CA and root certificates are nonexistent, crete them and trust the root cert.
+     * If CA and root certificates are nonexistent, create them and trust the root cert.
      *
      * @return void
      */
