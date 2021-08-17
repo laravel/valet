@@ -32,7 +32,7 @@ if (is_dir(VALET_LEGACY_HOME_PATH) && !is_dir(VALET_HOME_PATH)) {
  */
 Container::setInstance(new Container);
 
-$version = '2.14.1';
+$version = '2.15.3';
 
 $app = new Application('Laravel Valet', $version);
 
@@ -210,12 +210,14 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Create an Nginx proxy config for the specified domain
      */
-    $app->command('proxy domain host', function ($domain, $host) {
+    $app->command('proxy domain host [--secure]', function ($domain, $host, $secure) {
 
-        Site::proxyCreate($domain, $host);
+        Site::proxyCreate($domain, $host, $secure);
         Nginx::restart();
 
-    })->descriptions('Create an Nginx proxy site for the specified host. Useful for docker, mailhog etc.');
+    })->descriptions('Create an Nginx proxy site for the specified host. Useful for docker, mailhog etc.', [
+        '--secure' => 'Create a proxy with a trusted TLS certificate'
+    ]);
 
     /**
      * Delete an Nginx proxy config
