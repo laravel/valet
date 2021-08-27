@@ -948,4 +948,22 @@ class Site
 
         return $this->valetHomePath().'/Certificates'.$url.$extension;
     }
+
+    /**
+     * Make the domain name based on parked domains or the internal TLD.
+     *
+     * @return string
+     */
+    public function domain($domain)
+    {
+        if ($this->parked()->pluck('site')->contains($domain)) {
+            return $domain;
+        }
+
+        if ($parked = $this->parked()->where('path', getcwd())->first()) {
+            return $parked['site'];
+        }
+
+        return $domain ?: $this->host(getcwd()).'.'.$this->config->read()['tld'];
+    }
 }

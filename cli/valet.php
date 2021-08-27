@@ -180,7 +180,7 @@ if (is_dir(VALET_HOME_PATH)) {
      * Secure the given domain with a trusted TLS certificate.
      */
     $app->command('secure [domain]', function ($domain = null) {
-        $url = ($domain ?: Site::host(getcwd())).'.'.Configuration::read()['tld'];
+        $url = Site::domain($domain);
 
         Site::secure($url);
 
@@ -198,7 +198,7 @@ if (is_dir(VALET_HOME_PATH)) {
             return;
         }
 
-        $url = ($domain ?: Site::host(getcwd())).'.'.Configuration::read()['tld'];
+        $url = Site::domain($domain);
 
         Site::unsecure($url);
 
@@ -270,7 +270,7 @@ if (is_dir(VALET_HOME_PATH)) {
      * Open the current or given directory in the browser.
      */
     $app->command('open [domain]', function ($domain = null) {
-        $url = "http://".($domain ?: Site::host(getcwd())).'.'.Configuration::read()['tld'];
+        $url = "http://".Site::domain($domain);
         CommandLine::runAsUser("open ".escapeshellarg($url));
     })->descriptions('Open the site for the current (or specified) directory in your browser');
 
@@ -285,7 +285,7 @@ if (is_dir(VALET_HOME_PATH)) {
      * Echo the currently tunneled URL.
      */
     $app->command('fetch-share-url [domain]', function ($domain = null) {
-        output(Ngrok::currentTunnelUrl($domain ?: Site::host(getcwd()).'.'.Configuration::read()['tld']));
+        output(Ngrok::currentTunnelUrl(Site::domain($domain)));
     })->descriptions('Get the URL to the current Ngrok tunnel');
 
     /**
