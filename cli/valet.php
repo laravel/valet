@@ -81,7 +81,8 @@ if (is_dir(VALET_HOME_PATH)) {
         }
 
         DnsMasq::updateTld(
-            $oldTld = Configuration::read()['tld'], $tld = trim($tld, '.')
+            $oldTld = Configuration::read()['tld'],
+            $tld = trim($tld, '.')
         );
 
         Configuration::updateKey('tld', $tld);
@@ -117,7 +118,6 @@ if (is_dir(VALET_HOME_PATH)) {
         Nginx::restart();
 
         info('Your valet loopback address has been updated to ['.$loopback.']');
-
     })->descriptions('Get or set the loopback address used for Valet sites');
 
     /**
@@ -211,10 +211,8 @@ if (is_dir(VALET_HOME_PATH)) {
      * Create an Nginx proxy config for the specified domain
      */
     $app->command('proxy domain host [--secure]', function ($domain, $host, $secure) {
-
         Site::proxyCreate($domain, $host, $secure);
         Nginx::restart();
-
     })->descriptions('Create an Nginx proxy site for the specified host. Useful for docker, mailhog etc.', [
         '--secure' => 'Create a proxy with a trusted TLS certificate'
     ]);
@@ -223,10 +221,8 @@ if (is_dir(VALET_HOME_PATH)) {
      * Delete an Nginx proxy config
      */
     $app->command('unproxy domain', function ($domain) {
-
         Site::proxyDelete($domain);
         Nginx::restart();
-
     })->descriptions('Delete an Nginx proxy config.');
 
     /**
@@ -469,7 +465,7 @@ You might also want to investigate your global Composer configs. Helpful command
             output(sprintf('Your version of Valet (%s) is not the latest version available.', $version));
             output('Upgrade instructions can be found in the docs: https://laravel.com/docs/valet#upgrading-valet');
         }
-    })->descriptions('Determine if this is the latest version of Valet');
+    }, ['latest'])->descriptions('Determine if this is the latest version of Valet');
 
     /**
      * Install the sudoers.d entries so password is no longer required.
