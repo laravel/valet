@@ -1,4 +1,4 @@
-<p align="center"><img src="https://laravel.com/assets/img/components/logo-valet.svg"></p>
+<p align="center"><img src="/art/logo.svg"></p>
 
 <p align="center">
 <a href="https://github.com/laravel/valet/actions?query=workflow%3ATests"><img src="https://github.com/laravel/valet/workflows/Tests/badge.svg?branch=master" alt="Build Status"></a>
