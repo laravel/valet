@@ -55,6 +55,10 @@ class BedrockValetDriver extends BasicValetDriver
                             ? $sitePath.'/web'.$this->forceTrailingSlash($uri).'/index.php'
                             : $sitePath.'/web'.$uri;
         }
+        
+        if($uri !== '/' && file_exists($sitePath.'/web'.$uri)) {
+            return $sitePath.'/web'.$uri;
+        }
 
         return $sitePath.'/web/index.php';
     }
