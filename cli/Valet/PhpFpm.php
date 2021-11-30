@@ -79,20 +79,9 @@ class PhpFpm
             rename($oldFile, $oldFile.'-backup');
         }
 
-        if (false === strpos($fpmConfigFile, '5.6')) {
-            // since PHP 7 we can simply drop in a valet-specific fpm pool config, and not touch the default config
-            $contents = $this->files->get(__DIR__.'/../stubs/etc-phpfpm-valet.conf');
-            $contents = str_replace(['VALET_USER', 'VALET_HOME_PATH'], [user(), VALET_HOME_PATH], $contents);
-        } else {
-            // for PHP 5 we must do a direct edit of the fpm pool config to switch it to Valet's needs
-            $contents = $this->files->get($fpmConfigFile);
-            $contents = preg_replace('/^user = .+$/m', 'user = '.user(), $contents);
-            $contents = preg_replace('/^group = .+$/m', 'group = staff', $contents);
-            $contents = preg_replace('/^listen = .+$/m', 'listen = '.VALET_HOME_PATH.'/valet.sock', $contents);
-            $contents = preg_replace('/^;?listen\.owner = .+$/m', 'listen.owner = '.user(), $contents);
-            $contents = preg_replace('/^;?listen\.group = .+$/m', 'listen.group = staff', $contents);
-            $contents = preg_replace('/^;?listen\.mode = .+$/m', 'listen.mode = 0777', $contents);
-        }
+        $contents = $this->files->get(__DIR__.'/../stubs/etc-phpfpm-valet.conf');
+        $contents = str_replace(['VALET_USER', 'VALET_HOME_PATH'], [user(), VALET_HOME_PATH], $contents);
+
         $this->files->put($fpmConfigFile, $contents);
 
         $contents = $this->files->get(__DIR__.'/../stubs/php-memory-limits.ini');
@@ -148,9 +137,7 @@ class PhpFpm
         $versionNormalized = $this->normalizePhpVersion($version === 'php' ? Brew::LATEST_PHP_VERSION : $version);
         $versionNormalized = preg_replace('~[^\d\.]~', '', $versionNormalized);
 
-        return $versionNormalized === '5.6'
-            ? BREW_PREFIX.'/etc/php/5.6/php-fpm.conf'
-            : BREW_PREFIX."/etc/php/${versionNormalized}/php-fpm.d/valet-fpm.conf";
+        return BREW_PREFIX."/etc/php/${versionNormalized}/php-fpm.d/valet-fpm.conf";
     }
 
     /**
