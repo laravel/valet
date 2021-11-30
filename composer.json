@@ -26,10 +26,10 @@
     "require": {
         "php": "^7.3|^8.0",
         "illuminate/container": "^8.0",
+        "illuminate/collections": "^8.0",
         "mnapoli/silly": "^1.0",
         "symfony/process": "^5.1.4",
         "nategood/httpful": "^0.2",
-        "tightenco/collect": "^8.0"
     },
     "require-dev": {
         "mockery/mockery": "^1.2.3",
