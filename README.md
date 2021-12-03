@@ -19,6 +19,18 @@ In other words, a blazing fast Laravel development environment that uses roughly
 
 Documentation for Valet can be found on the [Laravel website](https://laravel.com/docs/valet).
 
+## Contributing
+
+Thank you for considering contributing to Valet! You can read the contribution guide [here](.github/CONTRIBUTING.md).
+
+## Code of Conduct
+
+In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+
+## Security Vulnerabilities
+
+Please review [our security policy](https://github.com/laravel/valet/security/policy) on how to report security vulnerabilities.
+
 ## License
 
 Laravel Valet is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
