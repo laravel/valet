@@ -1,13 +1,13 @@
 <?php
 
-use Valet\Site;
-use Valet\Nginx;
-use Valet\Filesystem;
-use Valet\Configuration;
-use function Valet\user;
-use function Valet\resolve;
-use function Valet\swap;
 use Illuminate\Container\Container;
+use Valet\Configuration;
+use Valet\Filesystem;
+use Valet\Nginx;
+use function Valet\resolve;
+use Valet\Site;
+use function Valet\swap;
+use function Valet\user;
 
 class NginxTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 {

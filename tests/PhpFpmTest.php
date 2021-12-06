@@ -1,13 +1,13 @@
 <?php
 
-use Valet\Brew;
-use Valet\PhpFpm;
-use Valet\Filesystem;
-use Valet\CommandLine;
-use function Valet\user;
-use function Valet\swap;
-use function Valet\resolve;
 use Illuminate\Container\Container;
+use Valet\Brew;
+use Valet\CommandLine;
+use Valet\Filesystem;
+use Valet\PhpFpm;
+use function Valet\resolve;
+use function Valet\swap;
+use function Valet\user;
 
 class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 {
@@ -36,7 +36,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $contents = file_get_contents(__DIR__.'/output/fpm.conf');
         $this->assertStringContainsString(sprintf("\nuser = %s", user()), $contents);
         $this->assertStringContainsString("\ngroup = staff", $contents);
-        $this->assertStringContainsString("\nlisten = ".VALET_HOME_PATH."/valet.sock", $contents);
+        $this->assertStringContainsString("\nlisten = ".VALET_HOME_PATH.'/valet.sock', $contents);
     }
 
     public function test_stopRunning_will_pass_filtered_result_of_getRunningServices_to_stopService()
@@ -136,10 +136,9 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
     }
 }
 
-
 class StubForUpdatingFpmConfigFiles extends PhpFpm
 {
-    function fpmConfigPath()
+    public function fpmConfigPath()
     {
         return __DIR__.'/output/fpm.conf';
     }

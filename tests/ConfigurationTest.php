@@ -1,13 +1,13 @@
 <?php
 
+use Illuminate\Container\Container;
 use Valet\Brew;
-use Valet\Valet;
-use Valet\Filesystem;
 use Valet\Configuration;
-use function Valet\user;
+use Valet\Filesystem;
 use function Valet\resolve;
 use function Valet\swap;
-use Illuminate\Container\Container;
+use function Valet\user;
+use Valet\Valet;
 
 class ConfigurationTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 {

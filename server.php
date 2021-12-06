@@ -3,7 +3,6 @@
 /**
  * Define the user's "~/.config/valet" path.
  */
-
 define('VALET_HOME_PATH', posix_getpwuid(fileowner(__FILE__))['dir'].'/.config/valet');
 define('VALET_STATIC_PREFIX', '41c270e4-5535-4daa-b23e-c269744c2f45');
 
@@ -25,7 +24,7 @@ function show_directory_listing($valetSitePath, $uri)
     $is_root = ($uri == '/');
     $directory = ($is_root) ? $valetSitePath : $valetSitePath.$uri;
 
-    if (!file_exists($directory)) {
+    if (! file_exists($directory)) {
         show_valet_404();
     }
 
@@ -37,9 +36,10 @@ function show_directory_listing($valetSitePath, $uri)
 
     // Output the HTML for the directory listing
     echo "<h1>Index of $uri</h1>";
-    echo "<hr>";
+    echo '<hr>';
     echo implode("<br>\n", array_map(function ($path) use ($uri, $is_root) {
         $file = basename($path);
+
         return ($is_root) ? "<a href='/$file'>/$file</a>" : "<a href='$uri/$file'>$uri/$file/</a>";
     }, $paths));
 
@@ -49,7 +49,7 @@ function show_directory_listing($valetSitePath, $uri)
 /**
  * You may use wildcard DNS providers xip.io or nip.io as a tool for testing your site via an IP address.
  * It's simple to use: First determine the IP address of your local computer (like 192.168.0.10).
- * Then simply use http://project.your-ip.xip.io - ie: http://laravel.192.168.0.10.xip.io
+ * Then simply use http://project.your-ip.xip.io - ie: http://laravel.192.168.0.10.xip.io.
  */
 function valet_support_wildcard_dns($domain, $config)
 {
@@ -67,12 +67,12 @@ function valet_support_wildcard_dns($domain, $config)
     foreach ($services as $service) {
         $pattern = preg_quote($service, '#');
         $pattern = str_replace('\*', '.*', $pattern);
-        $patterns[] = '(.*)' . $pattern;
+        $patterns[] = '(.*)'.$pattern;
     }
 
     $pattern = implode('|', $patterns);
 
-    if (preg_match('#(?:' . $pattern . ')\z#u', $domain, $matches)) {
+    if (preg_match('#(?:'.$pattern.')\z#u', $domain, $matches)) {
         $domain = array_pop($matches);
     }
 
@@ -84,8 +84,7 @@ function valet_support_wildcard_dns($domain, $config)
 }
 
 /**
- * @param array $config Valet configuration array
- *
+ * @param  array  $config  Valet configuration array
  * @return string|null If set, default site path for uncaught urls
  * */
 function valet_default_site_path($config)
@@ -108,7 +107,7 @@ $valetConfig = json_decode(
  * Parse the URI and site / host for the incoming request.
  */
 $uri = rawurldecode(
-    explode("?", $_SERVER['REQUEST_URI'])[0]
+    explode('?', $_SERVER['REQUEST_URI'])[0]
 );
 
 $siteName = basename(
@@ -190,7 +189,7 @@ if (! $valetDriver) {
 /**
  * ngrok uses the X-Original-Host to store the forwarded hostname.
  */
-if (isset($_SERVER['HTTP_X_ORIGINAL_HOST']) && !isset($_SERVER['HTTP_X_FORWARDED_HOST'])) {
+if (isset($_SERVER['HTTP_X_ORIGINAL_HOST']) && ! isset($_SERVER['HTTP_X_FORWARDED_HOST'])) {
     $_SERVER['HTTP_X_FORWARDED_HOST'] = $_SERVER['HTTP_X_ORIGINAL_HOST'];
 }
 

@@ -166,7 +166,7 @@ abstract class ValetDriver
         header('Content-Type: text/html');
         header_remove('Content-Type');
 
-        header('X-Accel-Redirect: /' . VALET_STATIC_PREFIX . $staticFilePath);
+        header('X-Accel-Redirect: /'.VALET_STATIC_PREFIX.$staticFilePath);
     }
 
     /**
@@ -182,7 +182,7 @@ abstract class ValetDriver
 
     /**
      * Load server environment variables if available.
-     * Processes any '*' entries first, and then adds site-specific entries
+     * Processes any '*' entries first, and then adds site-specific entries.
      *
      * @param  string  $sitePath
      * @param  string  $siteName
@@ -190,9 +190,9 @@ abstract class ValetDriver
      */
     public function loadServerEnvironmentVariables($sitePath, $siteName)
     {
-        $varFilePath = $sitePath . '/.valet-env.php';
+        $varFilePath = $sitePath.'/.valet-env.php';
         if (! file_exists($varFilePath)) {
-            $varFilePath = VALET_HOME_PATH . '/.valet-env.php';
+            $varFilePath = VALET_HOME_PATH.'/.valet-env.php';
         }
         if (! file_exists($varFilePath)) {
             return;
@@ -207,11 +207,12 @@ abstract class ValetDriver
         }
 
         foreach ($variablesToSet as $key => $value) {
-            if (! is_string($key)) continue;
+            if (! is_string($key)) {
+                continue;
+            }
             $_SERVER[$key] = $value;
             $_ENV[$key] = $value;
-            putenv($key . '=' . $value);
+            putenv($key.'='.$value);
         }
     }
-
 }

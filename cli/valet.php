@@ -12,8 +12,8 @@ if (file_exists(__DIR__.'/../vendor/autoload.php')) {
     require getenv('HOME').'/.composer/vendor/autoload.php';
 }
 
-use Silly\Application;
 use Illuminate\Container\Container;
+use Silly\Application;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use function Valet\info;
 use function Valet\output;
@@ -23,7 +23,7 @@ use function Valet\warning;
 /**
  * Relocate config dir to ~/.config/valet/ if found in old location.
  */
-if (is_dir(VALET_LEGACY_HOME_PATH) && !is_dir(VALET_HOME_PATH)) {
+if (is_dir(VALET_LEGACY_HOME_PATH) && ! is_dir(VALET_HOME_PATH)) {
     Configuration::createConfigurationDirectory();
 }
 
@@ -66,7 +66,7 @@ $app->command('install', function () {
  */
 if (is_dir(VALET_HOME_PATH)) {
     /**
-     * Upgrade helper: ensure the tld config exists or the loopback config exists
+     * Upgrade helper: ensure the tld config exists or the loopback config exists.
      */
     if (empty(Configuration::read()['tld']) || empty(Configuration::read()['loopback'])) {
         Configuration::writeBaseConfiguration();
@@ -126,11 +126,11 @@ if (is_dir(VALET_HOME_PATH)) {
     $app->command('park [path]', function ($path = null) {
         Configuration::addPath($path ?: getcwd());
 
-        info(($path === null ? "This" : "The [{$path}]") . " directory has been added to Valet's paths.");
+        info(($path === null ? 'This' : "The [{$path}]")." directory has been added to Valet's paths.");
     })->descriptions('Register the current working (or specified) directory with Valet');
 
     /**
-     * Get all the current sites within paths parked with 'park {path}'
+     * Get all the current sites within paths parked with 'park {path}'.
      */
     $app->command('parked', function () {
         $parked = Site::parked();
@@ -144,7 +144,7 @@ if (is_dir(VALET_HOME_PATH)) {
     $app->command('forget [path]', function ($path = null) {
         Configuration::removePath($path ?: getcwd());
 
-        info(($path === null ? "This" : "The [{$path}]") . " directory has been removed from Valet's paths.");
+        info(($path === null ? 'This' : "The [{$path}]")." directory has been removed from Valet's paths.");
     }, ['unpark'])->descriptions('Remove the current working (or specified) directory from Valet\'s list of paths');
 
     /**
@@ -195,6 +195,7 @@ if (is_dir(VALET_HOME_PATH)) {
     $app->command('unsecure [domain] [--all]', function ($domain = null, $all = null) {
         if ($all) {
             Site::unsecureAll();
+
             return;
         }
 
@@ -208,17 +209,17 @@ if (is_dir(VALET_HOME_PATH)) {
     })->descriptions('Stop serving the given domain over HTTPS and remove the trusted TLS certificate');
 
     /**
-     * Create an Nginx proxy config for the specified domain
+     * Create an Nginx proxy config for the specified domain.
      */
     $app->command('proxy domain host [--secure]', function ($domain, $host, $secure) {
         Site::proxyCreate($domain, $host, $secure);
         Nginx::restart();
     })->descriptions('Create an Nginx proxy site for the specified host. Useful for docker, mailhog etc.', [
-        '--secure' => 'Create a proxy with a trusted TLS certificate'
+        '--secure' => 'Create a proxy with a trusted TLS certificate',
     ]);
 
     /**
-     * Delete an Nginx proxy config
+     * Delete an Nginx proxy config.
      */
     $app->command('unproxy domain', function ($domain) {
         Site::proxyDelete($domain);
@@ -266,15 +267,15 @@ if (is_dir(VALET_HOME_PATH)) {
      * Open the current or given directory in the browser.
      */
     $app->command('open [domain]', function ($domain = null) {
-        $url = "http://".($domain ?: Site::host(getcwd())).'.'.Configuration::read()['tld'];
-        CommandLine::runAsUser("open ".escapeshellarg($url));
+        $url = 'http://'.($domain ?: Site::host(getcwd())).'.'.Configuration::read()['tld'];
+        CommandLine::runAsUser('open '.escapeshellarg($url));
     })->descriptions('Open the site for the current (or specified) directory in your browser');
 
     /**
      * Generate a publicly accessible URL for your project.
      */
     $app->command('share', function () {
-        warning("It looks like you are running `cli/valet.php` directly, please use the `valet` script in the project root instead.");
+        warning('It looks like you are running `cli/valet.php` directly, please use the `valet` script in the project root instead.');
     })->descriptions('Generate a publicly accessible URL for your project');
 
     /**
@@ -391,7 +392,8 @@ if (is_dir(VALET_HOME_PATH)) {
             info('Removing sudoers entries...');
             Brew::removeSudoersEntry();
             Valet::removeSudoersEntry();
-            return output("<fg=red>NOTE:</>
+
+            return output('<fg=red>NOTE:</>
 <comment>Valet has attempted to uninstall itself, but there are some steps you need to do manually:</comment>
 Run <info>php -v</info> to see what PHP version you are now really using.
 Run <info>composer global update</info> to update your globally-installed Composer packages to work with your default PHP.
@@ -399,17 +401,17 @@ NOTE: Composer may have other dependencies for other global apps you have instal
 Thus, you may need to delete things from your <info>~/.composer/composer.json</info> file before running <info>composer global update</info> successfully.
 Then to finish removing any Composer fragments of Valet:
 Run <info>composer global remove laravel/valet</info>
-and then <info>rm ".BREW_PREFIX."/bin/valet</info> to remove the Valet bin link if it still exists.
+and then <info>rm '.BREW_PREFIX.'/bin/valet</info> to remove the Valet bin link if it still exists.
 Optional:
 - <info>brew list --formula</info> will show any other Homebrew services installed, in case you want to make changes to those as well.
 - <info>brew doctor</info> can indicate if there might be any broken things left behind.
 - <info>brew cleanup</info> can purge old cached Homebrew downloads.
 <fg=red>If you had customized your Mac DNS settings in System Preferences->Network, you will need to remove 127.0.0.1 from that list.</>
 Additionally you might also want to open Keychain Access and search for <comment>valet</comment> to remove any leftover trust certificates.
-");
+');
         }
 
-        output("WAIT! Before you uninstall things, consider cleaning things up in the following order. (Or skip to the bottom for troubleshooting suggestions.):
+        output('WAIT! Before you uninstall things, consider cleaning things up in the following order. (Or skip to the bottom for troubleshooting suggestions.):
 <info>You did not pass the <fg=red>--force</> parameter so we are NOT ACTUALLY uninstalling anything.</info>
 A --force removal WILL delete your custom configuration information, so you will want to make backups first.
 
@@ -428,13 +430,13 @@ You can run <comment>composer global remove laravel/valet</comment> to uninstall
 
 <info>4. Homebrew Services</info>
 <fg=red>You may remove the core services (php, nginx, dnsmasq) by running:</> <comment>brew uninstall --force php nginx dnsmasq</comment>
-<fg=red>You can then remove selected leftover configurations for these services manually</> in both <comment>".BREW_PREFIX."/etc/</comment> and <comment>".BREW_PREFIX."/logs/</comment>.
+<fg=red>You can then remove selected leftover configurations for these services manually</> in both <comment>'.BREW_PREFIX.'/etc/</comment> and <comment>'.BREW_PREFIX.'/logs/</comment>.
 (If you have other PHP versions installed, run <info>brew list --formula | grep php</info> to see which versions you should also uninstall manually.)
 
 <error>BEWARE:</error> Uninstalling PHP via Homebrew will leave your Mac with its original PHP version, which may not be compatible with other Composer dependencies you have installed. Thus you may get unexpected errors.
 
 Some additional services which you may have installed (but which Valet does not directly configure or manage) include: <comment>mariadb mysql mailhog</comment>.
-If you wish to also remove them, you may manually run <comment>brew uninstall SERVICENAME</comment> and clean up their configurations in ".BREW_PREFIX."/etc if necessary.
+If you wish to also remove them, you may manually run <comment>brew uninstall SERVICENAME</comment> and clean up their configurations in '.BREW_PREFIX.'/etc if necessary.
 
 You can discover more Homebrew services by running: <comment>brew services list</comment> and <comment>brew list --formula</comment>
 
@@ -449,7 +451,7 @@ You might also want to investigate your global Composer configs. Helpful command
 <comment>composer global update</comment> to apply updates to packages
 <comment>composer global outdated</comment> to identify outdated packages
 <comment>composer global diagnose</comment> to run diagnostics
-");
+');
         // Stopping PHP so the ~/.config/valet/valet.sock file is released so the directory can be deleted if desired
         PhpFpm::stopRunning();
         Nginx::stop();
@@ -483,22 +485,22 @@ You might also want to investigate your global Composer configs. Helpful command
 
         info('Sudoers entries have been added for Brew and Valet.');
     })->descriptions('Add sudoers files for Brew and Valet to make Valet commands run without passwords', [
-        '--off' => 'Remove the sudoers files so normal sudo password prompts are required.'
+        '--off' => 'Remove the sudoers files so normal sudo password prompts are required.',
     ]);
 
     /**
-     * Allow the user to change the version of php valet uses
+     * Allow the user to change the version of php valet uses.
      */
     $app->command('use [phpVersion] [--force]', function ($phpVersion, $force) {
-        if (!$phpVersion) {
-            $path = getcwd() . '/.valetphprc';
+        if (! $phpVersion) {
+            $path = getcwd().'/.valetphprc';
             $linkedVersion = Brew::linkedPhp();
-            if (!file_exists($path)) {
+            if (! file_exists($path)) {
                 return info(sprintf('Valet is using %s.', $linkedVersion));
             }
 
             $phpVersion = trim(file_get_contents($path));
-            info('Found \'' . $path . '\' specifying version: ' . $phpVersion);
+            info('Found \''.$path.'\' specifying version: '.$phpVersion);
 
             if ($linkedVersion == $phpVersion) {
                 return info(sprintf('Valet is already using %s.', $linkedVersion));
@@ -510,7 +512,7 @@ You might also want to investigate your global Composer configs. Helpful command
         $newVersion = PhpFpm::useVersion($phpVersion, $force);
 
         Nginx::restart();
-        info(sprintf('Valet is now using %s.', $newVersion) . PHP_EOL);
+        info(sprintf('Valet is now using %s.', $newVersion).PHP_EOL);
         info('Note that you might need to run <comment>composer global update</comment> if your PHP version change affects the dependencies of global packages required by Composer.');
     })->descriptions('Change the version of PHP used by valet', [
         'phpVersion' => 'The PHP version you want to use, e.g php@7.3',
@@ -585,8 +587,8 @@ You might also want to investigate your global Composer configs. Helpful command
     })->descriptions('Tail log file');
 
     /**
-      * Configure or display the directory-listing setting.
-      */
+     * Configure or display the directory-listing setting.
+     */
     $app->command('directory-listing [status]', function ($status = null) {
         $key = 'directory-listing';
         $config = Configuration::read();
@@ -594,13 +596,14 @@ You might also want to investigate your global Composer configs. Helpful command
         if (in_array($status, ['on', 'off'])) {
             $config[$key] = $status;
             Configuration::write($config);
+
             return output('Directory listing setting is now: '.$status);
         }
 
         $current = isset($config[$key]) ? $config[$key] : 'off';
         output('Directory listing is '.$current);
     })->descriptions('Determine directory-listing behavior. Default is off, which means a 404 will display.', [
-        'status' => 'on or off. (default=off) will show a 404 page; [on] will display a listing if project folder exists but requested URI not found'
+        'status' => 'on or off. (default=off) will show a 404 page; [on] will display a listing if project folder exists but requested URI not found',
     ]);
 
     /**

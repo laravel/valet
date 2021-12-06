@@ -1,6 +1,6 @@
 <?php
 
-if (php_sapi_name() !== "cli") {
+if (php_sapi_name() !== 'cli') {
     // Allow bypassing these checks if using Valet in a non-CLI app
     return;
 }
@@ -17,7 +17,7 @@ if (PHP_OS !== 'Darwin' && ! $inTestingEnvironment) {
 }
 
 if (version_compare(PHP_VERSION, '5.6.0', '<')) {
-    echo "Valet requires PHP 5.6 or later.";
+    echo 'Valet requires PHP 5.6 or later.';
 
     exit(1);
 }

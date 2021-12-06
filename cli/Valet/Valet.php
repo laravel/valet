@@ -6,9 +6,10 @@ use Httpful\Request;
 
 class Valet
 {
-    var $cli, $files;
+    public $cli;
+    public $files;
 
-    var $valetBin = BREW_PREFIX.'/bin/valet';
+    public $valetBin = BREW_PREFIX.'/bin/valet';
 
     /**
      * Create a new Valet instance.
@@ -16,7 +17,7 @@ class Valet
      * @param  CommandLine  $cli
      * @param  Filesystem  $files
      */
-    function __construct(CommandLine $cli, Filesystem $files)
+    public function __construct(CommandLine $cli, Filesystem $files)
     {
         $this->cli = $cli;
         $this->files = $files;
@@ -27,7 +28,7 @@ class Valet
      *
      * @return void
      */
-    function symlinkToUsersBin()
+    public function symlinkToUsersBin()
     {
         $this->unlinkFromUsersBin();
 
@@ -39,7 +40,7 @@ class Valet
      *
      * @return void
      */
-    function unlinkFromUsersBin()
+    public function unlinkFromUsersBin()
     {
         $this->cli->quietlyAsUser('rm '.$this->valetBin);
     }
@@ -49,7 +50,7 @@ class Valet
      *
      * @return array
      */
-    function extensions()
+    public function extensions()
     {
         if (! $this->files->isDir(VALET_HOME_PATH.'/Extensions')) {
             return [];
@@ -70,9 +71,10 @@ class Valet
      *
      * @param  string  $currentVersion
      * @return bool
+     *
      * @throws \Httpful\Exception\ConnectionErrorException
      */
-    function onLatestVersion($currentVersion)
+    public function onLatestVersion($currentVersion)
     {
         $response = Request::get('https://api.github.com/repos/laravel/valet/releases/latest')->send();
 
@@ -84,7 +86,7 @@ class Valet
      *
      * @return void
      */
-    function createSudoersEntry()
+    public function createSudoersEntry()
     {
         $this->files->ensureDirExists('/etc/sudoers.d');
 
@@ -97,23 +99,23 @@ class Valet
      *
      * @return void
      */
-    function removeSudoersEntry()
+    public function removeSudoersEntry()
     {
         $this->cli->quietly('rm /etc/sudoers.d/valet');
     }
 
     /**
-     * Run composer global diagnose
+     * Run composer global diagnose.
      */
-    function composerGlobalDiagnose()
+    public function composerGlobalDiagnose()
     {
         $this->cli->runAsUser('composer global diagnose');
     }
 
     /**
-     * Run composer global update
+     * Run composer global update.
      */
-    function composerGlobalUpdate()
+    public function composerGlobalUpdate()
     {
         $this->cli->runAsUser('composer global update');
     }

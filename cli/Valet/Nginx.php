@@ -6,11 +6,11 @@ use DomainException;
 
 class Nginx
 {
-    var $brew;
-    var $cli;
-    var $files;
-    var $configuration;
-    var $site;
+    public $brew;
+    public $cli;
+    public $files;
+    public $configuration;
+    public $site;
     const NGINX_CONF = BREW_PREFIX.'/etc/nginx/nginx.conf';
 
     /**
@@ -23,7 +23,7 @@ class Nginx
      * @param  Site  $site
      * @return void
      */
-    function __construct(Brew $brew, CommandLine $cli, Filesystem $files,
+    public function __construct(Brew $brew, CommandLine $cli, Filesystem $files,
                          Configuration $configuration, Site $site)
     {
         $this->cli = $cli;
@@ -38,9 +38,9 @@ class Nginx
      *
      * @return void
      */
-    function install()
+    public function install()
     {
-        if (!$this->brew->hasInstalledNginx()) {
+        if (! $this->brew->hasInstalledNginx()) {
             $this->brew->installOrFail('nginx', []);
         }
 
@@ -54,7 +54,7 @@ class Nginx
      *
      * @return void
      */
-    function installConfiguration()
+    public function installConfiguration()
     {
         info('Installing nginx configuration...');
 
@@ -71,7 +71,7 @@ class Nginx
      *
      * @return void
      */
-    function installServer()
+    public function installServer()
     {
         $this->files->ensureDirExists(BREW_PREFIX.'/etc/nginx/valet');
 
@@ -90,7 +90,7 @@ class Nginx
         );
     }
 
-    function replaceLoopback($siteConf)
+    public function replaceLoopback($siteConf)
     {
         $loopback = $this->configuration->read()['loopback'];
 
@@ -114,7 +114,7 @@ class Nginx
      *
      * @return void
      */
-    function installNginxDirectory()
+    public function installNginxDirectory()
     {
         info('Installing nginx directory...');
 
@@ -145,7 +145,7 @@ class Nginx
      *
      * @return void
      */
-    function rewriteSecureNginxFiles()
+    public function rewriteSecureNginxFiles()
     {
         $tld = $this->configuration->read()['tld'];
         $loopback = $this->configuration->read()['loopback'];
@@ -164,7 +164,7 @@ class Nginx
      *
      * @return void
      */
-    function restart()
+    public function restart()
     {
         $this->lint();
 
@@ -176,11 +176,11 @@ class Nginx
      *
      * @return void
      */
-    function stop()
+    public function stop()
     {
         info('Stopping nginx...');
 
-        $this->cli->quietly('sudo brew services stop '. $this->brew->nginxServiceName());
+        $this->cli->quietly('sudo brew services stop '.$this->brew->nginxServiceName());
     }
 
     /**
@@ -188,7 +188,7 @@ class Nginx
      *
      * @return void
      */
-    function uninstall()
+    public function uninstall()
     {
         $this->brew->stopService(['nginx', 'nginx-full']);
         $this->brew->uninstallFormula('nginx nginx-full');

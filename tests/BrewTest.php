@@ -1,13 +1,13 @@
 <?php
 
+use Illuminate\Container\Container;
+use Illuminate\Support\Collection;
 use Valet\Brew;
-use Valet\Filesystem;
 use Valet\CommandLine;
-use function Valet\user;
+use Valet\Filesystem;
 use function Valet\resolve;
 use function Valet\swap;
-use Illuminate\Support\Collection;
-use Illuminate\Container\Container;
+use function Valet\user;
 
 class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 {
@@ -139,6 +139,7 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $getBrewMock = function ($filesystem) {
             $brewMock = Mockery::mock(Brew::class, [new CommandLine, $filesystem])->makePartial();
             $brewMock->shouldReceive('hasLinkedPhp')->once()->andReturn(true);
+
             return $brewMock;
         };
 
@@ -314,8 +315,8 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $cli = Mockery::mock(CommandLine::class);
         $cli->shouldReceive('runAsUser')->once()->withArgs([
             'brew services list | grep started | awk \'{ print $1; }\'',
-            Mockery::type('callable')
-        ])->andReturn('service1' . PHP_EOL . 'service2' . PHP_EOL . PHP_EOL . 'service3' . PHP_EOL);
+            Mockery::type('callable'),
+        ])->andReturn('service1'.PHP_EOL.'service2'.PHP_EOL.PHP_EOL.'service3'.PHP_EOL);
 
         swap(CommandLine::class, $cli);
         $result = resolve(Brew::class)->getRunningServices('term');
@@ -338,6 +339,7 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $getBrewMock = function ($filesystem) {
             $brewMock = Mockery::mock(Brew::class, [new CommandLine, $filesystem])->makePartial();
             $brewMock->shouldReceive('hasLinkedPhp')->once()->andReturn(true);
+
             return $brewMock;
         };
 
@@ -370,7 +372,7 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
     }
 
     /**
-     * Provider of php links and their expected split matches
+     * Provider of php links and their expected split matches.
      *
      * @return array
      */
@@ -397,7 +399,7 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
                     '7.4',
                     '.13',
                 ],
-                'php@7.4'
+                'php@7.4',
             ],
             [
                 '/test/path/php/7.4.9_2/test',

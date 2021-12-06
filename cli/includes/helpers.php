@@ -8,15 +8,15 @@ use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 /**
- * Define constants
+ * Define constants.
  */
 if (! defined('VALET_LOOPBACK')) {
     define('VALET_LOOPBACK', '127.0.0.1');
-    define('VALET_HOME_PATH', $_SERVER['HOME'] . '/.config/valet');
-    define('VALET_SERVER_PATH', realpath(__DIR__ . '/../../server.php'));
+    define('VALET_HOME_PATH', $_SERVER['HOME'].'/.config/valet');
+    define('VALET_SERVER_PATH', realpath(__DIR__.'/../../server.php'));
     define('VALET_STATIC_PREFIX', '41c270e4-5535-4daa-b23e-c269744c2f45');
 
-    define('VALET_LEGACY_HOME_PATH', $_SERVER['HOME'] . '/.valet');
+    define('VALET_LEGACY_HOME_PATH', $_SERVER['HOME'].'/.valet');
 
     define('BREW_PREFIX', (new CommandLine())->runAsUser('printf $(brew --prefix)'));
 }
@@ -29,7 +29,7 @@ if (! defined('VALET_LOOPBACK')) {
  */
 function info($output)
 {
-    output('<info>' . $output . '</info>');
+    output('<info>'.$output.'</info>');
 }
 
 /**
@@ -40,14 +40,14 @@ function info($output)
  */
 function warning($output)
 {
-    output('<fg=red>' . $output . '</>');
+    output('<fg=red>'.$output.'</>');
 }
 
 /**
  * Output a table to the console.
  *
- * @param array $headers
- * @param array $rows
+ * @param  array  $headers
+ * @param  array  $rows
  * @return void
  */
 function table(array $headers = [], array $rows = [])
@@ -165,12 +165,14 @@ if (! function_exists('ends_with')) {
      * @param  string|array  $needles
      * @return bool
      */
-    function ends_with($haystack, $needles) {
+    function ends_with($haystack, $needles)
+    {
         foreach ((array) $needles as $needle) {
             if (substr($haystack, -strlen($needle)) === (string) $needle) {
                 return true;
             }
         }
+
         return false;
     }
 }
@@ -196,7 +198,7 @@ if (! function_exists('starts_with')) {
 }
 
 /**
- * Get the user
+ * Get the user.
  */
 function user()
 {
