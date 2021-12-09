@@ -120,6 +120,7 @@ class PhpFpm
      */
     public function restart()
     {
+        $this->cleanSockFiles();
         $this->brew->restartLinkedPhp();
     }
 
@@ -203,10 +204,7 @@ class PhpFpm
         $this->brew->link($version, true);
 
         $this->stopRunning();
-
-        // remove any orphaned valet.sock files that PHP didn't clean up due to version conflicts
-        $this->files->unlink(VALET_HOME_PATH.'/valet.sock');
-        $this->cli->quietly('sudo rm '.VALET_HOME_PATH.'/valet.sock');
+        $this->cleanSockFiles();
 
         // ensure configuration is correct and start the linked version
         $this->install();
@@ -256,5 +254,16 @@ class PhpFpm
         }
 
         return $version;
+    }
+
+    /**
+     * Delete all orphaned valet.sock files.
+     *
+     * @return void
+     */
+    public function cleanSockFiles()
+    {
+        $this->files->unlink(VALET_HOME_PATH.'/valet.sock');
+        $this->cli->quietly('sudo rm '.VALET_HOME_PATH.'/valet.sock');
     }
 }
