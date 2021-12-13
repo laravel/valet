@@ -179,15 +179,17 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Secure the given domain with a trusted TLS certificate.
      */
-    $app->command('secure [domain]', function ($domain = null) {
+    $app->command('secure [domain] [--expireIn=]', function ($domain = null, $expireIn = null) {
         $url = ($domain ?: Site::host(getcwd())).'.'.Configuration::read()['tld'];
 
-        Site::secure($url);
+        Site::secure($url, null, $expireIn);
 
         Nginx::restart();
 
         info('The ['.$url.'] site has been secured with a fresh TLS certificate.');
-    })->descriptions('Secure the given domain with a trusted TLS certificate');
+    })->descriptions('Secure the given domain with a trusted TLS certificate', [
+        '--expireIn' => 'The amount of days the self signed certificate is valid for. Default is set to "368"',
+    ]);
 
     /**
      * Stop serving the given domain over HTTPS and remove the trusted TLS certificate.
