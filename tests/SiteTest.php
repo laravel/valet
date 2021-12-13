@@ -574,7 +574,7 @@ class FixturesSiteFake extends Site
         $this->valetHomePath = __DIR__.'/output';
     }
 
-    public function createCa()
+    public function createCa($caExpireInDays)
     {
         // noop
         //
@@ -583,7 +583,7 @@ class FixturesSiteFake extends Site
         // CA for our faked Site.
     }
 
-    public function createCertificate($urlWithTld)
+    public function createCertificate($urlWithTld, $caExpireInDays)
     {
         // We're not actually going to generate a real certificate
         // here. We are going to do something basic to include
@@ -607,7 +607,7 @@ class FixturesSiteFake extends Site
         // forcing a fake creation of a URL (including .tld) and passes
         // through to createCertificate() directly.
         $this->files->ensureDirExists($this->certificatesPath(), user());
-        $this->createCertificate($urlWithTld);
+        $this->createCertificate($urlWithTld, 368);
     }
 
     public function assertNginxExists($urlWithTld)

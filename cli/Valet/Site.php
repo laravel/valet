@@ -464,9 +464,10 @@ class Site
      *
      * @param  string  $url
      * @param  string  $siteConf  pregenerated Nginx config file contents
+     * @param  int  $caExpireInDays  The mount of days the self signed certificate is valid.
      * @return void
      */
-    public function secure($url, $siteConf = null)
+    public function secure($url, $siteConf = null, $caExpireInDays = 368)
     {
         $this->unsecure($url);
 
@@ -476,9 +477,8 @@ class Site
 
         $this->files->ensureDirExists($this->nginxPath(), user());
 
-        $this->createCa();
-
-        $this->createCertificate($url);
+        $this->createCa($caExpireInDays);
+        $this->createCertificate($url, $caExpireInDays);
 
         $this->files->putAsUser(
             $this->nginxPath($url), $this->buildSecureNginxServer($url, $siteConf)
@@ -488,9 +488,10 @@ class Site
     /**
      * If CA and root certificates are nonexistent, create them and trust the root cert.
      *
+     * @param  int  $caExpireInDays  The mount of days the self signed certificate is valid.
      * @return void
      */
-    public function createCa()
+    public function createCa($caExpireInDays)
     {
         $caPemPath = $this->caPath('LaravelValetCASelfSigned.pem');
         $caKeyPath = $this->caPath('LaravelValetCASelfSigned.key');
@@ -515,8 +516,8 @@ class Site
         ));
 
         $this->cli->runAsUser(sprintf(
-            'openssl req -new -newkey rsa:2048 -days 730 -nodes -x509 -subj "/C=/ST=/O=%s/localityName=/commonName=%s/organizationalUnitName=Developers/emailAddress=%s/" -keyout "%s" -out "%s"',
-            $oName, $cName, 'rootcertificate@laravel.valet', $caKeyPath, $caPemPath
+            'openssl req -new -newkey rsa:2048 -days %s -nodes -x509 -subj "/C=/ST=/O=%s/localityName=/commonName=%s/organizationalUnitName=Developers/emailAddress=%s/" -keyout "%s" -out "%s"',
+            $caExpireInDays, $oName, $cName, 'rootcertificate@laravel.valet', $caKeyPath, $caPemPath
         ));
         $this->trustCa($caPemPath);
     }
@@ -525,9 +526,10 @@ class Site
      * Create and trust a certificate for the given URL.
      *
      * @param  string  $url
+     * @param  int  $caExpireInDays  The mount of days the self signed certificate is valid.
      * @return void
      */
-    public function createCertificate($url)
+    public function createCertificate($url, $caExpireInDays)
     {
         $caPemPath = $this->caPath('LaravelValetCASelfSigned.pem');
         $caKeyPath = $this->caPath('LaravelValetCASelfSigned.key');
@@ -547,15 +549,15 @@ class Site
         }
 
         $result = $this->cli->runAsUser(sprintf(
-            'openssl x509 -req -sha256 -days 730 -CA "%s" -CAkey "%s" %s -in "%s" -out "%s" -extensions v3_req -extfile "%s"',
-            $caPemPath, $caKeyPath, $caSrlParam, $csrPath, $crtPath, $confPath
+            'openssl x509 -req -sha256 -days %s -CA "%s" -CAkey "%s" %s -in "%s" -out "%s" -extensions v3_req -extfile "%s"',
+            $caExpireInDays, $caPemPath, $caKeyPath, $caSrlParam, $csrPath, $crtPath, $confPath
         ));
 
         // If cert could not be created using runAsUser(), use run().
         if (strpos($result, 'Permission denied')) {
             $this->cli->run(sprintf(
-                'openssl x509 -req -sha256 -days 730 -CA "%s" -CAkey "%s" %s -in "%s" -out "%s" -extensions v3_req -extfile "%s"',
-                $caPemPath, $caKeyPath, $caSrlParam, $csrPath, $crtPath, $confPath
+                'openssl x509 -req -sha256 -days %s -CA "%s" -CAkey "%s" %s -in "%s" -out "%s" -extensions v3_req -extfile "%s"',
+                $caExpireInDays, $caPemPath, $caKeyPath, $caSrlParam, $csrPath, $crtPath, $confPath
             ));
         }
 
