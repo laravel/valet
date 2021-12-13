@@ -179,7 +179,7 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Secure the given domain with a trusted TLS certificate.
      */
-    $app->command('secure [domain] [--expireIn=]', function ($domain = null, $expireIn = null) {
+    $app->command('secure [domain] [--expireIn=]', function ($domain = null, $expireIn = 368) {
         $url = ($domain ?: Site::host(getcwd())).'.'.Configuration::read()['tld'];
 
         Site::secure($url, null, $expireIn);
