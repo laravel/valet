@@ -464,10 +464,15 @@ class Site
      *
      * @param  string  $url
      * @param  string  $siteConf  pregenerated Nginx config file contents
-     * @param  int  $caExpireInDays  The mount of days the self signed certificate is valid.
+     * @param  int  $certificateExpireInDays  The number of days the self signed certificate is valid.
+     *                                        Certificates SHOULD NOT have a validity period greater than 397 days.
+     * @param  int  $caExpireInYears  The number of years the self signed certificate authority is valid.
+     *
+     * @see https://github.com/cabforum/servercert/blob/main/docs/BR.md
+     *
      * @return void
      */
-    public function secure($url, $siteConf = null, $caExpireInDays = 368)
+    public function secure($url, $siteConf = null, $certificateExpireInDays = 396, $caExpireInYears = 20)
     {
         $this->unsecure($url);
 
@@ -477,8 +482,10 @@ class Site
 
         $this->files->ensureDirExists($this->nginxPath(), user());
 
-        $this->createCa($caExpireInDays);
-        $this->createCertificate($url, $caExpireInDays);
+        $caExpireInDate = (new \DateTime())->diff(new \DateTime("+{$caExpireInYears} years"));
+
+        $this->createCa($caExpireInDate->format('%a'));
+        $this->createCertificate($url, $certificateExpireInDays);
 
         $this->files->putAsUser(
             $this->nginxPath($url), $this->buildSecureNginxServer($url, $siteConf)
@@ -488,7 +495,7 @@ class Site
     /**
      * If CA and root certificates are nonexistent, create them and trust the root cert.
      *
-     * @param  int  $caExpireInDays  The mount of days the self signed certificate is valid.
+     * @param  int  $caExpireInDays  The number of days the self signed certificate authority is valid.
      * @return void
      */
     public function createCa($caExpireInDays)
@@ -526,7 +533,7 @@ class Site
      * Create and trust a certificate for the given URL.
      *
      * @param  string  $url
-     * @param  int  $caExpireInDays  The mount of days the self signed certificate is valid.
+     * @param  int  $caExpireInDays  The number of days the self signed certificate is valid.
      * @return void
      */
     public function createCertificate($url, $caExpireInDays)
