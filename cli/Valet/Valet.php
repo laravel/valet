@@ -2,7 +2,8 @@
 
 namespace Valet;
 
-use Httpful\Request;
+use GuzzleHttp\Client;
+use GuzzleHttp\Utils;
 
 class Valet
 {
@@ -72,11 +73,12 @@ class Valet
      * @param  string  $currentVersion
      * @return bool
      *
-     * @throws \Httpful\Exception\ConnectionErrorException
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function onLatestVersion($currentVersion)
     {
-        $response = Request::get('https://api.github.com/repos/laravel/valet/releases/latest')->send();
+        $url = 'https://api.github.com/repos/laravel/valet/releases/latest';
+        $response = Utils::jsonDecode((new Client())->get($url)->getBody());
 
         return version_compare($currentVersion, trim($response->body->tag_name, 'v'), '>=');
     }
