@@ -29,7 +29,7 @@
         "illuminate/collections": "^8.0",
         "mnapoli/silly": "^1.0",
         "symfony/process": "^5.1.4",
-        "nategood/httpful": "^0.2"
+        "guzzlehttp/guzzle": "^6.0|^7.4"
     },
     "require-dev": {
         "mockery/mockery": "^1.2.3",
