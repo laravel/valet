@@ -1,3 +1,3 @@
-# Contribution Guide
+# Code of Conduct
 
-The Laravel contributing guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+The Laravel Code of Conduct can be found in the [Laravel documentation](https://laravel.com/docs/contributions#code-of-conduct).
