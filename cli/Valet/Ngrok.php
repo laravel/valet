@@ -4,7 +4,6 @@ namespace Valet;
 
 use DomainException;
 use GuzzleHttp\Client;
-use GuzzleHttp\Utils;
 
 class Ngrok
 {
@@ -25,7 +24,7 @@ class Ngrok
 
         foreach ($this->tunnelsEndpoints as $endpoint) {
             $response = retry(20, function () use ($endpoint, $domain) {
-                $body = Utils::jsonDecode((new Client())->get($endpoint)->getBody());
+                $body = json_decode((new Client())->get($endpoint)->getBody());
 
                 if (isset($body->tunnels) && count($body->tunnels) > 0) {
                     return $this->findHttpTunnelUrl($body->tunnels, $domain);

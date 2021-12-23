@@ -3,7 +3,6 @@
 namespace Valet;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Utils;
 
 class Valet
 {
@@ -78,7 +77,7 @@ class Valet
     public function onLatestVersion($currentVersion)
     {
         $url = 'https://api.github.com/repos/laravel/valet/releases/latest';
-        $response = Utils::jsonDecode((new Client())->get($url)->getBody());
+        $response = json_decode((new Client())->get($url)->getBody());
 
         return version_compare($currentVersion, trim($response->tag_name, 'v'), '>=');
     }
