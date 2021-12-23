@@ -80,7 +80,7 @@ class Valet
         $url = 'https://api.github.com/repos/laravel/valet/releases/latest';
         $response = Utils::jsonDecode((new Client())->get($url)->getBody());
 
-        return version_compare($currentVersion, trim($response->body->tag_name, 'v'), '>=');
+        return version_compare($currentVersion, trim($response->tag_name, 'v'), '>=');
     }
 
     /**
