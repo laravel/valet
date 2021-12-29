@@ -10,16 +10,18 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 /**
  * Define constants.
  */
-if (! defined('VALET_LOOPBACK')) {
-    define('VALET_LOOPBACK', '127.0.0.1');
-    define('VALET_HOME_PATH', $_SERVER['HOME'].'/.config/valet');
-    define('VALET_SERVER_PATH', realpath(__DIR__.'/../../server.php'));
-    define('VALET_STATIC_PREFIX', '41c270e4-5535-4daa-b23e-c269744c2f45');
-
-    define('VALET_LEGACY_HOME_PATH', $_SERVER['HOME'].'/.valet');
-
-    define('BREW_PREFIX', (new CommandLine())->runAsUser('printf $(brew --prefix)'));
+if (! defined('VALET_HOME_PATH')) {
+    define('VALET_HOME_PATH', $_SERVER['HOME'] . '/.config/valet');
 }
+if (! defined('VALET_STATIC_PREFIX')) {
+    define('VALET_STATIC_PREFIX', '41c270e4-5535-4daa-b23e-c269744c2f45');
+}
+
+define('VALET_LOOPBACK', '127.0.0.1');
+define('VALET_SERVER_PATH', realpath(__DIR__.'/../../server.php'));
+define('VALET_LEGACY_HOME_PATH', $_SERVER['HOME'].'/.valet');
+
+define('BREW_PREFIX', (new CommandLine())->runAsUser('printf $(brew --prefix)'));
 
 /**
  * Output the given text to the console.
