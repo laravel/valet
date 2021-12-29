@@ -11,7 +11,7 @@ use Symfony\Component\Console\Output\ConsoleOutput;
  * Define constants.
  */
 if (! defined('VALET_HOME_PATH')) {
-    define('VALET_HOME_PATH', $_SERVER['HOME'] . '/.config/valet');
+    define('VALET_HOME_PATH', $_SERVER['HOME'].'/.config/valet');
 }
 if (! defined('VALET_STATIC_PREFIX')) {
     define('VALET_STATIC_PREFIX', '41c270e4-5535-4daa-b23e-c269744c2f45');
