@@ -348,7 +348,6 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         ], array_values($result->all()));
     }
 
-
     public function test_getAllRunningServices_will_return_unique_services()
     {
         $cli = Mockery::mock(CommandLine::class);
@@ -361,7 +360,7 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
             'service1',
             'service2',
             'service3',
-            'service4'
+            'service4',
         ], array_values($result->all()));
     }
 

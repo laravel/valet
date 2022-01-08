@@ -384,7 +384,7 @@ class Brew
 
     /**
      * Get the currently running brew services as root.
-     * i.e. /Library/LaunchDaemons (started at boot)
+     * i.e. /Library/LaunchDaemons (started at boot).
      *
      * @return \Illuminate\Support\Collection
      */
@@ -395,7 +395,7 @@ class Brew
 
     /**
      * Get the currently running brew services.
-     * i.e. ~/Library/LaunchAgents (started at login)
+     * i.e. ~/Library/LaunchAgents (started at login).
      *
      * @return \Illuminate\Support\Collection
      */
@@ -410,7 +410,7 @@ class Brew
      * @param  bool  $asUser
      * @return \Illuminate\Support\Collection
      */
-    public function getRunningServices(bool $asUser = false)
+    public function getRunningServices($asUser = false)
     {
         $command = 'brew services list | grep started | awk \'{ print $1; }\'';
         $onError = function ($exitCode, $errorOutput) {
@@ -421,7 +421,7 @@ class Brew
 
         return collect(array_filter(explode(PHP_EOL, $asUser
             ? $this->cli->runAsUser($command, $onError)
-            : $this->cli->run('sudo ' . $command, $onError)
+            : $this->cli->run('sudo '.$command, $onError)
         )));
     }
 
