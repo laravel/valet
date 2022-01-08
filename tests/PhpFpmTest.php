@@ -42,7 +42,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
     public function test_stopRunning_will_pass_filtered_result_of_getRunningServices_to_stopService()
     {
         $brewMock = Mockery::mock(Brew::class);
-        $brewMock->shouldReceive('getRunningServices')->once()
+        $brewMock->shouldReceive('getAllRunningServices')->once()
             ->andReturn(collect([
                 'php7.2',
                 'php@7.3',
@@ -83,7 +83,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $brewMock->shouldReceive('link')->withArgs(['php@7.2', true]);
         $brewMock->shouldReceive('linkedPhp');
         $brewMock->shouldReceive('installed');
-        $brewMock->shouldReceive('getRunningServices')->andReturn(collect());
+        $brewMock->shouldReceive('getAllRunningServices')->andReturn(collect());
         $brewMock->shouldReceive('stopService');
 
         // Test both non prefixed and prefixed
@@ -128,7 +128,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $brewMock->shouldReceive('link')->withArgs(['php@7.2', true]);
         $brewMock->shouldReceive('linkedPhp');
         $brewMock->shouldReceive('installed');
-        $brewMock->shouldReceive('getRunningServices')->andReturn(collect());
+        $brewMock->shouldReceive('getAllRunningServices')->andReturn(collect());
         $brewMock->shouldReceive('stopService');
 
         // Test both non prefixed and prefixed
