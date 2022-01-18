@@ -77,8 +77,15 @@ then
 
 	# Fetch Ngrok URL In Background...
 	bash "$DIR/cli/scripts/fetch-share-url.sh" "$HOST" &
-    
-	sudo -u "$USER" "$DIR/bin/ngrok" http "$HOST.$TLD:$PORT" -host-header=rewrite $PARAMS
+
+    arch = $(uname -m)
+
+    if [[ $arch == 'arm64' ]]; then
+        sudo -u "$USER" "$DIR/bin/ngrok-arm" http "$HOST.$TLD:$PORT" -host-header=rewrite $PARAMS
+    else
+        sudo -u "$USER" "$DIR/bin/ngrok" http "$HOST.$TLD:$PORT" -host-header=rewrite $PARAMS"
+    fi
+
     exit
 
 # Finally, for every other command we will just proxy into the PHP tool
