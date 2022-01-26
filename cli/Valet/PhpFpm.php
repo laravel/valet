@@ -159,7 +159,7 @@ class PhpFpm
     public function stopRunning()
     {
         $this->brew->stopService(
-            $this->brew->getRunningServices()
+            $this->brew->getAllRunningServices()
                 ->filter(function ($service) {
                     return substr($service, 0, 3) === 'php';
                 })

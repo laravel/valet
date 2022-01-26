@@ -307,7 +307,7 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
             $onError(1, 'test error output');
         });
         swap(CommandLine::class, $cli);
-        resolve(Brew::class)->getRunningServices();
+        resolve(Brew::class)->getRunningServices(true);
     }
 
     public function test_getRunningServices_will_pass_to_brew_services_list_and_return_array()
@@ -319,12 +319,48 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         ])->andReturn('service1'.PHP_EOL.'service2'.PHP_EOL.PHP_EOL.'service3'.PHP_EOL);
 
         swap(CommandLine::class, $cli);
-        $result = resolve(Brew::class)->getRunningServices('term');
+        $result = resolve(Brew::class)->getRunningServices(true);
         $this->assertInstanceOf(Collection::class, $result);
         $this->assertSame([
             'service1',
             'service2',
             'service3',
+        ], array_values($result->all()));
+    }
+
+    public function test_getAllRunningServices_will_return_both_root_and_user_services()
+    {
+        $cli = Mockery::mock(CommandLine::class);
+        $cli->shouldReceive('run')->once()->withArgs([
+            'sudo brew services list | grep started | awk \'{ print $1; }\'',
+            Mockery::type('callable'),
+        ])->andReturn('sudo_ran_service');
+        $cli->shouldReceive('runAsUser')->once()->withArgs([
+            'brew services list | grep started | awk \'{ print $1; }\'',
+            Mockery::type('callable'),
+        ])->andReturn('user_ran_service');
+
+        swap(CommandLine::class, $cli);
+        $result = resolve(Brew::class)->getAllRunningServices();
+        $this->assertSame([
+            'sudo_ran_service',
+            'user_ran_service',
+        ], array_values($result->all()));
+    }
+
+    public function test_getAllRunningServices_will_return_unique_services()
+    {
+        $cli = Mockery::mock(CommandLine::class);
+        $cli->shouldReceive('run')->once()->andReturn('service1'.PHP_EOL.'service2'.PHP_EOL.'service1'.PHP_EOL);
+        $cli->shouldReceive('runAsUser')->once()->andReturn('service3'.PHP_EOL.'service4'.PHP_EOL.'service2'.PHP_EOL);
+
+        swap(CommandLine::class, $cli);
+        $result = resolve(Brew::class)->getAllRunningServices();
+        $this->assertSame([
+            'service1',
+            'service2',
+            'service3',
+            'service4',
         ], array_values($result->all()));
     }
 
