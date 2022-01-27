@@ -42,10 +42,5 @@
         "branch-alias": {
             "dev-master": "2.x-dev"
         }
-    },
-    "config": {
-        "sort-packages": true
-    },
-    "minimum-stability": "dev",
-    "prefer-stable": true
+    }
 }
