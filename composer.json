@@ -25,10 +25,10 @@
     },
     "require": {
         "php": "^7.3|^8.0",
-        "illuminate/container": "^8.0",
-        "illuminate/collections": "^8.0",
+        "illuminate/container": "^8.0|^9.0",
+        "illuminate/collections": "^8.0|^9.0",
         "mnapoli/silly": "^1.0",
-        "symfony/process": "^5.1.4",
+        "symfony/process": "^5.1.4|^6.0",
         "guzzlehttp/guzzle": "^6.0|^7.4"
     },
     "require-dev": {

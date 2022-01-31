@@ -363,20 +363,58 @@ class Brew
     }
 
     /**
-     * Get the currently running brew services.
+     * Get all the currently running brew services.
      *
      * @return \Illuminate\Support\Collection
      */
-    public function getRunningServices()
+    public function getAllRunningServices()
     {
-        return collect(array_filter(explode(PHP_EOL, $this->cli->runAsUser(
-            'brew services list | grep started | awk \'{ print $1; }\'',
-            function ($exitCode, $errorOutput) {
-                output($errorOutput);
+        return $this->getRunningServicesAsRoot()
+            ->concat($this->getRunningServicesAsUser())
+            ->unique();
+    }
 
-                throw new DomainException('Brew was unable to check which services are running.');
-            }
-        ))));
+    /**
+     * Get the currently running brew services as root.
+     * i.e. /Library/LaunchDaemons (started at boot).
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public function getRunningServicesAsRoot()
+    {
+        return $this->getRunningServices();
+    }
+
+    /**
+     * Get the currently running brew services.
+     * i.e. ~/Library/LaunchAgents (started at login).
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public function getRunningServicesAsUser()
+    {
+        return $this->getRunningServices(true);
+    }
+
+    /**
+     * Get the currently running brew services.
+     *
+     * @param  bool  $asUser
+     * @return \Illuminate\Support\Collection
+     */
+    public function getRunningServices($asUser = false)
+    {
+        $command = 'brew services list | grep started | awk \'{ print $1; }\'';
+        $onError = function ($exitCode, $errorOutput) {
+            output($errorOutput);
+
+            throw new DomainException('Brew was unable to check which services are running.');
+        };
+
+        return collect(array_filter(explode(PHP_EOL, $asUser
+            ? $this->cli->runAsUser($command, $onError)
+            : $this->cli->run('sudo '.$command, $onError)
+        )));
     }
 
     /**
