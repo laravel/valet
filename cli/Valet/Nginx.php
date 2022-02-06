@@ -80,30 +80,13 @@ class Nginx
             str_replace(
                 ['VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_STATIC_PREFIX'],
                 [VALET_HOME_PATH, VALET_SERVER_PATH, VALET_STATIC_PREFIX],
-                $this->replaceLoopback($this->files->get(__DIR__.'/../stubs/valet.conf'))
+                $this->site->replaceLoopback($this->files->get(__DIR__.'/../stubs/valet.conf'))
             )
         );
 
         $this->files->putAsUser(
             BREW_PREFIX.'/etc/nginx/fastcgi_params',
             $this->files->get(__DIR__.'/../stubs/fastcgi_params')
-        );
-    }
-
-    public function replaceLoopback($siteConf)
-    {
-        $loopback = $this->configuration->read()['loopback'];
-
-        if ($loopback === VALET_LOOPBACK) {
-            return $siteConf;
-        }
-
-        $str = '#listen VALET_LOOPBACK:80; # valet loopback';
-
-        return str_replace(
-            $str,
-            substr(str_replace('VALET_LOOPBACK', $loopback, $str), 1),
-            $siteConf
         );
     }
 

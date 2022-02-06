@@ -191,6 +191,20 @@ class Site
     }
 
     /**
+     * Determine if the provided site is parked.
+     *
+     * @param $valetSite
+     * @return bool
+     */
+    public function isValidSite($valetSite)
+    {
+        // remove .tld to make the search a bit easier
+        $siteName = str_replace('.'.$this->config->read()['tld'], '', $valetSite);
+
+        return $this->parked()->merge($this->links())->where('site', $siteName)->count() > 0;
+    }
+
+    /**
      * Identify whether a site is for a proxy by reading the host name from its config file.
      *
      * @param  string  $site  Site name without TLD
@@ -474,6 +488,8 @@ class Site
      */
     public function secure($url, $siteConf = null, $certificateExpireInDays = 396, $caExpireInYears = 20)
     {
+        $phpVersion = $this->extractPhpVersion($url); // let's try to preserve the isolated php version here. Example output: 74
+
         $this->unsecure($url);
 
         $this->files->ensureDirExists($this->caPath(), user());
@@ -487,9 +503,15 @@ class Site
         $this->createCa($caExpireInDate->format('%a'));
         $this->createCertificate($url, $certificateExpireInDays);
 
-        $this->files->putAsUser(
-            $this->nginxPath($url), $this->buildSecureNginxServer($url, $siteConf)
-        );
+        $siteConf = $this->buildSecureNginxServer($url, $siteConf);
+
+        // if user had any isolated php version, let's swap the .sock file,
+        // so it still uses the old php version
+        if ($phpVersion) {
+            $siteConf = $this->replaceSockFile($siteConf, "valet{$phpVersion}.sock", $phpVersion);
+        }
+
+        $this->files->putAsUser($this->nginxPath($url), $siteConf);
     }
 
     /**
@@ -666,6 +688,30 @@ class Site
     }
 
     /**
+     * Build the Nginx server for the given valet site.
+     *
+     * @param  string  $valetSite
+     * @param  string  $fpmSockName
+     * @param $phpVersion
+     * @return void
+     */
+    public function installSiteConfig($valetSite, $fpmSockName, $phpVersion)
+    {
+        if ($this->files->exists($this->nginxPath($valetSite))) {
+            $siteConf = $this->files->get($this->nginxPath($valetSite));
+            $siteConf = $this->replaceSockFile($siteConf, $fpmSockName, $phpVersion);
+        } else {
+            $siteConf = str_replace(
+                ['VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_STATIC_PREFIX', 'VALET_SITE', 'VALET_PHP_FPM_SOCKET', 'VALET_ISOLATED_PHP_VERSION'],
+                [VALET_HOME_PATH, VALET_SERVER_PATH, VALET_STATIC_PREFIX, $valetSite, $fpmSockName, $phpVersion],
+                $this->replaceLoopback($this->files->get(__DIR__.'/../stubs/site.valet.conf'))
+            );
+        }
+
+        $this->files->putAsUser($this->nginxPath($valetSite), $siteConf);
+    }
+
+    /**
      * Unsecure the given URL so that it will use HTTP again.
      *
      * @param  string  $url
@@ -673,6 +719,8 @@ class Site
      */
     public function unsecure($url)
     {
+        $phpVersion = $this->extractPhpVersion($url); // let's try to preserve the isolated php version here. Example output: 74
+
         if ($this->files->exists($this->certificatesPath($url, 'crt'))) {
             $this->files->unlink($this->nginxPath($url));
 
@@ -688,6 +736,12 @@ class Site
             'sudo security find-certificate -e "%s%s" -a -Z | grep SHA-1 | sudo awk \'{system("security delete-certificate -Z \'$NF\' /Library/Keychains/System.keychain")}\'',
             $url, '@laravel.valet'
         ));
+
+        // if user had any isolated php version, let's swap the .sock file,
+        // so it still uses the old php version
+        if ($phpVersion) {
+            $this->installSiteConfig($url, "valet{$phpVersion}.sock", $phpVersion);
+        }
     }
 
     public function unsecureAll()
@@ -963,5 +1017,66 @@ class Site
         $extension = $extension ? '.'.$extension : '';
 
         return $this->valetHomePath().'/Certificates'.$url.$extension;
+    }
+
+    /**
+     * Replace Loopback.
+     *
+     * @param  string  $siteConf
+     * @return string
+     */
+    public function replaceLoopback($siteConf)
+    {
+        $loopback = $this->config->read()['loopback'];
+
+        if ($loopback === VALET_LOOPBACK) {
+            return $siteConf;
+        }
+
+        $str = '#listen VALET_LOOPBACK:80; # valet loopback';
+
+        return str_replace(
+            $str,
+            substr(str_replace('VALET_LOOPBACK', $loopback, $str), 1),
+            $siteConf
+        );
+    }
+
+    /**
+     * Extract PHP version of exising nginx conifg.
+     *
+     * @param $url
+     * @return string|void
+     */
+    public function extractPhpVersion($url)
+    {
+        if ($this->files->exists($this->nginxPath($url))) {
+            $siteConf = $this->files->get($this->nginxPath($url));
+
+            if (starts_with($siteConf, '# Valet isolated PHP version')) {
+                $firstLine = explode(PHP_EOL, $siteConf)[0];
+
+                return preg_replace("/[^\d]*/", '', $firstLine);
+            }
+        }
+    }
+
+    /**
+     * Replace .sock file form a Nginx site conf.
+     *
+     * @param $siteConf
+     * @param $sockFile
+     * @param $phpVersion
+     * @return string
+     */
+    public function replaceSockFile($siteConf, $sockFile, $phpVersion)
+    {
+        $siteConf = preg_replace('/valet[0-9]*.sock/', $sockFile, $siteConf);
+
+        if (! starts_with($siteConf, '# Valet isolated PHP version')) {
+            $siteConf = '# Valet isolated PHP version : '.$phpVersion.PHP_EOL.$siteConf;
+        }
+
+        return $siteConf;
     }
 }

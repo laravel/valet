@@ -115,6 +115,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
             resolve(Filesystem::class),
         ])->makePartial();
         $phpFpmMock->shouldReceive('install');
+        $phpFpmMock->shouldReceive('updateConfigurationForGlobalUpdate');
 
         $brewMock->shouldReceive('supportedPhpVersions')->andReturn(collect([
             'php@7.2',
@@ -138,7 +139,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
 class StubForUpdatingFpmConfigFiles extends PhpFpm
 {
-    public function fpmConfigPath()
+    public function fpmConfigPath($phpVersion = null)
     {
         return __DIR__.'/output/fpm.conf';
     }

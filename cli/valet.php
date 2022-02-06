@@ -493,7 +493,7 @@ You might also want to investigate your global Composer configs. Helpful command
     /**
      * Allow the user to change the version of php valet uses.
      */
-    $app->command('use [phpVersion] [--force]', function ($phpVersion, $force) {
+    $app->command('use [phpVersion] [--force] [--site=]', function ($phpVersion, $force, $site) {
         if (! $phpVersion) {
             $path = getcwd().'/.valetphprc';
             $linkedVersion = Brew::linkedPhp();
@@ -511,13 +511,30 @@ You might also want to investigate your global Composer configs. Helpful command
 
         PhpFpm::validateRequestedVersion($phpVersion);
 
-        $newVersion = PhpFpm::useVersion($phpVersion, $force);
+        if ($site) {
+            if ($site == '.') { // allow user to use dot as current dir's site `--site=.`
+                $site = Site::host(getcwd()).'.'.Configuration::read()['tld'];
+            }
 
-        Nginx::restart();
-        info(sprintf('Valet is now using %s.', $newVersion).PHP_EOL);
-        info('Note that you might need to run <comment>composer global update</comment> if your PHP version change affects the dependencies of global packages required by Composer.');
+            if (! Site::isValidSite($site)) {
+                return warning(sprintf('Site %s could not be found in valet site list.', $site));
+            }
+
+            $newVersion = PhpFpm::useVersion($phpVersion, $force, $site);
+
+            Site::installSiteConfig($site, PhpFpm::fpmSockName($phpVersion), $phpVersion);
+            Nginx::restart();
+
+            info(sprintf('The [%s] site is now using %s.', $site, $newVersion));
+        } else {
+            $newVersion = PhpFpm::useVersion($phpVersion, $force);
+            Nginx::restart();
+            info(sprintf('Valet is now using %s.', $newVersion).PHP_EOL);
+            info('Note that you might need to run <comment>composer global update</comment> if your PHP version change affects the dependencies of global packages required by Composer.');
+        }
     })->descriptions('Change the version of PHP used by valet', [
         'phpVersion' => 'The PHP version you want to use, e.g php@7.3',
+        '--site' => 'Isolate PHP version of a specific valet site. e.g: --site=site.test',
     ]);
 
     /**
