@@ -123,11 +123,12 @@ class PhpFpm
     /**
      * Restart the PHP FPM process.
      *
+     * @param  string|null  $phpVersion
      * @return void
      */
     public function restart($phpVersion = null)
     {
-        $this->brew->restartService($phpVersion ?: $this->getPhpVersionsToPerformRestart());
+        $this->brew->restartService($phpVersion ?: $this->utilizedPhpVersions());
     }
 
     /**
@@ -146,6 +147,7 @@ class PhpFpm
     /**
      * Get the path to the FPM configuration file for the current PHP version.
      *
+     * @param  string|null  $phpVersion
      * @return string
      */
     public function fpmConfigPath($phpVersion = null)
@@ -298,7 +300,7 @@ class PhpFpm
 
     /**
      * Update all existing Nginx files when running a global PHP version update.
-     * If a given file is pointing to `valet.sock`, it's targeting the old global PHP version; 
+     * If a given file is pointing to `valet.sock`, it's targeting the old global PHP version;
      * update it to point to the new custom sock file for that version.
      * If a given file is pointing the custom sock file for the new global version, that new
      * version will now be hosted at `valet.sock`, so update the config file to point to that instead.
@@ -336,7 +338,7 @@ class PhpFpm
      *
      * @return array
      */
-    public function getPhpVersionsToPerformRestart()
+    public function utilizedPhpVersions()
     {
         $fpmSockFiles = $this->brew->supportedPhpVersions()->map(function ($version) {
             return $this->fpmSockName($this->normalizePhpVersion($version));
@@ -356,7 +358,7 @@ class PhpFpm
                         // for example, "valet74.sock" will output "php74"
                         $phpVersion = 'php'.str_replace(['valet', '.sock'], '', $sock);
 
-                        return $this->normalizePhpVersion($phpVersion); // example output php@7.4
+                        return $this->normalizePhpVersion($phpVersion); // Example output php@7.4
                     }
                 }
             })->merge([$this->brew->getLinkedPhpFormula()])->filter()->unique()->toArray();

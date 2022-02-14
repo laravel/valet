@@ -509,23 +509,34 @@ You might also want to investigate your global Composer configs. Helpful command
             }
         }
 
-        PhpFpm::validateRequestedVersion($phpVersion);
-
         if ($site) {
-            if ($site == '.') { // allow user to use dot as current dir's site `--site=.`
-                $site = Site::host(getcwd()).'.'.Configuration::read()['tld'];
+            $tld = Configuration::read()['tld'];
+
+            if ($site == '.') { // Allow user to use dot as current dir's site `--site=.`
+                $site = Site::host(getcwd()).'.'.$tld;
+            }
+
+            if (false === strpos($site, '.'.$tld)) {
+                $site = $site.'.'.$tld; // Allow user to pass just the site's directory name
             }
 
             if (! Site::isValidSite($site)) {
                 return warning(sprintf('Site %s could not be found in valet site list.', $site));
             }
 
-            $newVersion = PhpFpm::useVersion($phpVersion, $force, $site);
+            if ($phpVersion == 'default') {
+                Site::removeIsolation($site);
+                Nginx::restart();
 
-            Site::installSiteConfig($site, PhpFpm::fpmSockName($phpVersion), $phpVersion);
-            Nginx::restart();
+                info(sprintf('The [%s] site is now using default php version.', $site));
+            } else {
+                $newVersion = PhpFpm::useVersion($phpVersion, $force, $site);
 
-            info(sprintf('The [%s] site is now using %s.', $site, $newVersion));
+                Site::installSiteConfig($site, PhpFpm::fpmSockName($phpVersion), $phpVersion);
+                Nginx::restart();
+
+                info(sprintf('The [%s] site is now using %s.', $site, $newVersion));
+            }
         } else {
             $newVersion = PhpFpm::useVersion($phpVersion, $force);
             Nginx::restart();
