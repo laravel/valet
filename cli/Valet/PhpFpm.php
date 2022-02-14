@@ -33,7 +33,7 @@ class PhpFpm
     /**
      * Install and configure PhpFpm.
      *
-     * @param  null  $phpVersion
+     * @param  string|null  $phpVersion
      * @return void
      */
     public function install($phpVersion = null)
@@ -64,7 +64,7 @@ class PhpFpm
     /**
      * Update the PHP FPM configuration.
      *
-     * @param  null  $phpVersion
+     * @param  string|null  $phpVersion
      * @return void
      */
     public function updateConfiguration($phpVersion = null)
@@ -181,7 +181,7 @@ class PhpFpm
      *
      * @param $version
      * @param  bool  $force
-     * @param  null  $site
+     * @param  string|null  $site
      * @return string
      */
     public function useVersion($version, $force = false, $site = null)
@@ -202,21 +202,20 @@ class PhpFpm
             $this->brew->ensureInstalled($version, [], $this->taps);
         }
 
-        // we need to unlink and link only for global php version change
+        // Delete old Valet sock files, install the new version, and, if this is a global change, unlink and link PHP
         if ($site) {
             $this->cli->quietly('sudo rm '.VALET_HOME_PATH.'/'.$this->fpmSockName($version));
             $this->install($version);
         } else {
-            // Unlink the current php if there is one
+            // Unlink the current global PHP if there is one installed
             if ($this->brew->hasLinkedPhp()) {
                 $linkedPhp = $this->brew->linkedPhp();
 
-                // updating old fpm to use a custom sock
-                // so exising lokced php versioned sites doesn't mess up
+                // Update the old FPM to keep running, using a custom sock file, so existing isolated sites aren't broken
                 $this->updateConfiguration($linkedPhp);
 
-                // check all custom nginx config files
-                // look for the php version and update config files accordingly
+                // Update existing custom Nginx config files; if they're using the old or new PHP version,
+                // update them to the new correct sock file location
                 $this->updateConfigurationForGlobalUpdate($version, $linkedPhp);
 
                 $currentVersion = $this->brew->getLinkedPhpFormula();
@@ -285,7 +284,7 @@ class PhpFpm
     }
 
     /**
-     * Get fpm sock file name from a given php version.
+     * Get FPM sock file name for a given PHP version.
      *
      * @param  string|null  $phpVersion
      * @return string
@@ -298,16 +297,21 @@ class PhpFpm
     }
 
     /**
-     * Preseve exising isolated PHP versioned sites, when running a gloabl php version update. Look for the php version and will adjust that custom nginx config.
+     * Update all existing Nginx files when running a global PHP version update.
+     * If a given file is pointing to `valet.sock`, it's targeting the old global PHP version; 
+     * update it to point to the new custom sock file for that version.
+     * If a given file is pointing the custom sock file for the new global version, that new
+     * version will now be hosted at `valet.sock`, so update the config file to point to that instead.
      *
      * @param $newPhpVersion
      * @param $oldPhpVersion
+     * @return void
      */
     public function updateConfigurationForGlobalUpdate($newPhpVersion, $oldPhpVersion)
     {
         collect($this->files->scandir(VALET_HOME_PATH.'/Nginx'))
-            ->filter(function ($file) {
-                return ! starts_with($file, '.');
+            ->reject(function ($file) {
+                return starts_with($file, '.');
             })
             ->each(function ($file) use ($newPhpVersion, $oldPhpVersion) {
                 $content = $this->files->get(VALET_HOME_PATH.'/Nginx/'.$file);
@@ -327,32 +331,29 @@ class PhpFpm
     }
 
     /**
-     * Get the PHP versions to perform restart.
+     * Get a list of all PHP versions currently serving "isolated sites" (sites with custom Nginx
+     * configs pointing them to a specific PHP version).
      *
      * @return array
      */
     public function getPhpVersionsToPerformRestart()
     {
-        // scan through custom nginx files
-        // look for config file, that is using custom .sock files (example: php74.sock)
-        // restart all those PHP FPM though valet
-        // to make sure all the custom php versioned sites keep running
-
         $fpmSockFiles = $this->brew->supportedPhpVersions()->map(function ($version) {
             return $this->fpmSockName($this->normalizePhpVersion($version));
         })->unique();
 
         return collect($this->files->scandir(VALET_HOME_PATH.'/Nginx'))
-            ->filter(function ($file) {
-                return ! starts_with($file, '.');
+            ->reject(function ($file) {
+                return starts_with($file, '.');
             })
             ->map(function ($file) use ($fpmSockFiles) {
                 $content = $this->files->get(VALET_HOME_PATH.'/Nginx/'.$file);
 
+                // Get the normalized PHP version for this config file, if it's defined
                 foreach ($fpmSockFiles as $sock) {
                     if (strpos($content, $sock) !== false) {
-                        // find the PHP version number from .sock path
-                        // valet74.sock will outout php74
+                        // Extract the PHP version number from a custom .sock path;
+                        // for example, "valet74.sock" will output "php74"
                         $phpVersion = 'php'.str_replace(['valet', '.sock'], '', $sock);
 
                         return $this->normalizePhpVersion($phpVersion); // example output php@7.4

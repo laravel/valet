@@ -191,14 +191,14 @@ class Site
     }
 
     /**
-     * Determine if the provided site is parked.
+     * Determine if the provided site is a valid site, whether parked or linked.
      *
-     * @param $valetSite
+     * @param string $valetSite
      * @return bool
      */
     public function isValidSite($valetSite)
     {
-        // remove .tld to make the search a bit easier
+        // Remove .tld from sitename if it was provided
         $siteName = str_replace('.'.$this->config->read()['tld'], '', $valetSite);
 
         return $this->parked()->merge($this->links())->where('site', $siteName)->count() > 0;
@@ -488,7 +488,8 @@ class Site
      */
     public function secure($url, $siteConf = null, $certificateExpireInDays = 396, $caExpireInYears = 20)
     {
-        $phpVersion = $this->extractPhpVersion($url); // let's try to preserve the isolated php version here. Example output: 74
+        // Extract in order to later preserve custom PHP version config when securing
+        $phpVersion = $this->extractPhpVersion($url);
 
         $this->unsecure($url);
 
@@ -505,8 +506,7 @@ class Site
 
         $siteConf = $this->buildSecureNginxServer($url, $siteConf);
 
-        // if user had any isolated php version, let's swap the .sock file,
-        // so it still uses the old php version
+        // If they user had isolated the PHP version for this site, swap out .sock file
         if ($phpVersion) {
             $siteConf = $this->replaceSockFile($siteConf, "valet{$phpVersion}.sock", $phpVersion);
         }
@@ -1020,7 +1020,7 @@ class Site
     }
 
     /**
-     * Replace Loopback.
+     * Replace Loopback configuration line in Valet site configuration file contents.
      *
      * @param  string  $siteConf
      * @return string
@@ -1062,11 +1062,11 @@ class Site
     }
 
     /**
-     * Replace .sock file form a Nginx site conf.
+     * Replace .sock file in an Nginx site configuration file contents.
      *
-     * @param $siteConf
-     * @param $sockFile
-     * @param $phpVersion
+     * @param string $siteConf
+     * @param string $sockFile
+     * @param string $phpVersion
      * @return string
      */
     public function replaceSockFile($siteConf, $sockFile, $phpVersion)
