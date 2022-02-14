@@ -188,7 +188,7 @@ class PhpFpm
     {
         $phpVersion = $this->normalizePhpVersion($phpVersion);
 
-        if(! in_array($phpVersion, $this->utilizedPhpVersions())) {
+        if (! in_array($phpVersion, $this->utilizedPhpVersions())) {
             $this->brew->stopService($phpVersion);
         }
     }
