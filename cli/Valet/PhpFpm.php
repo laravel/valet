@@ -179,6 +179,21 @@ class PhpFpm
     }
 
     /**
+     * Stop PHP, if a specific version isn't being used globally or by any sites.
+     *
+     * @param  string  $phpVersion
+     * @return void
+     */
+    public function maybeStop($phpVersion)
+    {
+        $phpVersion = $this->normalizePhpVersion($phpVersion);
+
+        if(! in_array($phpVersion, $this->utilizedPhpVersions())) {
+            $this->brew->stopService($phpVersion);
+        }
+    }
+
+    /**
      * Use a specific version of php.
      *
      * @param $version
@@ -305,8 +320,8 @@ class PhpFpm
      * If a given file is pointing the custom sock file for the new global version, that new
      * version will now be hosted at `valet.sock`, so update the config file to point to that instead.
      *
-     * @param $newPhpVersion
-     * @param $oldPhpVersion
+     * @param  string  $newPhpVersion
+     * @param  string  $oldPhpVersion
      * @return void
      */
     public function updateConfigurationForGlobalUpdate($newPhpVersion, $oldPhpVersion)

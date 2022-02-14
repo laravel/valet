@@ -525,7 +525,12 @@ You might also want to investigate your global Composer configs. Helpful command
             }
 
             if ($phpVersion == 'default') {
+                $customPhpVersion = Site::customPhpVersion($site); // Example output: "74"
                 Site::removeIsolation($site);
+                if ($customPhpVersion) {
+                    PhpFpm::maybeStop('php' .$customPhpVersion);
+                }
+
                 Nginx::restart();
 
                 info(sprintf('The [%s] site is now using default php version.', $site));

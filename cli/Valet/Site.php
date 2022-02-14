@@ -712,12 +712,12 @@ class Site
     }
 
     /**
-     * Remove PHP Version isolation from a specific site
+     * Remove PHP Version isolation from a specific site.
      *
      * @param  string  $valetSite
      * @return void
      */
-    function removeIsolation($valetSite)
+    public function removeIsolation($valetSite)
     {
         // When site has SSL certificate, just re-generate the nginx config.
         // It will be using the `valet.sock` by default from now
@@ -1064,7 +1064,7 @@ class Site
     /**
      * Extract PHP version of exising nginx conifg.
      *
-     * @param   string  $url
+     * @param  string  $url
      * @return string|void
      */
     public function customPhpVersion($url)
@@ -1075,7 +1075,7 @@ class Site
             if (starts_with($siteConf, '# Valet isolated PHP version')) {
                 $firstLine = explode(PHP_EOL, $siteConf)[0];
 
-                return preg_replace("/[^\d]*/", '', $firstLine);
+                return preg_replace("/[^\d]*/", '', $firstLine); // Example output: "74" or "81"
             }
         }
     }
