@@ -191,17 +191,26 @@ class Site
     }
 
     /**
-     * Determine if the provided site is a valid site, whether parked or linked.
+     * Determine if the provided site is a valid site, whether parked or linked and get the site url.
      *
-     * @param  string  $valetSite
-     * @return bool
+     * @param  string  $directory
+     * @return string|false
      */
-    public function isValidSite($valetSite)
+    public function getSiteUrl($directory)
     {
-        // Remove .tld from sitename if it was provided
-        $siteName = str_replace('.'.$this->config->read()['tld'], '', $valetSite);
+        $tld = $this->config->read()['tld'];
 
-        return $this->parked()->merge($this->links())->where('site', $siteName)->count() > 0;
+        if ($directory == '.') { // Allow user to use dot as current dir's site `--site=.`
+            $directory = $this->host(getcwd());
+        }
+
+        $directory = str_replace('.'.$tld, '', $directory); // Remove .tld from sitename if it was provided
+
+        if ($this->parked()->merge($this->links())->where('site', $directory)->count() > 0) {
+            return $directory.'.'.$tld;
+        }
+
+        return false; // Invalid directory provided
     }
 
     /**
@@ -692,7 +701,7 @@ class Site
      *
      * @param  string  $valetSite
      * @param  string  $fpmSockName
-     * @param $phpVersion
+     * @param  string  $phpVersion
      * @return void
      */
     public function installSiteConfig($valetSite, $fpmSockName, $phpVersion)
@@ -1091,11 +1100,8 @@ class Site
     public function replaceSockFile($siteConf, $sockFile, $phpVersion)
     {
         $siteConf = preg_replace('/valet[0-9]*.sock/', $sockFile, $siteConf);
+        $siteConf = preg_replace('/# Valet isolated PHP version.*\n/', '', $siteConf); // Remove `Valet isolated PHP version` line from config
 
-        if (! starts_with($siteConf, '# Valet isolated PHP version')) {
-            $siteConf = '# Valet isolated PHP version : '.$phpVersion.PHP_EOL.$siteConf;
-        }
-
-        return $siteConf;
+        return '# Valet isolated PHP version : '.$phpVersion.PHP_EOL.$siteConf;
     }
 }

@@ -9,6 +9,9 @@ class PhpFpm
     public $brew;
     public $cli;
     public $files;
+    public $config;
+    public $site;
+    public $nginx;
 
     public $taps = [
         'homebrew/homebrew-core',
@@ -21,22 +24,27 @@ class PhpFpm
      * @param  Brew  $brew
      * @param  CommandLine  $cli
      * @param  Filesystem  $files
+     * @param  Configuration  $config
+     * @param  Site  $site
+     * @param  Nginx  $nginx
      * @return void
      */
-    public function __construct(Brew $brew, CommandLine $cli, Filesystem $files)
+    public function __construct(Brew $brew, CommandLine $cli, Filesystem $files, Configuration $config, Site $site, Nginx $nginx)
     {
         $this->cli = $cli;
         $this->brew = $brew;
         $this->files = $files;
+        $this->config = $config;
+        $this->site = $site;
+        $this->nginx = $nginx;
     }
 
     /**
      * Install and configure PhpFpm.
      *
-     * @param  string|null  $phpVersion
      * @return void
      */
-    public function install($phpVersion = null)
+    public function install()
     {
         if (! $this->brew->hasInstalledPhp()) {
             $this->brew->ensureInstalled('php', [], $this->taps);
@@ -44,9 +52,9 @@ class PhpFpm
 
         $this->files->ensureDirExists(VALET_HOME_PATH.'/Log', user());
 
-        $this->updateConfiguration($phpVersion);
+        $this->updateConfiguration();
 
-        $this->restart($phpVersion);
+        $this->restart();
     }
 
     /**
@@ -181,11 +189,19 @@ class PhpFpm
     /**
      * Stop PHP, if a specific version isn't being used globally or by any sites.
      *
-     * @param  string  $phpVersion
+     * @param  string|null  $phpVersion
      * @return void
      */
     public function maybeStop($phpVersion)
     {
+        if (! $phpVersion) {
+            return;
+        }
+
+        if (strpos($phpVersion, 'php') === false) {
+            $phpVersion = 'php'.$phpVersion;
+        }
+
         $phpVersion = $this->normalizePhpVersion($phpVersion);
 
         if (! in_array($phpVersion, $this->utilizedPhpVersions())) {
@@ -198,11 +214,29 @@ class PhpFpm
      *
      * @param $version
      * @param  bool  $force
-     * @param  string|null  $site
-     * @return string
+     * @param  string|null  $directory
+     * @return string|void
      */
-    public function useVersion($version, $force = false, $site = null)
+    public function useVersion($version, $force = false, $directory = null)
     {
+        if ($directory) {
+            $site = $this->site->getSiteUrl($directory);
+
+            if (! $site) {
+                warning(sprintf('The [%s] site could not be found in valet site list.', $directory));
+                exit();
+            }
+
+            if ($version == 'default') { // Remove isolation for this site
+                $customPhpVersion = $this->site->customPhpVersion($site); // Example output: "74"
+                $this->site->removeIsolation($site);
+                $this->maybeStop($customPhpVersion);
+                $this->nginx->restart();
+                info(sprintf('The [%s] site is now using default php version.', $site));
+                exit();
+            }
+        }
+
         $version = $this->validateRequestedVersion($version);
 
         try {
@@ -220,40 +254,55 @@ class PhpFpm
         }
 
         // Delete old Valet sock files, install the new version, and, if this is a global change, unlink and link PHP
-        if ($site) {
+        if ($directory && $site) {
+            $customPhpVersion = $this->site->customPhpVersion($site); // Example output: "74"
             $this->cli->quietly('sudo rm '.VALET_HOME_PATH.'/'.$this->fpmSockName($version));
-            $this->install($version);
-        } else {
-            // Unlink the current global PHP if there is one installed
-            if ($this->brew->hasLinkedPhp()) {
-                $linkedPhp = $this->brew->linkedPhp();
+            $this->updateConfiguration($version);
+            $this->site->installSiteConfig($site, $this->fpmSockName($version), $version);
 
-                // Update the old FPM to keep running, using a custom sock file, so existing isolated sites aren't broken
-                $this->updateConfiguration($linkedPhp);
-
-                // Update existing custom Nginx config files; if they're using the old or new PHP version,
-                // update them to the new correct sock file location
-                $this->updateConfigurationForGlobalUpdate($version, $linkedPhp);
-
-                $currentVersion = $this->brew->getLinkedPhpFormula();
-                info(sprintf('Unlinking current version: %s', $currentVersion));
-                $this->brew->unlink($currentVersion);
-            }
-
-            info(sprintf('Linking new version: %s', $version));
-            $this->brew->link($version, true);
-
-            $this->stopRunning();
-
-            // remove any orphaned valet.sock files that PHP didn't clean up due to version conflicts
-            $this->files->unlink(VALET_HOME_PATH.'/valet.sock');
-            $this->cli->quietly('sudo rm '.VALET_HOME_PATH.'/valet*.sock');
-
-            // ensure configuration is correct and start the linked version
-            $this->install();
+            $this->maybeStop($customPhpVersion);
+            $this->restart($version);
+            $this->nginx->restart();
+            info(sprintf('The [%s] site is now using %s.', $site, $version));
+            exit();
         }
 
-        return $version === 'php' ? $this->brew->determineAliasedVersion($version) : $version;
+        // Unlink the current global PHP if there is one installed
+        if ($this->brew->hasLinkedPhp()) {
+            $linkedPhp = $this->brew->linkedPhp();
+
+            // Update the old FPM to keep running, using a custom sock file, so existing isolated sites aren't broken
+            $this->updateConfiguration($linkedPhp);
+
+            // Update existing custom Nginx config files; if they're using the old or new PHP version,
+            // update them to the new correct sock file location
+            $this->updateConfigurationForGlobalUpdate($version, $linkedPhp);
+
+            $currentVersion = $this->brew->getLinkedPhpFormula();
+            info(sprintf('Unlinking current version: %s', $currentVersion));
+            $this->brew->unlink($currentVersion);
+        }
+
+        info(sprintf('Linking new version: %s', $version));
+        $this->brew->link($version, true);
+
+        $this->stopRunning();
+
+        // remove any orphaned valet.sock files that PHP didn't clean up due to version conflicts
+        $this->files->unlink(VALET_HOME_PATH.'/valet.sock');
+        $this->cli->quietly('sudo rm '.VALET_HOME_PATH.'/valet*.sock');
+
+        // ensure configuration is correct and start the linked version
+        $this->install();
+
+        $newVersion = $version === 'php' ? $this->brew->determineAliasedVersion($version) : $version;
+
+        $this->nginx->restart();
+
+        info(sprintf('Valet is now using %s.', $newVersion).PHP_EOL);
+        info('Note that you might need to run <comment>composer global update</comment> if your PHP version change affects the dependencies of global packages required by Composer.');
+
+        return $newVersion;
     }
 
     /**

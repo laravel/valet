@@ -509,45 +509,7 @@ You might also want to investigate your global Composer configs. Helpful command
             }
         }
 
-        if ($site) {
-            $tld = Configuration::read()['tld'];
-
-            if ($site == '.') { // Allow user to use dot as current dir's site `--site=.`
-                $site = Site::host(getcwd()).'.'.$tld;
-            }
-
-            if (false === strpos($site, '.'.$tld)) {
-                $site = $site.'.'.$tld; // Allow user to pass just the site's directory name
-            }
-
-            if (! Site::isValidSite($site)) {
-                return warning(sprintf('Site %s could not be found in valet site list.', $site));
-            }
-
-            if ($phpVersion == 'default') {
-                $customPhpVersion = Site::customPhpVersion($site); // Example output: "74"
-                Site::removeIsolation($site);
-                if ($customPhpVersion) {
-                    PhpFpm::maybeStop('php'.$customPhpVersion);
-                }
-
-                Nginx::restart();
-
-                info(sprintf('The [%s] site is now using default php version.', $site));
-            } else {
-                $newVersion = PhpFpm::useVersion($phpVersion, $force, $site);
-
-                Site::installSiteConfig($site, PhpFpm::fpmSockName($phpVersion), $phpVersion);
-                Nginx::restart();
-
-                info(sprintf('The [%s] site is now using %s.', $site, $newVersion));
-            }
-        } else {
-            $newVersion = PhpFpm::useVersion($phpVersion, $force);
-            Nginx::restart();
-            info(sprintf('Valet is now using %s.', $newVersion).PHP_EOL);
-            info('Note that you might need to run <comment>composer global update</comment> if your PHP version change affects the dependencies of global packages required by Composer.');
-        }
+        PhpFpm::useVersion($phpVersion, $force, $site);
     })->descriptions('Change the version of PHP used by valet', [
         'phpVersion' => 'The PHP version you want to use, e.g php@7.3',
         '--site' => 'Isolate PHP version of a specific valet site. e.g: --site=site.test',

@@ -3,9 +3,12 @@
 use Illuminate\Container\Container;
 use Valet\Brew;
 use Valet\CommandLine;
+use Valet\Configuration;
 use Valet\Filesystem;
+use Valet\Nginx;
 use Valet\PhpFpm;
 use function Valet\resolve;
+use Valet\Site;
 use function Valet\swap;
 use function Valet\user;
 
@@ -65,10 +68,16 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
     public function test_use_version_will_convert_passed_php_version()
     {
         $brewMock = Mockery::mock(Brew::class);
+        $nginxMock = Mockery::mock(Nginx::class);
+        $siteMock = Mockery::mock(Site::class);
+
         $phpFpmMock = Mockery::mock(PhpFpm::class, [
             $brewMock,
             resolve(CommandLine::class),
             resolve(Filesystem::class),
+            resolve(Configuration::class),
+            $siteMock,
+            $nginxMock,
         ])->makePartial();
 
         $phpFpmMock->shouldReceive('install');
@@ -85,6 +94,8 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $brewMock->shouldReceive('installed');
         $brewMock->shouldReceive('getAllRunningServices')->andReturn(collect());
         $brewMock->shouldReceive('stopService');
+
+        $nginxMock->shouldReceive('restart');
 
         // Test both non prefixed and prefixed
         $this->assertSame('php@7.2', $phpFpmMock->useVersion('php7.2'));
@@ -109,11 +120,18 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
     public function test_use_version_if_already_linked_php_will_unlink_before_installing()
     {
         $brewMock = Mockery::mock(Brew::class);
+        $nginxMock = Mockery::mock(Nginx::class);
+        $siteMock = Mockery::mock(Site::class);
+
         $phpFpmMock = Mockery::mock(PhpFpm::class, [
             $brewMock,
             resolve(CommandLine::class),
             resolve(Filesystem::class),
+            resolve(Configuration::class),
+            $siteMock,
+            $nginxMock,
         ])->makePartial();
+
         $phpFpmMock->shouldReceive('install');
         $phpFpmMock->shouldReceive('updateConfigurationForGlobalUpdate');
 
@@ -131,6 +149,8 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $brewMock->shouldReceive('installed');
         $brewMock->shouldReceive('getAllRunningServices')->andReturn(collect());
         $brewMock->shouldReceive('stopService');
+
+        $nginxMock->shouldReceive('restart');
 
         // Test both non prefixed and prefixed
         $this->assertSame('php@7.2', $phpFpmMock->useVersion('php@7.2'));
