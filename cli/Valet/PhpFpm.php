@@ -192,7 +192,7 @@ class PhpFpm
      * @param  string|null  $phpVersion
      * @return void
      */
-    public function maybeStop($phpVersion)
+    public function stopIfUnused($phpVersion)
     {
         if (! $phpVersion) {
             return;
@@ -228,9 +228,9 @@ class PhpFpm
             }
 
             if ($version == 'default') { // Remove isolation for this site
-                $customPhpVersion = $this->site->customPhpVersion($site); // Example output: "74"
+                $oldCustomPhpVersion = $this->site->customPhpVersion($site); // Example output: "74"
                 $this->site->removeIsolation($site);
-                $this->maybeStop($customPhpVersion);
+                $this->stopIfUnused($oldCustomPhpVersion);
                 $this->nginx->restart();
                 info(sprintf('The site [%s] is now using the default PHP version.', $site));
                 return;
@@ -254,15 +254,15 @@ class PhpFpm
         }
 
         if ($directory) {
-            $customPhpVersion = $this->site->customPhpVersion($site); // Example output: "74"
+            $oldCustomPhpVersion = $this->site->customPhpVersion($site); // Example output: "74"
             $this->cli->quietly('sudo rm '.VALET_HOME_PATH.'/'.$this->fpmSockName($version));
             $this->updateConfiguration($version);
             $this->site->installSiteConfig($site, $this->fpmSockName($version), $version);
 
-            $this->maybeStop($customPhpVersion);
+            $this->stopIfUnused($oldCustomPhpVersion);
             $this->restart($version);
             $this->nginx->restart();
-            info(sprintf('The [%s] site is now using %s.', $site, $version));
+            info(sprintf('The site [%s] is now using %s.', $site, $version));
             return;
         }
 
