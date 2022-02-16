@@ -191,7 +191,7 @@ class Site
     }
 
     /**
-     * Determine if the provided site is a valid site, whether parked or linked and get the site url.
+     * Get the site URL from a directory if it's a valid Valet site.
      *
      * @param  string  $directory
      * @return string|false
@@ -200,17 +200,17 @@ class Site
     {
         $tld = $this->config->read()['tld'];
 
-        if ($directory == '.') { // Allow user to use dot as current dir's site `--site=.`
+        if ($directory == '.' || $directory == './') { // Allow user to use dot as current dir's site `--site=.`
             $directory = $this->host(getcwd());
         }
 
         $directory = str_replace('.'.$tld, '', $directory); // Remove .tld from sitename if it was provided
 
-        if ($this->parked()->merge($this->links())->where('site', $directory)->count() > 0) {
-            return $directory.'.'.$tld;
+        if (! $this->parked()->merge($this->links())->where('site', $directory)->count() > 0) {
+            return false; // Invalid directory provided
         }
 
-        return false; // Invalid directory provided
+        return $directory.'.'.$tld;
     }
 
     /**
@@ -697,7 +697,7 @@ class Site
     }
 
     /**
-     * Build the Nginx server for the given valet site.
+     * Build the Nginx server configuration for the given Valet site.
      *
      * @param  string  $valetSite
      * @param  string  $fpmSockName
@@ -728,13 +728,13 @@ class Site
      */
     public function removeIsolation($valetSite)
     {
-        // When site has SSL certificate, just re-generate the nginx config.
-        // It will be using the `valet.sock` by default from now
+        // If a site has an SSL certificate, we need to keep its custom config file, but we can
+        // just re-generate it without defining a custom `valet.sock` file
         if ($this->files->exists($this->certificatesPath($valetSite, 'crt'))) {
             $siteConf = $this->buildSecureNginxServer($valetSite);
             $this->files->putAsUser($this->nginxPath($valetSite), $siteConf);
         } else {
-            // When site doesn't have SSL, removing the custom nginx config will remove isolation
+            // When site doesn't have SSL, we can remove the custom nginx config file to remove isolation
             $this->files->unlink($this->nginxPath($valetSite));
         }
     }

@@ -212,7 +212,7 @@ class PhpFpm
     /**
      * Use a specific version of php.
      *
-     * @param $version
+     * @param  string  $version
      * @param  bool  $force
      * @param  string|null  $directory
      * @return string|void
@@ -223,8 +223,8 @@ class PhpFpm
             $site = $this->site->getSiteUrl($directory);
 
             if (! $site) {
-                warning(sprintf('The [%s] site could not be found in valet site list.', $directory));
-                exit();
+                warning(sprintf("The [%s] site could not be found in Valet's site list.", $directory));
+                return;
             }
 
             if ($version == 'default') { // Remove isolation for this site
@@ -232,8 +232,8 @@ class PhpFpm
                 $this->site->removeIsolation($site);
                 $this->maybeStop($customPhpVersion);
                 $this->nginx->restart();
-                info(sprintf('The [%s] site is now using default php version.', $site));
-                exit();
+                info(sprintf('The site [%s] is now using the default PHP version.', $site));
+                return;
             }
         }
 
@@ -253,8 +253,7 @@ class PhpFpm
             $this->brew->ensureInstalled($version, [], $this->taps);
         }
 
-        // Delete old Valet sock files, install the new version, and, if this is a global change, unlink and link PHP
-        if ($directory && $site) {
+        if ($directory) {
             $customPhpVersion = $this->site->customPhpVersion($site); // Example output: "74"
             $this->cli->quietly('sudo rm '.VALET_HOME_PATH.'/'.$this->fpmSockName($version));
             $this->updateConfiguration($version);
@@ -264,7 +263,7 @@ class PhpFpm
             $this->restart($version);
             $this->nginx->restart();
             info(sprintf('The [%s] site is now using %s.', $site, $version));
-            exit();
+            return;
         }
 
         // Unlink the current global PHP if there is one installed
