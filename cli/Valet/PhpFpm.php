@@ -396,8 +396,8 @@ class PhpFpm
     }
 
     /**
-     * Get a list of all PHP versions currently serving "isolated sites" (sites with custom Nginx
-     * configs pointing them to a specific PHP version).
+     * Get a list including the global PHP version and allPHP versions currently serving "isolated sites" (sites with
+     * custom Nginx configs pointing them to a specific PHP version).
      *
      * @return array
      */
