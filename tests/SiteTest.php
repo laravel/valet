@@ -526,6 +526,261 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $this->assertEquals([], $site->proxies()->all());
     }
+
+    public function test_get_site_url_from_directory()
+    {
+        $config = Mockery::mock(Configuration::class);
+
+        swap(Configuration::class, $config);
+
+        $siteMock = Mockery::mock(Site::class, [
+            resolve(Configuration::class),
+            resolve(CommandLine::class),
+            resolve(Filesystem::class),
+        ])->makePartial();
+
+        swap(Site::class, $siteMock);
+
+        $config->shouldReceive('read')
+            ->andReturn(['tld' => 'test', 'loopback' => VALET_LOOPBACK, 'paths' => []]);
+
+        $siteMock->shouldReceive('parked')
+            ->andReturn(collect([
+                'site1' => [
+                    'site' => 'site1',
+                    'secured' => '',
+                    'url' => 'http://site1.test',
+                    'path' => '/Users/name/code/site1',
+                ],
+            ]));
+
+        $siteMock->shouldReceive('links')->andReturn(collect([
+            'site2' => [
+                'site' => 'site2',
+                'secured' => 'X',
+                'url' => 'http://site2.test',
+                'path' => '/Users/name/code/site2',
+            ],
+        ]));
+
+        $siteMock->shouldReceive('host')->andReturn('site1');
+
+        $site = resolve(Site::class);
+
+        $this->assertEquals('site1.test', $site->getSiteUrl('.'));
+        $this->assertEquals('site1.test', $site->getSiteUrl('./'));
+
+        $this->assertEquals('site1.test', $site->getSiteUrl('site1'));
+        $this->assertEquals('site1.test', $site->getSiteUrl('site1.test'));
+
+        $this->assertEquals('site2.test', $site->getSiteUrl('site2'));
+        $this->assertEquals('site2.test', $site->getSiteUrl('site2.test'));
+
+        $this->assertEquals(false, $site->getSiteUrl('site3'));
+        $this->assertEquals(false, $site->getSiteUrl('site3.test'));
+    }
+
+    public function test_adding_ssl_certificate_would_preserve_isolation()
+    {
+        $files = Mockery::mock(Filesystem::class);
+        $config = Mockery::mock(Configuration::class);
+
+        $siteMock = Mockery::mock(Site::class, [
+            $config,
+            Mockery::mock(CommandLine::class),
+            $files,
+        ])->makePartial();
+
+        swap(Site::class, $siteMock);
+
+        $siteMock->shouldReceive('unsecure');
+        $files->shouldReceive('ensureDirExists');
+        $files->shouldReceive('putAsUser');
+        $siteMock->shouldReceive('createCa');
+        $siteMock->shouldReceive('createCertificate');
+        $siteMock->shouldReceive('buildSecureNginxServer');
+
+        // If site has an isolated PHP version for the site, it would replace .sock file
+        $siteMock->shouldReceive('customPhpVersion')->with('site1.test')->andReturn('73')->once();
+        $siteMock->shouldReceive('replaceSockFile')->withArgs([Mockery::any(), 'valet73.sock', '73'])->once();
+        resolve(Site::class)->secure('site1.test');
+
+        // Sites without isolated PHP version, should not replace anything
+        $siteMock->shouldReceive('customPhpVersion')->with('site2.test')->andReturn(null)->once();
+        $siteMock->shouldNotReceive('replaceSockFile');
+        resolve(Site::class)->secure('site2.test');
+    }
+
+    public function test_removing_ssl_certificate_would_preserve_isolation()
+    {
+        $files = Mockery::mock(Filesystem::class);
+        $config = Mockery::mock(Configuration::class);
+        $cli = Mockery::mock(CommandLine::class);
+
+        $siteMock = Mockery::mock(Site::class, [
+            $config,
+            $cli,
+            $files,
+        ])->makePartial();
+
+        swap(Site::class, $siteMock);
+
+        $cli->shouldReceive('run');
+        $files->shouldReceive('exists')->andReturn(false);
+
+        // If site has an isolated PHP version, it would install nginx site config
+        $siteMock->shouldReceive('customPhpVersion')->with('site1.test')->andReturn('73')->once();
+        $siteMock->shouldReceive('installSiteConfig')->withArgs(['site1.test', 'valet73.sock', '73'])->once();
+        resolve(Site::class)->unsecure('site1.test');
+
+        // Site without a custom PHP version, should not install site config
+        $siteMock->shouldReceive('customPhpVersion')->with('site2.test')->andReturn(null)->once();
+        $siteMock->shouldNotReceive('installSiteConfig');
+        resolve(Site::class)->unsecure('site2.test');
+    }
+
+    public function test_can_install_nginx_site_config_for_specific_php_version()
+    {
+        $files = Mockery::mock(Filesystem::class);
+        $config = Mockery::mock(Configuration::class);
+
+        $siteMock = Mockery::mock(Site::class, [
+            $config,
+            resolve(CommandLine::class),
+            $files,
+        ])->makePartial();
+
+        $config->shouldReceive('read')
+            ->andReturn(['tld' => 'test', 'loopback' => VALET_LOOPBACK]);
+
+        // If Nginx config exists for the site, modify exising config
+        $files->shouldReceive('exists')->once()->with($siteMock->nginxPath('site1.test'))->andReturn(true);
+
+        $files->shouldReceive('get')
+            ->once()
+            ->with($siteMock->nginxPath('site1.test'))
+            ->andReturn('# Valet isolated PHP version : php@7.4'.PHP_EOL.'server { fastcgi_pass: valet74.sock }');
+
+        $files->shouldReceive('putAsUser')
+            ->once()
+            ->withArgs([
+                $siteMock->nginxPath('site1.test'),
+                '# Valet isolated PHP version : php@8.0'.PHP_EOL.'server { fastcgi_pass: valet80.sock }',
+            ]);
+
+        $siteMock->installSiteConfig('site1.test', 'valet80.sock', 'php@8.0');
+
+        // When there's no Nginx file exists, create new config from the template
+        $files->shouldReceive('exists')->once()->with($siteMock->nginxPath('site2.test'))->andReturn(false);
+        $files->shouldReceive('get')
+            ->once()
+            ->with(dirname(__DIR__).'/cli/Valet/../stubs/site.valet.conf')
+            ->andReturn(file_get_contents(__DIR__.'/../cli/stubs/site.valet.conf'));
+
+        $files->shouldReceive('putAsUser')
+            ->once()
+            ->withArgs([
+                $siteMock->nginxPath('site2.test'),
+                Mockery::on(function ($argument) {
+                    return preg_match('/^# Valet isolated PHP version : php@8.0/', $argument)
+                        && preg_match('#fastcgi_pass "unix:.*/valet80.sock#', $argument)
+                        && strpos($argument, 'server_name site2.test www.site2.test *.site2.test;') !== false;
+                }),
+            ]);
+
+        $siteMock->installSiteConfig('site2.test', 'valet80.sock', 'php@8.0');
+    }
+
+    public function test_removeing_isolation()
+    {
+        $files = Mockery::mock(Filesystem::class);
+
+        $siteMock = Mockery::mock(Site::class, [
+            resolve(Configuration::class),
+            resolve(CommandLine::class),
+            $files,
+        ])->makePartial();
+
+        swap(Site::class, $siteMock);
+
+        // SSL Site
+        $files->shouldReceive('exists')->once()->with($siteMock->certificatesPath('site1.test', 'crt'))->andReturn(true);
+        $files->shouldReceive('putAsUser')->withArgs([$siteMock->nginxPath('site1.test'), Mockery::any()])->once();
+        $siteMock->shouldReceive('buildSecureNginxServer')->once()->with('site1.test');
+        resolve(Site::class)->removeIsolation('site1.test');
+
+        // Non-SSL Site
+        $files->shouldReceive('exists')->once()->with($siteMock->certificatesPath('site2.test', 'crt'))->andReturn(false);
+        $files->shouldReceive('unlink')->with($siteMock->nginxPath('site2.test'))->once();
+        $siteMock->shouldNotReceive('buildSecureNginxServer')->with('site2.test');
+        resolve(Site::class)->removeIsolation('site2.test');
+    }
+
+    public function test_retrive_custom_php_version_from_nginx_config()
+    {
+        $files = Mockery::mock(Filesystem::class);
+
+        $siteMock = Mockery::mock(Site::class, [
+            resolve(Configuration::class),
+            resolve(CommandLine::class),
+            $files,
+        ])->makePartial();
+
+        swap(Site::class, $siteMock);
+
+        // Site with isolated PHP version
+        $files->shouldReceive('exists')->once()->with($siteMock->nginxPath('site1.test'))->andReturn(true);
+        $files->shouldReceive('get')
+            ->once()
+            ->with($siteMock->nginxPath('site1.test'))
+            ->andReturn('# Valet isolated PHP version : php@7.4');
+        $this->assertEquals('74', resolve(Site::class)->customPhpVersion('site1.test'));
+
+        // Site without any custom nginx config
+        $files->shouldReceive('exists')->once()->with($siteMock->nginxPath('site2.test'))->andReturn(false);
+        $files->shouldNotReceive('get')->with($siteMock->nginxPath('site2.test'));
+        $this->assertEquals(null, resolve(Site::class)->customPhpVersion('site2.test'));
+
+        // Site with a custom nginx config, but doesn't have the header
+        $files->shouldReceive('exists')->once()->with($siteMock->nginxPath('site3.test'))->andReturn(true);
+        $files->shouldReceive('get')
+            ->once()
+            ->with($siteMock->nginxPath('site3.test'))
+            ->andReturn('server { }');
+        $this->assertEquals(null, resolve(Site::class)->customPhpVersion('site3.test'));
+    }
+
+    public function test_replace_sock_file_in_nginx_config()
+    {
+        $site = resolve(Site::class);
+
+        // Switiching to php71, valet71.sock should be replaced with valet.sock
+        // It would prepend isolation header
+        $this->assertEquals(
+            '# Valet isolated PHP version : 71'.PHP_EOL.'server { fastcgi_pass: valet.sock }',
+            $site->replaceSockFile('server { fastcgi_pass: valet71.sock }', 'valet.sock', '71')
+        );
+
+        // Switiching to php72, valet.sock should be replaced with valet72.sock
+        $this->assertEquals(
+            '# Valet isolated PHP version : 72'.PHP_EOL.'server { fastcgi_pass: valet72.sock }',
+            $site->replaceSockFile('server { fastcgi_pass: valet.sock }', 'valet72.sock', '72')
+        );
+
+        // Switiching to php73 from php72, valet72.sock should be replaced with valet73.sock
+        // Isolation header should be updated to 73
+        $this->assertEquals(
+            '# Valet isolated PHP version : 73'.PHP_EOL.'server { fastcgi_pass: valet73.sock }',
+            $site->replaceSockFile('# Valet isolated PHP version : 72'.PHP_EOL.'server { fastcgi_pass: valet72.sock }', 'valet73.sock', '73')
+        );
+
+        // Switiching to php72 from php74, valet72.sock should be replaced with valet74.sock
+        // Isolation header should be updated to php@7.4
+        $this->assertEquals(
+            '# Valet isolated PHP version : php@7.4'.PHP_EOL.'server { fastcgi_pass: valet74.sock }',
+            $site->replaceSockFile('# Valet isolated PHP version : 72'.PHP_EOL.'server { fastcgi_pass: valet.sock }', 'valet74.sock', 'php@7.4')
+        );
+    }
 }
 
 class CommandLineFake extends CommandLine

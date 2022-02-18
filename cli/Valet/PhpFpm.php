@@ -223,8 +223,12 @@ class PhpFpm
             $site = $this->site->getSiteUrl($directory);
 
             if (! $site) {
-                warning(sprintf("The [%s] site could not be found in Valet's site list.", $directory));
-                return;
+                throw new DomainException(
+                    sprintf(
+                        "The [%s] site could not be found in Valet's site list.",
+                        $directory
+                    )
+                );
             }
 
             if ($version == 'default') { // Remove isolation for this site
@@ -233,6 +237,7 @@ class PhpFpm
                 $this->stopIfUnused($oldCustomPhpVersion);
                 $this->nginx->restart();
                 info(sprintf('The site [%s] is now using the default PHP version.', $site));
+
                 return;
             }
         }
@@ -263,6 +268,7 @@ class PhpFpm
             $this->restart($version);
             $this->nginx->restart();
             info(sprintf('The site [%s] is now using %s.', $site, $version));
+
             return;
         }
 
@@ -424,6 +430,6 @@ class PhpFpm
                         return $this->normalizePhpVersion($phpVersion); // Example output php@7.4
                     }
                 }
-            })->merge([$this->brew->getLinkedPhpFormula()])->filter()->unique()->toArray();
+            })->merge([$this->brew->getLinkedPhpFormula()])->filter()->unique()->values()->toArray();
     }
 }
