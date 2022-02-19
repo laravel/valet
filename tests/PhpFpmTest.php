@@ -41,7 +41,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $this->assertStringContainsString("\ngroup = staff", $contents);
         $this->assertStringContainsString("\nlisten = ".VALET_HOME_PATH.'/valet.sock', $contents);
 
-        // Passing speicifc version will change the .sock file
+        // Passing specific version will change the .sock file
         resolve(StubForUpdatingFpmConfigFiles::class)->updateConfiguration('php@7.2');
         $contents = file_get_contents(__DIR__.'/output/fpm.conf');
         $this->assertStringContainsString(sprintf("\nuser = %s", user()), $contents);
@@ -209,13 +209,13 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         // Would do nothing
         resolve(PhpFpm::class)->stopIfUnused(null);
 
-        // Currently, not utilizeing this PHP version, should be stopped
+        // This currently-un-used PHP version should be stopped
         $brewMock->shouldReceive('stopService')->times(3)->with('php@7.3');
         resolve(PhpFpm::class)->stopIfUnused('73');
         resolve(PhpFpm::class)->stopIfUnused('php73');
         resolve(PhpFpm::class)->stopIfUnused('php@7.3');
 
-        // Utilizeing PHP Versions, should not receive stop command
+        // These currently-used PHP versions should not be stopped
         $brewMock->shouldNotReceive('stopService')->with('php@7.1');
         $brewMock->shouldNotReceive('stopService')->with('php@7.2');
         resolve(PhpFpm::class)->stopIfUnused('php@7.1');
@@ -343,7 +343,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $this->assertSame('php@7.2', $phpFpmMock->useVersion('php@7.2'));
     }
 
-    public function test_use_version_with_site_paramter_will_isolate_a_site()
+    public function test_use_version_with_site_parameter_will_isolate_a_site()
     {
         $brewMock = Mockery::mock(Brew::class);
         $nginxMock = Mockery::mock(Nginx::class);

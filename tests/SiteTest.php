@@ -527,7 +527,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $this->assertEquals([], $site->proxies()->all());
     }
 
-    public function test_get_site_url_from_directory()
+    public function test_gets_site_url_from_directory()
     {
         $config = Mockery::mock(Configuration::class);
 
@@ -580,7 +580,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $this->assertEquals(false, $site->getSiteUrl('site3.test'));
     }
 
-    public function test_adding_ssl_certificate_would_preserve_isolation()
+    public function test_isolation_will_persist_when_adding_ssl_certificate()
     {
         $files = Mockery::mock(Filesystem::class);
         $config = Mockery::mock(Configuration::class);
@@ -605,13 +605,13 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $siteMock->shouldReceive('replaceSockFile')->withArgs([Mockery::any(), 'valet73.sock', '73'])->once();
         resolve(Site::class)->secure('site1.test');
 
-        // Sites without isolated PHP version, should not replace anything
+        // For sites without an isolated PHP version, nothing should be replaced
         $siteMock->shouldReceive('customPhpVersion')->with('site2.test')->andReturn(null)->once();
         $siteMock->shouldNotReceive('replaceSockFile');
         resolve(Site::class)->secure('site2.test');
     }
 
-    public function test_removing_ssl_certificate_would_preserve_isolation()
+    public function test_isolation_will_persist_when_removing_ssl_certificate()
     {
         $files = Mockery::mock(Filesystem::class);
         $config = Mockery::mock(Configuration::class);
@@ -628,12 +628,12 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $cli->shouldReceive('run');
         $files->shouldReceive('exists')->andReturn(false);
 
-        // If site has an isolated PHP version, it would install nginx site config
+        // If a site has an isolated PHP version, there should still be a custom nginx site config
         $siteMock->shouldReceive('customPhpVersion')->with('site1.test')->andReturn('73')->once();
         $siteMock->shouldReceive('installSiteConfig')->withArgs(['site1.test', 'valet73.sock', '73'])->once();
         resolve(Site::class)->unsecure('site1.test');
 
-        // Site without a custom PHP version, should not install site config
+        // If a site doesn't have an isolated PHP version, there should no longer be a custom nginx site config
         $siteMock->shouldReceive('customPhpVersion')->with('site2.test')->andReturn(null)->once();
         $siteMock->shouldNotReceive('installSiteConfig');
         resolve(Site::class)->unsecure('site2.test');
@@ -670,7 +670,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $siteMock->installSiteConfig('site1.test', 'valet80.sock', 'php@8.0');
 
-        // When there's no Nginx file exists, create new config from the template
+        // When no Nginx file exists, it will create a new config file from the template
         $files->shouldReceive('exists')->once()->with($siteMock->nginxPath('site2.test'))->andReturn(false);
         $files->shouldReceive('get')
             ->once()
@@ -691,7 +691,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $siteMock->installSiteConfig('site2.test', 'valet80.sock', 'php@8.0');
     }
 
-    public function test_removeing_isolation()
+    public function test_it_removes_isolation()
     {
         $files = Mockery::mock(Filesystem::class);
 
@@ -716,7 +716,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         resolve(Site::class)->removeIsolation('site2.test');
     }
 
-    public function test_retrive_custom_php_version_from_nginx_config()
+    public function test_retrieves_custom_php_version_from_nginx_config()
     {
         $files = Mockery::mock(Filesystem::class);
 
@@ -754,28 +754,28 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
     {
         $site = resolve(Site::class);
 
-        // Switiching to php71, valet71.sock should be replaced with valet.sock
-        // It would prepend isolation header
+        // When switching to php71, valet71.sock should be replaced with valet.sock;
+        // isolation header should be prepended
         $this->assertEquals(
             '# Valet isolated PHP version : 71'.PHP_EOL.'server { fastcgi_pass: valet.sock }',
             $site->replaceSockFile('server { fastcgi_pass: valet71.sock }', 'valet.sock', '71')
         );
 
-        // Switiching to php72, valet.sock should be replaced with valet72.sock
+        // When switching to php72, valet.sock should be replaced with valet72.sock
         $this->assertEquals(
             '# Valet isolated PHP version : 72'.PHP_EOL.'server { fastcgi_pass: valet72.sock }',
             $site->replaceSockFile('server { fastcgi_pass: valet.sock }', 'valet72.sock', '72')
         );
 
-        // Switiching to php73 from php72, valet72.sock should be replaced with valet73.sock
-        // Isolation header should be updated to 73
+        // When switching to php73 from php72, valet72.sock should be replaced with valet73.sock;
+        // isolation header should be updated to php@7.3
         $this->assertEquals(
             '# Valet isolated PHP version : 73'.PHP_EOL.'server { fastcgi_pass: valet73.sock }',
             $site->replaceSockFile('# Valet isolated PHP version : 72'.PHP_EOL.'server { fastcgi_pass: valet72.sock }', 'valet73.sock', '73')
         );
 
-        // Switiching to php72 from php74, valet72.sock should be replaced with valet74.sock
-        // Isolation header should be updated to php@7.4
+        // When switching to php72 from php74, valet72.sock should be replaced with valet74.sock;
+        // isolation header should be updated to php@7.4
         $this->assertEquals(
             '# Valet isolated PHP version : php@7.4'.PHP_EOL.'server { fastcgi_pass: valet74.sock }',
             $site->replaceSockFile('# Valet isolated PHP version : 72'.PHP_EOL.'server { fastcgi_pass: valet.sock }', 'valet74.sock', 'php@7.4')
