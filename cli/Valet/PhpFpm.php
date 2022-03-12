@@ -222,12 +222,7 @@ class PhpFpm
         $site = $this->site->getSiteUrl($directory);
 
         if (!$site) {
-            throw new DomainException(
-                sprintf(
-                    "The [%s] site could not be found in Valet's site list.",
-                    $directory
-                )
-            );
+            throw new DomainException("The [{$directory}] site could not be found in Valet's site list.");
         }
 
         $oldCustomPhpVersion = $this->site->customPhpVersion($site); // Example output: "74"
