@@ -221,7 +221,7 @@ class PhpFpm
     {
         $site = $this->site->getSiteUrl($directory);
 
-        if (!$site) {
+        if (! $site) {
             throw new DomainException("The [{$directory}] site could not be found in Valet's site list.");
         }
 
