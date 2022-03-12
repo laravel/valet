@@ -697,15 +697,17 @@ class Site
     }
 
     /**
-     * Build the Nginx server configuration for the given Valet site.
+     * Create new nginx config or modify existing nginx config to isolate this site
+     * to a custom version of PHP.
      *
      * @param  string  $valetSite
-     * @param  string  $fpmSockName
      * @param  string  $phpVersion
      * @return void
      */
-    public function isolate($valetSite, $fpmSockName, $phpVersion)
+    public function isolate($valetSite, $phpVersion)
     {
+        $fpmSockName = PhpFpm::fpmSockName($phpVersion);
+
         if ($this->files->exists($this->nginxPath($valetSite))) {
             // Modify the existing config if it exists (likely because it's secured)
             $siteConf = $this->files->get($this->nginxPath($valetSite));
@@ -769,7 +771,7 @@ class Site
 
         // If the user had isolated the PHP version for this site, swap out .sock file
         if ($phpVersion) {
-            $this->isolate($url, "valet{$phpVersion}.sock", $phpVersion);
+            $this->isolate($url, $phpVersion);
         }
     }
 

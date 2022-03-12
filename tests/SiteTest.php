@@ -630,7 +630,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         // If a site has an isolated PHP version, there should still be a custom nginx site config
         $siteMock->shouldReceive('customPhpVersion')->with('site1.test')->andReturn('73')->once();
-        $siteMock->shouldReceive('isolate')->withArgs(['site1.test', 'valet73.sock', '73'])->once();
+        $siteMock->shouldReceive('isolate')->withArgs(['site1.test', '73'])->once();
         resolve(Site::class)->unsecure('site1.test');
 
         // If a site doesn't have an isolated PHP version, there should no longer be a custom nginx site config
@@ -668,7 +668,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
                 '# Valet isolated PHP version : php@8.0'.PHP_EOL.'server { fastcgi_pass: valet80.sock }',
             ]);
 
-        $siteMock->isolate('site1.test', 'valet80.sock', 'php@8.0');
+        $siteMock->isolate('site1.test', 'php@8.0');
 
         // When no Nginx file exists, it will create a new config file from the template
         $files->shouldReceive('exists')->once()->with($siteMock->nginxPath('site2.test'))->andReturn(false);
@@ -688,7 +688,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
                 }),
             ]);
 
-        $siteMock->isolate('site2.test', 'valet80.sock', 'php@8.0');
+        $siteMock->isolate('site2.test', 'php@8.0');
     }
 
     public function test_it_removes_isolation()

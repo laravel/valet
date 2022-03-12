@@ -88,7 +88,7 @@ class PhpFpm
         $contents = $this->files->get(__DIR__.'/../stubs/etc-phpfpm-valet.conf');
         $contents = str_replace(['VALET_USER', 'VALET_HOME_PATH'], [user(), VALET_HOME_PATH], $contents);
         if ($phpVersion) {
-            $contents = str_replace('valet.sock', $this->fpmSockName($phpVersion), $contents);
+            $contents = str_replace('valet.sock', self::fpmSockName($phpVersion), $contents);
         }
         $this->files->put($fpmConfigFile, $contents);
 
@@ -195,12 +195,14 @@ class PhpFpm
             throw new DomainException("The [{$directory}] site could not be found in Valet's site list.");
         }
 
+        $version = $this->validateRequestedVersion($version);
+
         $this->brew->ensureInstalled($version, [], $this->taps);
 
         $oldCustomPhpVersion = $this->site->customPhpVersion($site); // Example output: "74"
         $this->createConfigurationFiles($version);
 
-        $this->site->isolate($site, $this->fpmSockName($version), $version);
+        $this->site->isolate($site, $version);
 
         $this->stopIfUnused($oldCustomPhpVersion);
         $this->restart($version);
@@ -342,7 +344,7 @@ class PhpFpm
      * @param  string|null  $phpVersion
      * @return string
      */
-    public function fpmSockName($phpVersion = null)
+    public static function fpmSockName($phpVersion = null)
     {
         $versionInteger = preg_replace('~[^\d]~', '', $phpVersion);
 
@@ -373,12 +375,12 @@ class PhpFpm
                     return;
                 }
 
-                if (strpos($content, $this->fpmSockName($newPhpVersion)) !== false) {
+                if (strpos($content, self::fpmSockName($newPhpVersion)) !== false) {
                     info(sprintf('Updating site %s to keep using version: %s', $file, $newPhpVersion));
-                    $this->files->put(VALET_HOME_PATH.'/Nginx/'.$file, str_replace($this->fpmSockName($newPhpVersion), 'valet.sock', $content));
+                    $this->files->put(VALET_HOME_PATH.'/Nginx/'.$file, str_replace(self::fpmSockName($newPhpVersion), 'valet.sock', $content));
                 } elseif (strpos($content, 'valet.sock') !== false) {
                     info(sprintf('Updating site %s to keep using version: %s', $file, $oldPhpVersion));
-                    $this->files->put(VALET_HOME_PATH.'/Nginx/'.$file, str_replace('valet.sock', $this->fpmSockName($oldPhpVersion), $content));
+                    $this->files->put(VALET_HOME_PATH.'/Nginx/'.$file, str_replace('valet.sock', self::fpmSockName($oldPhpVersion), $content));
                 }
             });
     }
@@ -392,7 +394,7 @@ class PhpFpm
     public function utilizedPhpVersions()
     {
         $fpmSockFiles = $this->brew->supportedPhpVersions()->map(function ($version) {
-            return $this->fpmSockName($this->normalizePhpVersion($version));
+            return self::fpmSockName($this->normalizePhpVersion($version));
         })->unique();
 
         return collect($this->files->scandir(VALET_HOME_PATH.'/Nginx'))

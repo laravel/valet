@@ -369,7 +369,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         // $brewMock->shouldReceive('linkedPhp')->once();
 
         $siteMock->shouldReceive('getSiteUrl')->with('test')->andReturn('test.test');
-        $siteMock->shouldReceive('isolate')->withArgs(['test.test', 'valet72.sock', 'php@7.2']);
+        $siteMock->shouldReceive('isolate')->withArgs(['test.test', 'php@7.2']);
         $siteMock->shouldReceive('customPhpVersion')->with('test.test')->andReturn('72');
 
         $phpFpmMock->shouldReceive('stopIfUnused')->with('72')->once();
