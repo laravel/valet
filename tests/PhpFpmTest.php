@@ -35,14 +35,14 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         copy(__DIR__.'/files/fpm.conf', __DIR__.'/output/fpm.conf');
         mkdir(__DIR__.'/output/conf.d');
         copy(__DIR__.'/files/php-memory-limits.ini', __DIR__.'/output/conf.d/php-memory-limits.ini');
-        resolve(StubForUpdatingFpmConfigFiles::class)->updateConfiguration();
+        resolve(StubForUpdatingFpmConfigFiles::class)->createConfigurationFiles();
         $contents = file_get_contents(__DIR__.'/output/fpm.conf');
         $this->assertStringContainsString(sprintf("\nuser = %s", user()), $contents);
         $this->assertStringContainsString("\ngroup = staff", $contents);
         $this->assertStringContainsString("\nlisten = ".VALET_HOME_PATH.'/valet.sock', $contents);
 
         // Passing specific version will change the .sock file
-        resolve(StubForUpdatingFpmConfigFiles::class)->updateConfiguration('php@7.2');
+        resolve(StubForUpdatingFpmConfigFiles::class)->createConfigurationFiles('php@7.2');
         $contents = file_get_contents(__DIR__.'/output/fpm.conf');
         $this->assertStringContainsString(sprintf("\nuser = %s", user()), $contents);
         $this->assertStringContainsString("\ngroup = staff", $contents);
@@ -229,7 +229,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
             ->andReturn(collect([
                 'php7.2',
                 'php@7.3',
-                'php56',
+                'php71',
                 'php',
                 'nginx',
                 'somethingelse',
@@ -237,7 +237,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $brewMock->shouldReceive('stopService')->once()->with([
             'php7.2',
             'php@7.3',
-            'php56',
+            'php71',
             'php',
         ]);
 
@@ -264,7 +264,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $brewMock->shouldReceive('supportedPhpVersions')->twice()->andReturn(collect([
             'php@7.2',
-            'php@5.6',
+            'php@7.1',
         ]));
         $brewMock->shouldReceive('hasLinkedPhp')->andReturn(false);
         $brewMock->shouldReceive('ensureInstalled')->with('php@7.2', [], $phpFpmMock->taps);
@@ -318,12 +318,12 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $cliMock->shouldReceive('quietly')->with('sudo rm '.VALET_HOME_PATH.'/valet*.sock')->once();
         $fileSystemMock->shouldReceive('unlink')->with(VALET_HOME_PATH.'/valet.sock')->once();
 
-        $phpFpmMock->shouldReceive('updateConfiguration')->with('php@7.1')->once();
+        $phpFpmMock->shouldReceive('createConfigurationFiles')->with('php@7.1')->once();
         $phpFpmMock->shouldReceive('updateConfigurationForGlobalUpdate')->withArgs(['php@7.2', 'php@7.1'])->once();
 
         $brewMock->shouldReceive('supportedPhpVersions')->andReturn(collect([
             'php@7.2',
-            'php@5.6',
+            'php@7.1',
         ]));
 
         $brewMock->shouldReceive('hasLinkedPhp')->andReturn(true);
@@ -343,7 +343,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $this->assertSame('php@7.2', $phpFpmMock->useVersion('php@7.2'));
     }
 
-    public function test_use_version_with_site_parameter_will_isolate_a_site()
+    public function test_isolate_will_isolate_a_site()
     {
         $brewMock = Mockery::mock(Brew::class);
         $nginxMock = Mockery::mock(Nginx::class);
@@ -360,20 +360,20 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $brewMock->shouldReceive('supportedPhpVersions')->andReturn(collect([
             'php@7.2',
-            'php@5.6',
+            'php@7.1',
         ]));
 
         $brewMock->shouldReceive('ensureInstalled')->with('php@7.2', [], $phpFpmMock->taps);
         $brewMock->shouldReceive('installed')->with('php@7.2');
         $brewMock->shouldReceive('determineAliasedVersion')->with('php@7.2')->andReturn('php@7.2');
-        $brewMock->shouldReceive('linkedPhp')->once();
+        // $brewMock->shouldReceive('linkedPhp')->once();
 
         $siteMock->shouldReceive('getSiteUrl')->with('test')->andReturn('test.test');
-        $siteMock->shouldReceive('installSiteConfig')->withArgs(['test.test', 'valet72.sock', 'php@7.2']);
+        $siteMock->shouldReceive('isolate')->withArgs(['test.test', 'valet72.sock', 'php@7.2']);
         $siteMock->shouldReceive('customPhpVersion')->with('test.test')->andReturn('72');
 
         $phpFpmMock->shouldReceive('stopIfUnused')->with('72')->once();
-        $phpFpmMock->shouldReceive('updateConfiguration')->with('php@7.2')->once();
+        $phpFpmMock->shouldReceive('createConfigurationFiles')->with('php@7.2')->once();
         $phpFpmMock->shouldReceive('restart')->with('php@7.2')->once();
 
         $nginxMock->shouldReceive('restart');
@@ -386,10 +386,10 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $phpFpmMock->shouldNotReceive('install');
         $phpFpmMock->shouldNotReceive('updateConfigurationForGlobalUpdate');
 
-        $this->assertSame(null, $phpFpmMock->useVersion('php@7.2', false, 'test'));
+        $this->assertSame(null, $phpFpmMock->isolateDirectoryToVersion('test', 'php@7.2'));
     }
 
-    public function test_use_version_can_remove_isolation_for_a_site()
+    public function test_un_isolate_can_remove_isolation_for_a_site()
     {
         $nginxMock = Mockery::mock(Nginx::class);
         $siteMock = Mockery::mock(Site::class);
@@ -409,10 +409,10 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $phpFpmMock->shouldReceive('stopIfUnused')->with('74');
         $nginxMock->shouldReceive('restart');
 
-        $this->assertSame(null, $phpFpmMock->useVersion('default', false, 'test'));
+        $this->assertSame(null, $phpFpmMock->unIsolateDirectory('test'));
     }
 
-    public function test_use_version_will_throw_if_site_is_not_parked_or_linked()
+    public function test_isolate_will_throw_if_site_is_not_parked_or_linked()
     {
         $siteMock = Mockery::mock(Site::class);
 
@@ -430,7 +430,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $siteMock->shouldReceive('getSiteUrl');
 
-        $this->assertSame(null, $phpFpmMock->useVersion('default', false, 'test'));
+        $this->assertSame(null, $phpFpmMock->isolateDirectoryToVersion('test', 'php@8.1'));
     }
 }
 

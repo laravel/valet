@@ -704,9 +704,10 @@ class Site
      * @param  string  $phpVersion
      * @return void
      */
-    public function installSiteConfig($valetSite, $fpmSockName, $phpVersion)
+    public function isolate($valetSite, $fpmSockName, $phpVersion)
     {
         if ($this->files->exists($this->nginxPath($valetSite))) {
+            // Modify the existing config if it exists (likely because it's secured)
             $siteConf = $this->files->get($this->nginxPath($valetSite));
             $siteConf = $this->replaceSockFile($siteConf, $fpmSockName, $phpVersion);
         } else {
@@ -768,7 +769,7 @@ class Site
 
         // If the user had isolated the PHP version for this site, swap out .sock file
         if ($phpVersion) {
-            $this->installSiteConfig($url, "valet{$phpVersion}.sock", $phpVersion);
+            $this->isolate($url, "valet{$phpVersion}.sock", $phpVersion);
         }
     }
 

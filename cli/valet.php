@@ -498,14 +498,14 @@ You might also want to investigate your global Composer configs. Helpful command
             $path = getcwd().'/.valetphprc';
             $linkedVersion = Brew::linkedPhp();
             if (! file_exists($path)) {
-                return info(sprintf('Valet is using %s.', $linkedVersion));
+                return info("Valet is using {$linkedVersion}.");
             }
 
             $phpVersion = trim(file_get_contents($path));
-            info('Found \''.$path.'\' specifying version: '.$phpVersion);
+            info("Found '{$path}' specifying version: {$phpVersion}");
 
             if ($linkedVersion == $phpVersion) {
-                return info(sprintf('Valet is already using %s.', $linkedVersion));
+                return info("Valet is already using {$linkedVersion}.");
             }
         }
 
@@ -513,6 +513,25 @@ You might also want to investigate your global Composer configs. Helpful command
     })->descriptions('Change the version of PHP used by valet', [
         'phpVersion' => 'The PHP version you want to use, e.g php@7.3',
         '--site' => 'Isolate PHP version of a specific valet site. e.g: --site=site.test',
+    ]);
+
+    /**
+     * Allow the user to change the version of php valet uses to serve a given site.
+     */
+    $app->command('isolate [site] [phpVersion] ', function ($site, $phpVersion) {
+        PhpFpm::isolateDirectoryToVersion($site, $phpVersion);
+    })->descriptions('Change the version of PHP used by valet to serve a given site', [
+        'site' => 'The valet site (e.g. site.test) you want to isolate to a given PHP version',
+        'phpVersion' => 'The PHP version you want to use, e.g php@7.3',
+    ]);
+
+    /**
+     * Allow the user to un-do specifying the version of php valet uses to serve a given site.
+     */
+    $app->command('unisolate [site] ', function ($site) {
+        PhpFpm::unIsolateDirectory($site);
+    })->descriptions('Stop customizing the version of PHP used by valet to serve a given site', [
+        'site' => 'The valet site (e.g. site.test) you want to un-isolate',
     ]);
 
     /**

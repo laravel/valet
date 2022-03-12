@@ -52,7 +52,7 @@ class PhpFpm
 
         $this->files->ensureDirExists(VALET_HOME_PATH.'/Log', user());
 
-        $this->updateConfiguration();
+        $this->createConfigurationFiles();
 
         $this->restart();
     }
@@ -70,12 +70,13 @@ class PhpFpm
     }
 
     /**
-     * Update the PHP FPM configuration.
+     * Create (or re-create) the PHP FPM configuration files.
+     * Writes FPM config file, pointing to the correct .sock file, and log and ini files
      *
      * @param  string|null  $phpVersion
      * @return void
      */
-    public function updateConfiguration($phpVersion = null)
+    public function createConfigurationFiles($phpVersion = null)
     {
         info(sprintf('Updating PHP configuration%s...', $phpVersion ? ' for '.$phpVersion : ''));
 
@@ -83,53 +84,31 @@ class PhpFpm
 
         $this->files->ensureDirExists(dirname($fpmConfigFile), user());
 
-        // rename (to disable) old FPM Pool configuration, regardless of whether it's a default config or one customized by an older Valet version
-        $oldFile = dirname($fpmConfigFile).'/www.conf';
-        if (file_exists($oldFile)) {
-            rename($oldFile, $oldFile.'-backup');
-        }
-
-        if (false === strpos($fpmConfigFile, '5.6')) {
-            // since PHP 7 we can simply drop in a valet-specific fpm pool config, and not touch the default config
-            $contents = $this->files->get(__DIR__.'/../stubs/etc-phpfpm-valet.conf');
-            $contents = str_replace(['VALET_USER', 'VALET_HOME_PATH'], [user(), VALET_HOME_PATH], $contents);
-        } else {
-            // for PHP 5 we must do a direct edit of the fpm pool config to switch it to Valet's needs
-            $contents = $this->files->get($fpmConfigFile);
-            $contents = preg_replace('/^user = .+$/m', 'user = '.user(), $contents);
-            $contents = preg_replace('/^group = .+$/m', 'group = staff', $contents);
-            $contents = preg_replace('/^listen = .+$/m', 'listen = '.VALET_HOME_PATH.'/valet.sock', $contents);
-            $contents = preg_replace('/^;?listen\.owner = .+$/m', 'listen.owner = '.user(), $contents);
-            $contents = preg_replace('/^;?listen\.group = .+$/m', 'listen.group = staff', $contents);
-            $contents = preg_replace('/^;?listen\.mode = .+$/m', 'listen.mode = 0777', $contents);
-        }
-
+        // Drop in a valet-specific fpm pool config
+        $contents = $this->files->get(__DIR__.'/../stubs/etc-phpfpm-valet.conf');
+        $contents = str_replace(['VALET_USER', 'VALET_HOME_PATH'], [user(), VALET_HOME_PATH], $contents);
         if ($phpVersion) {
             $contents = str_replace('valet.sock', $this->fpmSockName($phpVersion), $contents);
         }
-
         $this->files->put($fpmConfigFile, $contents);
 
+        // Set log and ini files
+        $destDir = dirname(dirname($fpmConfigFile)) . '/conf.d';
+        $this->files->ensureDirExists($destDir, user());
+
         $contents = $this->files->get(__DIR__.'/../stubs/php-memory-limits.ini');
-        $destFile = dirname($fpmConfigFile);
-        $destFile = str_replace('/php-fpm.d', '', $destFile);
-        $destFile .= '/conf.d/php-memory-limits.ini';
-        $this->files->ensureDirExists(dirname($destFile), user());
-        $this->files->putAsUser($destFile, $contents);
+        $this->files->putAsUser($destDir.'/php-memory-limits.ini', $contents);
 
         $contents = $this->files->get(__DIR__.'/../stubs/etc-phpfpm-error_log.ini');
         $contents = str_replace(['VALET_USER', 'VALET_HOME_PATH'], [user(), VALET_HOME_PATH], $contents);
-        $destFile = dirname($fpmConfigFile);
-        $destFile = str_replace('/php-fpm.d', '', $destFile);
-        $destFile .= '/conf.d/error_log.ini';
-        $this->files->ensureDirExists(dirname($destFile), user());
-        $this->files->putAsUser($destFile, $contents);
+        $this->files->putAsUser($destDir.'/error_log.ini', $contents);
+
         $this->files->ensureDirExists(VALET_HOME_PATH.'/Log', user());
         $this->files->touch(VALET_HOME_PATH.'/Log/php-fpm.log', user());
     }
 
     /**
-     * Restart the PHP FPM process.
+     * Restart the PHP FPM process(es).
      *
      * @param  string|null  $phpVersion
      * @return void
@@ -167,9 +146,7 @@ class PhpFpm
         $versionNormalized = $this->normalizePhpVersion($phpVersion === 'php' ? Brew::LATEST_PHP_VERSION : $phpVersion);
         $versionNormalized = preg_replace('~[^\d\.]~', '', $versionNormalized);
 
-        return $versionNormalized === '5.6'
-            ? BREW_PREFIX.'/etc/php/5.6/php-fpm.conf'
-            : BREW_PREFIX."/etc/php/${versionNormalized}/php-fpm.d/valet-fpm.conf";
+        return BREW_PREFIX."/etc/php/${versionNormalized}/php-fpm.d/valet-fpm.conf";
     }
 
     /**
@@ -187,19 +164,15 @@ class PhpFpm
     }
 
     /**
-     * Stop PHP, if a specific version isn't being used globally or by any sites.
+     * Stop a given PHP version, if a specific version isn't being used globally or by any sites.
      *
      * @param  string|null  $phpVersion
      * @return void
      */
-    public function stopIfUnused($phpVersion)
+    public function stopIfUnused($phpVersion = null)
     {
         if (! $phpVersion) {
             return;
-        }
-
-        if (strpos($phpVersion, 'php') === false) {
-            $phpVersion = 'php'.$phpVersion;
         }
 
         $phpVersion = $this->normalizePhpVersion($phpVersion);
@@ -210,38 +183,69 @@ class PhpFpm
     }
 
     /**
-     * Use a specific version of php.
+     * Isolate a given directory to use a specific version of php.
+     *
+     * @param  string  $directory
+     * @param  string  $version
+     * @return void
+     */
+    public function isolateDirectoryToVersion($directory, $version)
+    {
+        if (!$site = $this->site->getSiteUrl($directory)) {
+            throw new DomainException("The [{$directory}] site could not be found in Valet's site list.");
+        }
+
+        $this->brew->ensureInstalled($version, [], $this->taps);
+
+        $oldCustomPhpVersion = $this->site->customPhpVersion($site); // Example output: "74"
+        $this->createConfigurationFiles($version);
+
+        $this->site->isolate($site, $this->fpmSockName($version), $version);
+
+        $this->stopIfUnused($oldCustomPhpVersion);
+        $this->restart($version);
+        $this->nginx->restart();
+
+        info(sprintf('The site [%s] is now using %s.', $site, $version));
+    }
+
+    /**
+     * Remove PHP version isolation for a given directory
+     *
+     * @param  string  $directory
+     * @return void
+     */
+    public function unIsolateDirectory($directory)
+    {
+        $site = $this->site->getSiteUrl($directory);
+
+        if (!$site) {
+            throw new DomainException(
+                sprintf(
+                    "The [%s] site could not be found in Valet's site list.",
+                    $directory
+                )
+            );
+        }
+
+        $oldCustomPhpVersion = $this->site->customPhpVersion($site); // Example output: "74"
+
+        $this->site->removeIsolation($site);
+        $this->stopIfUnused($oldCustomPhpVersion);
+        $this->nginx->restart();
+
+        info(sprintf('The site [%s] is now using the default PHP version.', $site));
+    }
+
+    /**
+     * Use a specific version of PHP globally.
      *
      * @param  string  $version
      * @param  bool  $force
-     * @param  string|null  $directory
      * @return string|void
      */
-    public function useVersion($version, $force = false, $directory = null)
+    public function useVersion($version, $force = false)
     {
-        if ($directory) {
-            $site = $this->site->getSiteUrl($directory);
-
-            if (! $site) {
-                throw new DomainException(
-                    sprintf(
-                        "The [%s] site could not be found in Valet's site list.",
-                        $directory
-                    )
-                );
-            }
-
-            if ($version == 'default') { // Remove isolation for this site
-                $oldCustomPhpVersion = $this->site->customPhpVersion($site); // Example output: "74"
-                $this->site->removeIsolation($site);
-                $this->stopIfUnused($oldCustomPhpVersion);
-                $this->nginx->restart();
-                info(sprintf('The site [%s] is now using the default PHP version.', $site));
-
-                return;
-            }
-        }
-
         $version = $this->validateRequestedVersion($version);
 
         try {
@@ -253,31 +257,14 @@ class PhpFpm
         } catch (DomainException $e) { /* ignore thrown exception when no linked php is found */
         }
 
-        if (! $this->brew->installed($version)) {
-            // Install the relevant formula if not already installed
-            $this->brew->ensureInstalled($version, [], $this->taps);
-        }
-
-        if ($directory) {
-            $oldCustomPhpVersion = $this->site->customPhpVersion($site); // Example output: "74"
-            $this->cli->quietly('sudo rm '.VALET_HOME_PATH.'/'.$this->fpmSockName($version));
-            $this->updateConfiguration($version);
-            $this->site->installSiteConfig($site, $this->fpmSockName($version), $version);
-
-            $this->stopIfUnused($oldCustomPhpVersion);
-            $this->restart($version);
-            $this->nginx->restart();
-            info(sprintf('The site [%s] is now using %s.', $site, $version));
-
-            return;
-        }
+        $this->brew->ensureInstalled($version, [], $this->taps);
 
         // Unlink the current global PHP if there is one installed
         if ($this->brew->hasLinkedPhp()) {
             $linkedPhp = $this->brew->linkedPhp();
 
             // Update the old FPM to keep running, using a custom sock file, so existing isolated sites aren't broken
-            $this->updateConfiguration($linkedPhp);
+            $this->createConfigurationFiles($linkedPhp);
 
             // Update existing custom Nginx config files; if they're using the old or new PHP version,
             // update them to the new correct sock file location
@@ -297,7 +284,6 @@ class PhpFpm
         $this->files->unlink(VALET_HOME_PATH.'/valet.sock');
         $this->cli->quietly('sudo rm '.VALET_HOME_PATH.'/valet*.sock');
 
-        // ensure configuration is correct and start the linked version
         $this->install();
 
         $newVersion = $version === 'php' ? $this->brew->determineAliasedVersion($version) : $version;
@@ -311,17 +297,22 @@ class PhpFpm
     }
 
     /**
-     * If passed php7.4 or php74 formats, normalize to php@7.4 format.
+     * If passed php7.4, or php74, 7.4, or 74 formats, normalize to php@7.4 format.
      */
     public function normalizePhpVersion($version)
     {
+        // @todo There's probably a way to incorporate this into the regex
+        if (strpos($version, 'php') === false) {
+            $version = 'php' . $version;
+        }
+
         return preg_replace('/(php)([0-9+])(?:.)?([0-9+])/i', '$1@$2.$3', $version);
     }
 
     /**
      * Validate the requested version to be sure we can support it.
      *
-     * @param $version
+     * @param string $version
      * @return string
      */
     public function validateRequestedVersion($version)
@@ -329,12 +320,7 @@ class PhpFpm
         $version = $this->normalizePhpVersion($version);
 
         if (! $this->brew->supportedPhpVersions()->contains($version)) {
-            throw new DomainException(
-                sprintf(
-                    'Valet doesn\'t support PHP version: %s (try something like \'php@7.3\' instead)',
-                    $version
-                )
-            );
+            throw new DomainException("Valet doesn't support PHP version: {$version} (try something like 'php@7.3' instead)");
         }
 
         if (strpos($aliasedVersion = $this->brew->determineAliasedVersion($version), '@')) {
@@ -342,10 +328,6 @@ class PhpFpm
         }
 
         if ($version === 'php') {
-            if (strpos($aliasedVersion = $this->brew->determineAliasedVersion($version), '@')) {
-                return $aliasedVersion;
-            }
-
             if ($this->brew->hasInstalledPhp()) {
                 throw new DomainException('Brew is already using PHP '.PHP_VERSION.' as \'php\' in Homebrew. To use another version, please specify. eg: php@7.3');
             }
