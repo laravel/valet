@@ -9,6 +9,9 @@ class PhpFpm
     public $brew;
     public $cli;
     public $files;
+    public $config;
+    public $site;
+    public $nginx;
 
     public $taps = [
         'homebrew/homebrew-core',
@@ -21,13 +24,19 @@ class PhpFpm
      * @param  Brew  $brew
      * @param  CommandLine  $cli
      * @param  Filesystem  $files
+     * @param  Configuration  $config
+     * @param  Site  $site
+     * @param  Nginx  $nginx
      * @return void
      */
-    public function __construct(Brew $brew, CommandLine $cli, Filesystem $files)
+    public function __construct(Brew $brew, CommandLine $cli, Filesystem $files, Configuration $config, Site $site, Nginx $nginx)
     {
         $this->cli = $cli;
         $this->brew = $brew;
         $this->files = $files;
+        $this->config = $config;
+        $this->site = $site;
+        $this->nginx = $nginx;
     }
 
     /**
@@ -63,13 +72,14 @@ class PhpFpm
     /**
      * Update the PHP FPM configuration.
      *
+     * @param  string|null  $phpVersion
      * @return void
      */
-    public function updateConfiguration()
+    public function updateConfiguration($phpVersion = null)
     {
-        info('Updating PHP configuration...');
+        info(sprintf('Updating PHP configuration%s...', $phpVersion ? ' for '.$phpVersion : ''));
 
-        $fpmConfigFile = $this->fpmConfigPath();
+        $fpmConfigFile = $this->fpmConfigPath($phpVersion);
 
         $this->files->ensureDirExists(dirname($fpmConfigFile), user());
 
@@ -93,6 +103,11 @@ class PhpFpm
             $contents = preg_replace('/^;?listen\.group = .+$/m', 'listen.group = staff', $contents);
             $contents = preg_replace('/^;?listen\.mode = .+$/m', 'listen.mode = 0777', $contents);
         }
+
+        if ($phpVersion) {
+            $contents = str_replace('valet.sock', $this->fpmSockName($phpVersion), $contents);
+        }
+
         $this->files->put($fpmConfigFile, $contents);
 
         $contents = $this->files->get(__DIR__.'/../stubs/php-memory-limits.ini');
@@ -116,11 +131,12 @@ class PhpFpm
     /**
      * Restart the PHP FPM process.
      *
+     * @param  string|null  $phpVersion
      * @return void
      */
-    public function restart()
+    public function restart($phpVersion = null)
     {
-        $this->brew->restartLinkedPhp();
+        $this->brew->restartService($phpVersion ?: $this->utilizedPhpVersions());
     }
 
     /**
@@ -139,13 +155,16 @@ class PhpFpm
     /**
      * Get the path to the FPM configuration file for the current PHP version.
      *
+     * @param  string|null  $phpVersion
      * @return string
      */
-    public function fpmConfigPath()
+    public function fpmConfigPath($phpVersion = null)
     {
-        $version = $this->brew->linkedPhp();
+        if (! $phpVersion) {
+            $phpVersion = $this->brew->linkedPhp();
+        }
 
-        $versionNormalized = $this->normalizePhpVersion($version === 'php' ? Brew::LATEST_PHP_VERSION : $version);
+        $versionNormalized = $this->normalizePhpVersion($phpVersion === 'php' ? Brew::LATEST_PHP_VERSION : $phpVersion);
         $versionNormalized = preg_replace('~[^\d\.]~', '', $versionNormalized);
 
         return $versionNormalized === '5.6'
@@ -168,14 +187,61 @@ class PhpFpm
     }
 
     /**
+     * Stop PHP, if a specific version isn't being used globally or by any sites.
+     *
+     * @param  string|null  $phpVersion
+     * @return void
+     */
+    public function stopIfUnused($phpVersion)
+    {
+        if (! $phpVersion) {
+            return;
+        }
+
+        if (strpos($phpVersion, 'php') === false) {
+            $phpVersion = 'php'.$phpVersion;
+        }
+
+        $phpVersion = $this->normalizePhpVersion($phpVersion);
+
+        if (! in_array($phpVersion, $this->utilizedPhpVersions())) {
+            $this->brew->stopService($phpVersion);
+        }
+    }
+
+    /**
      * Use a specific version of php.
      *
-     * @param $version
-     * @param $force
-     * @return string
+     * @param  string  $version
+     * @param  bool  $force
+     * @param  string|null  $directory
+     * @return string|void
      */
-    public function useVersion($version, $force = false)
+    public function useVersion($version, $force = false, $directory = null)
     {
+        if ($directory) {
+            $site = $this->site->getSiteUrl($directory);
+
+            if (! $site) {
+                throw new DomainException(
+                    sprintf(
+                        "The [%s] site could not be found in Valet's site list.",
+                        $directory
+                    )
+                );
+            }
+
+            if ($version == 'default') { // Remove isolation for this site
+                $oldCustomPhpVersion = $this->site->customPhpVersion($site); // Example output: "74"
+                $this->site->removeIsolation($site);
+                $this->stopIfUnused($oldCustomPhpVersion);
+                $this->nginx->restart();
+                info(sprintf('The site [%s] is now using the default PHP version.', $site));
+
+                return;
+            }
+        }
+
         $version = $this->validateRequestedVersion($version);
 
         try {
@@ -192,8 +258,31 @@ class PhpFpm
             $this->brew->ensureInstalled($version, [], $this->taps);
         }
 
-        // Unlink the current php if there is one
+        if ($directory) {
+            $oldCustomPhpVersion = $this->site->customPhpVersion($site); // Example output: "74"
+            $this->cli->quietly('sudo rm '.VALET_HOME_PATH.'/'.$this->fpmSockName($version));
+            $this->updateConfiguration($version);
+            $this->site->installSiteConfig($site, $this->fpmSockName($version), $version);
+
+            $this->stopIfUnused($oldCustomPhpVersion);
+            $this->restart($version);
+            $this->nginx->restart();
+            info(sprintf('The site [%s] is now using %s.', $site, $version));
+
+            return;
+        }
+
+        // Unlink the current global PHP if there is one installed
         if ($this->brew->hasLinkedPhp()) {
+            $linkedPhp = $this->brew->linkedPhp();
+
+            // Update the old FPM to keep running, using a custom sock file, so existing isolated sites aren't broken
+            $this->updateConfiguration($linkedPhp);
+
+            // Update existing custom Nginx config files; if they're using the old or new PHP version,
+            // update them to the new correct sock file location
+            $this->updateConfigurationForGlobalUpdate($version, $linkedPhp);
+
             $currentVersion = $this->brew->getLinkedPhpFormula();
             info(sprintf('Unlinking current version: %s', $currentVersion));
             $this->brew->unlink($currentVersion);
@@ -206,12 +295,19 @@ class PhpFpm
 
         // remove any orphaned valet.sock files that PHP didn't clean up due to version conflicts
         $this->files->unlink(VALET_HOME_PATH.'/valet.sock');
-        $this->cli->quietly('sudo rm '.VALET_HOME_PATH.'/valet.sock');
+        $this->cli->quietly('sudo rm '.VALET_HOME_PATH.'/valet*.sock');
 
         // ensure configuration is correct and start the linked version
         $this->install();
 
-        return $version === 'php' ? $this->brew->determineAliasedVersion($version) : $version;
+        $newVersion = $version === 'php' ? $this->brew->determineAliasedVersion($version) : $version;
+
+        $this->nginx->restart();
+
+        info(sprintf('Valet is now using %s.', $newVersion).PHP_EOL);
+        info('Note that you might need to run <comment>composer global update</comment> if your PHP version change affects the dependencies of global packages required by Composer.');
+
+        return $newVersion;
     }
 
     /**
@@ -256,5 +352,84 @@ class PhpFpm
         }
 
         return $version;
+    }
+
+    /**
+     * Get FPM sock file name for a given PHP version.
+     *
+     * @param  string|null  $phpVersion
+     * @return string
+     */
+    public function fpmSockName($phpVersion = null)
+    {
+        $versionInteger = preg_replace('~[^\d]~', '', $phpVersion);
+
+        return "valet{$versionInteger}.sock";
+    }
+
+    /**
+     * Update all existing Nginx files when running a global PHP version update.
+     * If a given file is pointing to `valet.sock`, it's targeting the old global PHP version;
+     * update it to point to the new custom sock file for that version.
+     * If a given file is pointing the custom sock file for the new global version, that new
+     * version will now be hosted at `valet.sock`, so update the config file to point to that instead.
+     *
+     * @param  string  $newPhpVersion
+     * @param  string  $oldPhpVersion
+     * @return void
+     */
+    public function updateConfigurationForGlobalUpdate($newPhpVersion, $oldPhpVersion)
+    {
+        collect($this->files->scandir(VALET_HOME_PATH.'/Nginx'))
+            ->reject(function ($file) {
+                return starts_with($file, '.');
+            })
+            ->each(function ($file) use ($newPhpVersion, $oldPhpVersion) {
+                $content = $this->files->get(VALET_HOME_PATH.'/Nginx/'.$file);
+
+                if (! starts_with($content, '# Valet isolated PHP version')) {
+                    return;
+                }
+
+                if (strpos($content, $this->fpmSockName($newPhpVersion)) !== false) {
+                    info(sprintf('Updating site %s to keep using version: %s', $file, $newPhpVersion));
+                    $this->files->put(VALET_HOME_PATH.'/Nginx/'.$file, str_replace($this->fpmSockName($newPhpVersion), 'valet.sock', $content));
+                } elseif (strpos($content, 'valet.sock') !== false) {
+                    info(sprintf('Updating site %s to keep using version: %s', $file, $oldPhpVersion));
+                    $this->files->put(VALET_HOME_PATH.'/Nginx/'.$file, str_replace('valet.sock', $this->fpmSockName($oldPhpVersion), $content));
+                }
+            });
+    }
+
+    /**
+     * Get a list including the global PHP version and allPHP versions currently serving "isolated sites" (sites with
+     * custom Nginx configs pointing them to a specific PHP version).
+     *
+     * @return array
+     */
+    public function utilizedPhpVersions()
+    {
+        $fpmSockFiles = $this->brew->supportedPhpVersions()->map(function ($version) {
+            return $this->fpmSockName($this->normalizePhpVersion($version));
+        })->unique();
+
+        return collect($this->files->scandir(VALET_HOME_PATH.'/Nginx'))
+            ->reject(function ($file) {
+                return starts_with($file, '.');
+            })
+            ->map(function ($file) use ($fpmSockFiles) {
+                $content = $this->files->get(VALET_HOME_PATH.'/Nginx/'.$file);
+
+                // Get the normalized PHP version for this config file, if it's defined
+                foreach ($fpmSockFiles as $sock) {
+                    if (strpos($content, $sock) !== false) {
+                        // Extract the PHP version number from a custom .sock path;
+                        // for example, "valet74.sock" will output "php74"
+                        $phpVersion = 'php'.str_replace(['valet', '.sock'], '', $sock);
+
+                        return $this->normalizePhpVersion($phpVersion); // Example output php@7.4
+                    }
+                }
+            })->merge([$this->brew->getLinkedPhpFormula()])->filter()->unique()->values()->toArray();
     }
 }
