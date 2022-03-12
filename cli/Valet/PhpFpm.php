@@ -71,7 +71,7 @@ class PhpFpm
 
     /**
      * Create (or re-create) the PHP FPM configuration files.
-     * Writes FPM config file, pointing to the correct .sock file, and log and ini files
+     * Writes FPM config file, pointing to the correct .sock file, and log and ini files.
      *
      * @param  string|null  $phpVersion
      * @return void
@@ -93,7 +93,7 @@ class PhpFpm
         $this->files->put($fpmConfigFile, $contents);
 
         // Set log and ini files
-        $destDir = dirname(dirname($fpmConfigFile)) . '/conf.d';
+        $destDir = dirname(dirname($fpmConfigFile)).'/conf.d';
         $this->files->ensureDirExists($destDir, user());
 
         $contents = $this->files->get(__DIR__.'/../stubs/php-memory-limits.ini');
@@ -191,7 +191,7 @@ class PhpFpm
      */
     public function isolateDirectoryToVersion($directory, $version)
     {
-        if (!$site = $this->site->getSiteUrl($directory)) {
+        if (! $site = $this->site->getSiteUrl($directory)) {
             throw new DomainException("The [{$directory}] site could not be found in Valet's site list.");
         }
 
@@ -212,7 +212,7 @@ class PhpFpm
     }
 
     /**
-     * Remove PHP version isolation for a given directory
+     * Remove PHP version isolation for a given directory.
      *
      * @param  string  $directory
      * @return void
@@ -300,7 +300,7 @@ class PhpFpm
     {
         // @todo There's probably a way to incorporate this into the regex
         if (strpos($version, 'php') === false) {
-            $version = 'php' . $version;
+            $version = 'php'.$version;
         }
 
         return preg_replace('/(php)([0-9+])(?:.)?([0-9+])/i', '$1@$2.$3', $version);
@@ -309,7 +309,7 @@ class PhpFpm
     /**
      * Validate the requested version to be sure we can support it.
      *
-     * @param string $version
+     * @param  string  $version
      * @return string
      */
     public function validateRequestedVersion($version)

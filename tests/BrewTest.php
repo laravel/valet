@@ -154,7 +154,6 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $files = Mockery::mock(Filesystem::class);
         $files->shouldReceive('readLink')->once()->with(BREW_PREFIX.'/bin/php')->andReturn('/test/path/php72/7.2.9_2/test');
         $this->assertSame('php@7.2', $getBrewMock($files)->linkedPhp());
-
     }
 
     public function test_linked_php_throws_exception_if_no_php_link()
