@@ -76,7 +76,7 @@ class PhpFpm
      *
      * Writes FPM config file, pointing to the correct .sock file, and log and ini files.
      *
-     * @param  string $phpVersion
+     * @param  string  $phpVersion
      * @return void
      */
     public function createConfigurationFiles($phpVersion)
@@ -298,7 +298,7 @@ class PhpFpm
      *
      * @todo write tests
      *
-     * @param string $phpVersion
+     * @param  string  $phpVersion
      * @return void
      */
     public function symlinkPrimaryValetSock($phpVersion)
