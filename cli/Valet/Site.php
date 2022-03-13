@@ -517,7 +517,7 @@ class Site
 
         // If the user had isolated the PHP version for this site, swap out .sock file
         if ($phpVersion) {
-            $siteConf = $this->replaceSockFile($siteConf, "valet{$phpVersion}.sock", $phpVersion);
+            $siteConf = $this->replaceSockFile($siteConf, $phpVersion);
         }
 
         $this->files->putAsUser($this->nginxPath($url), $siteConf);
@@ -706,16 +706,14 @@ class Site
      */
     public function isolate($valetSite, $phpVersion)
     {
-        $fpmSockName = PhpFpm::fpmSockName($phpVersion);
-
         if ($this->files->exists($this->nginxPath($valetSite))) {
             // Modify the existing config if it exists (likely because it's secured)
             $siteConf = $this->files->get($this->nginxPath($valetSite));
-            $siteConf = $this->replaceSockFile($siteConf, $fpmSockName, $phpVersion);
+            $siteConf = $this->replaceSockFile($siteConf, $phpVersion);
         } else {
             $siteConf = str_replace(
                 ['VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_STATIC_PREFIX', 'VALET_SITE', 'VALET_PHP_FPM_SOCKET', 'VALET_ISOLATED_PHP_VERSION'],
-                [VALET_HOME_PATH, VALET_SERVER_PATH, VALET_STATIC_PREFIX, $valetSite, $fpmSockName, $phpVersion],
+                [VALET_HOME_PATH, VALET_SERVER_PATH, VALET_STATIC_PREFIX, $valetSite, PhpFpm::fpmSockName($phpVersion), $phpVersion],
                 $this->replaceLoopback($this->files->get(__DIR__.'/../stubs/site.valet.conf'))
             );
         }
@@ -1096,12 +1094,13 @@ class Site
      * Replace .sock file in an Nginx site configuration file contents.
      *
      * @param  string  $siteConf
-     * @param  string  $sockFile
      * @param  string  $phpVersion
      * @return string
      */
-    public function replaceSockFile($siteConf, $sockFile, $phpVersion)
+    public function replaceSockFile($siteConf, $phpVersion)
     {
+        $sockFile = PhpFpm::fpmSockName($phpVersion);
+
         $siteConf = preg_replace('/valet[0-9]*.sock/', $sockFile, $siteConf);
         $siteConf = preg_replace('/# Valet isolated PHP version.*\n/', '', $siteConf); // Remove `Valet isolated PHP version` line from config
 

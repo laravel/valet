@@ -52,7 +52,9 @@ class PhpFpm
 
         $this->files->ensureDirExists(VALET_HOME_PATH.'/Log', user());
 
-        $this->createConfigurationFiles();
+        $phpVersion = $this->brew->linkedPhp();
+        $this->createConfigurationFiles($phpVersion);
+        $this->symlinkPrimaryValetSock($phpVersion);
 
         $this->restart();
     }
@@ -74,12 +76,12 @@ class PhpFpm
      *
      * Writes FPM config file, pointing to the correct .sock file, and log and ini files.
      *
-     * @param  string|null  $phpVersion
+     * @param  string $phpVersion
      * @return void
      */
-    public function createConfigurationFiles($phpVersion = null)
+    public function createConfigurationFiles($phpVersion)
     {
-        info(sprintf('Updating PHP configuration%s...', ($phpVersion ? ' for '.$phpVersion : '')));
+        info("Updating PHP configuration for {$phpVersion}...");
 
         $fpmConfigFile = $this->fpmConfigPath($phpVersion);
 
@@ -87,13 +89,10 @@ class PhpFpm
 
         // Create FPM Config File from stub
         $contents = str_replace(
-            ['VALET_USER', 'VALET_HOME_PATH'],
-            [user(), VALET_HOME_PATH],
+            ['VALET_USER', 'VALET_HOME_PATH', 'valet.sock'],
+            [user(), VALET_HOME_PATH, self::fpmSockName($phpVersion)],
             $this->files->get(__DIR__.'/../stubs/etc-phpfpm-valet.conf')
         );
-        if ($phpVersion) {
-            $contents = str_replace('valet.sock', self::fpmSockName($phpVersion), $contents);
-        }
         $this->files->put($fpmConfigFile, $contents);
 
         // Create other config files from stubs
@@ -210,7 +209,6 @@ class PhpFpm
         $this->brew->ensureInstalled($version, [], $this->taps);
 
         $oldCustomPhpVersion = $this->site->customPhpVersion($site); // Example output: "74"
-        $this->cli->quietly('sudo rm '.VALET_HOME_PATH.'/'.$this->fpmSockName($oldCustomPhpVersion));
         $this->createConfigurationFiles($version);
 
         $this->site->isolate($site, $version);
@@ -269,15 +267,6 @@ class PhpFpm
 
         // Unlink the current global PHP if there is one installed
         if ($this->brew->hasLinkedPhp()) {
-            $linkedPhp = $this->brew->linkedPhp();
-
-            // Update the old FPM to keep running, using a custom sock file, so existing isolated sites aren't broken
-            $this->createConfigurationFiles($linkedPhp);
-
-            // Update existing custom Nginx config files; if they're using the old or new PHP version,
-            // update them to the new correct sock file location
-            $this->updateConfigurationForGlobalUpdate($version, $linkedPhp);
-
             $currentVersion = $this->brew->getLinkedPhpFormula();
             info(sprintf('Unlinking current version: %s', $currentVersion));
             $this->brew->unlink($currentVersion);
@@ -288,9 +277,9 @@ class PhpFpm
 
         $this->stopRunning();
 
-        // remove any orphaned valet.sock files that PHP didn't clean up due to version conflicts
+        // Remove valet.sock
         $this->files->unlink(VALET_HOME_PATH.'/valet.sock');
-        $this->cli->quietly('sudo rm '.VALET_HOME_PATH.'/valet*.sock');
+        $this->cli->quietly('sudo rm '.VALET_HOME_PATH.'/valet.sock');
 
         $this->install();
 
@@ -302,6 +291,19 @@ class PhpFpm
         info('Note that you might need to run <comment>composer global update</comment> if your PHP version change affects the dependencies of global packages required by Composer.');
 
         return $newVersion;
+    }
+
+    /**
+     * Symlink (Capistrano-style) a given Valet.sock file to be the primary valet.sock.
+     *
+     * @todo write tests
+     *
+     * @param string $phpVersion
+     * @return void
+     */
+    public function symlinkPrimaryValetSock($phpVersion)
+    {
+        $this->files->symlink($this->fpmSockName($phpVersion), VALET_HOME_PATH.'/valet.sock');
     }
 
     /**
@@ -354,42 +356,6 @@ class PhpFpm
         $versionInteger = preg_replace('~[^\d]~', '', $phpVersion);
 
         return "valet{$versionInteger}.sock";
-    }
-
-    /**
-     * Update all existing Nginx files when running a global PHP version update.
-     *
-     * If a given file is pointing to `valet.sock`, it's targeting the old global PHP version;
-     * update it to point to the new custom sock file for that version.
-     *
-     * If a given file is pointing the custom sock file for the new global version, that new
-     * version will now be hosted at `valet.sock`, so update the config file to point to that instead.
-     *
-     * @param  string  $newPhpVersion
-     * @param  string  $oldPhpVersion
-     * @return void
-     */
-    public function updateConfigurationForGlobalUpdate($newPhpVersion, $oldPhpVersion)
-    {
-        collect($this->files->scandir(VALET_HOME_PATH.'/Nginx'))
-            ->reject(function ($file) {
-                return starts_with($file, '.');
-            })
-            ->each(function ($file) use ($newPhpVersion, $oldPhpVersion) {
-                $content = $this->files->get(VALET_HOME_PATH.'/Nginx/'.$file);
-
-                if (! starts_with($content, '# Valet isolated PHP version')) {
-                    return;
-                }
-
-                if (strpos($content, self::fpmSockName($newPhpVersion)) !== false) {
-                    info(sprintf('Updating site %s to keep using version: %s', $file, $newPhpVersion));
-                    $this->files->put(VALET_HOME_PATH.'/Nginx/'.$file, str_replace(self::fpmSockName($newPhpVersion), 'valet.sock', $content));
-                } elseif (strpos($content, 'valet.sock') !== false) {
-                    info(sprintf('Updating site %s to keep using version: %s', $file, $oldPhpVersion));
-                    $this->files->put(VALET_HOME_PATH.'/Nginx/'.$file, str_replace('valet.sock', self::fpmSockName($oldPhpVersion), $content));
-                }
-            });
     }
 
     /**
