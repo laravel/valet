@@ -386,7 +386,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $phpFpmMock->shouldNotReceive('install');
         $phpFpmMock->shouldNotReceive('updateConfigurationForGlobalUpdate');
 
-        $this->assertSame(null, $phpFpmMock->isolateDirectoryToVersion('test', 'php@7.2'));
+        $this->assertSame(null, $phpFpmMock->isolateDirectory('test', 'php@7.2'));
     }
 
     public function test_un_isolate_can_remove_isolation_for_a_site()
@@ -430,7 +430,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $siteMock->shouldReceive('getSiteUrl');
 
-        $this->assertSame(null, $phpFpmMock->isolateDirectoryToVersion('test', 'php@8.1'));
+        $this->assertSame(null, $phpFpmMock->isolateDirectory('test', 'php@8.1'));
     }
 }
 

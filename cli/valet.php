@@ -519,7 +519,7 @@ You might also want to investigate your global Composer configs. Helpful command
      * Allow the user to change the version of php valet uses to serve a given site.
      */
     $app->command('isolate [site] [phpVersion] ', function ($site, $phpVersion) {
-        PhpFpm::isolateDirectoryToVersion($site, $phpVersion);
+        PhpFpm::isolateDirectory($site, $phpVersion);
     })->descriptions('Change the version of PHP used by valet to serve a given site', [
         'site' => 'The valet site (e.g. site.test) you want to isolate to a given PHP version',
         'phpVersion' => 'The PHP version you want to use, e.g php@7.3',

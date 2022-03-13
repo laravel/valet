@@ -71,6 +71,7 @@ class PhpFpm
 
     /**
      * Create (or re-create) the PHP FPM configuration files.
+     *
      * Writes FPM config file, pointing to the correct .sock file, and log and ini files.
      *
      * @param  string|null  $phpVersion
@@ -183,13 +184,13 @@ class PhpFpm
     }
 
     /**
-     * Isolate a given directory to use a specific version of php.
+     * Isolate a given directory to use a specific version of PHP.
      *
      * @param  string  $directory
      * @param  string  $version
      * @return void
      */
-    public function isolateDirectoryToVersion($directory, $version)
+    public function isolateDirectory($directory, $version)
     {
         if (! $site = $this->site->getSiteUrl($directory)) {
             throw new DomainException("The [{$directory}] site could not be found in Valet's site list.");
@@ -200,6 +201,7 @@ class PhpFpm
         $this->brew->ensureInstalled($version, [], $this->taps);
 
         $oldCustomPhpVersion = $this->site->customPhpVersion($site); // Example output: "74"
+        $this->cli->quietly('sudo rm '.VALET_HOME_PATH.'/'.$this->fpmSockName($oldCustomPhpVersion));
         $this->createConfigurationFiles($version);
 
         $this->site->isolate($site, $version);
@@ -298,7 +300,6 @@ class PhpFpm
      */
     public function normalizePhpVersion($version)
     {
-        // @todo There's probably a way to incorporate this into the regex
         if (strpos($version, 'php') === false) {
             $version = 'php'.$version;
         }
@@ -348,8 +349,10 @@ class PhpFpm
 
     /**
      * Update all existing Nginx files when running a global PHP version update.
+     *
      * If a given file is pointing to `valet.sock`, it's targeting the old global PHP version;
      * update it to point to the new custom sock file for that version.
+     *
      * If a given file is pointing the custom sock file for the new global version, that new
      * version will now be hosted at `valet.sock`, so update the config file to point to that instead.
      *
