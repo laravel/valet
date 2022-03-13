@@ -79,37 +79,46 @@ class PhpFpm
      */
     public function createConfigurationFiles($phpVersion = null)
     {
-        info(sprintf('Updating PHP configuration%s...', $phpVersion ? ' for '.$phpVersion : ''));
+        info(sprintf('Updating PHP configuration%s...', ($phpVersion ? ' for '.$phpVersion : '')));
 
         $fpmConfigFile = $this->fpmConfigPath($phpVersion);
 
         $this->files->ensureDirExists(dirname($fpmConfigFile), user());
 
-        // Drop in a valet-specific fpm pool config
-        $contents = $this->files->get(__DIR__.'/../stubs/etc-phpfpm-valet.conf');
-        $contents = str_replace(['VALET_USER', 'VALET_HOME_PATH'], [user(), VALET_HOME_PATH], $contents);
+        // Create FPM Config File from stub
+        $contents = str_replace(
+            ['VALET_USER', 'VALET_HOME_PATH'],
+            [user(), VALET_HOME_PATH],
+            $this->files->get(__DIR__.'/../stubs/etc-phpfpm-valet.conf')
+        );
         if ($phpVersion) {
             $contents = str_replace('valet.sock', self::fpmSockName($phpVersion), $contents);
         }
         $this->files->put($fpmConfigFile, $contents);
 
-        // Set log and ini files
+        // Create other config files from stubs
         $destDir = dirname(dirname($fpmConfigFile)).'/conf.d';
         $this->files->ensureDirExists($destDir, user());
 
-        $contents = $this->files->get(__DIR__.'/../stubs/php-memory-limits.ini');
-        $this->files->putAsUser($destDir.'/php-memory-limits.ini', $contents);
+        $this->files->putAsUser(
+            $destDir.'/php-memory-limits.ini',
+            $this->files->get(__DIR__.'/../stubs/php-memory-limits.ini')
+        );
 
-        $contents = $this->files->get(__DIR__.'/../stubs/etc-phpfpm-error_log.ini');
-        $contents = str_replace(['VALET_USER', 'VALET_HOME_PATH'], [user(), VALET_HOME_PATH], $contents);
+        $contents = str_replace(
+            ['VALET_USER', 'VALET_HOME_PATH'],
+            [user(), VALET_HOME_PATH],
+            $this->files->get(__DIR__.'/../stubs/etc-phpfpm-error_log.ini')
+        );
         $this->files->putAsUser($destDir.'/error_log.ini', $contents);
 
+        // Create log directory and file
         $this->files->ensureDirExists(VALET_HOME_PATH.'/Log', user());
         $this->files->touch(VALET_HOME_PATH.'/Log/php-fpm.log', user());
     }
 
     /**
-     * Restart the PHP FPM process(es).
+     * Restart the PHP FPM process (if one specified) or processes (if none specified).
      *
      * @param  string|null  $phpVersion
      * @return void
@@ -151,7 +160,7 @@ class PhpFpm
     }
 
     /**
-     * Only stop running php services.
+     * Stop only the running php services.
      */
     public function stopRunning()
     {
@@ -165,7 +174,7 @@ class PhpFpm
     }
 
     /**
-     * Stop a given PHP version, if a specific version isn't being used globally or by any sites.
+     * Stop a given PHP version, if that specific version isn't being used globally or by any sites.
      *
      * @param  string|null  $phpVersion
      * @return void
