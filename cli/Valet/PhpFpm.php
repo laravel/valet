@@ -312,8 +312,6 @@ class PhpFpm
     /**
      * Symlink (Capistrano-style) a given Valet.sock file to be the primary valet.sock.
      *
-     * @todo write tests
-     *
      * @param  string  $phpVersion
      * @return void
      */

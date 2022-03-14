@@ -230,7 +230,6 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
     public function test_use_version_will_convert_passed_php_version()
     {
-        // @todo mock CLI and filesystem so real valet.sock files aren't deleted
         $brewMock = Mockery::mock(Brew::class);
         $nginxMock = Mockery::mock(Nginx::class);
         $siteMock = Mockery::mock(Site::class);
