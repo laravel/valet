@@ -165,7 +165,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
             [
                 'url' => 'isolated-site-72.test',
                 'version' => 'php@7.2',
-            ]
+            ],
         ], resolve(PhpFpm::class)->isolatedDirectories()->toArray());
     }
 
