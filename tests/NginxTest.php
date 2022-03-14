@@ -86,4 +86,26 @@ class NginxTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $site->shouldHaveReceived('resecureForNewConfiguration', [$data, $data]);
     }
+
+    public function test_it_gets_configured_sites()
+    {
+        $files = Mockery::mock(Filesystem::class);
+
+        $files->shouldReceive('scandir')
+            ->once()
+            ->with(VALET_HOME_PATH . '/Nginx')
+            ->andReturn(['.gitkeep', 'isolated-site-71.test', 'isolated-site-72.test', 'isolated-site-73.test']);
+
+        swap(Filesystem::class, $files);
+        swap(Configuration::class, $config = Mockery::spy(Configuration::class, ['read' => ['tld' => 'test', 'loopback' => VALET_LOOPBACK]]));
+        swap(Site::class, Mockery::mock(Site::class));
+
+        $nginx = resolve(Nginx::class);
+        $output = $nginx->configuredSites();
+
+        $this->assertEquals(
+            ['isolated-site-71.test', 'isolated-site-72.test', 'isolated-site-73.test'],
+            $output->values()->all()
+        );
+    }
 }

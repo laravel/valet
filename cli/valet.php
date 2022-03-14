@@ -528,7 +528,16 @@ You might also want to investigate your global Composer configs. Helpful command
      */
     $app->command('unisolate', function () {
         PhpFpm::unIsolateDirectory(basename(getcwd()));
-    })->descriptions('Stop customizing the version of PHP used by valet to serve the current working directory');
+    })->descriptions('Stop customizing the version of PHP used by Valet to serve the current working directory');
+
+    /**
+     * List isolated sites
+     */
+    $app->command('isolated', function () {
+        $sites = PhpFpm::isolatedDirectories();
+
+        table(['Path'], $sites->all());
+    })->descriptions('List all sites using isolated versions of PHP.');
 
     /**
      * Tail log file.

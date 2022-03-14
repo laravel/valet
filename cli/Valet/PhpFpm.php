@@ -244,6 +244,22 @@ class PhpFpm
     }
 
     /**
+     * List all directories with PHP isolation configured.
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public function isolatedDirectories()
+    {
+        $configuredSites = $this->nginx->configuredSites();
+
+        return $configuredSites->filter(function ($item) {
+            return str_contains($this->files->get(VALET_HOME_PATH.'/Nginx/'.$item), 'Valet isolated PHP version');
+        })->map(function ($item) {
+            return ['url' => $item];
+        });
+    }
+
+    /**
      * Use a specific version of PHP globally.
      *
      * @param  string  $version
@@ -366,11 +382,7 @@ class PhpFpm
             return self::fpmSockName($this->normalizePhpVersion($version));
         })->unique();
 
-        return collect($this->files->scandir(VALET_HOME_PATH.'/Nginx'))
-            ->reject(function ($file) {
-                return starts_with($file, '.');
-            })
-            ->map(function ($file) use ($fpmSockFiles) {
+        return $this->nginx->configuredSites()->map(function ($file) use ($fpmSockFiles) {
                 $content = $this->files->get(VALET_HOME_PATH.'/Nginx/'.$file);
 
                 // Get the normalized PHP version for this config file, if it's defined

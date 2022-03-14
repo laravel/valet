@@ -64,6 +64,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
     {
         $fileSystemMock = Mockery::mock(Filesystem::class);
         $brewMock = Mockery::mock(Brew::class);
+        $nginxMock = Mockery::mock(Nginx::class);
 
         $phpFpmMock = Mockery::mock(PhpFpm::class, [
             $brewMock,
@@ -71,7 +72,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
             $fileSystemMock,
             resolve(Configuration::class),
             Mockery::mock(Site::class),
-            Mockery::mock(Nginx::class),
+            $nginxMock,
         ])->makePartial();
 
         swap(PhpFpm::class, $phpFpmMock);
@@ -85,12 +86,9 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $brewMock->shouldReceive('getLinkedPhpFormula')->andReturn('php@7.3');
 
-        $fileSystemMock->shouldReceive('scandir')
+        $nginxMock->shouldReceive('configuredSites')
             ->once()
-            ->with(VALET_HOME_PATH.'/Nginx')
-            ->andReturn(['.gitkeep', 'isolated-site-71.test', 'isolated-site-72.test', 'isolated-site-73.test']);
-
-        $fileSystemMock->shouldNotReceive('get')->with(VALET_HOME_PATH.'/Nginx/.gitkeep');
+            ->andReturn(collect(['isolated-site-71.test', 'isolated-site-72.test', 'isolated-site-73.test']));
 
         $sites = [
             [
@@ -112,6 +110,11 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         }
 
         $this->assertEquals(['php@7.1', 'php@7.2', 'php@7.3'], resolve(PhpFpm::class)->utilizedPhpVersions());
+    }
+
+    public function test_it_lists_isolated_directories()
+    {
+        $this->markTestIncomplete('@todo');
     }
 
     public function test_stop_unused_php_versions()
