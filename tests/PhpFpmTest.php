@@ -116,13 +116,14 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
     {
         $fileSystemMock = Mockery::mock(Filesystem::class);
         $nginxMock = Mockery::mock(Nginx::class);
+        $site = Mockery::mock(Site::class);
 
         $phpFpmMock = Mockery::mock(PhpFpm::class, [
             Mockery::mock(Brew::class),
             Mockery::mock(CommandLine::class),
             $fileSystemMock,
             resolve(Configuration::class),
-            Mockery::mock(Site::class),
+            $site,
             $nginxMock,
         ])->makePartial();
 
@@ -131,6 +132,11 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $nginxMock->shouldReceive('configuredSites')
             ->once()
             ->andReturn(collect(['isolated-site-71.test', 'isolated-site-72.test', 'not-isolated-site.test']));
+
+        $site->shouldReceive('customPhpVersion')->with('isolated-site-71.test')->andReturn('71');
+        $site->shouldReceive('customPhpVersion')->with('isolated-site-72.test')->andReturn('72');
+        $site->shouldReceive('normalizePhpVersion')->with('71')->andReturn('php@7.1');
+        $site->shouldReceive('normalizePhpVersion')->with('72')->andReturn('php@7.2');
 
         $sites = [
             [
@@ -151,7 +157,16 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
             $fileSystemMock->shouldReceive('get')->once()->with(VALET_HOME_PATH.'/Nginx/'.$site['site'])->andReturn($site['conf']);
         }
 
-        $this->assertEquals(['isolated-site-71.test', 'isolated-site-72.test'], resolve(PhpFpm::class)->isolatedDirectories()->pluck('url')->toArray());
+        $this->assertEquals([
+            [
+                'url' => 'isolated-site-71.test',
+                'version' => 'php@7.1',
+            ],
+            [
+                'url' => 'isolated-site-72.test',
+                'version' => 'php@7.2',
+            ]
+        ], resolve(PhpFpm::class)->isolatedDirectories()->toArray());
     }
 
     public function test_stop_unused_php_versions()
@@ -215,14 +230,17 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
     public function test_use_version_will_convert_passed_php_version()
     {
+        // @todo mock CLI and filesystem so real valet.sock files aren't deleted
         $brewMock = Mockery::mock(Brew::class);
         $nginxMock = Mockery::mock(Nginx::class);
         $siteMock = Mockery::mock(Site::class);
+        $filesystem = Mockery::mock(Filesystem::class);
+        $cli = Mockery::mock(CommandLine::class);
 
         $phpFpmMock = Mockery::mock(PhpFpm::class, [
             $brewMock,
-            resolve(CommandLine::class),
-            resolve(Filesystem::class),
+            $cli,
+            $filesystem,
             resolve(Configuration::class),
             $siteMock,
             $nginxMock,
@@ -244,6 +262,10 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $brewMock->shouldReceive('stopService');
 
         $nginxMock->shouldReceive('restart');
+
+        $filesystem->shouldReceive('unlink')->with(VALET_HOME_PATH.'/valet.sock');
+
+        $cli->shouldReceive('quietly')->with('sudo rm '.VALET_HOME_PATH.'/valet.sock');
 
         // Test both non prefixed and prefixed
         $this->assertSame('php@7.2', $phpFpmMock->useVersion('php7.2'));
