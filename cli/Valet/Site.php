@@ -1082,7 +1082,7 @@ class Site
         if ($this->files->exists($this->nginxPath($url))) {
             $siteConf = $this->files->get($this->nginxPath($url));
 
-            if (starts_with($siteConf, '# Valet isolated PHP version')) {
+            if (starts_with($siteConf, '# '.ISOLATED_PHP_VERSION)) {
                 $firstLine = explode(PHP_EOL, $siteConf)[0];
 
                 return preg_replace("/[^\d]*/", '', $firstLine); // Example output: "74" or "81"
@@ -1102,8 +1102,8 @@ class Site
         $sockFile = PhpFpm::fpmSockName($phpVersion);
 
         $siteConf = preg_replace('/valet[0-9]*.sock/', $sockFile, $siteConf);
-        $siteConf = preg_replace('/# Valet isolated PHP version.*\n/', '', $siteConf); // Remove `Valet isolated PHP version` line from config
+        $siteConf = preg_replace('/# '.ISOLATED_PHP_VERSION.'.*\n/', '', $siteConf); // Remove ISOLATED_PHP_VERSION line from config
 
-        return '# Valet isolated PHP version: '.$phpVersion.PHP_EOL.$siteConf;
+        return '# '.ISOLATED_PHP_VERSION.'='.$phpVersion.PHP_EOL.$siteConf;
     }
 }
