@@ -255,9 +255,7 @@ class PhpFpm
      */
     public function isolatedDirectories()
     {
-        $configuredSites = $this->nginx->configuredSites();
-
-        return $configuredSites->filter(function ($item) {
+        return $this->nginx->configuredSites()->filter(function ($item) {
             return strpos($this->files->get(VALET_HOME_PATH.'/Nginx/'.$item), ISOLATED_PHP_VERSION) !== false;
         })->map(function ($item) {
             return ['url' => $item, 'version' => $this->normalizePhpVersion($this->site->customPhpVersion($item))];
@@ -387,11 +385,8 @@ class PhpFpm
             // Get the normalized PHP version for this config file, if it's defined
             foreach ($fpmSockFiles as $sock) {
                 if (strpos($content, $sock) !== false) {
-                    // Extract the PHP version number from a custom .sock path;
-                    // for example, "valet74.sock" will output "php74"
-                    $phpVersion = 'php'.str_replace(['valet', '.sock'], '', $sock);
-
-                    return $this->normalizePhpVersion($phpVersion); // Example output php@7.4
+                    // Extract the PHP version number from a custom .sock path and normalize it to, e.g., "php@7.4"
+                    return $this->normalizePhpVersion(str_replace(['valet', '.sock'], '', $sock));
                 }
             }
         })->merge([$this->brew->getLinkedPhpFormula()])->filter()->unique()->values()->toArray();

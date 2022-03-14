@@ -60,11 +60,6 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $this->assertEquals('php@8.1', resolve(PhpFpm::class)->normalizePhpVersion('81'));
     }
 
-    public function test_it_installs()
-    {
-        $this->markTestIncomplete('todo');
-    }
-
     public function test_utilized_php_versions()
     {
         $fileSystemMock = Mockery::mock(Filesystem::class);
