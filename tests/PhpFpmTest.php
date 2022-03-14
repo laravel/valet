@@ -114,7 +114,44 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
     public function test_it_lists_isolated_directories()
     {
-        $this->markTestIncomplete('@todo');
+        $fileSystemMock = Mockery::mock(Filesystem::class);
+        $nginxMock = Mockery::mock(Nginx::class);
+
+        $phpFpmMock = Mockery::mock(PhpFpm::class, [
+            Mockery::mock(Brew::class),
+            Mockery::mock(CommandLine::class),
+            $fileSystemMock,
+            resolve(Configuration::class),
+            Mockery::mock(Site::class),
+            $nginxMock,
+        ])->makePartial();
+
+        swap(PhpFpm::class, $phpFpmMock);
+
+        $nginxMock->shouldReceive('configuredSites')
+            ->once()
+            ->andReturn(collect(['isolated-site-71.test', 'isolated-site-72.test', 'not-isolated-site.test']));
+
+        $sites = [
+            [
+                'site' => 'isolated-site-71.test',
+                'conf' => '# Valet isolated PHP version : 71' . PHP_EOL . 'valet71.sock',
+            ],
+            [
+                'site' => 'isolated-site-72.test',
+                'conf' => '# Valet isolated PHP version : php@7.2' . PHP_EOL . 'valet72.sock',
+            ],
+            [
+                'site' => 'not-isolated-site.test',
+                'conf' => 'This one is not isolated',
+            ],
+        ];
+
+        foreach ($sites as $site) {
+            $fileSystemMock->shouldReceive('get')->once()->with(VALET_HOME_PATH.'/Nginx/'.$site['site'])->andReturn($site['conf']);
+        }
+
+        $this->assertEquals(['isolated-site-71.test', 'isolated-site-72.test'], resolve(PhpFpm::class)->isolatedDirectories()->pluck('url')->toArray());
     }
 
     public function test_stop_unused_php_versions()
@@ -316,7 +353,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $this->assertSame(null, $phpFpmMock->isolateDirectory('test', 'php@7.2'));
     }
 
-    public function test_un_isolate_can_remove_isolation_for_a_site()
+    public function test_un_isolate_will_remove_isolation_for_a_site()
     {
         $nginxMock = Mockery::mock(Nginx::class);
         $siteMock = Mockery::mock(Site::class);
