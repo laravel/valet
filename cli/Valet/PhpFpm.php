@@ -59,9 +59,9 @@ class PhpFpm
         $this->files->unlink(VALET_HOME_PATH.'/valet.sock');
         $this->cli->quietly('sudo rm '.VALET_HOME_PATH.'/valet.sock');
 
-        $this->symlinkPrimaryValetSock($phpVersion);
-
         $this->restart();
+
+        $this->symlinkPrimaryValetSock($phpVersion);
     }
 
     /**
