@@ -35,13 +35,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         copy(__DIR__.'/files/fpm.conf', __DIR__.'/output/fpm.conf');
         mkdir(__DIR__.'/output/conf.d');
         copy(__DIR__.'/files/php-memory-limits.ini', __DIR__.'/output/conf.d/php-memory-limits.ini');
-        resolve(StubForUpdatingFpmConfigFiles::class)->createConfigurationFiles();
-        $contents = file_get_contents(__DIR__.'/output/fpm.conf');
-        $this->assertStringContainsString(sprintf("\nuser = %s", user()), $contents);
-        $this->assertStringContainsString("\ngroup = staff", $contents);
-        $this->assertStringContainsString("\nlisten = ".VALET_HOME_PATH.'/valet.sock', $contents);
 
-        // Passing specific version will change the .sock file
         resolve(StubForUpdatingFpmConfigFiles::class)->createConfigurationFiles('php@7.2');
         $contents = file_get_contents(__DIR__.'/output/fpm.conf');
         $this->assertStringContainsString(sprintf("\nuser = %s", user()), $contents);
@@ -57,10 +51,25 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $this->assertEquals('valet72.sock', resolve(PhpFpm::class)->fpmSockName('72'));
     }
 
+    public function test_it_normalizes_php_versions()
+    {
+        $this->assertEquals('php@8.1', resolve(PhpFpm::class)->normalizePhpVersion('php@8.1'));
+        $this->assertEquals('php@8.1', resolve(PhpFpm::class)->normalizePhpVersion('php8.1'));
+        $this->assertEquals('php@8.1', resolve(PhpFpm::class)->normalizePhpVersion('php81'));
+        $this->assertEquals('php@8.1', resolve(PhpFpm::class)->normalizePhpVersion('8.1'));
+        $this->assertEquals('php@8.1', resolve(PhpFpm::class)->normalizePhpVersion('81'));
+    }
+
+    public function test_it_installs()
+    {
+        $this->markTestIncomplete('todo');
+    }
+
     public function test_utilized_php_versions()
     {
         $fileSystemMock = Mockery::mock(Filesystem::class);
         $brewMock = Mockery::mock(Brew::class);
+        $nginxMock = Mockery::mock(Nginx::class);
 
         $phpFpmMock = Mockery::mock(PhpFpm::class, [
             $brewMock,
@@ -68,7 +77,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
             $fileSystemMock,
             resolve(Configuration::class),
             Mockery::mock(Site::class),
-            Mockery::mock(Nginx::class),
+            $nginxMock,
         ])->makePartial();
 
         swap(PhpFpm::class, $phpFpmMock);
@@ -82,25 +91,22 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $brewMock->shouldReceive('getLinkedPhpFormula')->andReturn('php@7.3');
 
-        $fileSystemMock->shouldReceive('scandir')
+        $nginxMock->shouldReceive('configuredSites')
             ->once()
-            ->with(VALET_HOME_PATH.'/Nginx')
-            ->andReturn(['.gitkeep', 'isolated-site-71.test', 'isolated-site-72.test', 'isolated-site-73.test']);
-
-        $fileSystemMock->shouldNotReceive('get')->with(VALET_HOME_PATH.'/Nginx/.gitkeep');
+            ->andReturn(collect(['isolated-site-71.test', 'isolated-site-72.test', 'isolated-site-73.test']));
 
         $sites = [
             [
                 'site' => 'isolated-site-71.test',
-                'conf' => '# Valet isolated PHP version : 71'.PHP_EOL.'valet71.sock',
+                'conf' => '# '.ISOLATED_PHP_VERSION.'=71'.PHP_EOL.'valet71.sock',
             ],
             [
                 'site' => 'isolated-site-72.test',
-                'conf' => '# Valet isolated PHP version : php@7.2'.PHP_EOL.'valet72.sock',
+                'conf' => '# '.ISOLATED_PHP_VERSION.'=php@7.2'.PHP_EOL.'valet72.sock',
             ],
             [
                 'site' => 'isolated-site-73.test',
-                'conf' => '# Valet isolated PHP version : 73'.PHP_EOL.'valet.sock',
+                'conf' => '# '.ISOLATED_PHP_VERSION.'=73'.PHP_EOL.'valet.sock',
             ],
         ];
 
@@ -111,79 +117,61 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $this->assertEquals(['php@7.1', 'php@7.2', 'php@7.3'], resolve(PhpFpm::class)->utilizedPhpVersions());
     }
 
-    public function test_global_php_version_update_will_swap_socks()
+    public function test_it_lists_isolated_directories()
     {
         $fileSystemMock = Mockery::mock(Filesystem::class);
+        $nginxMock = Mockery::mock(Nginx::class);
+        $site = Mockery::mock(Site::class);
 
         $phpFpmMock = Mockery::mock(PhpFpm::class, [
             Mockery::mock(Brew::class),
             Mockery::mock(CommandLine::class),
             $fileSystemMock,
             resolve(Configuration::class),
-            Mockery::mock(Site::class),
-            Mockery::mock(Nginx::class),
+            $site,
+            $nginxMock,
         ])->makePartial();
 
         swap(PhpFpm::class, $phpFpmMock);
 
-        $fileSystemMock->shouldReceive('scandir')
+        $nginxMock->shouldReceive('configuredSites')
             ->once()
-            ->with(VALET_HOME_PATH.'/Nginx')
-            ->andReturn([
-                '.gitkeep',
-                'isolated-site-71.test',
-                'isolated-site-72.test',
-                'isolated-site-73.test',
-                'non-isolated-site.test',
-            ]);
+            ->andReturn(collect(['isolated-site-71.test', 'isolated-site-72.test', 'not-isolated-site.test']));
 
-        // Skip dotfiles
-        $fileSystemMock->shouldNotReceive('get')->with(VALET_HOME_PATH.'/Nginx/.gitkeep');
+        $site->shouldReceive('customPhpVersion')->with('isolated-site-71.test')->andReturn('71');
+        $site->shouldReceive('customPhpVersion')->with('isolated-site-72.test')->andReturn('72');
+        $site->shouldReceive('normalizePhpVersion')->with('71')->andReturn('php@7.1');
+        $site->shouldReceive('normalizePhpVersion')->with('72')->andReturn('php@7.2');
 
-        // Any isolated site running on php72 would be replaced with default valet.sock,
-        // as 72 will be the default version after the global PHP version switch
-        $fileSystemMock->shouldReceive('get')
-            ->once()
-            ->with(VALET_HOME_PATH.'/Nginx/isolated-site-72.test')
-            ->andReturn('# Valet isolated PHP version : 72'.PHP_EOL.'server { fastcgi_pass: valet72.sock }');
+        $sites = [
+            [
+                'site' => 'isolated-site-71.test',
+                'conf' => '# '.ISOLATED_PHP_VERSION.'=71'.PHP_EOL.'valet71.sock',
+            ],
+            [
+                'site' => 'isolated-site-72.test',
+                'conf' => '# '.ISOLATED_PHP_VERSION.'=php@7.2'.PHP_EOL.'valet72.sock',
+            ],
+            [
+                'site' => 'not-isolated-site.test',
+                'conf' => 'This one is not isolated',
+            ],
+        ];
 
-        $fileSystemMock->shouldReceive('put')->once()->withArgs([
-            VALET_HOME_PATH.'/Nginx/isolated-site-72.test',
-            '# Valet isolated PHP version : 72'.PHP_EOL.'server { fastcgi_pass: valet.sock }',
-        ]);
+        foreach ($sites as $site) {
+            $fileSystemMock->shouldReceive('get')->once()->with(VALET_HOME_PATH.'/Nginx/'.$site['site'])->andReturn($site['conf']);
+        }
 
-        // Any isolated site running on current PHP version (with valet.sock),
-        // should be still be running on the same version after the global version update
-        $fileSystemMock->shouldReceive('get')
-            ->once()
-            ->with(VALET_HOME_PATH.'/Nginx/isolated-site-71.test')
-            ->andReturn('# Valet isolated PHP version : 71'.PHP_EOL.'server { fastcgi_pass: valet.sock }');
-
-        $fileSystemMock->shouldReceive('put')->once()->withArgs([
-            VALET_HOME_PATH.'/Nginx/isolated-site-71.test',
-            '# Valet isolated PHP version : 71'.PHP_EOL.'server { fastcgi_pass: valet71.sock }',
-        ]);
-
-        // PHP 7.3 sites won't be affected here
-        $fileSystemMock->shouldReceive('get')
-            ->once()
-            ->with(VALET_HOME_PATH.'/Nginx/isolated-site-73.test')
-            ->andReturn('# Valet isolated PHP version : 73'.PHP_EOL.'server { fastcgi_pass: valet73.sock }');
-
-        $fileSystemMock->shouldNotReceive('put')->withArgs([
-            VALET_HOME_PATH.'/Nginx/isolated-site-73.test',
-            Mockery::any(),
-        ]);
-
-        // Nginx config that doesn't have the isolation header, It would not swap .sock files
-        $fileSystemMock->shouldReceive('get')->once()->with(VALET_HOME_PATH.'/Nginx/non-isolated-site.test')->andReturn('valet.sock');
-        $fileSystemMock->shouldNotReceive('put')->withArgs([
-            VALET_HOME_PATH.'/Nginx/non-isolated-site.test',
-            'valet71.sock',
-        ]);
-
-        // Switching from php7.1 to php7.2
-        resolve(PhpFpm::class)->updateConfigurationForGlobalUpdate('php@7.2', 'php@7.1');
+        $this->assertEquals([
+            [
+                'url' => 'isolated-site-71.test',
+                'version' => 'php@7.1',
+            ],
+            [
+                'url' => 'isolated-site-72.test',
+                'version' => 'php@7.2',
+            ],
+        ], resolve(PhpFpm::class)->isolatedDirectories()->toArray());
     }
 
     public function test_stop_unused_php_versions()
@@ -250,11 +238,13 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $brewMock = Mockery::mock(Brew::class);
         $nginxMock = Mockery::mock(Nginx::class);
         $siteMock = Mockery::mock(Site::class);
+        $filesystem = Mockery::mock(Filesystem::class);
+        $cli = Mockery::mock(CommandLine::class);
 
         $phpFpmMock = Mockery::mock(PhpFpm::class, [
             $brewMock,
-            resolve(CommandLine::class),
-            resolve(Filesystem::class),
+            $cli,
+            $filesystem,
             resolve(Configuration::class),
             $siteMock,
             $nginxMock,
@@ -276,6 +266,10 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $brewMock->shouldReceive('stopService');
 
         $nginxMock->shouldReceive('restart');
+
+        $filesystem->shouldReceive('unlink')->with(VALET_HOME_PATH.'/valet.sock');
+
+        $cli->shouldReceive('quietly')->with('sudo rm '.VALET_HOME_PATH.'/valet.sock');
 
         // Test both non prefixed and prefixed
         $this->assertSame('php@7.2', $phpFpmMock->useVersion('php7.2'));
@@ -302,24 +296,17 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $brewMock = Mockery::mock(Brew::class);
         $nginxMock = Mockery::mock(Nginx::class);
         $siteMock = Mockery::mock(Site::class);
-        $cliMock = Mockery::mock(CommandLine::class);
-        $fileSystemMock = Mockery::mock(Filesystem::class);
 
         $phpFpmMock = Mockery::mock(PhpFpm::class, [
             $brewMock,
-            $cliMock,
-            $fileSystemMock,
+            resolve(CommandLine::class),
+            resolve(Filesystem::class),
             resolve(Configuration::class),
             $siteMock,
             $nginxMock,
         ])->makePartial();
 
         $phpFpmMock->shouldReceive('install');
-        $cliMock->shouldReceive('quietly')->with('sudo rm '.VALET_HOME_PATH.'/valet*.sock')->once();
-        $fileSystemMock->shouldReceive('unlink')->with(VALET_HOME_PATH.'/valet.sock')->once();
-
-        $phpFpmMock->shouldReceive('createConfigurationFiles')->with('php@7.1')->once();
-        $phpFpmMock->shouldReceive('updateConfigurationForGlobalUpdate')->withArgs(['php@7.2', 'php@7.1'])->once();
 
         $brewMock->shouldReceive('supportedPhpVersions')->andReturn(collect([
             'php@7.2',
@@ -384,12 +371,11 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $brewMock->shouldNotReceive('unlink');
         $phpFpmMock->shouldNotReceive('stopRunning');
         $phpFpmMock->shouldNotReceive('install');
-        $phpFpmMock->shouldNotReceive('updateConfigurationForGlobalUpdate');
 
         $this->assertSame(null, $phpFpmMock->isolateDirectory('test', 'php@7.2'));
     }
 
-    public function test_un_isolate_can_remove_isolation_for_a_site()
+    public function test_un_isolate_will_remove_isolation_for_a_site()
     {
         $nginxMock = Mockery::mock(Nginx::class);
         $siteMock = Mockery::mock(Site::class);

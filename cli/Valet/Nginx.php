@@ -177,4 +177,17 @@ class Nginx
         $this->brew->uninstallFormula('nginx nginx-full');
         $this->cli->quietly('rm -rf '.BREW_PREFIX.'/etc/nginx '.BREW_PREFIX.'/var/log/nginx');
     }
+
+    /**
+     * Return a list of all sites with explicit Nginx configurations.
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public function configuredSites()
+    {
+        return collect($this->files->scandir(VALET_HOME_PATH.'/Nginx'))
+            ->reject(function ($file) {
+                return starts_with($file, '.');
+            });
+    }
 }

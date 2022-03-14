@@ -23,6 +23,8 @@ define('VALET_LEGACY_HOME_PATH', $_SERVER['HOME'].'/.valet');
 
 define('BREW_PREFIX', (new CommandLine())->runAsUser('printf $(brew --prefix)'));
 
+define('ISOLATED_PHP_VERSION', 'ISOLATED_PHP_VERSION');
+
 /**
  * Output the given text to the console.
  *
