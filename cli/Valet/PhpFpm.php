@@ -303,7 +303,7 @@ class PhpFpm
      */
     public function symlinkPrimaryValetSock($phpVersion)
     {
-        $this->files->symlink($this->fpmSockName($phpVersion), VALET_HOME_PATH.'/valet.sock');
+        $this->files->symlinkAsUser(VALET_HOME_PATH . '/' . $this->fpmSockName($phpVersion), VALET_HOME_PATH.'/valet.sock');
     }
 
     /**
