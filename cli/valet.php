@@ -211,6 +211,17 @@ if (is_dir(VALET_HOME_PATH)) {
     })->descriptions('Stop serving the given domain over HTTPS and remove the trusted TLS certificate');
 
     /**
+     * Get all the current secured sites
+     */
+    $app->command('secured', function () {
+        $sites = collect(Site::secured())->map(function ($url) {
+            return ['Site' => $url];
+        });
+
+        table(['Site'], $sites->all());
+    });
+
+    /**
      * Create an Nginx proxy config for the specified domain.
      */
     $app->command('proxy domain host [--secure]', function ($domain, $host, $secure) {
