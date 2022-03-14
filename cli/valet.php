@@ -491,9 +491,9 @@ You might also want to investigate your global Composer configs. Helpful command
     ]);
 
     /**
-     * Allow the user to change the version of php valet uses.
+     * Allow the user to change the version of php Valet uses.
      */
-    $app->command('use [phpVersion] [--force] [--site=]', function ($phpVersion, $force, $site) {
+    $app->command('use [phpVersion] [--force]', function ($phpVersion, $force) {
         if (! $phpVersion) {
             $path = getcwd().'/.valetphprc';
             $linkedVersion = Brew::linkedPhp();
@@ -509,30 +509,26 @@ You might also want to investigate your global Composer configs. Helpful command
             }
         }
 
-        PhpFpm::useVersion($phpVersion, $force, $site);
-    })->descriptions('Change the version of PHP used by valet', [
-        'phpVersion' => 'The PHP version you want to use, e.g php@7.3',
-        '--site' => 'Isolate PHP version of a specific valet site. e.g: --site=site.test',
-    ]);
-
-    /**
-     * Allow the user to change the version of php valet uses to serve a given site.
-     */
-    $app->command('isolate [site] [phpVersion] ', function ($site, $phpVersion) {
-        PhpFpm::isolateDirectory($site, $phpVersion);
-    })->descriptions('Change the version of PHP used by valet to serve a given site', [
-        'site' => 'The valet site (e.g. site.test) you want to isolate to a given PHP version',
+        PhpFpm::useVersion($phpVersion, $force);
+    })->descriptions('Change the version of PHP used by Valet', [
         'phpVersion' => 'The PHP version you want to use, e.g php@7.3',
     ]);
 
     /**
-     * Allow the user to un-do specifying the version of php valet uses to serve a given site.
+     * Allow the user to change the version of PHP Valet uses to serve the current site.
      */
-    $app->command('unisolate [site] ', function ($site) {
-        PhpFpm::unIsolateDirectory($site);
-    })->descriptions('Stop customizing the version of PHP used by valet to serve a given site', [
-        'site' => 'The valet site (e.g. site.test) you want to un-isolate',
+    $app->command('isolate [phpVersion] ', function ($phpVersion) {
+        PhpFpm::isolateDirectory(basename(getcwd()), $phpVersion);
+    })->descriptions('Change the version of PHP used by Valet to serve the current working directory', [
+        'phpVersion' => 'The PHP version you want to use, e.g php@7.3',
     ]);
+
+    /**
+     * Allow the user to un-do specifying the version of PHP Valet uses to serve the current site.
+     */
+    $app->command('unisolate', function () {
+        PhpFpm::unIsolateDirectory(basename(getcwd()));
+    })->descriptions('Stop customizing the version of PHP used by valet to serve the current working directory');
 
     /**
      * Tail log file.
