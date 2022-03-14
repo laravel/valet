@@ -781,6 +781,21 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
             $site->replaceSockFile('# Valet isolated PHP version : 72'.PHP_EOL.'server { fastcgi_pass: valet.sock }', 'php@7.4')
         );
     }
+
+    public function test_it_returns_secured_sites()
+    {
+        $files = Mockery::mock(Filesystem::class);
+        $files->shouldReceive('scandir')
+            ->once()
+            ->andReturn(['helloworld.tld.crt']);
+
+        swap(Filesystem::class, $files);
+
+        $site = resolve(Site::class);
+        $sites = $site->secured();
+
+        $this->assertSame(['helloworld.tld'], $sites);
+    }
 }
 
 class CommandLineFake extends CommandLine

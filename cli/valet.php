@@ -32,7 +32,7 @@ if (is_dir(VALET_LEGACY_HOME_PATH) && ! is_dir(VALET_HOME_PATH)) {
  */
 Container::setInstance(new Container);
 
-$version = '2.18.9';
+$version = '2.18.10';
 
 $app = new Application('Laravel Valet', $version);
 
@@ -209,6 +209,17 @@ if (is_dir(VALET_HOME_PATH)) {
 
         info('The ['.$url.'] site will now serve traffic over HTTP.');
     })->descriptions('Stop serving the given domain over HTTPS and remove the trusted TLS certificate');
+
+    /**
+     * Get all the current secured sites.
+     */
+    $app->command('secured', function () {
+        $sites = collect(Site::secured())->map(function ($url) {
+            return ['Site' => $url];
+        });
+
+        table(['Site'], $sites->all());
+    });
 
     /**
      * Create an Nginx proxy config for the specified domain.
