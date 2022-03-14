@@ -531,7 +531,7 @@ You might also want to investigate your global Composer configs. Helpful command
     })->descriptions('Stop customizing the version of PHP used by Valet to serve the current working directory');
 
     /**
-     * List isolated sites
+     * List isolated sites.
      */
     $app->command('isolated', function () {
         $sites = PhpFpm::isolatedDirectories();

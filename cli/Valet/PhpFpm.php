@@ -383,18 +383,18 @@ class PhpFpm
         })->unique();
 
         return $this->nginx->configuredSites()->map(function ($file) use ($fpmSockFiles) {
-                $content = $this->files->get(VALET_HOME_PATH.'/Nginx/'.$file);
+            $content = $this->files->get(VALET_HOME_PATH.'/Nginx/'.$file);
 
-                // Get the normalized PHP version for this config file, if it's defined
-                foreach ($fpmSockFiles as $sock) {
-                    if (strpos($content, $sock) !== false) {
-                        // Extract the PHP version number from a custom .sock path;
-                        // for example, "valet74.sock" will output "php74"
-                        $phpVersion = 'php'.str_replace(['valet', '.sock'], '', $sock);
+            // Get the normalized PHP version for this config file, if it's defined
+            foreach ($fpmSockFiles as $sock) {
+                if (strpos($content, $sock) !== false) {
+                    // Extract the PHP version number from a custom .sock path;
+                    // for example, "valet74.sock" will output "php74"
+                    $phpVersion = 'php'.str_replace(['valet', '.sock'], '', $sock);
 
-                        return $this->normalizePhpVersion($phpVersion); // Example output php@7.4
-                    }
+                    return $this->normalizePhpVersion($phpVersion); // Example output php@7.4
                 }
-            })->merge([$this->brew->getLinkedPhpFormula()])->filter()->unique()->values()->toArray();
+            }
+        })->merge([$this->brew->getLinkedPhpFormula()])->filter()->unique()->values()->toArray();
     }
 }

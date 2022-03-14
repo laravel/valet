@@ -93,7 +93,7 @@ class NginxTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $files->shouldReceive('scandir')
             ->once()
-            ->with(VALET_HOME_PATH . '/Nginx')
+            ->with(VALET_HOME_PATH.'/Nginx')
             ->andReturn(['.gitkeep', 'isolated-site-71.test', 'isolated-site-72.test', 'isolated-site-73.test']);
 
         swap(Filesystem::class, $files);

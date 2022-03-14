@@ -179,13 +179,13 @@ class Nginx
     }
 
     /**
-     * Return a list of all sites with explicit Nginx configurations
+     * Return a list of all sites with explicit Nginx configurations.
      *
      * @return \Illuminate\Support\Collection
      */
     public function configuredSites()
     {
-       return collect($this->files->scandir(VALET_HOME_PATH.'/Nginx'))
+        return collect($this->files->scandir(VALET_HOME_PATH.'/Nginx'))
             ->reject(function ($file) {
                 return starts_with($file, '.');
             });
