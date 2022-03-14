@@ -93,24 +93,16 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $brew = Mockery::mock(Brew::class.'[installedPhpFormulae]', [new CommandLine, new Filesystem]);
         $brew->shouldReceive('installedPhpFormulae')->andReturn(collect(['php@7.0']));
         $this->assertTrue($brew->hasInstalledPhp());
-
-        $brew = Mockery::mock(Brew::class.'[installedPhpFormulae]', [new CommandLine, new Filesystem]);
-        $brew->shouldReceive('installedPhpFormulae')->andReturn(collect(['php@5.6']));
-        $this->assertTrue($brew->hasInstalledPhp());
-
-        $brew = Mockery::mock(Brew::class.'[installedPhpFormulae]', [new CommandLine, new Filesystem]);
-        $brew->shouldReceive('installedPhpFormulae')->andReturn(collect(['php56']));
-        $this->assertTrue($brew->hasInstalledPhp());
     }
 
     public function test_tap_taps_the_given_homebrew_repository()
     {
         $cli = Mockery::mock(CommandLine::class);
+        $cli->shouldReceive('passthru')->once()->with('sudo -u "'.user().'" brew tap php@8.0');
         $cli->shouldReceive('passthru')->once()->with('sudo -u "'.user().'" brew tap php@7.1');
         $cli->shouldReceive('passthru')->once()->with('sudo -u "'.user().'" brew tap php@7.0');
-        $cli->shouldReceive('passthru')->once()->with('sudo -u "'.user().'" brew tap php@5.6');
         swap(CommandLine::class, $cli);
-        resolve(Brew::class)->tap('php@7.1', 'php@7.0', 'php@5.6');
+        resolve(Brew::class)->tap('php@8.0', 'php@7.1', 'php@7.0');
     }
 
     public function test_restart_restarts_the_service_using_homebrew_services()
@@ -162,10 +154,6 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $files = Mockery::mock(Filesystem::class);
         $files->shouldReceive('readLink')->once()->with(BREW_PREFIX.'/bin/php')->andReturn('/test/path/php72/7.2.9_2/test');
         $this->assertSame('php@7.2', $getBrewMock($files)->linkedPhp());
-
-        $files = Mockery::mock(Filesystem::class);
-        $files->shouldReceive('readLink')->once()->with(BREW_PREFIX.'/bin/php')->andReturn('/test/path/php56/test');
-        $this->assertSame('php@5.6', $getBrewMock($files)->linkedPhp());
     }
 
     public function test_linked_php_throws_exception_if_no_php_link()
@@ -460,15 +448,15 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
                 'php74',
             ],
             [
-                '/test/path/php56/test',
+                '/test/path/php71/test',
                 [
-                    'path/php56/test',
+                    'path/php71/test',
                     'php',
-                    '56',
+                    '71',
                     '',
                     '',
                 ],
-                'php56',
+                'php71',
             ],
         ];
     }
