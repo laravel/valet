@@ -60,6 +60,11 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $this->assertEquals('php@8.1', resolve(PhpFpm::class)->normalizePhpVersion('81'));
     }
 
+    public function test_it_installs()
+    {
+        $this->markTestIncomplete('todo');
+    }
+
     public function test_utilized_php_versions()
     {
         $fileSystemMock = Mockery::mock(Filesystem::class);
@@ -291,21 +296,17 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $brewMock = Mockery::mock(Brew::class);
         $nginxMock = Mockery::mock(Nginx::class);
         $siteMock = Mockery::mock(Site::class);
-        $cliMock = Mockery::mock(CommandLine::class);
-        $fileSystemMock = Mockery::mock(Filesystem::class);
 
         $phpFpmMock = Mockery::mock(PhpFpm::class, [
             $brewMock,
-            $cliMock,
-            $fileSystemMock,
+            resolve(CommandLine::class),
+            resolve(Filesystem::class),
             resolve(Configuration::class),
             $siteMock,
             $nginxMock,
         ])->makePartial();
 
         $phpFpmMock->shouldReceive('install');
-        $cliMock->shouldReceive('quietly')->with('sudo rm '.VALET_HOME_PATH.'/valet.sock')->once();
-        $fileSystemMock->shouldReceive('unlink')->with(VALET_HOME_PATH.'/valet.sock')->once();
 
         $brewMock->shouldReceive('supportedPhpVersions')->andReturn(collect([
             'php@7.2',

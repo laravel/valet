@@ -54,6 +54,11 @@ class PhpFpm
 
         $phpVersion = $this->brew->linkedPhp();
         $this->createConfigurationFiles($phpVersion);
+
+        // Remove old valet.sock
+        $this->files->unlink(VALET_HOME_PATH.'/valet.sock');
+        $this->cli->quietly('sudo rm '.VALET_HOME_PATH.'/valet.sock');
+
         $this->symlinkPrimaryValetSock($phpVersion);
 
         $this->restart();
@@ -292,10 +297,6 @@ class PhpFpm
         $this->brew->link($version, true);
 
         $this->stopRunning();
-
-        // Remove valet.sock
-        $this->files->unlink(VALET_HOME_PATH.'/valet.sock');
-        $this->cli->quietly('sudo rm '.VALET_HOME_PATH.'/valet.sock');
 
         $this->install();
 
