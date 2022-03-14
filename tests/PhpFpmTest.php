@@ -93,15 +93,15 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $sites = [
             [
                 'site' => 'isolated-site-71.test',
-                'conf' => '# Valet isolated PHP version : 71'.PHP_EOL.'valet71.sock',
+                'conf' => '# Valet isolated PHP version: 71'.PHP_EOL.'valet71.sock',
             ],
             [
                 'site' => 'isolated-site-72.test',
-                'conf' => '# Valet isolated PHP version : php@7.2'.PHP_EOL.'valet72.sock',
+                'conf' => '# Valet isolated PHP version: php@7.2'.PHP_EOL.'valet72.sock',
             ],
             [
                 'site' => 'isolated-site-73.test',
-                'conf' => '# Valet isolated PHP version : 73'.PHP_EOL.'valet.sock',
+                'conf' => '# Valet isolated PHP version: 73'.PHP_EOL.'valet.sock',
             ],
         ];
 
@@ -135,11 +135,11 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $sites = [
             [
                 'site' => 'isolated-site-71.test',
-                'conf' => '# Valet isolated PHP version : 71' . PHP_EOL . 'valet71.sock',
+                'conf' => '# Valet isolated PHP version: 71' . PHP_EOL . 'valet71.sock',
             ],
             [
                 'site' => 'isolated-site-72.test',
-                'conf' => '# Valet isolated PHP version : php@7.2' . PHP_EOL . 'valet72.sock',
+                'conf' => '# Valet isolated PHP version: php@7.2' . PHP_EOL . 'valet72.sock',
             ],
             [
                 'site' => 'not-isolated-site.test',

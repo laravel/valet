@@ -1104,6 +1104,6 @@ class Site
         $siteConf = preg_replace('/valet[0-9]*.sock/', $sockFile, $siteConf);
         $siteConf = preg_replace('/# Valet isolated PHP version.*\n/', '', $siteConf); // Remove `Valet isolated PHP version` line from config
 
-        return '# Valet isolated PHP version : '.$phpVersion.PHP_EOL.$siteConf;
+        return '# Valet isolated PHP version: '.$phpVersion.PHP_EOL.$siteConf;
     }
 }
