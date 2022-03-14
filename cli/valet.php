@@ -211,7 +211,7 @@ if (is_dir(VALET_HOME_PATH)) {
     })->descriptions('Stop serving the given domain over HTTPS and remove the trusted TLS certificate');
 
     /**
-     * Get all the current secured sites
+     * Get all the current secured sites.
      */
     $app->command('secured', function () {
         $sites = collect(Site::secured())->map(function ($url) {
