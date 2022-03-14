@@ -51,6 +51,15 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $this->assertEquals('valet72.sock', resolve(PhpFpm::class)->fpmSockName('72'));
     }
 
+    public function test_it_normalizes_php_versions()
+    {
+        $this->assertEquals('php@8.1', resolve(PhpFpm::class)->normalizePhpVersion('php@8.1'));
+        $this->assertEquals('php@8.1', resolve(PhpFpm::class)->normalizePhpVersion('php8.1'));
+        $this->assertEquals('php@8.1', resolve(PhpFpm::class)->normalizePhpVersion('php81'));
+        $this->assertEquals('php@8.1', resolve(PhpFpm::class)->normalizePhpVersion('8.1'));
+        $this->assertEquals('php@8.1', resolve(PhpFpm::class)->normalizePhpVersion('81'));
+    }
+
     public function test_utilized_php_versions()
     {
         $fileSystemMock = Mockery::mock(Filesystem::class);
