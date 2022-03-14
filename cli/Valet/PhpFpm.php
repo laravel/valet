@@ -233,9 +233,7 @@ class PhpFpm
      */
     public function unIsolateDirectory($directory)
     {
-        $site = $this->site->getSiteUrl($directory);
-
-        if (! $site) {
+        if (! $site = $this->site->getSiteUrl($directory)) {
             throw new DomainException("The [{$directory}] site could not be found in Valet's site list.");
         }
 
