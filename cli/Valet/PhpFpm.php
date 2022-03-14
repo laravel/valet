@@ -255,7 +255,7 @@ class PhpFpm
         return $configuredSites->filter(function ($item) {
             return strpos($this->files->get(VALET_HOME_PATH.'/Nginx/'.$item), 'Valet isolated PHP version') !== false;
         })->map(function ($item) {
-            return ['url' => $item];
+            return ['url' => $item, 'version' => $this->normalizePhpVersion($this->site->customPhpVersion($item))];
         });
     }
 

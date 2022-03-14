@@ -547,7 +547,7 @@ You might also want to investigate your global Composer configs. Helpful command
     $app->command('isolated', function () {
         $sites = PhpFpm::isolatedDirectories();
 
-        table(['Path'], $sites->all());
+        table(['Path', 'PHP Version'], $sites->all());
     })->descriptions('List all sites using isolated versions of PHP.');
 
     /**
