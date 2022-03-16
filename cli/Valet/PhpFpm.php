@@ -92,6 +92,12 @@ class PhpFpm
 
         $this->files->ensureDirExists(dirname($fpmConfigFile), user());
 
+        // rename (to disable) old FPM Pool configuration, regardless of whether it's a default config or one customized by an older Valet version
+        $oldFile = dirname($fpmConfigFile).'/www.conf';
+        if (file_exists($oldFile)) {
+            rename($oldFile, $oldFile.'-backup');
+        }
+
         // Create FPM Config File from stub
         $contents = str_replace(
             ['VALET_USER', 'VALET_HOME_PATH', 'valet.sock'],

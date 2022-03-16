@@ -33,6 +33,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
     public function test_fpm_is_configured_with_the_correct_user_group_and_port()
     {
         copy(__DIR__.'/files/fpm.conf', __DIR__.'/output/fpm.conf');
+        copy(__DIR__.'/files/fpm.conf', __DIR__.'/output/www.conf');
         mkdir(__DIR__.'/output/conf.d');
         copy(__DIR__.'/files/php-memory-limits.ini', __DIR__.'/output/conf.d/php-memory-limits.ini');
 
@@ -41,6 +42,10 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $this->assertStringContainsString(sprintf("\nuser = %s", user()), $contents);
         $this->assertStringContainsString("\ngroup = staff", $contents);
         $this->assertStringContainsString("\nlisten = ".VALET_HOME_PATH.'/valet72.sock', $contents);
+
+        // It should disable old or default FPM Pool configuration
+        $this->assertFileDoesNotExist(__DIR__.'/output/www.conf');
+        $this->assertFileExists(__DIR__.'/output/www.conf-backup');
     }
 
     public function test_it_can_generate_sock_file_name_from_php_version()
