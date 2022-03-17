@@ -477,7 +477,9 @@ class Site
     public function secured()
     {
         return collect($this->files->scandir($this->certificatesPath()))
-                    ->map(function ($file) {
+                    ->filter(function ($file) {
+                        return ends_with($file, ['.key', '.csr', '.crt', '.conf']);
+                    })->map(function ($file) {
                         return str_replace(['.key', '.csr', '.crt', '.conf'], '', $file);
                     })->unique()->values()->all();
     }

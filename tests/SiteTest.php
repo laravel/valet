@@ -787,7 +787,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $files = Mockery::mock(Filesystem::class);
         $files->shouldReceive('scandir')
             ->once()
-            ->andReturn(['helloworld.tld.crt']);
+            ->andReturn(['helloworld.tld.crt', '.DS_Store']);
 
         swap(Filesystem::class, $files);
 
