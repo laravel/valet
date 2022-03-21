@@ -555,10 +555,16 @@ You might also want to investigate your global Composer configs. Helpful command
     /**
      * List isolated sites.
      */
-    $app->command('isolated [--site=]', function ($site) {
+    $app->command('isolated [--site=] [--binary]', function ($site, $binary) {
         if ($site) {
             if ($phpVersion = Site::customPhpVersion($site.'.'.data_get(Configuration::read(), 'tld'))) {
+
                 $phpVersion = PhpFpm::normalizePhpVersion($phpVersion);
+
+                if($binary){
+                    return output(Brew::getPhpBinaryPath($phpVersion));
+                }
+
                 return output($phpVersion);
             }
         } else {

@@ -298,6 +298,32 @@ class Brew
             });
     }
 
+
+    /**
+     * Get PHP binary path for a given version
+     *
+     * @param string $phpVersion
+     *
+     * @return string|bool
+     */
+    public function getPhpBinaryPath($phpVersion)
+    {
+        if (file_exists(BREW_PREFIX . "/opt/$phpVersion/bin/php")) {
+            return BREW_PREFIX . "/opt/$phpVersion/bin/php";
+        }
+
+        $cellar = $this->cli->runAsUser("brew --cellar $phpVersion");
+        $details = json_decode($this->cli->runAsUser("brew info --json $phpVersion"));
+
+        $path = !empty($details[0]->linked_keg) ? $details[0]->linked_keg : $details[0]->installed[0]->version;
+
+        if (file_exists(trim($cellar).'/'.$path.'/bin/php')) {
+           return trim($cellar).'/'.$path.'/bin/php';
+        }
+
+        return "php";
+    }
+
     /**
      * Restart the linked PHP-FPM Homebrew service.
      *

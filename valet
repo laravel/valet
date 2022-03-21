@@ -84,11 +84,11 @@ then
 
 elif [[ "$1" = "php" ]]
 then
-    php "${@:2}"
+    $(php "$DIR/cli/valet.php" isolated --site=$(basename "$PWD") --binary) "${@:2}"
 
 elif [[ "$1" = "composer" ]]
 then
-   php /usr/local/bin/composer "${@:2}"
+   $(php "$DIR/cli/valet.php" isolated --site=$(basename "$PWD") --binary) $(which composer) "${@:2}"
 
 # Finally, for every other command we will just proxy into the PHP tool
 # and let it handle the request. These are commands which can be run
