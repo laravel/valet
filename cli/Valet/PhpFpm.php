@@ -221,6 +221,7 @@ class PhpFpm
         $this->createConfigurationFiles($version);
 
         $this->site->isolate($site, $version);
+        $this->brew->symlinkPhpBinary($version);
 
         $this->stopIfUnused($oldCustomPhpVersion);
         $this->restart($version);
