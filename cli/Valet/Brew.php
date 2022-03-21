@@ -309,6 +309,7 @@ class Brew
     public function getPhpBinaryPath($phpVersion)
     {
         $versionInteger = preg_replace('~[^\d]~', '', $phpVersion);
+        $binPath = null;
 
         if (file_exists(BREW_PREFIX . "/bin/valetphp{$versionInteger}")) {
             return BREW_PREFIX . "/bin/valetphp{$versionInteger}";
@@ -320,28 +321,19 @@ class Brew
         $path = !empty($details[0]->linked_keg) ? $details[0]->linked_keg : $details[0]->installed[0]->version;
 
         if (file_exists(trim($cellar).'/'.$path.'/bin/php')) {
-           return trim($cellar).'/'.$path.'/bin/php';
+            $binPath = trim($cellar).'/'.$path.'/bin/php';
         }
 
-        if (file_exists(BREW_PREFIX . "/opt/$phpVersion/bin/php")) {
-            return BREW_PREFIX . "/opt/$phpVersion/bin/php";
+        // if (!$binPath && file_exists(BREW_PREFIX . "/opt/$phpVersion/bin/php")) {
+        //     return BREW_PREFIX . "/opt/$phpVersion/bin/php";
+        // }
+
+        if($binPath){
+            $this->files->symlinkAsUser($binPath, BREW_PREFIX . "/bin/valetphp{$versionInteger}");
+            return $binPath;
         }
 
         return "php";
-    }
-
-    /**
-     * Create a PHP binary symlink for a PHP version
-     *
-     * @param string $phpVersion
-     *
-     * @return void
-     */
-    public function symlinkPhpBinary($phpVersion)
-    {
-        $versionInteger = preg_replace('~[^\d]~', '', $phpVersion);
-
-        $this->files->symlinkAsUser($this->getPhpBinaryPath($phpVersion), BREW_PREFIX . "/bin/valetphp{$versionInteger}");
     }
 
     /**
