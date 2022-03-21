@@ -311,8 +311,11 @@ class Brew
         $versionInteger = preg_replace('~[^\d]~', '', $phpVersion);
         $binPath = null;
 
-        if (file_exists(BREW_PREFIX . "/bin/valetphp{$versionInteger}")) {
-            return BREW_PREFIX . "/bin/valetphp{$versionInteger}";
+        if ($this->files->isLink(BREW_PREFIX . "/bin/valetphp{$versionInteger}")) {
+            $binPath = $this->files->readLink(BREW_PREFIX . "/bin/valetphp{$versionInteger}");
+            if($this->files->exists($binPath)){
+                return $binPath;
+            }
         }
 
         $cellar = $this->cli->runAsUser("brew --cellar $phpVersion");
@@ -320,11 +323,11 @@ class Brew
 
         $path = !empty($details[0]->linked_keg) ? $details[0]->linked_keg : $details[0]->installed[0]->version;
 
-        if (file_exists(trim($cellar).'/'.$path.'/bin/php')) {
+        if ($this->files->exists(trim($cellar).'/'.$path.'/bin/php')) {
             $binPath = trim($cellar).'/'.$path.'/bin/php';
         }
 
-        // if (!$binPath && file_exists(BREW_PREFIX . "/opt/$phpVersion/bin/php")) {
+        // if (!$binPath && $this->>files->exists(BREW_PREFIX . "/opt/$phpVersion/bin/php")) {
         //     return BREW_PREFIX . "/opt/$phpVersion/bin/php";
         // }
 
