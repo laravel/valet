@@ -95,7 +95,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $brewMock = Mockery::mock(Brew::class);
 
-        $brewMock->shouldReceive('supportedPhpVersions')->andReturn(collect(['php@7.4',]));
+        $brewMock->shouldReceive('supportedPhpVersions')->andReturn(collect(['php@7.4']));
         $brewMock->shouldReceive('determineAliasedVersion')->andReturn('ERROR - NO BREW ALIAS FOUND');
 
         swap(Brew::class, $brewMock);
@@ -138,7 +138,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         ];
 
         foreach ($sites as $site) {
-            $fileSystemMock->shouldReceive('get')->once()->with(VALET_HOME_PATH . '/Nginx/' . $site['site'])->andReturn($site['conf']);
+            $fileSystemMock->shouldReceive('get')->once()->with(VALET_HOME_PATH.'/Nginx/'.$site['site'])->andReturn($site['conf']);
         }
 
         swap(Filesystem::class, $fileSystemMock);
@@ -434,7 +434,6 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         resolve(PhpFpm::class)->isolateDirectory('test', 'php@8.1');
     }
-
 }
 
 class StubForUpdatingFpmConfigFiles extends PhpFpm
