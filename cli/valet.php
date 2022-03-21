@@ -288,7 +288,7 @@ if (is_dir(VALET_HOME_PATH)) {
      * Generate a publicly accessible URL for your project.
      */
     $app->command('share', function () {
-        warning('It looks like you are running `cli/valet.php` directly, please use the `valet` script in the project root instead.');
+        warning('It looks like you are running `cli/valet.php` directly; please use the `valet` script in the project root instead.');
     })->descriptions('Generate a publicly accessible URL for your project');
 
     /**
@@ -528,18 +528,29 @@ You might also want to investigate your global Composer configs. Helpful command
     /**
      * Allow the user to change the version of PHP Valet uses to serve the current site.
      */
-    $app->command('isolate [phpVersion] ', function ($phpVersion) {
-        PhpFpm::isolateDirectory(basename(getcwd()), $phpVersion);
+    $app->command('isolate [phpVersion] [--site=]', function ($phpVersion, $site = null) {
+        if (! $site) {
+            $site = basename(getcwd());
+        }
+
+        PhpFpm::isolateDirectory($site, $phpVersion);
     })->descriptions('Change the version of PHP used by Valet to serve the current working directory', [
-        'phpVersion' => 'The PHP version you want to use, e.g php@7.3',
+        'phpVersion' => 'The PHP version you want to use; e.g php@8.1',
+        '--site' => 'Specify the site to isolate (e.g. if the site isn\'t linked as its directory name)',
     ]);
 
     /**
      * Allow the user to un-do specifying the version of PHP Valet uses to serve the current site.
      */
-    $app->command('unisolate', function () {
-        PhpFpm::unIsolateDirectory(basename(getcwd()));
-    })->descriptions('Stop customizing the version of PHP used by Valet to serve the current working directory');
+    $app->command('unisolate [--site=]', function ($site = null) {
+        if (! $site) {
+            $site = basename(getcwd());
+        }
+
+        PhpFpm::unIsolateDirectory($site);
+    })->descriptions('Stop customizing the version of PHP used by Valet to serve the current working directory', [
+        '--site' => 'Specify the site to un-isolate (e.g. if the site isn\'t linked as its directory name)',
+    ]);
 
     /**
      * List isolated sites.

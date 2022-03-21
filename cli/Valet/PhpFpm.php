@@ -211,9 +211,7 @@ class PhpFpm
      */
     public function isolateDirectory($directory, $version)
     {
-        if (! $site = $this->site->getSiteUrl($directory)) {
-            throw new DomainException("The [{$directory}] site could not be found in Valet's site list.");
-        }
+        $site = $this->site->getSiteUrl($directory);
 
         $version = $this->validateRequestedVersion($version);
 
@@ -239,9 +237,7 @@ class PhpFpm
      */
     public function unIsolateDirectory($directory)
     {
-        if (! $site = $this->site->getSiteUrl($directory)) {
-            throw new DomainException("The [{$directory}] site could not be found in Valet's site list.");
-        }
+        $site = $this->site->getSiteUrl($directory);
 
         $oldCustomPhpVersion = $this->site->customPhpVersion($site); // Example output: "74"
 
@@ -339,10 +335,14 @@ class PhpFpm
      */
     public function validateRequestedVersion($version)
     {
+        if (is_null($version)) {
+            throw new DomainException("Please specify a PHP version (try something like 'php@8.1')");
+        }
+
         $version = $this->normalizePhpVersion($version);
 
         if (! $this->brew->supportedPhpVersions()->contains($version)) {
-            throw new DomainException("Valet doesn't support PHP version: {$version} (try something like 'php@7.3' instead)");
+            throw new DomainException("Valet doesn't support PHP version: {$version} (try something like 'php@8.1' instead)");
         }
 
         if (strpos($aliasedVersion = $this->brew->determineAliasedVersion($version), '@')) {
@@ -351,7 +351,7 @@ class PhpFpm
 
         if ($version === 'php') {
             if ($this->brew->hasInstalledPhp()) {
-                throw new DomainException('Brew is already using PHP '.PHP_VERSION.' as \'php\' in Homebrew. To use another version, please specify. eg: php@7.3');
+                throw new DomainException('Brew is already using PHP '.PHP_VERSION.' as \'php\' in Homebrew. To use another version, please specify. eg: php@8.1');
             }
         }
 
