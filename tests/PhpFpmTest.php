@@ -425,16 +425,18 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
     public function test_isolate_will_throw_if_site_is_not_parked_or_linked()
     {
         $brewMock = Mockery::mock(Brew::class);
+        $configMock = Mockery::mock(Configuration::class);
+        $configMock->shouldReceive('read')->andReturn(['tld' => 'jamble', 'paths' => []]);
 
         swap(Brew::class, $brewMock);
         swap(Nginx::class, Mockery::mock(Nginx::class));
+        swap(Configuration::class, $configMock);
 
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage("The [test] site could not be found in Valet's site list.");
 
         resolve(PhpFpm::class)->isolateDirectory('test', 'php@8.1');
     }
-
 }
 
 class StubForUpdatingFpmConfigFiles extends PhpFpm
