@@ -575,9 +575,32 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $this->assertEquals('site2.test', $site->getSiteUrl('site2'));
         $this->assertEquals('site2.test', $site->getSiteUrl('site2.test'));
+    }
 
+    public function test_it_throws_getting_nonexistent_site()
+    {
+        $this->expectException(DomainException::class);
+        $config = Mockery::mock(Configuration::class);
+
+        swap(Configuration::class, $config);
+
+        $siteMock = Mockery::mock(Site::class, [
+            resolve(Configuration::class),
+            resolve(CommandLine::class),
+            resolve(Filesystem::class),
+        ])->makePartial();
+
+        swap(Site::class, $siteMock);
+
+        $config->shouldReceive('read')
+            ->andReturn(['tld' => 'test', 'loopback' => VALET_LOOPBACK, 'paths' => []]);
+
+        $siteMock->shouldReceive('parked')->andReturn(collect());
+        $siteMock->shouldReceive('links')->andReturn(collect([]));
+        $siteMock->shouldReceive('host')->andReturn('site1');
+
+        $site = resolve(Site::class);
         $this->assertEquals(false, $site->getSiteUrl('site3'));
-        $this->assertEquals(false, $site->getSiteUrl('site3.test'));
     }
 
     public function test_isolation_will_persist_when_adding_ssl_certificate()

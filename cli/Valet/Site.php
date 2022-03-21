@@ -194,7 +194,7 @@ class Site
      * Get the site URL from a directory if it's a valid Valet site.
      *
      * @param  string  $directory
-     * @return string|false
+     * @return string
      */
     public function getSiteUrl($directory)
     {
@@ -207,7 +207,7 @@ class Site
         $directory = str_replace('.'.$tld, '', $directory); // Remove .tld from sitename if it was provided
 
         if (! $this->parked()->merge($this->links())->where('site', $directory)->count() > 0) {
-            return false; // Invalid directory provided
+            throw new DomainException("The [{$directory}] site could not be found in Valet's site list.");
         }
 
         return $directory.'.'.$tld;

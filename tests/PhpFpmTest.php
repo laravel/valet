@@ -65,22 +65,49 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $this->assertEquals('php@8.1', resolve(PhpFpm::class)->normalizePhpVersion('81'));
     }
 
+    public function test_it_validates_php_versions_when_installed()
+    {
+        $brewMock = Mockery::mock(Brew::class);
+
+        $brewMock->shouldReceive('supportedPhpVersions')->andReturn(collect(['php@7.4']));
+        $brewMock->shouldReceive('determineAliasedVersion')->andReturn('7.4');
+
+        swap(Brew::class, $brewMock);
+
+        $this->assertEquals('php@7.4', resolve(PhpFpm::class)->validateRequestedVersion('7.4'));
+    }
+
+    public function test_it_validates_php_versions_when_uninstalled()
+    {
+        $brewMock = Mockery::mock(Brew::class);
+
+        $brewMock->shouldReceive('supportedPhpVersions')->andReturn(collect(['php@7.4']));
+        $brewMock->shouldReceive('determineAliasedVersion')->andReturn('ERROR - NO BREW ALIAS FOUND');
+
+        swap(Brew::class, $brewMock);
+
+        $this->assertEquals('php@7.4', resolve(PhpFpm::class)->validateRequestedVersion('7.4'));
+    }
+
+    public function test_it_throws_when_validating_invalid_php()
+    {
+        $this->expectException(DomainException::class);
+
+        $brewMock = Mockery::mock(Brew::class);
+
+        $brewMock->shouldReceive('supportedPhpVersions')->andReturn(collect(['php@7.4',]));
+        $brewMock->shouldReceive('determineAliasedVersion')->andReturn('ERROR - NO BREW ALIAS FOUND');
+
+        swap(Brew::class, $brewMock);
+
+        $this->assertEquals('php@7.4', resolve(PhpFpm::class)->validateRequestedVersion('9.1'));
+    }
+
     public function test_utilized_php_versions()
     {
-        $fileSystemMock = Mockery::mock(Filesystem::class);
         $brewMock = Mockery::mock(Brew::class);
         $nginxMock = Mockery::mock(Nginx::class);
-
-        $phpFpmMock = Mockery::mock(PhpFpm::class, [
-            $brewMock,
-            Mockery::mock(CommandLine::class),
-            $fileSystemMock,
-            resolve(Configuration::class),
-            Mockery::mock(Site::class),
-            $nginxMock,
-        ])->makePartial();
-
-        swap(PhpFpm::class, $phpFpmMock);
+        $fileSystemMock = Mockery::mock(Filesystem::class);
 
         $brewMock->shouldReceive('supportedPhpVersions')->andReturn(collect([
             'php@7.1',
@@ -111,37 +138,30 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         ];
 
         foreach ($sites as $site) {
-            $fileSystemMock->shouldReceive('get')->once()->with(VALET_HOME_PATH.'/Nginx/'.$site['site'])->andReturn($site['conf']);
+            $fileSystemMock->shouldReceive('get')->once()->with(VALET_HOME_PATH . '/Nginx/' . $site['site'])->andReturn($site['conf']);
         }
+
+        swap(Filesystem::class, $fileSystemMock);
+        swap(Brew::class, $brewMock);
+        swap(Nginx::class, $nginxMock);
 
         $this->assertEquals(['php@7.1', 'php@7.2', 'php@7.3'], resolve(PhpFpm::class)->utilizedPhpVersions());
     }
 
     public function test_it_lists_isolated_directories()
     {
-        $fileSystemMock = Mockery::mock(Filesystem::class);
         $nginxMock = Mockery::mock(Nginx::class);
-        $site = Mockery::mock(Site::class);
-
-        $phpFpmMock = Mockery::mock(PhpFpm::class, [
-            Mockery::mock(Brew::class),
-            Mockery::mock(CommandLine::class),
-            $fileSystemMock,
-            resolve(Configuration::class),
-            $site,
-            $nginxMock,
-        ])->makePartial();
-
-        swap(PhpFpm::class, $phpFpmMock);
+        $siteMock = Mockery::mock(Site::class);
+        $fileSystemMock = Mockery::mock(Filesystem::class);
 
         $nginxMock->shouldReceive('configuredSites')
             ->once()
             ->andReturn(collect(['isolated-site-71.test', 'isolated-site-72.test', 'not-isolated-site.test']));
 
-        $site->shouldReceive('customPhpVersion')->with('isolated-site-71.test')->andReturn('71');
-        $site->shouldReceive('customPhpVersion')->with('isolated-site-72.test')->andReturn('72');
-        $site->shouldReceive('normalizePhpVersion')->with('71')->andReturn('php@7.1');
-        $site->shouldReceive('normalizePhpVersion')->with('72')->andReturn('php@7.2');
+        $siteMock->shouldReceive('customPhpVersion')->with('isolated-site-71.test')->andReturn('71');
+        $siteMock->shouldReceive('customPhpVersion')->with('isolated-site-72.test')->andReturn('72');
+        $siteMock->shouldReceive('normalizePhpVersion')->with('71')->andReturn('php@7.1');
+        $siteMock->shouldReceive('normalizePhpVersion')->with('72')->andReturn('php@7.2');
 
         $sites = [
             [
@@ -161,6 +181,10 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         foreach ($sites as $site) {
             $fileSystemMock->shouldReceive('get')->once()->with(VALET_HOME_PATH.'/Nginx/'.$site['site'])->andReturn($site['conf']);
         }
+
+        swap(Nginx::class, $nginxMock);
+        swap(Site::class, $siteMock);
+        swap(Filesystem::class, $fileSystemMock);
 
         $this->assertEquals([
             [
@@ -400,24 +424,17 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
     public function test_isolate_will_throw_if_site_is_not_parked_or_linked()
     {
-        $siteMock = Mockery::mock(Site::class);
+        $brewMock = Mockery::mock(Brew::class);
 
-        $phpFpmMock = Mockery::mock(PhpFpm::class, [
-            Mockery::mock(Brew::class),
-            resolve(CommandLine::class),
-            resolve(Filesystem::class),
-            resolve(Configuration::class),
-            $siteMock,
-            Mockery::mock(Nginx::class),
-        ])->makePartial();
+        swap(Brew::class, $brewMock);
+        swap(Nginx::class, Mockery::mock(Nginx::class));
 
         $this->expectException(DomainException::class);
         $this->expectExceptionMessage("The [test] site could not be found in Valet's site list.");
 
-        $siteMock->shouldReceive('getSiteUrl');
-
-        $this->assertSame(null, $phpFpmMock->isolateDirectory('test', 'php@8.1'));
+        resolve(PhpFpm::class)->isolateDirectory('test', 'php@8.1');
     }
+
 }
 
 class StubForUpdatingFpmConfigFiles extends PhpFpm
