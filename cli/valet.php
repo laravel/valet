@@ -555,10 +555,17 @@ You might also want to investigate your global Composer configs. Helpful command
     /**
      * List isolated sites.
      */
-    $app->command('isolated', function () {
-        $sites = PhpFpm::isolatedDirectories();
+    $app->command('isolated [--site=]', function ($site) {
+        if ($site) {
+            if ($phpVersion = Site::customPhpVersion($site.'.'.data_get(Configuration::read(), 'tld'))) {
+                $phpVersion = PhpFpm::normalizePhpVersion($phpVersion);
+                return output($phpVersion);
+            }
+        } else {
+            $sites = PhpFpm::isolatedDirectories();
 
-        table(['Path', 'PHP Version'], $sites->all());
+            table(['Path', 'PHP Version'], $sites->all());
+        }
     })->descriptions('List all sites using isolated versions of PHP.');
 
     /**
