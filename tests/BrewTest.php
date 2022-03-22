@@ -395,6 +395,23 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $brewMock->restartLinkedPhp();
     }
 
+    public function test_it_can_get_php_binary_path_from_php_version()
+    {
+        $cli = Mockery::mock(CommandLine::class);
+        $cli->shouldReceive('runAsUser')->once()->with('brew info php@7.4 --json')
+            ->andReturn('[{"name":"php@7.4","full_name":"php@7.4","aliases":[],"versioned_formulae":[],"versions":{"stable":"7.4.5"},"installed":[{"version":"7.4.5"}]}]');
+        swap(CommandLine::class, $cli);
+
+        dd(resolve(Brew::class)->getPhpBinaryPath('php@7.4'));
+
+        // $cli = Mockery::mock(CommandLine::class);
+        // $cli->shouldReceive('runAsUser')->once()->with('brew info php --json')
+        //     ->andReturn('[{"name":"php","full_name":"php","aliases":["php@8.0"],"versioned_formulae":[],"versions":{"stable":"8.0.0"},"installed":[{"version":"8.0.0"}]}]');
+        // swap(CommandLine::class, $cli);
+        // $this->assertTrue(resolve(Brew::class)->installed('php'));
+    }
+
+
     /**
      * Provider of php links and their expected split matches.
      *

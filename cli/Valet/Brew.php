@@ -312,36 +312,45 @@ class Brew
             return BREW_PREFIX.'/bin/php';
         }
 
-        $versionInteger = preg_replace('~[^\d]~', '', $phpVersion);
         $phpBinaryPath = null;
-        $symlinkedPath = BREW_PREFIX. "/bin/valetphp{$versionInteger}";
+        $versionInteger = preg_replace('~[^\d]~', '', $phpVersion);
+        $symlinkedValetPhpPath = BREW_PREFIX. "/bin/valetphp{$versionInteger}";
 
-        if ($this->files->isLink($symlinkedPath)) {
-            $phpBinaryPath = $this->files->readLink($symlinkedPath);
+        // If the symlinked valet php path exists, then we can use that
+        if ($this->files->isLink($symlinkedValetPhpPath)) {
+            $phpBinaryPath = $this->files->readLink($symlinkedValetPhpPath);
+
+            // Still make sure that the version of the binrary exists
             if ($this->files->exists($phpBinaryPath)) {
-                return $symlinkedPath;
+                return $symlinkedValetPhpPath;
             }
         }
 
-        $cellar = $this->cli->runAsUser("brew --cellar $phpVersion");
+        // If the symlinked valet php path doesn't exist, then we need to look for the correct binary path
+        $cellar = $this->cli->runAsUser("brew --cellar $phpVersion"); // Example output: `/opt/homebrew/Cellar/php@8.0`
         $details = json_decode($this->cli->runAsUser("brew info --json $phpVersion"));
 
-        $phpDirectory = !empty($details[0]->linked_keg) ? $details[0]->linked_keg : $details[0]->installed[0]->version;
+        if (!empty($details[0]->linked_keg)) {
+            $phpDirectory = $details[0]->linked_keg;
+        } elseif (!empty($details[0]->installed[0]->version)) {
+            $phpDirectory = $details[0]->installed[0]->version;
+        }
 
-        if ($this->files->exists(trim($cellar).'/'.$phpDirectory.'/bin/php')) {
+        if (isset($phpDirectory) && $this->files->exists(trim($cellar).'/'.$phpDirectory.'/bin/php')) {
             $phpBinaryPath = trim($cellar).'/'.$phpDirectory.'/bin/php';
         }
 
-        if (is_null($phpBinaryPath) && $this->files->exists(BREW_PREFIX . "/opt/{$phpVersion}/bin/php")) {
-            $phpBinaryPath = BREW_PREFIX . "/opt/{$phpVersion}/bin/php";
+        // When PHP Version is installed directly though shivammathur/homebrew-php, it usually stores the binaries in this directory
+        if (is_null($phpBinaryPath) && $this->files->exists(BREW_PREFIX."/opt/{$phpVersion}/bin/php")) {
+            $phpBinaryPath = BREW_PREFIX."/opt/{$phpVersion}/bin/php";
         }
 
+        // Create a symlink to the valet php version, so next time valet won't have to look for the binary path
         if($phpBinaryPath){
-            $this->files->symlinkAsUser($phpBinaryPath, $symlinkedPath);
-            return $phpBinaryPath;
+            $this->files->symlinkAsUser($phpBinaryPath, $symlinkedValetPhpPath);
         }
 
-        return BREW_PREFIX.'/bin/php';
+        return $phpBinaryPath ?: BREW_PREFIX.'/bin/php';
     }
 
     /**
