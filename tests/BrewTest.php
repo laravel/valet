@@ -400,37 +400,37 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         // Scenario when there is no linked valet php exists
         $files = Mockery::mock(Filesystem::class);
         $cli = Mockery::mock(CommandLine::class);
-        $files->shouldReceive('isLink')->once()->with(BREW_PREFIX. "/bin/valetphp74")->andReturn(false);
-        $cli->shouldReceive('runAsUser')->once()->with("brew --cellar php@7.4")->andReturn("/opt/homebrew/Cellar/php@7.4");
+        $files->shouldReceive('isLink')->once()->with(BREW_PREFIX."/bin/valetphp74")->andReturn(false);
+        $cli->shouldReceive('runAsUser')->once()->with("brew --cellar php@7.4")->andReturn(BREW_PREFIX."/Cellar/php@7.4");
         $cli->shouldReceive('runAsUser')->once()->with("brew info --json php@7.4")->andReturn('[{"linked_keg":"7.4.6","installed":[{"version":"7.4.5"}]}]');
-        $files->shouldReceive('exists')->once()->with("/opt/homebrew/Cellar/php@7.4/7.4.6/bin/php")->andReturn(true);
-        $files->shouldReceive('symlinkAsUser')->once()->withArgs(["/opt/homebrew/Cellar/php@7.4/7.4.6/bin/php", BREW_PREFIX."/bin/valetphp74"]);
+        $files->shouldReceive('exists')->once()->with(BREW_PREFIX."/Cellar/php@7.4/7.4.6/bin/php")->andReturn(true);
+        $files->shouldReceive('symlinkAsUser')->once()->withArgs([BREW_PREFIX."/Cellar/php@7.4/7.4.6/bin/php", BREW_PREFIX."/bin/valetphp74"]);
         swap(CommandLine::class, $cli);
         swap(Filesystem::class, $files);
-        $this->assertEquals("/opt/homebrew/Cellar/php@7.4/7.4.6/bin/php", resolve(Brew::class)->getPhpBinaryPath('php@7.4'));
+        $this->assertEquals(BREW_PREFIX."/Cellar/php@7.4/7.4.6/bin/php", resolve(Brew::class)->getPhpBinaryPath('php@7.4'));
 
         // Scenario when user has installed directly though shivammathur/homebrew-php
         $files = Mockery::mock(Filesystem::class);
         $cli = Mockery::mock(CommandLine::class);
-        $files->shouldReceive('isLink')->once()->with(BREW_PREFIX. "/bin/valetphp74")->andReturn(false);
-        $cli->shouldReceive('runAsUser')->once()->with("brew --cellar php@7.4")->andReturn("/opt/homebrew/Cellar/php@7.4");
+        $files->shouldReceive('isLink')->once()->with(BREW_PREFIX."/bin/valetphp74")->andReturn(false);
+        $cli->shouldReceive('runAsUser')->once()->with("brew --cellar php@7.4")->andReturn(BREW_PREFIX."/Cellar/php@7.4");
         $cli->shouldReceive('runAsUser')->once()->with("brew info --json php@7.4")->andReturn('[{"installed":[{"version":"7.4.5"}]}]');
-        $files->shouldReceive('exists')->once()->with("/opt/homebrew/Cellar/php@7.4/7.4.5/bin/php")->andReturn(false);
+        $files->shouldReceive('exists')->once()->with(BREW_PREFIX."/Cellar/php@7.4/7.4.5/bin/php")->andReturn(false);
         $files->shouldReceive('exists')->once()->with(BREW_PREFIX."/opt/php@7.4/bin/php")->andReturn(true);
-        $files->shouldReceive('symlinkAsUser')->once()->withArgs(["/opt/homebrew/opt/php@7.4/bin/php", BREW_PREFIX."/bin/valetphp74"]);
+        $files->shouldReceive('symlinkAsUser')->once()->withArgs([BREW_PREFIX ."/opt/php@7.4/bin/php", BREW_PREFIX."/bin/valetphp74"]);
         swap(CommandLine::class, $cli);
         swap(Filesystem::class, $files);
-        $this->assertEquals("/opt/homebrew/opt/php@7.4/bin/php", resolve(Brew::class)->getPhpBinaryPath('php@7.4'));
+        $this->assertEquals(BREW_PREFIX ."/opt/php@7.4/bin/php", resolve(Brew::class)->getPhpBinaryPath('php@7.4'));
 
         // Scenario when there is a linked valet php exists
         $files = Mockery::mock(Filesystem::class);
         $cli = Mockery::mock(CommandLine::class);
-        $files->shouldReceive('isLink')->once()->with(BREW_PREFIX. "/bin/valetphp74")->andReturn(true);
-        $files->shouldReceive('readLink')->once()->with(BREW_PREFIX. "/bin/valetphp74")->andReturn("/opt/homebrew/Cellar/php@7.4/7.4.5/bin/php");
-        $files->shouldReceive('exists')->once()->with("/opt/homebrew/Cellar/php@7.4/7.4.5/bin/php")->andReturn(true);
+        $files->shouldReceive('isLink')->once()->with(BREW_PREFIX."/bin/valetphp74")->andReturn(true);
+        $files->shouldReceive('readLink')->once()->with(BREW_PREFIX."/bin/valetphp74")->andReturn(BREW_PREFIX."/Cellar/php@7.4/7.4.5/bin/php");
+        $files->shouldReceive('exists')->once()->with(BREW_PREFIX."/Cellar/php@7.4/7.4.5/bin/php")->andReturn(true);
         swap(CommandLine::class, $cli);
         swap(Filesystem::class, $files);
-        $this->assertEquals(BREW_PREFIX. "/bin/valetphp74", resolve(Brew::class)->getPhpBinaryPath('php@7.4'));
+        $this->assertEquals(BREW_PREFIX."/bin/valetphp74", resolve(Brew::class)->getPhpBinaryPath('php@7.4'));
 
         // Scenario when non php version is proivided
         $files = Mockery::mock(Filesystem::class);
