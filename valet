@@ -82,13 +82,17 @@ then
 
     exit
 
+# Proxy PHP commands to the "php" binary on the isolated site
 elif [[ "$1" = "php" ]]
 then
-    $(php "$DIR/cli/valet.php" isolated --site=$(basename "$PWD") --binary) "${@:2}"
+    $(php "$DIR/cli/valet.php" which-php) "${@:2}"
+    exit
 
+# Proxy composer commands with the "php" binary on the isolated site
 elif [[ "$1" = "composer" ]]
 then
-   $(php "$DIR/cli/valet.php" isolated --site=$(basename "$PWD") --binary) $(which composer) "${@:2}"
+    $(php "$DIR/cli/valet.php" which-php) $(which composer) "${@:2}"
+    exit
 
 # Finally, for every other command we will just proxy into the PHP tool
 # and let it handle the request. These are commands which can be run

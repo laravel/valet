@@ -300,43 +300,48 @@ class Brew
 
 
     /**
-     * Get PHP binary path for a given version
+     * Get PHP binary path for a given PHP Version
      *
-     * @param string $phpVersion
+     * @param string|null $phpVersion
      *
      * @return string
      */
-    public function getPhpBinaryPath($phpVersion)
+    public function getPhpBinaryPath($phpVersion = null)
     {
-        $versionInteger = preg_replace('~[^\d]~', '', $phpVersion);
-        $binPath = null;
+        if(! $phpVersion){
+            return BREW_PREFIX.'/bin/php';
+        }
 
-        if ($this->files->isLink(BREW_PREFIX . "/bin/valetphp{$versionInteger}")) {
-            $binPath = $this->files->readLink(BREW_PREFIX . "/bin/valetphp{$versionInteger}");
-            if($this->files->exists($binPath)){
-                return $binPath;
+        $versionInteger = preg_replace('~[^\d]~', '', $phpVersion);
+        $phpBinaryPath = null;
+        $symlinkedPath = BREW_PREFIX. "/bin/valetphp{$versionInteger}";
+
+        if ($this->files->isLink($symlinkedPath)) {
+            $phpBinaryPath = $this->files->readLink($symlinkedPath);
+            if ($this->files->exists($phpBinaryPath)) {
+                return $symlinkedPath;
             }
         }
 
         $cellar = $this->cli->runAsUser("brew --cellar $phpVersion");
         $details = json_decode($this->cli->runAsUser("brew info --json $phpVersion"));
 
-        $path = !empty($details[0]->linked_keg) ? $details[0]->linked_keg : $details[0]->installed[0]->version;
+        $phpDirectory = !empty($details[0]->linked_keg) ? $details[0]->linked_keg : $details[0]->installed[0]->version;
 
-        if ($this->files->exists(trim($cellar).'/'.$path.'/bin/php')) {
-            $binPath = trim($cellar).'/'.$path.'/bin/php';
+        if ($this->files->exists(trim($cellar).'/'.$phpDirectory.'/bin/php')) {
+            $phpBinaryPath = trim($cellar).'/'.$phpDirectory.'/bin/php';
         }
 
-        // if (!$binPath && $this->>files->exists(BREW_PREFIX . "/opt/$phpVersion/bin/php")) {
-        //     return BREW_PREFIX . "/opt/$phpVersion/bin/php";
-        // }
-
-        if($binPath){
-            $this->files->symlinkAsUser($binPath, BREW_PREFIX . "/bin/valetphp{$versionInteger}");
-            return $binPath;
+        if (is_null($phpBinaryPath) && $this->files->exists(BREW_PREFIX . "/opt/{$phpVersion}/bin/php")) {
+            $phpBinaryPath = BREW_PREFIX . "/opt/{$phpVersion}/bin/php";
         }
 
-        return "php";
+        if($phpBinaryPath){
+            $this->files->symlinkAsUser($phpBinaryPath, $symlinkedPath);
+            return $phpBinaryPath;
+        }
+
+        return BREW_PREFIX.'/bin/php';
     }
 
     /**

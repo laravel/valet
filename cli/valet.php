@@ -555,24 +555,45 @@ You might also want to investigate your global Composer configs. Helpful command
     /**
      * List isolated sites.
      */
-    $app->command('isolated [--site=] [--binary]', function ($site, $binary) {
-        if ($site) {
-            if ($phpVersion = Site::customPhpVersion($site.'.'.data_get(Configuration::read(), 'tld'))) {
+    $app->command('isolated', function () {
+        $sites = PhpFpm::isolatedDirectories();
 
-                $phpVersion = PhpFpm::normalizePhpVersion($phpVersion);
-
-                if($binary){
-                    return output(Brew::getPhpBinaryPath($phpVersion));
-                }
-
-                return output($phpVersion);
-            }
-        } else {
-            $sites = PhpFpm::isolatedDirectories();
-
-            table(['Path', 'PHP Version'], $sites->all());
-        }
+        table(['Path', 'PHP Version'], $sites->all());
     })->descriptions('List all sites using isolated versions of PHP.');
+
+    /**
+     * Get PHP Birnary
+     */
+    $app->command('which-php [site]', function ($site = null) {
+        $host = Site::host($site ? $site : getcwd()).'.'.Configuration::read()['tld'];
+        $phpVersion = Site::customPhpVersion($host);
+
+        if(! $phpVersion){
+            $path = getcwd().'/.valetphprc';
+            if (file_exists($path)) {
+                $phpVersion = trim(file_get_contents($path));
+            }
+        }
+
+        $phpVersion = $phpVersion ? PhpFpm::normalizePhpVersion($phpVersion) : null;
+        return output(Brew::getPhpBinaryPath($phpVersion));
+    })->descriptions('Get the PHP binary path for a given site', [
+        'site' => 'The site to get the PHP binary path for',
+    ]);
+
+    /**
+     * Proxy PHP Commands with correct version
+     */
+    $app->command('php', function () {
+        warning('It looks like you are running `cli/valet.php` directly; please use the `valet` script in the project root instead.');
+    })->descriptions('Proxy PHP Commands with isolated PHP version');
+
+    /**
+     * Proxy composer commands with the "php" binary on the isolated site
+     */
+    $app->command('composer', function () {
+        warning('It looks like you are running `cli/valet.php` directly; please use the `valet` script in the project root instead.');
+    })->descriptions('Proxy composer Commands with isolated PHP version');
 
     /**
      * Tail log file.
