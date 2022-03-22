@@ -564,7 +564,7 @@ You might also want to investigate your global Composer configs. Helpful command
     /**
      * Get PHP Birnary
      */
-    $app->command('which-php [site]', function ($site = null) {
+    $app->command('which-php [site] [--skip-cache]', function ($site, $skipCache) {
         $host = Site::host($site ?: getcwd()).'.'.Configuration::read()['tld'];
         $phpVersion = Site::customPhpVersion($host);
 
@@ -577,9 +577,10 @@ You might also want to investigate your global Composer configs. Helpful command
 
         $phpVersion = $phpVersion ? PhpFpm::normalizePhpVersion($phpVersion) : null;
 
-        return output(Brew::getPhpBinaryPath($phpVersion));
+        return output(Brew::whichPhp($phpVersion, $skipCache));
     })->descriptions('Get the PHP binary path for a given site', [
         'site' => 'The site to get the PHP binary path for',
+        '--skip-cache' => 'Force a re-check of the PHP binary path',
     ]);
 
     /**
