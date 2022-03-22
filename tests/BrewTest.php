@@ -445,7 +445,7 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
     public function test_it_can_get_php_binary_path_from_php_version()
     {
-        // When brew info has `linked_keg` paramert
+        // When brew info has `linked_keg` paramerter
         $brewMock = Mockery::mock(Brew::class, [
             $cli = Mockery::mock(CommandLine::class),
             $files = Mockery::mock(Filesystem::class)
