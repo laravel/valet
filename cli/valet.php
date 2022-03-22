@@ -562,7 +562,7 @@ You might also want to investigate your global Composer configs. Helpful command
     })->descriptions('List all sites using isolated versions of PHP.');
 
     /**
-     * Get  the PHP executable path for a site
+     * Get the PHP executable path for a site
      */
     $app->command('which-php [site] [--skip-cache]', function ($site, $skipCache) {
         $host = Site::host($site ?: getcwd()).'.'.Configuration::read()['tld'];
