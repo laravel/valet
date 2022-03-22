@@ -397,20 +397,48 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
     public function test_it_can_get_php_binary_path_from_php_version()
     {
+        // Scenario when there is no linked valet php exists
+        $files = Mockery::mock(Filesystem::class);
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('runAsUser')->once()->with('brew info php@7.4 --json')
-            ->andReturn('[{"name":"php@7.4","full_name":"php@7.4","aliases":[],"versioned_formulae":[],"versions":{"stable":"7.4.5"},"installed":[{"version":"7.4.5"}]}]');
+        $files->shouldReceive('isLink')->once()->with(BREW_PREFIX. "/bin/valetphp74")->andReturn(false);
+        $cli->shouldReceive('runAsUser')->once()->with("brew --cellar php@7.4")->andReturn("/opt/homebrew/Cellar/php@7.4");
+        $cli->shouldReceive('runAsUser')->once()->with("brew info --json php@7.4")->andReturn('[{"linked_keg":"7.4.6","installed":[{"version":"7.4.5"}]}]');
+        $files->shouldReceive('exists')->once()->with("/opt/homebrew/Cellar/php@7.4/7.4.6/bin/php")->andReturn(true);
+        $files->shouldReceive('symlinkAsUser')->once()->withArgs(["/opt/homebrew/Cellar/php@7.4/7.4.6/bin/php", BREW_PREFIX."/bin/valetphp74"]);
         swap(CommandLine::class, $cli);
+        swap(Filesystem::class, $files);
+        $this->assertEquals("/opt/homebrew/Cellar/php@7.4/7.4.6/bin/php", resolve(Brew::class)->getPhpBinaryPath('php@7.4'));
 
-        dd(resolve(Brew::class)->getPhpBinaryPath('php@7.4'));
+        // Scenario when user has installed directly though shivammathur/homebrew-php
+        $files = Mockery::mock(Filesystem::class);
+        $cli = Mockery::mock(CommandLine::class);
+        $files->shouldReceive('isLink')->once()->with(BREW_PREFIX. "/bin/valetphp74")->andReturn(false);
+        $cli->shouldReceive('runAsUser')->once()->with("brew --cellar php@7.4")->andReturn("/opt/homebrew/Cellar/php@7.4");
+        $cli->shouldReceive('runAsUser')->once()->with("brew info --json php@7.4")->andReturn('[{"installed":[{"version":"7.4.5"}]}]');
+        $files->shouldReceive('exists')->once()->with("/opt/homebrew/Cellar/php@7.4/7.4.5/bin/php")->andReturn(false);
+        $files->shouldReceive('exists')->once()->with(BREW_PREFIX."/opt/php@7.4/bin/php")->andReturn(true);
+        $files->shouldReceive('symlinkAsUser')->once()->withArgs(["/opt/homebrew/opt/php@7.4/bin/php", BREW_PREFIX."/bin/valetphp74"]);
+        swap(CommandLine::class, $cli);
+        swap(Filesystem::class, $files);
+        $this->assertEquals("/opt/homebrew/opt/php@7.4/bin/php", resolve(Brew::class)->getPhpBinaryPath('php@7.4'));
 
-        // $cli = Mockery::mock(CommandLine::class);
-        // $cli->shouldReceive('runAsUser')->once()->with('brew info php --json')
-        //     ->andReturn('[{"name":"php","full_name":"php","aliases":["php@8.0"],"versioned_formulae":[],"versions":{"stable":"8.0.0"},"installed":[{"version":"8.0.0"}]}]');
-        // swap(CommandLine::class, $cli);
-        // $this->assertTrue(resolve(Brew::class)->installed('php'));
+        // Scenario when there is a linked valet php exists
+        $files = Mockery::mock(Filesystem::class);
+        $cli = Mockery::mock(CommandLine::class);
+        $files->shouldReceive('isLink')->once()->with(BREW_PREFIX. "/bin/valetphp74")->andReturn(true);
+        $files->shouldReceive('readLink')->once()->with(BREW_PREFIX. "/bin/valetphp74")->andReturn("/opt/homebrew/Cellar/php@7.4/7.4.5/bin/php");
+        $files->shouldReceive('exists')->once()->with("/opt/homebrew/Cellar/php@7.4/7.4.5/bin/php")->andReturn(true);
+        swap(CommandLine::class, $cli);
+        swap(Filesystem::class, $files);
+        $this->assertEquals(BREW_PREFIX. "/bin/valetphp74", resolve(Brew::class)->getPhpBinaryPath('php@7.4'));
+
+        // Scenario when non php version is proivided
+        $files = Mockery::mock(Filesystem::class);
+        $cli = Mockery::mock(CommandLine::class);
+        swap(CommandLine::class, $cli);
+        swap(Filesystem::class, $files);
+        $this->assertEquals(BREW_PREFIX.'/bin/php', resolve(Brew::class)->getPhpBinaryPath(null));
     }
-
 
     /**
      * Provider of php links and their expected split matches.
