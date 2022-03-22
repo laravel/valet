@@ -562,13 +562,13 @@ You might also want to investigate your global Composer configs. Helpful command
     })->descriptions('List all sites using isolated versions of PHP.');
 
     /**
-     * Get the PHP executable path for a site
+     * Get the PHP executable path for a site.
      */
     $app->command('which-php [site] [--skip-cache]', function ($site, $skipCache) {
         $host = Site::host($site ?: getcwd()).'.'.Configuration::read()['tld'];
         $phpVersion = Site::customPhpVersion($host);
 
-        if(! $phpVersion){
+        if (! $phpVersion) {
             $path = getcwd().'/.valetphprc';
             if (file_exists($path)) {
                 $phpVersion = trim(file_get_contents($path));
@@ -584,16 +584,16 @@ You might also want to investigate your global Composer configs. Helpful command
     ]);
 
     /**
-     * Proxy PHP commands with isolated site's  PHP executable
+     * Proxy PHP commands with isolated site's  PHP executable.
      */
     $app->command('php [command]', function ($command) {
         warning('It looks like you are running `cli/valet.php` directly; please use the `valet` script in the project root instead.');
-    })->descriptions("Proxy PHP commands with isolated site's PHP executable",  [
+    })->descriptions("Proxy PHP commands with isolated site's PHP executable", [
         'command' => "Command to run with isolated site's PHP executable",
     ]);
 
     /**
-     * Proxy Composer commands with isolated site's PHP executable
+     * Proxy Composer commands with isolated site's PHP executable.
      */
     $app->command('composer [command]', function ($command) {
         warning('It looks like you are running `cli/valet.php` directly; please use the `valet` script in the project root instead.');

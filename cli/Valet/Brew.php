@@ -298,26 +298,24 @@ class Brew
             });
     }
 
-
     /**
-     * Get PHP executable path for a given PHP Version
+     * Get PHP executable path for a given PHP Version.
      *
-     * @param string|null $phpVersion
-     * @param boolean $skipCache
-     *
+     * @param  string|null  $phpVersion
+     * @param  bool  $skipCache
      * @return string
      */
     public function whichPhp($phpVersion = null, $skipCache = false)
     {
-        if(! $phpVersion){
+        if (! $phpVersion) {
             return BREW_PREFIX.'/bin/php';
         }
 
         $versionInteger = preg_replace('~[^\d]~', '', $phpVersion);
-        $symlinkedValetPhpPath = BREW_PREFIX. "/bin/valetphp{$versionInteger}";
+        $symlinkedValetPhpPath = BREW_PREFIX."/bin/valetphp{$versionInteger}";
 
         // If the symlinked Valet PHP path exists, then we can use that
-        if (!$skipCache && $this->files->isLink($symlinkedValetPhpPath)) {
+        if (! $skipCache && $this->files->isLink($symlinkedValetPhpPath)) {
             $phpExecutablePath = $this->files->readLink($symlinkedValetPhpPath);
 
             // Still make sure that the version of the executable exists
@@ -335,12 +333,10 @@ class Brew
         return $phpExecutablePath ?: BREW_PREFIX.'/bin/php';
     }
 
-
     /**
-     * Extract PHP executable path from PHP Version
+     * Extract PHP executable path from PHP Version.
      *
      * @param  string  $phpVersion
-     *
      * @return string
      */
     public function getPhpExecutablePath($phpVersion)
