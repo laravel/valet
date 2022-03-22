@@ -326,7 +326,8 @@ class Brew
             }
         }
 
-        // Create a symlink to the Valet PHP version, so next time valet won't have to look for the executable path
+        // If the symlinked Valet PHP path doesn't exist, then we need to look for the correct executable path
+        // Create a symlink to the Valet PHP version, so next time Valet won't have to look for the executable path
         if ($phpExecutablePath = $this->getPhpExecutablePath($phpVersion)) {
             $this->files->symlinkAsUser($phpExecutablePath, $symlinkedValetPhpPath);
         }
@@ -346,7 +347,6 @@ class Brew
     {
         $phpExecutablePath = null;
 
-        // If the symlinked Valet PHP path doesn't exist, then we need to look for the correct executable path
         $cellar = $this->cli->runAsUser("brew --cellar $phpVersion"); // Example output: `/opt/homebrew/Cellar/php@8.0`
         $details = json_decode($this->cli->runAsUser("brew info --json $phpVersion"), true);
         $phpDirectory = data_get($details, '0.linked_keg');
