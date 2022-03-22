@@ -300,7 +300,7 @@ class Brew
 
 
     /**
-     * Get PHP binary path for a given PHP Version
+     * Get PHP executable path for a given PHP Version
      *
      * @param string|null $phpVersion
      * @param boolean $skipCache
@@ -318,34 +318,35 @@ class Brew
 
         // If the symlinked Valet PHP path exists, then we can use that
         if (!$skipCache && $this->files->isLink($symlinkedValetPhpPath)) {
-            $phpBinaryPath = $this->files->readLink($symlinkedValetPhpPath);
+            $phpExecutablePath = $this->files->readLink($symlinkedValetPhpPath);
 
-            // Still make sure that the version of the binary exists
-            if ($this->files->exists($phpBinaryPath)) {
-                return $phpBinaryPath;
+            // Still make sure that the version of the executable exists
+            if ($this->files->exists($phpExecutablePath)) {
+                return $phpExecutablePath;
             }
         }
 
-        // Create a symlink to the Valet PHP version, so next time valet won't have to look for the binary path
-        if ($phpBinaryPath = $this->getPhpBinaryPath($phpVersion)) {
-            $this->files->symlinkAsUser($phpBinaryPath, $symlinkedValetPhpPath);
+        // Create a symlink to the Valet PHP version, so next time valet won't have to look for the executable path
+        if ($phpExecutablePath = $this->getPhpExecutablePath($phpVersion)) {
+            $this->files->symlinkAsUser($phpExecutablePath, $symlinkedValetPhpPath);
         }
 
-        return $phpBinaryPath ?: BREW_PREFIX.'/bin/php';
+        return $phpExecutablePath ?: BREW_PREFIX.'/bin/php';
     }
 
 
     /**
-     * Get PHP binary path from PHP Version
+     * Extract PHP executable path from PHP Version
      *
      * @param  string  $phpVersion
+     *
      * @return string
      */
-    public function getPhpBinaryPath($phpVersion)
+    public function getPhpExecutablePath($phpVersion)
     {
-        $phpBinaryPath = null;
+        $phpExecutablePath = null;
 
-        // If the symlinked Valet PHP path doesn't exist, then we need to look for the correct binary path
+        // If the symlinked Valet PHP path doesn't exist, then we need to look for the correct executable path
         $cellar = $this->cli->runAsUser("brew --cellar $phpVersion"); // Example output: `/opt/homebrew/Cellar/php@8.0`
         $details = json_decode($this->cli->runAsUser("brew info --json $phpVersion"), true);
         $phpDirectory = data_get($details, '0.linked_keg');
@@ -359,15 +360,15 @@ class Brew
         }
 
         if (isset($phpDirectory) && $this->files->exists(trim($cellar).'/'.$phpDirectory.'/bin/php')) {
-            $phpBinaryPath = trim($cellar).'/'.$phpDirectory.'/bin/php';
+            $phpExecutablePath = trim($cellar).'/'.$phpDirectory.'/bin/php';
         }
 
         // When PHP Version is installed directly though shivammathur/homebrew-php, it usually stores the binaries in this directory
-        if (is_null($phpBinaryPath) && $this->files->exists(BREW_PREFIX."/opt/{$phpVersion}/bin/php")) {
-            $phpBinaryPath = BREW_PREFIX."/opt/{$phpVersion}/bin/php";
+        if (is_null($phpExecutablePath) && $this->files->exists(BREW_PREFIX."/opt/{$phpVersion}/bin/php")) {
+            $phpExecutablePath = BREW_PREFIX."/opt/{$phpVersion}/bin/php";
         }
 
-        return $phpBinaryPath;
+        return $phpExecutablePath;
     }
 
     /**

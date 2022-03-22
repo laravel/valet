@@ -562,7 +562,7 @@ You might also want to investigate your global Composer configs. Helpful command
     })->descriptions('List all sites using isolated versions of PHP.');
 
     /**
-     * Get PHP Birnary
+     * Get PHP Executable
      */
     $app->command('which-php [site] [--skip-cache]', function ($site, $skipCache) {
         $host = Site::host($site ?: getcwd()).'.'.Configuration::read()['tld'];
@@ -578,24 +578,28 @@ You might also want to investigate your global Composer configs. Helpful command
         $phpVersion = $phpVersion ? PhpFpm::normalizePhpVersion($phpVersion) : null;
 
         return output(Brew::whichPhp($phpVersion, $skipCache));
-    })->descriptions('Get the PHP binary path for a given site', [
-        'site' => 'The site to get the PHP binary path for',
-        '--skip-cache' => 'Force a re-check of the PHP binary path',
+    })->descriptions('Get the PHP executable path for a given site', [
+        'site' => 'The site to get the PHP executable path for',
+        '--skip-cache' => 'Force re-check of the PHP executable path',
     ]);
 
     /**
-     * Proxy PHP Commands with correct version
+     * Proxy PHP commands with isolated site's  PHP executable
      */
-    $app->command('php', function () {
+    $app->command('php [command]', function ($command) {
         warning('It looks like you are running `cli/valet.php` directly; please use the `valet` script in the project root instead.');
-    })->descriptions('Proxy PHP Commands with isolated PHP version');
+    })->descriptions("Proxy PHP commands with isolated site's PHP executable",  [
+        'command' => "Command to run with isolated site's PHP executable",
+    ]);
 
     /**
-     * Proxy composer commands with the "php" binary on the isolated site
+     * Proxy Composer commands with isolated site's PHP executable
      */
-    $app->command('composer', function () {
+    $app->command('composer [command]', function ($command) {
         warning('It looks like you are running `cli/valet.php` directly; please use the `valet` script in the project root instead.');
-    })->descriptions('Proxy composer Commands with isolated PHP version');
+    })->descriptions("Proxy Composer commands with isolated site's PHP executable", [
+        'command' => "Composer command to run with isolated site's PHP executable",
+    ]);
 
     /**
      * Tail log file.
