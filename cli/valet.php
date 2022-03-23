@@ -564,7 +564,7 @@ You might also want to investigate your global Composer configs. Helpful command
     /**
      * Get the PHP executable path for a site.
      */
-    $app->command('which-php [site] [--skip-cache]', function ($site, $skipCache) {
+    $app->command('which-php [site]', function ($site) {
         $host = Site::host($site ?: getcwd()).'.'.Configuration::read()['tld'];
         $phpVersion = Site::customPhpVersion($host);
 
@@ -577,10 +577,9 @@ You might also want to investigate your global Composer configs. Helpful command
 
         $phpVersion = $phpVersion ? PhpFpm::normalizePhpVersion($phpVersion) : null;
 
-        return output(Brew::whichPhp($phpVersion, $skipCache));
+        return output(Brew::getPhpExecutablePath($phpVersion));
     })->descriptions('Get the PHP executable path for a given site', [
         'site' => 'The site to get the PHP executable path for',
-        '--skip-cache' => 'Force re-check of the PHP executable path',
     ]);
 
     /**

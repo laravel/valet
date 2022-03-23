@@ -395,44 +395,51 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $brewMock->restartLinkedPhp();
     }
 
-    public function test_it_can_get_php_binary_path_from_php_version_and_create_symlink()
+    public function test_it_can_get_php_binary_path_from_php_version()
     {
-        // When there is no symlinked Valet PHP exists
+        // Check the default `/opt/homebrew/opt/php@8.1/bin/php` location first
         $brewMock = Mockery::mock(Brew::class, [
             Mockery::mock(CommandLine::class),
             $files = Mockery::mock(Filesystem::class),
         ])->makePartial();
 
-        $files->shouldReceive('isLink')->once()->with(BREW_PREFIX.'/bin/valetphp74')->andReturn(false);
-        $files->shouldReceive('symlinkAsUser')->once()->withArgs([BREW_PREFIX.'/Cellar/php@7.4/7.4.6/bin/php', BREW_PREFIX.'/bin/valetphp74']);
-        $brewMock->shouldReceive('getPhpExecutablePath')->once()->with('php@7.4')->andReturn(BREW_PREFIX.'/Cellar/php@7.4/7.4.6/bin/php');
+        $files->shouldReceive('exists')->once()->with(BREW_PREFIX.'/opt/php@7.4/bin/php')->andReturn(true);
+        $files->shouldNotReceive('exists')->with(BREW_PREFIX.'/opt/php@74/bin/php');
+        $this->assertEquals(BREW_PREFIX.'/opt/php@7.4/bin/php', $brewMock->getPhpExecutablePath('php@7.4'));
 
-        $this->assertEquals(BREW_PREFIX.'/Cellar/php@7.4/7.4.6/bin/php', $brewMock->whichPhp('php@7.4'));
-
-        // When a symlinked Valet PHP exists
+        // Check the `/opt/homebrew/opt/php71/bin/php` location for older installations
         $brewMock = Mockery::mock(Brew::class, [
             Mockery::mock(CommandLine::class),
             $files = Mockery::mock(Filesystem::class),
         ])->makePartial();
 
-        $brewMock->shouldNotHaveReceived('getPhpExecutablePath');
-        $files->shouldReceive('isLink')->once()->with(BREW_PREFIX.'/bin/valetphp81')->andReturn(true);
-        $files->shouldReceive('readLink')->once()->with(BREW_PREFIX.'/bin/valetphp81')->andReturn(BREW_PREFIX.'/Cellar/php@8.1/8.1.5/bin/php');
-        $files->shouldReceive('exists')->once()->with(BREW_PREFIX.'/Cellar/php@8.1/8.1.5/bin/php')->andReturn(true);
-        $files->shouldNotHaveReceived('symlinkAsUser');
+        $files->shouldReceive('exists')->once()->with(BREW_PREFIX.'/opt/php@7.4/bin/php')->andReturn(false);
+        $files->shouldReceive('exists')->with(BREW_PREFIX.'/opt/php74/bin/php')->andReturn(true);
+        $this->assertEquals(BREW_PREFIX.'/opt/php74/bin/php', $brewMock->getPhpExecutablePath('php@7.4'));
 
-        $this->assertEquals(BREW_PREFIX.'/Cellar/php@8.1/8.1.5/bin/php', $brewMock->whichPhp('php@8.1'));
-
-        // Check with $skipCache enabled
+        // When the default PHP is the version we are looking for
         $brewMock = Mockery::mock(Brew::class, [
             Mockery::mock(CommandLine::class),
             $files = Mockery::mock(Filesystem::class),
         ])->makePartial();
 
-        $brewMock->shouldReceive('getPhpExecutablePath')->once()->with('php@7.4')->andReturn(BREW_PREFIX.'/Cellar/php@7.4/7.4.6/bin/php');
-        $files->shouldReceive('symlinkAsUser')->once()->withArgs([BREW_PREFIX.'/Cellar/php@7.4/7.4.6/bin/php', BREW_PREFIX.'/bin/valetphp74']);
+        $files->shouldReceive('exists')->once()->with(BREW_PREFIX.'/opt/php@7.4/bin/php')->andReturn(false);
+        $files->shouldReceive('exists')->with(BREW_PREFIX.'/opt/php74/bin/php')->andReturn(false);
+        $files->shouldReceive('isLink')->with(BREW_PREFIX."/opt/php")->andReturn(true);
+        $files->shouldReceive('readLink')->with(BREW_PREFIX."/opt/php")->andReturn('../Cellar/php@7.4/7.4.13/bin/php');
+        $this->assertEquals(BREW_PREFIX."/opt/php/bin/php", $brewMock->getPhpExecutablePath('php@7.4'));
 
-        $this->assertEquals(BREW_PREFIX.'/Cellar/php@7.4/7.4.6/bin/php', $brewMock->whichPhp('php@7.4', true));
+        // When the default PHP is not the version we are looking for
+        $brewMock = Mockery::mock(Brew::class, [
+            Mockery::mock(CommandLine::class),
+            $files = Mockery::mock(Filesystem::class),
+        ])->makePartial();
+
+        $files->shouldReceive('exists')->once()->with(BREW_PREFIX.'/opt/php@7.4/bin/php')->andReturn(false);
+        $files->shouldReceive('exists')->with(BREW_PREFIX.'/opt/php74/bin/php')->andReturn(false);
+        $files->shouldReceive('isLink')->with(BREW_PREFIX."/opt/php")->andReturn(true);
+        $files->shouldReceive('readLink')->with(BREW_PREFIX."/opt/php")->andReturn('../Cellar/php@8.1/8.1.13/bin/php');
+        $this->assertEquals(BREW_PREFIX."/bin/php", $brewMock->getPhpExecutablePath('php@7.4')); // Could not find a version, so retuned the default binary
 
         // When no PHP Version is provided
         $brewMock = Mockery::mock(Brew::class, [
@@ -440,72 +447,17 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
             Mockery::mock(Filesystem::class),
         ])->makePartial();
 
-        $this->assertEquals(BREW_PREFIX.'/bin/php', $brewMock->whichPhp(null));
+        $this->assertEquals(BREW_PREFIX.'/bin/php', $brewMock->getPhpExecutablePath(null));
     }
 
-    public function test_it_can_get_php_binary_path_from_php_version()
+    public function test_it_can_compare_two_php_versions()
     {
-        // When brew info has `linked_keg` parameter
-        $brewMock = Mockery::mock(Brew::class, [
-            $cli = Mockery::mock(CommandLine::class),
-            $files = Mockery::mock(Filesystem::class),
-        ])->makePartial();
+        $this->assertTrue(resolve(Brew::class)->isPhpVersionsEqual('php71', 'php@7.1'));
+        $this->assertTrue(resolve(Brew::class)->isPhpVersionsEqual('php71', 'php@71'));
+        $this->assertTrue(resolve(Brew::class)->isPhpVersionsEqual('php71', '71'));
 
-        $cli->shouldReceive('runAsUser')->once()->with('brew --cellar php@7.4')->andReturn(BREW_PREFIX.'/Cellar/php@7.4');
-        $cli->shouldReceive('runAsUser')->once()->with('brew info --json php@7.4')->andReturn('[{"linked_keg":"7.4.6","installed":[{"version":"7.4.5"}]}]');
-        $files->shouldReceive('exists')->once()->with(BREW_PREFIX.'/Cellar/php@7.4/7.4.6/bin/php')->andReturn(true);
-
-        $this->assertEquals(BREW_PREFIX.'/Cellar/php@7.4/7.4.6/bin/php', $brewMock->getPhpExecutablePath('php@7.4'));
-
-        // When brew info doesn't have `linked_keg`
-        $brewMock = Mockery::mock(Brew::class, [
-            $cli = Mockery::mock(CommandLine::class),
-            $files = Mockery::mock(Filesystem::class),
-        ])->makePartial();
-
-        $cli->shouldReceive('runAsUser')->once()->with('brew --cellar php@8.0')->andReturn(BREW_PREFIX.'/Cellar/php@8.0');
-        $cli->shouldReceive('runAsUser')->once()->with('brew info --json php@8.0')->andReturn('[{"installed":[{"version":"8.0.5"}]}]');
-        $files->shouldReceive('exists')->once()->with(BREW_PREFIX.'/Cellar/php@8.0/8.0.5/bin/php')->andReturn(true);
-
-        $this->assertEquals(BREW_PREFIX.'/Cellar/php@8.0/8.0.5/bin/php', $brewMock->getPhpExecutablePath('php@8.0'));
-
-        // When brew info has a version that was manually installed
-        $brewMock = Mockery::mock(Brew::class, [
-            $cli = Mockery::mock(CommandLine::class),
-            $files = Mockery::mock(Filesystem::class),
-        ])->makePartial();
-
-        $cli->shouldReceive('runAsUser')->once()->with('brew --cellar php@8.1')->andReturn(BREW_PREFIX.'/Cellar/php@8.1');
-        $cli->shouldReceive('runAsUser')->once()->with('brew info --json php@8.1')
-            ->andReturn('[{"installed":[{"version":"8.1.1", "installed_as_dependency":true}, {"version":"8.1.2", "installed_as_dependency":false}]}]');
-        $files->shouldReceive('exists')->once()->with(BREW_PREFIX.'/Cellar/php@8.1/8.1.2/bin/php')->andReturn(true);
-
-        $this->assertEquals(BREW_PREFIX.'/Cellar/php@8.1/8.1.2/bin/php', $brewMock->getPhpExecutablePath('php@8.1'));
-
-        // When brew info has no version that was installed manually, it should pick the last PHP version
-        $brewMock = Mockery::mock(Brew::class, [
-            $cli = Mockery::mock(CommandLine::class),
-            $files = Mockery::mock(Filesystem::class),
-        ])->makePartial();
-
-        $cli->shouldReceive('runAsUser')->once()->with('brew --cellar php@7.4')->andReturn(BREW_PREFIX.'/Cellar/php@7.4');
-        $cli->shouldReceive('runAsUser')->once()->with('brew info --json php@7.4')
-            ->andReturn('[{"installed":[{"version":"7.4.1", "installed_as_dependency":false}, {"version":"7.4.3", "installed_as_dependency":false}]}]');
-        $files->shouldReceive('exists')->once()->with(BREW_PREFIX.'/Cellar/php@7.4/7.4.3/bin/php')->andReturn(true);
-
-        $this->assertEquals(BREW_PREFIX.'/Cellar/php@7.4/7.4.3/bin/php', $brewMock->getPhpExecutablePath('php@7.4'));
-
-        // When user has installed directly though `shivammathur/homebrew-php`
-        $brewMock = Mockery::mock(Brew::class, [
-            $cli = Mockery::mock(CommandLine::class),
-            $files = Mockery::mock(Filesystem::class),
-        ])->makePartial();
-
-        $cli->shouldReceive('runAsUser')->once()->with('brew --cellar php@7.4')->andReturn(BREW_PREFIX.'/Cellar/php@7.4');
-        $cli->shouldReceive('runAsUser')->once()->with('brew info --json php@7.4')->andReturn(false);
-        $files->shouldReceive('exists')->once()->with(BREW_PREFIX.'/opt/php@7.4/bin/php')->andReturn(true);
-
-        $this->assertEquals(BREW_PREFIX.'/opt/php@7.4/bin/php', $brewMock->getPhpExecutablePath('php@7.4'));
+        $this->assertFalse(resolve(Brew::class)->isPhpVersionsEqual('php71', 'php@70'));
+        $this->assertFalse(resolve(Brew::class)->isPhpVersionsEqual('php71', '72'));
     }
 
     /**

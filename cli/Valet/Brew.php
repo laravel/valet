@@ -251,16 +251,7 @@ class Brew
 
         $resolvedPath = $this->files->readLink(BREW_PREFIX.'/bin/php');
 
-        /**
-         * Typical homebrew path resolutions are like:
-         * "../Cellar/php@7.4/7.4.13/bin/php"
-         * or older styles:
-         * "../Cellar/php/7.4.9_2/bin/php
-         * "../Cellar/php55/bin/php.
-         */
-        preg_match('~\w{3,}/(php)(@?\d\.?\d)?/(\d\.\d)?([_\d\.]*)?/?\w{3,}~', $resolvedPath, $matches);
-
-        return $matches;
+        return $this->parsePhpPath($resolvedPath);
     }
 
     /**
@@ -289,48 +280,10 @@ class Brew
 
         return $this->supportedPhpVersions()->first(
             function ($version) use ($resolvedPhpVersion) {
-                $resolvedVersionNormalized = preg_replace('/[^\d]/', '', $resolvedPhpVersion);
-                $versionNormalized = preg_replace('/[^\d]/', '', $version);
-
-                return $resolvedVersionNormalized === $versionNormalized;
+                return $this->isPhpVersionsEqual($resolvedPhpVersion, $version);
             }, function () use ($resolvedPhpVersion) {
                 throw new DomainException("Unable to determine linked PHP when parsing '$resolvedPhpVersion'");
             });
-    }
-
-    /**
-     * Get PHP executable path for a given PHP Version.
-     *
-     * @param  string|null  $phpVersion
-     * @param  bool  $skipCache
-     * @return string
-     */
-    public function whichPhp($phpVersion = null, $skipCache = false)
-    {
-        if (! $phpVersion) {
-            return BREW_PREFIX.'/bin/php';
-        }
-
-        $versionInteger = preg_replace('~[^\d]~', '', $phpVersion);
-        $symlinkedValetPhpPath = BREW_PREFIX."/bin/valetphp{$versionInteger}";
-
-        // If the symlinked Valet PHP path exists, then we can use that
-        if (! $skipCache && $this->files->isLink($symlinkedValetPhpPath)) {
-            $phpExecutablePath = $this->files->readLink($symlinkedValetPhpPath);
-
-            // Still make sure that the version of the executable exists
-            if ($this->files->exists($phpExecutablePath)) {
-                return $phpExecutablePath;
-            }
-        }
-
-        // If the symlinked Valet PHP path doesn't exist, then we need to look for the correct executable path
-        // Create a symlink to the Valet PHP version, so next time Valet won't have to look for the executable path
-        if ($phpExecutablePath = $this->getPhpExecutablePath($phpVersion)) {
-            $this->files->symlinkAsUser($phpExecutablePath, $symlinkedValetPhpPath);
-        }
-
-        return $phpExecutablePath ?: BREW_PREFIX.'/bin/php';
     }
 
     /**
@@ -339,32 +292,34 @@ class Brew
      * @param  string  $phpVersion
      * @return string
      */
-    public function getPhpExecutablePath($phpVersion)
+    public function getPhpExecutablePath($phpVersion = null)
     {
-        $phpExecutablePath = null;
+        if (! $phpVersion) {
+            return BREW_PREFIX.'/bin/php';
+        }
 
-        $cellar = $this->cli->runAsUser("brew --cellar $phpVersion"); // Example output: `/opt/homebrew/Cellar/php@8.0`
-        $details = json_decode($this->cli->runAsUser("brew info --json $phpVersion"), true);
-        $phpDirectory = data_get($details, '0.linked_keg');
+        // Check the default `/opt/homebrew/opt/php@8.1/bin/php` location first
+        if ($this->files->exists(BREW_PREFIX."/opt/{$phpVersion}/bin/php")) {
+            return BREW_PREFIX."/opt/{$phpVersion}/bin/php";
+        }
 
-        if (is_null($phpDirectory) && $installed = data_get($details, '0.installed')) {
-            $phpDirectory = data_get(collect($installed)->where('installed_as_dependency', false)->last(), 'version');
+        // Check the `/opt/homebrew/opt/php71/bin/php` location for older installations
+        $phpVersion = str_replace(['@', '.'], '' , $phpVersion); // php@8.1 to php81
+        if ($this->files->exists(BREW_PREFIX."/opt/{$phpVersion}/bin/php")) {
+            return BREW_PREFIX."/opt/{$phpVersion}/bin/php";
+        }
 
-            if (is_null($phpDirectory)) {
-                $phpDirectory = data_get(collect($installed)->last(), 'version');
+        // Check if the default PHP is the version we are looking for
+        if ($this->files->isLink(BREW_PREFIX."/opt/php")) {
+            $resolvedPath = $this->files->readLink(BREW_PREFIX."/opt/php");
+            $matches = $this->parsePhpPath($resolvedPath);
+            $resolvedPhpVersion = $matches[3] ?: $matches[2];
+            if ($this->isPhpVersionsEqual($resolvedPhpVersion, $phpVersion)) {
+                return BREW_PREFIX."/opt/php/bin/php";
             }
         }
 
-        if (isset($phpDirectory) && $this->files->exists(trim($cellar).'/'.$phpDirectory.'/bin/php')) {
-            $phpExecutablePath = trim($cellar).'/'.$phpDirectory.'/bin/php';
-        }
-
-        // When PHP Version is installed directly though shivammathur/homebrew-php, it usually stores the binaries in this directory
-        if (is_null($phpExecutablePath) && $this->files->exists(BREW_PREFIX."/opt/{$phpVersion}/bin/php")) {
-            $phpExecutablePath = BREW_PREFIX."/opt/{$phpVersion}/bin/php";
-        }
-
-        return $phpExecutablePath;
+        return BREW_PREFIX.'/bin/php';
     }
 
     /**
@@ -531,5 +486,42 @@ class Brew
                 output($errorOutput);
             }
         );
+    }
+
+    /**
+     * Parse homebrew PHP Path
+     *
+     * @param  string  $resolvedPath
+     *
+     * @return mixed
+     */
+    public function parsePhpPath($resolvedPath)
+    {
+        /**
+         * Typical homebrew path resolutions are like:
+         * "../Cellar/php@7.4/7.4.13/bin/php"
+         * or older styles:
+         * "../Cellar/php/7.4.9_2/bin/php
+         * "../Cellar/php55/bin/php.
+         */
+        preg_match('~\w{3,}/(php)(@?\d\.?\d)?/(\d\.\d)?([_\d\.]*)?/?\w{3,}~', $resolvedPath, $matches);
+
+        return $matches;
+    }
+
+    /**
+     * Check if two PHP versions are equal
+     *
+     * @param string $resolvedPhpVersion
+     * @param string $version
+     *
+     * @return bool
+     */
+    public function isPhpVersionsEqual($resolvedPhpVersion, $version)
+    {
+        $resolvedVersionNormalized = preg_replace('/[^\d]/', '', $resolvedPhpVersion);
+        $versionNormalized = preg_replace('/[^\d]/', '', $version);
+
+        return $resolvedVersionNormalized === $versionNormalized;
     }
 }
