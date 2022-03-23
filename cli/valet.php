@@ -584,7 +584,7 @@ You might also want to investigate your global Composer configs. Helpful command
     ]);
 
     /**
-     * Proxy PHP commands with isolated site's  PHP executable.
+     * Proxy PHP commands with isolated site's  PHP executable file.
      */
     $app->command('php [command]', function ($command) {
         warning('It looks like you are running `cli/valet.php` directly; please use the `valet` script in the project root instead.');

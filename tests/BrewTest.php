@@ -409,7 +409,7 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $this->assertEquals(BREW_PREFIX.'/Cellar/php@7.4/7.4.6/bin/php', $brewMock->whichPhp('php@7.4'));
 
-        // When there is a symlinked Valet PHP exists
+        // When a symlinked Valet PHP exists
         $brewMock = Mockery::mock(Brew::class, [
             Mockery::mock(CommandLine::class),
             $files = Mockery::mock(Filesystem::class),
