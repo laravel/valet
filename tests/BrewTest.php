@@ -425,9 +425,9 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $files->shouldReceive('exists')->once()->with(BREW_PREFIX.'/opt/php@7.4/bin/php')->andReturn(false);
         $files->shouldReceive('exists')->with(BREW_PREFIX.'/opt/php74/bin/php')->andReturn(false);
-        $files->shouldReceive('isLink')->with(BREW_PREFIX."/opt/php")->andReturn(true);
-        $files->shouldReceive('readLink')->with(BREW_PREFIX."/opt/php")->andReturn('../Cellar/php@7.4/7.4.13/bin/php');
-        $this->assertEquals(BREW_PREFIX."/opt/php/bin/php", $brewMock->getPhpExecutablePath('php@7.4'));
+        $files->shouldReceive('isLink')->with(BREW_PREFIX.'/opt/php')->andReturn(true);
+        $files->shouldReceive('readLink')->with(BREW_PREFIX.'/opt/php')->andReturn('../Cellar/php@7.4/7.4.13/bin/php');
+        $this->assertEquals(BREW_PREFIX.'/opt/php/bin/php', $brewMock->getPhpExecutablePath('php@7.4'));
 
         // When the default PHP is not the version we are looking for
         $brewMock = Mockery::mock(Brew::class, [
@@ -437,9 +437,9 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $files->shouldReceive('exists')->once()->with(BREW_PREFIX.'/opt/php@7.4/bin/php')->andReturn(false);
         $files->shouldReceive('exists')->with(BREW_PREFIX.'/opt/php74/bin/php')->andReturn(false);
-        $files->shouldReceive('isLink')->with(BREW_PREFIX."/opt/php")->andReturn(true);
-        $files->shouldReceive('readLink')->with(BREW_PREFIX."/opt/php")->andReturn('../Cellar/php@8.1/8.1.13/bin/php');
-        $this->assertEquals(BREW_PREFIX."/bin/php", $brewMock->getPhpExecutablePath('php@7.4')); // Could not find a version, so retuned the default binary
+        $files->shouldReceive('isLink')->with(BREW_PREFIX.'/opt/php')->andReturn(true);
+        $files->shouldReceive('readLink')->with(BREW_PREFIX.'/opt/php')->andReturn('../Cellar/php@8.1/8.1.13/bin/php');
+        $this->assertEquals(BREW_PREFIX.'/bin/php', $brewMock->getPhpExecutablePath('php@7.4')); // Could not find a version, so retuned the default binary
 
         // When no PHP Version is provided
         $brewMock = Mockery::mock(Brew::class, [
