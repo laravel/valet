@@ -492,7 +492,7 @@ class Brew
      * Parse homebrew PHP Path.
      *
      * @param  string  $resolvedPath
-     * @return mixed
+     * @return array
      */
     public function parsePhpPath($resolvedPath)
     {
