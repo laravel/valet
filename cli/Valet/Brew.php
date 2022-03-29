@@ -516,7 +516,7 @@ class Brew
      * @param  string  $versionB
      * @return bool
      */
-    public function arePhpVersionsEqual($versionA, $version)
+    public function arePhpVersionsEqual($versionA, $versionB)
     {
         $versionANormalized = preg_replace('/[^\d]/', '', $versionA);
         $versionBNormalized = preg_replace('/[^\d]/', '', $versionB);
