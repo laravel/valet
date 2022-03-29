@@ -322,7 +322,7 @@ class PhpFpm
     /**
      * If passed php7.4, or php74, 7.4, or 74 formats, normalize to php@7.4 format.
      */
-    public function normalizePhpVersion($version)
+    public static function normalizePhpVersion($version)
     {
         return preg_replace('/(?:php@?)?([0-9+])(?:.)?([0-9+])/i', 'php@$1.$2', $version);
     }

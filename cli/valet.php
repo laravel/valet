@@ -575,8 +575,6 @@ You might also want to investigate your global Composer configs. Helpful command
             }
         }
 
-        $phpVersion = $phpVersion ? PhpFpm::normalizePhpVersion($phpVersion) : null;
-
         return output(Brew::getPhpExecutablePath($phpVersion));
     })->descriptions('Get the PHP executable path for a given site', [
         'site' => 'The site to get the PHP executable path for',

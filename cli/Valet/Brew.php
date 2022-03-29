@@ -298,6 +298,8 @@ class Brew
             return BREW_PREFIX.'/bin/php';
         }
 
+        $phpVersion = PhpFpm::normalizePhpVersion($phpVersion);
+
         // Check the default `/opt/homebrew/opt/php@8.1/bin/php` location first
         if ($this->files->exists(BREW_PREFIX."/opt/{$phpVersion}/bin/php")) {
             return BREW_PREFIX."/opt/{$phpVersion}/bin/php";
