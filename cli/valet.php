@@ -506,18 +506,19 @@ You might also want to investigate your global Composer configs. Helpful command
      */
     $app->command('use [phpVersion] [--force]', function ($phpVersion, $force) {
         if (! $phpVersion) {
-            $path = getcwd().'/.valetphprc';
+            $site = basename(getcwd());
             $linkedVersion = Brew::linkedPhp();
-            if (! file_exists($path)) {
+            $phpVersion = Site::phpRcVersion($site);
+
+            if (! $phpVersion) {
                 return info("Valet is using {$linkedVersion}.");
             }
 
-            $phpVersion = trim(file_get_contents($path));
-            info("Found '{$path}' specifying version: {$phpVersion}");
-
-            if ($linkedVersion == $phpVersion) {
+            if ($linkedVersion == $phpVersion  && ! $force) {
                 return info("Valet is already using {$linkedVersion}.");
             }
+
+            info("Found '{$site}' specifying version: {$phpVersion}");
         }
 
         PhpFpm::useVersion($phpVersion, $force);
@@ -531,6 +532,11 @@ You might also want to investigate your global Composer configs. Helpful command
     $app->command('isolate [phpVersion] [--site=]', function ($phpVersion, $site = null) {
         if (! $site) {
             $site = basename(getcwd());
+        }
+
+        if (! $phpVersion) {
+            $phpVersion = Site::phpRcVersion($site);
+            info("Found '{$site}' specifying version: {$phpVersion}");
         }
 
         PhpFpm::isolateDirectory($site, $phpVersion);
@@ -569,10 +575,7 @@ You might also want to investigate your global Composer configs. Helpful command
         $phpVersion = Site::customPhpVersion($host);
 
         if (! $phpVersion) {
-            $path = getcwd().'/.valetphprc';
-            if (file_exists($path)) {
-                $phpVersion = trim(file_get_contents($path));
-            }
+            $phpVersion = Site::phpRcVersion($site ?: basename(getcwd()));
         }
 
         return output(Brew::getPhpExecutablePath($phpVersion));
