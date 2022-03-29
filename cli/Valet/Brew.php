@@ -227,9 +227,9 @@ class Brew
 
                 // restore folder permissions: for each brew formula, these directories are owned by root:admin
                 $directories = [
-                    BREW_PREFIX . "/Cellar/$service",
-                    BREW_PREFIX . "/opt/$service",
-                    BREW_PREFIX . "/var/homebrew/linked/$service",
+                    BREW_PREFIX."/Cellar/$service",
+                    BREW_PREFIX."/opt/$service",
+                    BREW_PREFIX."/var/homebrew/linked/$service",
                 ];
 
                 $whoami = get_current_user();
