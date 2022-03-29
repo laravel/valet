@@ -2,6 +2,7 @@
 
 namespace Valet;
 
+use PhpFpm;
 use DomainException;
 
 class Brew
