@@ -232,7 +232,6 @@ class Brew
                     BREW_PREFIX . "/var/homebrew/linked/$service",
                 ];
 
-                // if the services aren't running: we'll restore the original permissions
                 $whoami = get_current_user();
 
                 foreach ($directories as $directory) {
