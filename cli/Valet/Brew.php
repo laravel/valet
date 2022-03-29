@@ -224,6 +224,20 @@ class Brew
 
                 // stop the sudo version
                 $this->cli->quietly('sudo brew services stop '.$service);
+
+                // restore folder permissions: for each brew formula, these directories are owned by root:admin
+                $directories = [
+                    BREW_PREFIX . "/Cellar/$service",
+                    BREW_PREFIX . "/opt/$service",
+                    BREW_PREFIX . "/var/homebrew/linked/$service",
+                ];
+
+                // if the services aren't running: we'll restore the original permissions
+                $whoami = get_current_user();
+
+                foreach ($directories as $directory) {
+                    $this->cli->quietly("sudo chown -R {$whoami}:admin '$directory'");
+                }
             }
         }
     }
