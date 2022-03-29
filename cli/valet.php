@@ -514,7 +514,7 @@ You might also want to investigate your global Composer configs. Helpful command
                 return info("Valet is using {$linkedVersion}.");
             }
 
-            if ($linkedVersion == $phpVersion  && ! $force) {
+            if ($linkedVersion == $phpVersion && ! $force) {
                 return info("Valet is already using {$linkedVersion}.");
             }
 

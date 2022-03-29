@@ -831,7 +831,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $siteMock = Mockery::mock(Site::class, [
             resolve(Configuration::class),
             resolve(CommandLine::class),
-            resolve(Filesystem::class)
+            resolve(Filesystem::class),
         ])->makePartial();
 
         swap(Site::class, $siteMock);
