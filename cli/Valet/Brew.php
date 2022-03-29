@@ -280,7 +280,7 @@ class Brew
 
         return $this->supportedPhpVersions()->first(
             function ($version) use ($resolvedPhpVersion) {
-                return $this->isPhpVersionsEqual($resolvedPhpVersion, $version);
+                return $this->arePhpVersionsEqual($resolvedPhpVersion, $version);
             }, function () use ($resolvedPhpVersion) {
                 throw new DomainException("Unable to determine linked PHP when parsing '$resolvedPhpVersion'");
             });
@@ -289,7 +289,7 @@ class Brew
     /**
      * Extract PHP executable path from PHP Version.
      *
-     * @param  string  $phpVersion
+     * @param  string  $phpVersion  For example, "php@8.1"
      * @return string
      */
     public function getPhpExecutablePath($phpVersion = null)
@@ -314,7 +314,8 @@ class Brew
             $resolvedPath = $this->files->readLink(BREW_PREFIX.'/opt/php');
             $matches = $this->parsePhpPath($resolvedPath);
             $resolvedPhpVersion = $matches[3] ?: $matches[2];
-            if ($this->isPhpVersionsEqual($resolvedPhpVersion, $phpVersion)) {
+
+            if ($this->arePhpVersionsEqual($resolvedPhpVersion, $phpVersion)) {
                 return BREW_PREFIX.'/opt/php/bin/php';
             }
         }
@@ -511,15 +512,15 @@ class Brew
     /**
      * Check if two PHP versions are equal.
      *
-     * @param  string  $resolvedPhpVersion
-     * @param  string  $version
+     * @param  string  $versionA
+     * @param  string  $versionB
      * @return bool
      */
-    public function isPhpVersionsEqual($resolvedPhpVersion, $version)
+    public function arePhpVersionsEqual($versionA, $version)
     {
-        $resolvedVersionNormalized = preg_replace('/[^\d]/', '', $resolvedPhpVersion);
-        $versionNormalized = preg_replace('/[^\d]/', '', $version);
+        $versionANormalized = preg_replace('/[^\d]/', '', $versionA);
+        $versionBNormalized = preg_replace('/[^\d]/', '', $versionB);
 
-        return $resolvedVersionNormalized === $versionNormalized;
+        return $versionANormalized === $versionBNormalized;
     }
 }

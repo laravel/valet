@@ -452,12 +452,12 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
     public function test_it_can_compare_two_php_versions()
     {
-        $this->assertTrue(resolve(Brew::class)->isPhpVersionsEqual('php71', 'php@7.1'));
-        $this->assertTrue(resolve(Brew::class)->isPhpVersionsEqual('php71', 'php@71'));
-        $this->assertTrue(resolve(Brew::class)->isPhpVersionsEqual('php71', '71'));
+        $this->assertTrue(resolve(Brew::class)->arePhpVersionsEqual('php71', 'php@7.1'));
+        $this->assertTrue(resolve(Brew::class)->arePhpVersionsEqual('php71', 'php@71'));
+        $this->assertTrue(resolve(Brew::class)->arePhpVersionsEqual('php71', '71'));
 
-        $this->assertFalse(resolve(Brew::class)->isPhpVersionsEqual('php71', 'php@70'));
-        $this->assertFalse(resolve(Brew::class)->isPhpVersionsEqual('php71', '72'));
+        $this->assertFalse(resolve(Brew::class)->arePhpVersionsEqual('php71', 'php@70'));
+        $this->assertFalse(resolve(Brew::class)->arePhpVersionsEqual('php71', '72'));
     }
 
     /**
