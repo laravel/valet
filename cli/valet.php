@@ -534,10 +534,6 @@ You might also want to investigate your global Composer configs. Helpful command
             $site = basename(getcwd());
         }
 
-        if (! $phpVersion) {
-            $phpVersion = Site::phpRcVersion($site);
-            info("Found '{$site}' specifying version: {$phpVersion}");
-        }
 
         PhpFpm::isolateDirectory($site, $phpVersion);
     })->descriptions('Change the version of PHP used by Valet to serve the current working directory', [
