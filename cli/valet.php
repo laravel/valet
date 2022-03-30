@@ -534,7 +534,6 @@ You might also want to investigate your global Composer configs. Helpful command
             $site = basename(getcwd());
         }
 
-
         PhpFpm::isolateDirectory($site, $phpVersion);
     })->descriptions('Change the version of PHP used by Valet to serve the current working directory', [
         'phpVersion' => 'The PHP version you want to use; e.g php@8.1',
