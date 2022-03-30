@@ -518,7 +518,7 @@ You might also want to investigate your global Composer configs. Helpful command
                 return info("Valet is already using {$linkedVersion}.");
             }
 
-            info("Found '{$site}' specifying version: {$phpVersion}");
+            info("Found '{$site}/.valetphprc' specifying version: {$phpVersion}");
         }
 
         PhpFpm::useVersion($phpVersion, $force);
