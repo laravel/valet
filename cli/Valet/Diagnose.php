@@ -7,7 +7,7 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 class Diagnose
 {
-    var $commands = [
+    public $commands = [
         'sw_vers',
         'valet --version',
         'cat ~/.config/valet/config.json',
@@ -18,8 +18,9 @@ class Diagnose
         'brew update > /dev/null 2>&1',
         'brew config',
         'brew services list',
-        'brew list --versions | grep -E "(php|nginx|dnsmasq|mariadb|mysql|mailhog|openssl)(@\d\..*)?\s"',
+        'brew list --formula --versions | grep -E "(php|nginx|dnsmasq|mariadb|mysql|mailhog|openssl)(@\d\..*)?\s"',
         'brew outdated',
+        'brew tap',
         'php -v',
         'which -a php',
         'php --ini',
@@ -27,6 +28,7 @@ class Diagnose
         'curl --version',
         'php --ri curl',
         '~/.composer/vendor/laravel/valet/bin/ngrok version',
+        '~/.composer/vendor/laravel/valet/bin/ngrok-arm version',
         'ls -al ~/.ngrok2',
         'brew info nginx',
         'brew info php',
@@ -40,9 +42,19 @@ class Diagnose
         'ls -al ~/Library/LaunchAgents | grep homebrew',
         'ls -al /Library/LaunchAgents | grep homebrew',
         'ls -al /Library/LaunchDaemons | grep homebrew',
+        'ls -al /Library/LaunchDaemons | grep "com.laravel.valet."',
+        'ls -aln /etc/resolv.conf',
+        'cat /etc/resolv.conf',
+        'ifconfig lo0',
+        'sh -c \'echo "------\n'.BREW_PREFIX.'/etc/nginx/valet/valet.conf\n---\n"; cat '.BREW_PREFIX.'/etc/nginx/valet/valet.conf | grep -n "# valet loopback"; echo "\n------\n"\'',
+        'sh -c \'for file in ~/.config/valet/dnsmasq.d/*; do echo "------\n~/.config/valet/dnsmasq.d/$(basename $file)\n---\n"; cat $file; echo "\n------\n"; done\'',
+        'sh -c \'for file in ~/.config/valet/nginx/*; do echo "------\n~/.config/valet/nginx/$(basename $file)\n---\n"; cat $file | grep -n "# valet loopback"; echo "\n------\n"; done\'',
     ];
 
-    var $cli, $files, $print, $progressBar;
+    public $cli;
+    public $files;
+    public $print;
+    public $progressBar;
 
     /**
      * Create a new Diagnose instance.
@@ -51,7 +63,7 @@ class Diagnose
      * @param  Filesystem  $files
      * @return void
      */
-    function __construct(CommandLine $cli, Filesystem $files)
+    public function __construct(CommandLine $cli, Filesystem $files)
     {
         $this->cli = $cli;
         $this->files = $files;
@@ -60,7 +72,7 @@ class Diagnose
     /**
      * Run diagnostics.
      */
-    function run($print, $plainText)
+    public function run($print, $plainText)
     {
         $this->print = $print;
 
@@ -71,7 +83,9 @@ class Diagnose
 
             $output = $this->runCommand($command);
 
-            if ($this->ignoreOutput($command)) return;
+            if ($this->ignoreOutput($command)) {
+                return;
+            }
 
             $this->afterCommand($command, $output);
 
@@ -89,7 +103,7 @@ class Diagnose
         $this->afterRun();
     }
 
-    function beforeRun()
+    public function beforeRun()
     {
         if ($this->print) {
             return;
@@ -100,7 +114,7 @@ class Diagnose
         $this->progressBar->start();
     }
 
-    function afterRun()
+    public function afterRun()
     {
         if ($this->progressBar) {
             $this->progressBar->finish();
@@ -109,21 +123,21 @@ class Diagnose
         output('');
     }
 
-    function runCommand($command)
+    public function runCommand($command)
     {
         return strpos($command, 'sudo ') === 0
             ? $this->cli->run($command)
             : $this->cli->runAsUser($command);
     }
 
-    function beforeCommand($command)
+    public function beforeCommand($command)
     {
         if ($this->print) {
             info(PHP_EOL."$ $command");
         }
     }
 
-    function afterCommand($command, $output)
+    public function afterCommand($command, $output)
     {
         if ($this->print) {
             output(trim($output));
@@ -132,12 +146,12 @@ class Diagnose
         }
     }
 
-    function ignoreOutput($command)
+    public function ignoreOutput($command)
     {
         return strpos($command, '> /dev/null 2>&1') !== false;
     }
 
-    function format($results, $plainText)
+    public function format($results, $plainText)
     {
         return $results->map(function ($result) use ($plainText) {
             $command = $result['command'];

@@ -14,8 +14,7 @@ class SymfonyValetDriver extends ValetDriver
     {
         return (file_exists($sitePath.'/web/app_dev.php') || file_exists($sitePath.'/web/app.php')) &&
                (file_exists($sitePath.'/app/AppKernel.php')) || (file_exists($sitePath.'/public/index.php')) &&
-               (file_exists($sitePath.'/src/Kernel.php'))
-            ;
+               (file_exists($sitePath.'/src/Kernel.php'));
     }
 
     /**
@@ -47,12 +46,18 @@ class SymfonyValetDriver extends ValetDriver
      */
     public function frontControllerPath($sitePath, $siteName, $uri)
     {
-        if (file_exists($frontControllerPath = $sitePath.'/web/app_dev.php')) {
-            return $frontControllerPath;
-        } elseif (file_exists($frontControllerPath = $sitePath.'/web/app.php')) {
-            return $frontControllerPath;
-        } elseif (file_exists($frontControllerPath = $sitePath.'/public/index.php')) {
-            return $frontControllerPath;
+        $frontControllerPath = null;
+
+        if (file_exists($path = $sitePath.'/web/app_dev.php')) {
+            $frontControllerPath = $path;
+        } elseif (file_exists($path = $sitePath.'/web/app.php')) {
+            $frontControllerPath = $path;
+        } elseif (file_exists($path = $sitePath.'/public/index.php')) {
+            $frontControllerPath = $path;
         }
+
+        $_SERVER['SCRIPT_FILENAME'] = $frontControllerPath;
+
+        return $frontControllerPath;
     }
 }

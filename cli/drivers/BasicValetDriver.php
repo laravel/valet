@@ -48,10 +48,10 @@ class BasicValetDriver extends ValetDriver
      */
     public function frontControllerPath($sitePath, $siteName, $uri)
     {
-        $_SERVER['PHP_SELF']    = $uri;
+        $_SERVER['PHP_SELF'] = $uri;
         $_SERVER['SERVER_ADDR'] = '127.0.0.1';
         $_SERVER['SERVER_NAME'] = $_SERVER['HTTP_HOST'];
-		
+
         $dynamicCandidates = [
             $this->asActualFile($sitePath, $uri),
             $this->asPhpIndexFileInDirectory($sitePath, $uri),
@@ -63,14 +63,15 @@ class BasicValetDriver extends ValetDriver
                 $_SERVER['SCRIPT_FILENAME'] = $candidate;
                 $_SERVER['SCRIPT_NAME'] = str_replace($sitePath, '', $candidate);
                 $_SERVER['DOCUMENT_ROOT'] = $sitePath;
+
                 return $candidate;
             }
         }
 
         $fixedCandidatesAndDocroots = [
             $this->asRootPhpIndexFile($sitePath) => $sitePath,
-            $this->asPublicPhpIndexFile($sitePath) => $sitePath . '/public',
-            $this->asPublicHtmlIndexFile($sitePath) => $sitePath . '/public',
+            $this->asPublicPhpIndexFile($sitePath) => $sitePath.'/public',
+            $this->asPublicHtmlIndexFile($sitePath) => $sitePath.'/public',
         ];
 
         foreach ($fixedCandidatesAndDocroots as $candidate => $docroot) {
@@ -78,6 +79,7 @@ class BasicValetDriver extends ValetDriver
                 $_SERVER['SCRIPT_FILENAME'] = $candidate;
                 $_SERVER['SCRIPT_NAME'] = '/index.php';
                 $_SERVER['DOCUMENT_ROOT'] = $docroot;
+
                 return $candidate;
             }
         }

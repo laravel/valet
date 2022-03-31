@@ -58,7 +58,7 @@ class LaravelValetDriver extends ValetDriver
         if (isset($_SERVER['HTTP_X_ORIGINAL_HOST'], $_SERVER['HTTP_X_FORWARDED_HOST'])) {
             $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_X_FORWARDED_HOST'];
         }
-        
+
         return $sitePath.'/public/index.php';
     }
 }

@@ -4,16 +4,19 @@ namespace Valet;
 
 class DnsMasq
 {
-    var $brew, $cli, $files, $configuration;
+    public $brew;
+    public $cli;
+    public $files;
+    public $configuration;
 
-    var $dnsmasqMasterConfigFile = BREW_PREFIX.'/etc/dnsmasq.conf';
-    var $dnsmasqSystemConfDir = BREW_PREFIX.'/etc/dnsmasq.d';
-    var $resolverPath = '/etc/resolver';
+    public $dnsmasqMasterConfigFile = BREW_PREFIX.'/etc/dnsmasq.conf';
+    public $dnsmasqSystemConfDir = BREW_PREFIX.'/etc/dnsmasq.d';
+    public $resolverPath = '/etc/resolver';
 
     /**
      * Create a new DnsMasq instance.
      */
-    function __construct(Brew $brew, CommandLine $cli, Filesystem $files, Configuration $configuration)
+    public function __construct(Brew $brew, CommandLine $cli, Filesystem $files, Configuration $configuration)
     {
         $this->cli = $cli;
         $this->brew = $brew;
@@ -26,7 +29,7 @@ class DnsMasq
      *
      * @return void
      */
-    function install($tld = 'test')
+    public function install($tld = 'test')
     {
         $this->brew->ensureInstalled('dnsmasq');
 
@@ -46,10 +49,10 @@ class DnsMasq
 
     /**
      * Forcefully uninstall dnsmasq.
-     * 
+     *
      * @return void
      */
-    function uninstall()
+    public function uninstall()
     {
         $this->brew->stopService('dnsmasq');
         $this->brew->uninstallFormula('dnsmasq');
@@ -59,21 +62,21 @@ class DnsMasq
     }
 
     /**
-     * Tell Homebrew to restart dnsmasq
-     * 
+     * Tell Homebrew to restart dnsmasq.
+     *
      * @return void
      */
-    function restart()
+    public function restart()
     {
         $this->brew->restartService('dnsmasq');
     }
 
     /**
-     * Ensure the DnsMasq configuration primary config is set to read custom configs
+     * Ensure the DnsMasq configuration primary config is set to read custom configs.
      *
      * @return void
      */
-    function ensureUsingDnsmasqDForConfigs()
+    public function ensureUsingDnsmasqDForConfigs()
     {
         info('Updating Dnsmasq configuration...');
 
@@ -81,7 +84,7 @@ class DnsMasq
         $contents = $this->files->get($this->dnsmasqMasterConfigFile);
         // ensure the line we need to use is present, and uncomment it if needed
         if (false === strpos($contents, 'conf-dir='.BREW_PREFIX.'/etc/dnsmasq.d/,*.conf')) {
-            $contents .= PHP_EOL . 'conf-dir='.BREW_PREFIX.'/etc/dnsmasq.d/,*.conf' . PHP_EOL;
+            $contents .= PHP_EOL.'conf-dir='.BREW_PREFIX.'/etc/dnsmasq.d/,*.conf'.PHP_EOL;
         }
         $contents = str_replace('#conf-dir='.BREW_PREFIX.'/etc/dnsmasq.d/,*.conf', 'conf-dir='.BREW_PREFIX.'/etc/dnsmasq.d/,*.conf', $contents);
 
@@ -92,7 +95,7 @@ class DnsMasq
         $this->files->put($this->dnsmasqMasterConfigFile, $contents);
 
         // remove old ~/.config/valet/dnsmasq.conf file because things are moved to the ~/.config/valet/dnsmasq.d/ folder now
-        if (file_exists($file = dirname($this->dnsmasqUserConfigDir()) . '/dnsmasq.conf')) {
+        if (file_exists($file = dirname($this->dnsmasqUserConfigDir()).'/dnsmasq.conf')) {
             unlink($file);
         }
 
@@ -100,34 +103,37 @@ class DnsMasq
         $contents = $this->files->get(__DIR__.'/../stubs/etc-dnsmasq-valet.conf');
         $contents = str_replace('VALET_HOME_PATH', VALET_HOME_PATH, $contents);
         $this->files->ensureDirExists($this->dnsmasqSystemConfDir, user());
-        $this->files->putAsUser($this->dnsmasqSystemConfDir . '/dnsmasq-valet.conf', $contents);
+        $this->files->putAsUser($this->dnsmasqSystemConfDir.'/dnsmasq-valet.conf', $contents);
 
-        $this->files->ensureDirExists(VALET_HOME_PATH . '/dnsmasq.d', user());
+        $this->files->ensureDirExists(VALET_HOME_PATH.'/dnsmasq.d', user());
     }
 
     /**
-     * Create the TLD-specific dnsmasq config file
-     * @param  string  $tld
-     * @return void
-     */
-    function createDnsmasqTldConfigFile($tld)
-    {
-        $tldConfigFile = $this->dnsmasqUserConfigDir() . 'tld-' . $tld . '.conf';
-
-        $this->files->putAsUser($tldConfigFile, 'address=/.'.$tld.'/127.0.0.1'.PHP_EOL.'listen-address=127.0.0.1'.PHP_EOL);
-    }
-
-    /**
-     * Create the resolver file to point the configured TLD to 127.0.0.1.
+     * Create the TLD-specific dnsmasq config file.
      *
      * @param  string  $tld
      * @return void
      */
-    function createTldResolver($tld)
+    public function createDnsmasqTldConfigFile($tld)
+    {
+        $tldConfigFile = $this->dnsmasqUserConfigDir().'tld-'.$tld.'.conf';
+        $loopback = $this->configuration->read()['loopback'];
+
+        $this->files->putAsUser($tldConfigFile, 'address=/.'.$tld.'/'.$loopback.PHP_EOL.'listen-address='.$loopback.PHP_EOL);
+    }
+
+    /**
+     * Create the resolver file to point the configured TLD to configured loopback address.
+     *
+     * @param  string  $tld
+     * @return void
+     */
+    public function createTldResolver($tld)
     {
         $this->files->ensureDirExists($this->resolverPath);
+        $loopback = $this->configuration->read()['loopback'];
 
-        $this->files->put($this->resolverPath.'/'.$tld, 'nameserver 127.0.0.1'.PHP_EOL);
+        $this->files->put($this->resolverPath.'/'.$tld, 'nameserver '.$loopback.PHP_EOL);
     }
 
     /**
@@ -137,12 +143,24 @@ class DnsMasq
      * @param  string  $newTld
      * @return void
      */
-    function updateTld($oldTld, $newTld)
+    public function updateTld($oldTld, $newTld)
     {
         $this->files->unlink($this->resolverPath.'/'.$oldTld);
-        $this->files->unlink($this->dnsmasqUserConfigDir() . 'tld-' . $oldTld . '.conf');
+        $this->files->unlink($this->dnsmasqUserConfigDir().'tld-'.$oldTld.'.conf');
 
         $this->install($newTld);
+    }
+
+    /**
+     * Refresh the DnsMasq configuration.
+     *
+     * @return void
+     */
+    public function refreshConfiguration()
+    {
+        $tld = $this->configuration->read()['tld'];
+
+        $this->updateTld($tld, $tld);
     }
 
     /**
@@ -150,7 +168,7 @@ class DnsMasq
      *
      * @return string
      */
-    function dnsmasqUserConfigDir()
+    public function dnsmasqUserConfigDir()
     {
         return $_SERVER['HOME'].'/.config/valet/dnsmasq.d/';
     }
