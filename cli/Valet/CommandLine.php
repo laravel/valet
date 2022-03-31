@@ -12,7 +12,7 @@ class CommandLine
      * @param  string  $command
      * @return void
      */
-    function quietly($command)
+    public function quietly($command)
     {
         $this->runCommand($command.' > /dev/null 2>&1');
     }
@@ -23,7 +23,7 @@ class CommandLine
      * @param  string  $command
      * @return void
      */
-    function quietlyAsUser($command)
+    public function quietlyAsUser($command)
     {
         $this->quietly('sudo -u "'.user().'" '.$command.' > /dev/null 2>&1');
     }
@@ -34,7 +34,7 @@ class CommandLine
      * @param  string  $command
      * @return void
      */
-    function passthru($command)
+    public function passthru($command)
     {
         passthru($command);
     }
@@ -43,10 +43,10 @@ class CommandLine
      * Run the given command as the non-root user.
      *
      * @param  string  $command
-     * @param  callable $onError
+     * @param  callable  $onError
      * @return string
      */
-    function run($command, callable $onError = null)
+    public function run($command, callable $onError = null)
     {
         return $this->runCommand($command, $onError);
     }
@@ -55,10 +55,10 @@ class CommandLine
      * Run the given command.
      *
      * @param  string  $command
-     * @param  callable $onError
+     * @param  callable  $onError
      * @return string
      */
-    function runAsUser($command, callable $onError = null)
+    public function runAsUser($command, callable $onError = null)
     {
         return $this->runCommand('sudo -u "'.user().'" '.$command, $onError);
     }
@@ -67,12 +67,13 @@ class CommandLine
      * Run the given command.
      *
      * @param  string  $command
-     * @param  callable $onError
+     * @param  callable  $onError
      * @return string
      */
-    function runCommand($command, callable $onError = null)
+    public function runCommand($command, callable $onError = null)
     {
-        $onError = $onError ?: function () {};
+        $onError = $onError ?: function () {
+        };
 
         // Symfony's 4.x Process component has deprecated passing a command string
         // to the constructor, but older versions (which Valet's Composer

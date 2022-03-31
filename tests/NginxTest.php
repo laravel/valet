@@ -1,13 +1,13 @@
 <?php
 
-use Valet\Site;
-use Valet\Nginx;
-use Valet\Filesystem;
-use Valet\Configuration;
-use function Valet\user;
-use function Valet\resolve;
-use function Valet\swap;
 use Illuminate\Container\Container;
+use Valet\Configuration;
+use Valet\Filesystem;
+use Valet\Nginx;
+use function Valet\resolve;
+use Valet\Site;
+use function Valet\swap;
+use function Valet\user;
 
 class NginxTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 {
@@ -85,5 +85,27 @@ class NginxTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $data = ['tld' => 'test', 'loopback' => '127.0.0.1'];
 
         $site->shouldHaveReceived('resecureForNewConfiguration', [$data, $data]);
+    }
+
+    public function test_it_gets_configured_sites()
+    {
+        $files = Mockery::mock(Filesystem::class);
+
+        $files->shouldReceive('scandir')
+            ->once()
+            ->with(VALET_HOME_PATH.'/Nginx')
+            ->andReturn(['.gitkeep', 'isolated-site-71.test', 'isolated-site-72.test', 'isolated-site-73.test']);
+
+        swap(Filesystem::class, $files);
+        swap(Configuration::class, $config = Mockery::spy(Configuration::class, ['read' => ['tld' => 'test', 'loopback' => VALET_LOOPBACK]]));
+        swap(Site::class, Mockery::mock(Site::class));
+
+        $nginx = resolve(Nginx::class);
+        $output = $nginx->configuredSites();
+
+        $this->assertEquals(
+            ['isolated-site-71.test', 'isolated-site-72.test', 'isolated-site-73.test'],
+            $output->values()->all()
+        );
     }
 }

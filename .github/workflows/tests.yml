@@ -3,15 +3,17 @@ name: Tests
 on:
   push:
   pull_request:
+  schedule:
+    - cron: '0 0 * * *'
 
 jobs:
-  mac_tests:
+  tests:
     runs-on: macos-latest
 
     strategy:
       fail-fast: true
       matrix:
-        php: [5.6, 7.0, 7.1, 7.2, 7.3, 7.4, 8.0]
+        php: ['7.0', 7.1, 7.2, 7.3, 7.4, '8.0', 8.1]
 
     name: PHP ${{ matrix.php }}
 
@@ -31,6 +33,6 @@ jobs:
         run: composer install --no-interaction --prefer-dist
 
       - name: Execute tests
+        run: vendor/bin/phpunit --verbose
         env:
           APP_ENV: testing
-        run: vendor/bin/phpunit --verbose

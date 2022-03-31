@@ -31,7 +31,7 @@ class KirbyValetDriver extends ValetDriver
             return $staticFilePath;
         }
 
-       return false;
+        return false;
     }
 
     /**

@@ -1,14 +1,14 @@
 <?php
 
+use Illuminate\Container\Container;
 use Valet\Brew;
-use Valet\DnsMasq;
-use Valet\Filesystem;
 use Valet\CommandLine;
 use Valet\Configuration;
-use function Valet\user;
+use Valet\DnsMasq;
+use Valet\Filesystem;
 use function Valet\resolve;
 use function Valet\swap;
-use Illuminate\Container\Container;
+use function Valet\user;
 
 class DnsMasqTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 {
@@ -38,7 +38,6 @@ class DnsMasqTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $dnsMasq = resolve(StubForCreatingCustomDnsMasqConfigFiles::class);
 
-
         $dnsMasq->dnsmasqMasterConfigFile = __DIR__.'/output/dnsmasq.conf';
         $dnsMasq->dnsmasqSystemConfDir = __DIR__.'/output/dnsmasq.d';
         $dnsMasq->resolverPath = __DIR__.'/output/resolver';
@@ -50,7 +49,7 @@ class DnsMasqTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $this->assertSame('nameserver '.VALET_LOOPBACK.PHP_EOL, file_get_contents(__DIR__.'/output/resolver/test'));
         $this->assertSame('address=/.test/'.VALET_LOOPBACK.PHP_EOL.'listen-address='.VALET_LOOPBACK.PHP_EOL, file_get_contents(__DIR__.'/output/tld-test.conf'));
         $this->assertSame('test-contents
-' . PHP_EOL . 'conf-dir='.BREW_PREFIX.'/etc/dnsmasq.d/,*.conf' . PHP_EOL,
+'.PHP_EOL.'conf-dir='.BREW_PREFIX.'/etc/dnsmasq.d/,*.conf'.PHP_EOL,
             file_get_contents($dnsMasq->dnsmasqMasterConfigFile)
         );
     }

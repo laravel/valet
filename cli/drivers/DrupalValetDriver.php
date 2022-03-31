@@ -14,11 +14,11 @@ class DrupalValetDriver extends ValetDriver
     {
         $sitePath = $this->addSubdirectory($sitePath);
 
-      /**
-       * /misc/drupal.js = Drupal 7
-       * /core/lib/Drupal.php = Drupal 8
-       */
-      if (file_exists($sitePath.'/misc/drupal.js') ||
+        /**
+         * /misc/drupal.js = Drupal 7
+         * /core/lib/Drupal.php = Drupal 8.
+         */
+        if (file_exists($sitePath.'/misc/drupal.js') ||
           file_exists($sitePath.'/core/lib/Drupal.php')) {
             return true;
         }
@@ -57,8 +57,8 @@ class DrupalValetDriver extends ValetDriver
     {
         $sitePath = $this->addSubdirectory($sitePath);
 
-        if (!isset($_GET['q']) && !empty($uri) && $uri !== '/' && strpos($uri, '/jsonapi/') === false) {
-          $_GET['q'] = $uri;
+        if (! isset($_GET['Q']) && ! empty($uri) && $uri !== '/' && strpos($uri, '/jsonapi/') === false) {
+            $_GET['Q'] = $uri;
         }
 
         $matches = [];
@@ -67,6 +67,7 @@ class DrupalValetDriver extends ValetDriver
             if (file_exists($sitePath.$filename) && ! is_dir($sitePath.$filename)) {
                 $_SERVER['SCRIPT_FILENAME'] = $sitePath.$filename;
                 $_SERVER['SCRIPT_NAME'] = $filename;
+
                 return $sitePath.$filename;
             }
         }
@@ -74,6 +75,7 @@ class DrupalValetDriver extends ValetDriver
         // Fallback
         $_SERVER['SCRIPT_FILENAME'] = $sitePath.'/index.php';
         $_SERVER['SCRIPT_NAME'] = '/index.php';
+
         return $sitePath.'/index.php';
     }
 
@@ -91,7 +93,7 @@ class DrupalValetDriver extends ValetDriver
         });
 
         // If paths are found, return the first one.
-        if (!empty($foundPaths)) {
+        if (! empty($foundPaths)) {
             return array_shift($foundPaths);
         }
 

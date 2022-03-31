@@ -1,13 +1,13 @@
 <?php
 
-use Valet\CommandLine;
-use Valet\Site;
-use Valet\Filesystem;
-use Valet\Configuration;
-use function Valet\user;
-use function Valet\resolve;
-use function Valet\swap;
 use Illuminate\Container\Container;
+use Valet\CommandLine;
+use Valet\Configuration;
+use Valet\Filesystem;
+use function Valet\resolve;
+use Valet\Site;
+use function Valet\swap;
+use function Valet\user;
 
 class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 {
@@ -63,7 +63,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
             ->andReturn(false);
         $files->shouldReceive('realpath')
             ->twice()
-            ->andReturn($dirPath . '/sitetwo', $dirPath . '/sitethree');
+            ->andReturn($dirPath.'/sitetwo', $dirPath.'/sitethree');
         $files->shouldReceive('isDir')->andReturn(true);
         $files->shouldReceive('ensureDirExists')
             ->once()
@@ -95,13 +95,13 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
             'site' => 'sitetwo',
             'secured' => '',
             'url' => 'http://sitetwo.local',
-            'path' => $dirPath . '/sitetwo',
+            'path' => $dirPath.'/sitetwo',
         ], $sites->first());
         $this->assertSame([
             'site' => 'sitethree',
             'secured' => ' X',
             'url' => 'https://sitethree.local',
-            'path' => $dirPath . '/sitethree',
+            'path' => $dirPath.'/sitethree',
         ], $sites->last());
     }
 
@@ -115,13 +115,13 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
             ->andReturn(['sitetwo']);
         $files->shouldReceive('isLink')
             ->once()
-            ->with($dirPath . '/sitetwo')
+            ->with($dirPath.'/sitetwo')
             ->andReturn(false);
         $files->shouldReceive('realpath')
             ->once()
-            ->with($dirPath . '/sitetwo')
-            ->andReturn($dirPath . '/sitetwo');
-        $files->shouldReceive('isDir')->once()->with($dirPath . '/sitetwo')->andReturn(true);
+            ->with($dirPath.'/sitetwo')
+            ->andReturn($dirPath.'/sitetwo');
+        $files->shouldReceive('isDir')->once()->with($dirPath.'/sitetwo')->andReturn(true);
         $files->shouldReceive('ensureDirExists')
             ->once()
             ->with($dirPath, user());
@@ -143,7 +143,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
             'site' => 'sitetwo',
             'secured' => '',
             'url' => 'http://sitetwo.local',
-            'path' => $dirPath . '/sitetwo',
+            'path' => $dirPath.'/sitetwo',
         ], $sites->first());
     }
 
@@ -156,7 +156,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
             ->with($dirPath)
             ->andReturn(['sitetwo', 'siteone']);
         $files->shouldReceive('isLink')->andReturn(false);
-        $files->shouldReceive('realpath')->andReturn($dirPath . '/sitetwo', $dirPath . '/siteone');
+        $files->shouldReceive('realpath')->andReturn($dirPath.'/sitetwo', $dirPath.'/siteone');
         $files->shouldReceive('isDir')->twice()
             ->andReturn(false, true);
         $files->shouldReceive('ensureDirExists')
@@ -180,7 +180,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
             'site' => 'siteone',
             'secured' => '',
             'url' => 'http://siteone.local',
-            'path' => $dirPath . '/siteone',
+            'path' => $dirPath.'/siteone',
         ], $sites->first());
     }
 
@@ -194,11 +194,11 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
             ->andReturn(['siteone']);
         $files->shouldReceive('isLink')
             ->once()
-            ->with($dirPath . '/siteone')
+            ->with($dirPath.'/siteone')
             ->andReturn(true);
         $files->shouldReceive('readLink')
             ->once()
-            ->with($dirPath . '/siteone')
+            ->with($dirPath.'/siteone')
             ->andReturn($linkedPath = '/Users/usertest/linkedpath/siteone');
         $files->shouldReceive('isDir')->andReturn(true);
         $files->shouldReceive('ensureDirExists')
@@ -368,7 +368,6 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         ], $site->proxies()->all());
     }
 
-
     public function test_add_non_secure_proxy()
     {
         $config = Mockery::mock(Configuration::class);
@@ -401,7 +400,6 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
             ],
         ], $site->proxies()->all());
     }
-
 
     public function test_add_proxy_clears_previous_proxy_certificate()
     {
@@ -528,8 +526,349 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $this->assertEquals([], $site->proxies()->all());
     }
-}
 
+    public function test_gets_site_url_from_directory()
+    {
+        $config = Mockery::mock(Configuration::class);
+
+        swap(Configuration::class, $config);
+
+        $siteMock = Mockery::mock(Site::class, [
+            resolve(Configuration::class),
+            resolve(CommandLine::class),
+            resolve(Filesystem::class),
+        ])->makePartial();
+
+        swap(Site::class, $siteMock);
+
+        $config->shouldReceive('read')
+            ->andReturn(['tld' => 'test', 'loopback' => VALET_LOOPBACK, 'paths' => []]);
+
+        $siteMock->shouldReceive('parked')
+            ->andReturn(collect([
+                'site1' => [
+                    'site' => 'site1',
+                    'secured' => '',
+                    'url' => 'http://site1.test',
+                    'path' => '/Users/name/code/site1',
+                ],
+            ]));
+
+        $siteMock->shouldReceive('links')->andReturn(collect([
+            'site2' => [
+                'site' => 'site2',
+                'secured' => 'X',
+                'url' => 'http://site2.test',
+                'path' => '/Users/name/code/site2',
+            ],
+        ]));
+
+        $siteMock->shouldReceive('host')->andReturn('site1');
+
+        $site = resolve(Site::class);
+
+        $this->assertEquals('site1.test', $site->getSiteUrl('.'));
+        $this->assertEquals('site1.test', $site->getSiteUrl('./'));
+
+        $this->assertEquals('site1.test', $site->getSiteUrl('site1'));
+        $this->assertEquals('site1.test', $site->getSiteUrl('site1.test'));
+
+        $this->assertEquals('site2.test', $site->getSiteUrl('site2'));
+        $this->assertEquals('site2.test', $site->getSiteUrl('site2.test'));
+    }
+
+    public function test_it_throws_getting_nonexistent_site()
+    {
+        $this->expectException(DomainException::class);
+        $config = Mockery::mock(Configuration::class);
+
+        swap(Configuration::class, $config);
+
+        $siteMock = Mockery::mock(Site::class, [
+            resolve(Configuration::class),
+            resolve(CommandLine::class),
+            resolve(Filesystem::class),
+        ])->makePartial();
+
+        swap(Site::class, $siteMock);
+
+        $config->shouldReceive('read')
+            ->andReturn(['tld' => 'test', 'loopback' => VALET_LOOPBACK, 'paths' => []]);
+
+        $siteMock->shouldReceive('parked')->andReturn(collect());
+        $siteMock->shouldReceive('links')->andReturn(collect([]));
+        $siteMock->shouldReceive('host')->andReturn('site1');
+
+        $site = resolve(Site::class);
+        $this->assertEquals(false, $site->getSiteUrl('site3'));
+    }
+
+    public function test_isolation_will_persist_when_adding_ssl_certificate()
+    {
+        $files = Mockery::mock(Filesystem::class);
+        $config = Mockery::mock(Configuration::class);
+
+        $siteMock = Mockery::mock(Site::class, [
+            $config,
+            Mockery::mock(CommandLine::class),
+            $files,
+        ])->makePartial();
+
+        swap(Site::class, $siteMock);
+
+        $siteMock->shouldReceive('unsecure');
+        $files->shouldReceive('ensureDirExists');
+        $files->shouldReceive('putAsUser');
+        $siteMock->shouldReceive('createCa');
+        $siteMock->shouldReceive('createCertificate');
+        $siteMock->shouldReceive('buildSecureNginxServer');
+
+        // If site has an isolated PHP version for the site, it would replace .sock file
+        $siteMock->shouldReceive('customPhpVersion')->with('site1.test')->andReturn('73')->once();
+        $siteMock->shouldReceive('replaceSockFile')->withArgs([Mockery::any(), '73'])->once();
+        resolve(Site::class)->secure('site1.test');
+
+        // For sites without an isolated PHP version, nothing should be replaced
+        $siteMock->shouldReceive('customPhpVersion')->with('site2.test')->andReturn(null)->once();
+        $siteMock->shouldNotReceive('replaceSockFile');
+        resolve(Site::class)->secure('site2.test');
+    }
+
+    public function test_isolation_will_persist_when_removing_ssl_certificate()
+    {
+        $files = Mockery::mock(Filesystem::class);
+        $config = Mockery::mock(Configuration::class);
+        $cli = Mockery::mock(CommandLine::class);
+
+        $siteMock = Mockery::mock(Site::class, [
+            $config,
+            $cli,
+            $files,
+        ])->makePartial();
+
+        swap(Site::class, $siteMock);
+
+        $cli->shouldReceive('run');
+        $files->shouldReceive('exists')->andReturn(false);
+
+        // If a site has an isolated PHP version, there should still be a custom nginx site config
+        $siteMock->shouldReceive('customPhpVersion')->with('site1.test')->andReturn('73')->once();
+        $siteMock->shouldReceive('isolate')->withArgs(['site1.test', '73'])->once();
+        resolve(Site::class)->unsecure('site1.test');
+
+        // If a site doesn't have an isolated PHP version, there should no longer be a custom nginx site config
+        $siteMock->shouldReceive('customPhpVersion')->with('site2.test')->andReturn(null)->once();
+        $siteMock->shouldNotReceive('isolate');
+        resolve(Site::class)->unsecure('site2.test');
+    }
+
+    public function test_can_install_nginx_site_config_for_specific_php_version()
+    {
+        $files = Mockery::mock(Filesystem::class);
+        $config = Mockery::mock(Configuration::class);
+
+        $siteMock = Mockery::mock(Site::class, [
+            $config,
+            resolve(CommandLine::class),
+            $files,
+        ])->makePartial();
+
+        $config->shouldReceive('read')
+            ->andReturn(['tld' => 'test', 'loopback' => VALET_LOOPBACK]);
+
+        // If Nginx config exists for the site, modify exising config
+        $files->shouldReceive('exists')->once()->with($siteMock->nginxPath('site1.test'))->andReturn(true);
+
+        $files->shouldReceive('get')
+            ->once()
+            ->with($siteMock->nginxPath('site1.test'))
+            ->andReturn('# '.ISOLATED_PHP_VERSION.'=php@7.4'.PHP_EOL.'server { fastcgi_pass: valet74.sock }');
+
+        $files->shouldReceive('putAsUser')
+            ->once()
+            ->withArgs([
+                $siteMock->nginxPath('site1.test'),
+                '# '.ISOLATED_PHP_VERSION.'=php@8.0'.PHP_EOL.'server { fastcgi_pass: valet80.sock }',
+            ]);
+
+        $siteMock->isolate('site1.test', 'php@8.0');
+
+        // When no Nginx file exists, it will create a new config file from the template
+        $files->shouldReceive('exists')->once()->with($siteMock->nginxPath('site2.test'))->andReturn(false);
+        $files->shouldReceive('get')
+            ->once()
+            ->with(dirname(__DIR__).'/cli/Valet/../stubs/site.valet.conf')
+            ->andReturn(file_get_contents(__DIR__.'/../cli/stubs/site.valet.conf'));
+
+        $files->shouldReceive('putAsUser')
+            ->once()
+            ->withArgs([
+                $siteMock->nginxPath('site2.test'),
+                Mockery::on(function ($argument) {
+                    return preg_match('/^# '.ISOLATED_PHP_VERSION.'=php@8.0/', $argument)
+                        && preg_match('#fastcgi_pass "unix:.*/valet80.sock#', $argument)
+                        && strpos($argument, 'server_name site2.test www.site2.test *.site2.test;') !== false;
+                }),
+            ]);
+
+        $siteMock->isolate('site2.test', 'php@8.0');
+    }
+
+    public function test_it_removes_isolation()
+    {
+        $files = Mockery::mock(Filesystem::class);
+
+        $siteMock = Mockery::mock(Site::class, [
+            resolve(Configuration::class),
+            resolve(CommandLine::class),
+            $files,
+        ])->makePartial();
+
+        swap(Site::class, $siteMock);
+
+        // SSL Site
+        $files->shouldReceive('exists')->once()->with($siteMock->certificatesPath('site1.test', 'crt'))->andReturn(true);
+        $files->shouldReceive('putAsUser')->withArgs([$siteMock->nginxPath('site1.test'), Mockery::any()])->once();
+        $siteMock->shouldReceive('buildSecureNginxServer')->once()->with('site1.test');
+        resolve(Site::class)->removeIsolation('site1.test');
+
+        // Non-SSL Site
+        $files->shouldReceive('exists')->once()->with($siteMock->certificatesPath('site2.test', 'crt'))->andReturn(false);
+        $files->shouldReceive('unlink')->with($siteMock->nginxPath('site2.test'))->once();
+        $siteMock->shouldNotReceive('buildSecureNginxServer')->with('site2.test');
+        resolve(Site::class)->removeIsolation('site2.test');
+    }
+
+    public function test_retrieves_custom_php_version_from_nginx_config()
+    {
+        $files = Mockery::mock(Filesystem::class);
+
+        $siteMock = Mockery::mock(Site::class, [
+            resolve(Configuration::class),
+            resolve(CommandLine::class),
+            $files,
+        ])->makePartial();
+
+        swap(Site::class, $siteMock);
+
+        // Site with isolated PHP version
+        $files->shouldReceive('exists')->once()->with($siteMock->nginxPath('site1.test'))->andReturn(true);
+        $files->shouldReceive('get')
+            ->once()
+            ->with($siteMock->nginxPath('site1.test'))
+            ->andReturn('# '.ISOLATED_PHP_VERSION.'=php@7.4');
+        $this->assertEquals('74', resolve(Site::class)->customPhpVersion('site1.test'));
+
+        // Site without any custom nginx config
+        $files->shouldReceive('exists')->once()->with($siteMock->nginxPath('site2.test'))->andReturn(false);
+        $files->shouldNotReceive('get')->with($siteMock->nginxPath('site2.test'));
+        $this->assertEquals(null, resolve(Site::class)->customPhpVersion('site2.test'));
+
+        // Site with a custom nginx config, but doesn't have the header
+        $files->shouldReceive('exists')->once()->with($siteMock->nginxPath('site3.test'))->andReturn(true);
+        $files->shouldReceive('get')
+            ->once()
+            ->with($siteMock->nginxPath('site3.test'))
+            ->andReturn('server { }');
+        $this->assertEquals(null, resolve(Site::class)->customPhpVersion('site3.test'));
+    }
+
+    public function test_replace_sock_file_in_nginx_config()
+    {
+        $site = resolve(Site::class);
+
+        // When switching to php71, valet71.sock should be replaced with valet.sock;
+        // isolation header should be prepended
+        $this->assertEquals(
+            '# '.ISOLATED_PHP_VERSION.'=71'.PHP_EOL.'server { fastcgi_pass: valet71.sock }',
+            $site->replaceSockFile('server { fastcgi_pass: valet71.sock }', '71')
+        );
+
+        // When switching to php72, valet.sock should be replaced with valet72.sock
+        $this->assertEquals(
+            '# '.ISOLATED_PHP_VERSION.'=72'.PHP_EOL.'server { fastcgi_pass: valet72.sock }',
+            $site->replaceSockFile('server { fastcgi_pass: valet.sock }', '72')
+        );
+
+        // When switching to php73 from php72, valet72.sock should be replaced with valet73.sock;
+        // isolation header should be updated to php@7.3
+        $this->assertEquals(
+            '# '.ISOLATED_PHP_VERSION.'=73'.PHP_EOL.'server { fastcgi_pass: valet73.sock }',
+            $site->replaceSockFile('# '.ISOLATED_PHP_VERSION.'=72'.PHP_EOL.'server { fastcgi_pass: valet72.sock }', '73')
+        );
+
+        // When switching to php72 from php74, valet72.sock should be replaced with valet74.sock;
+        // isolation header should be updated to php@7.4
+        $this->assertEquals(
+            '# '.ISOLATED_PHP_VERSION.'=php@7.4'.PHP_EOL.'server { fastcgi_pass: valet74.sock }',
+            $site->replaceSockFile('# '.ISOLATED_PHP_VERSION.'=72'.PHP_EOL.'server { fastcgi_pass: valet.sock }', 'php@7.4')
+        );
+    }
+
+    public function test_it_returns_secured_sites()
+    {
+        $files = Mockery::mock(Filesystem::class);
+        $files->shouldReceive('scandir')
+            ->once()
+            ->andReturn(['helloworld.tld.crt', '.DS_Store']);
+
+        swap(Filesystem::class, $files);
+
+        $site = resolve(Site::class);
+        $sites = $site->secured();
+
+        $this->assertSame(['helloworld.tld'], $sites);
+    }
+
+    public function test_it_can_read_php_rc_version()
+    {
+        $config = Mockery::mock(Configuration::class);
+        $files = Mockery::mock(Filesystem::class);
+
+        swap(Configuration::class, $config);
+        swap(Filesystem::class, $files);
+
+        $siteMock = Mockery::mock(Site::class, [
+            resolve(Configuration::class),
+            resolve(CommandLine::class),
+            resolve(Filesystem::class),
+        ])->makePartial();
+
+        swap(Site::class, $siteMock);
+
+        $config->shouldReceive('read')
+            ->andReturn(['tld' => 'test', 'loopback' => VALET_LOOPBACK, 'paths' => []]);
+
+        $siteMock->shouldReceive('parked')
+            ->andReturn(collect([
+                'site1' => [
+                    'site' => 'site1',
+                    'secured' => '',
+                    'url' => 'http://site1.test',
+                    'path' => '/Users/name/code/site1',
+                ],
+            ]));
+
+        $siteMock->shouldReceive('links')->andReturn(collect([
+            'site2' => [
+                'site' => 'site2',
+                'secured' => 'X',
+                'url' => 'http://site2.test',
+                'path' => '/Users/name/some-other-directory/site2',
+            ],
+        ]));
+
+        $files->shouldReceive('exists')->with('/Users/name/code/site1/.valetphprc')->andReturn(true);
+        $files->shouldReceive('get')->with('/Users/name/code/site1/.valetphprc')->andReturn('php@8.1');
+
+        $files->shouldReceive('exists')->with('/Users/name/some-other-directory/site2/.valetphprc')->andReturn(true);
+        $files->shouldReceive('get')->with('/Users/name/some-other-directory/site2/.valetphprc')->andReturn('php@8.0');
+
+        $this->assertEquals('php@8.1', $siteMock->phpRcVersion('site1'));
+        $this->assertEquals('php@8.0', $siteMock->phpRcVersion('site2'));
+        $this->assertEquals(null, $siteMock->phpRcVersion('site3')); // Site doesn't exists
+    }
+}
 
 class CommandLineFake extends CommandLine
 {
@@ -544,7 +883,6 @@ class CommandLineFake extends CommandLine
         // commands for real.
     }
 }
-
 
 class FixturesSiteFake extends Site
 {
@@ -578,7 +916,7 @@ class FixturesSiteFake extends Site
         $this->valetHomePath = __DIR__.'/output';
     }
 
-    public function createCa()
+    public function createCa($caExpireInDays)
     {
         // noop
         //
@@ -587,7 +925,7 @@ class FixturesSiteFake extends Site
         // CA for our faked Site.
     }
 
-    public function createCertificate($urlWithTld)
+    public function createCertificate($urlWithTld, $caExpireInDays)
     {
         // We're not actually going to generate a real certificate
         // here. We are going to do something basic to include
@@ -611,7 +949,7 @@ class FixturesSiteFake extends Site
         // forcing a fake creation of a URL (including .tld) and passes
         // through to createCertificate() directly.
         $this->files->ensureDirExists($this->certificatesPath(), user());
-        $this->createCertificate($urlWithTld);
+        $this->createCertificate($urlWithTld, 368);
     }
 
     public function assertNginxExists($urlWithTld)
@@ -651,7 +989,6 @@ class FixturesSiteFake extends Site
         SiteTest::assertEquals('key:'.$urlWithTld.':'.$counter, file_get_contents($keyPath));
     }
 }
-
 
 class StubForRemovingLinks extends Site
 {
