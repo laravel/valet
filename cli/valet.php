@@ -566,8 +566,9 @@ You might also want to investigate your global Composer configs. Helpful command
      * Get the PHP executable path for a site.
      */
     $app->command('which-php [site]', function ($site) {
-        $host = Site::host($site ?: getcwd()).'.'.Configuration::read()['tld'];
-        $phpVersion = Site::customPhpVersion($host);
+        $phpVersion = Site::customPhpVersion(
+            Site::host($site ?: getcwd()).'.'.Configuration::read()['tld']
+        );
 
         if (! $phpVersion) {
             $phpVersion = Site::phpRcVersion($site ?: basename(getcwd()));
