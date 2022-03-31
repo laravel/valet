@@ -506,18 +506,19 @@ You might also want to investigate your global Composer configs. Helpful command
      */
     $app->command('use [phpVersion] [--force]', function ($phpVersion, $force) {
         if (! $phpVersion) {
-            $path = getcwd().'/.valetphprc';
+            $site = basename(getcwd());
             $linkedVersion = Brew::linkedPhp();
-            if (! file_exists($path)) {
+            $phpVersion = Site::phpRcVersion($site);
+
+            if (! $phpVersion) {
                 return info("Valet is using {$linkedVersion}.");
             }
 
-            $phpVersion = trim(file_get_contents($path));
-            info("Found '{$path}' specifying version: {$phpVersion}");
-
-            if ($linkedVersion == $phpVersion) {
+            if ($linkedVersion == $phpVersion && ! $force) {
                 return info("Valet is already using {$linkedVersion}.");
             }
+
+            info("Found '{$site}/.valetphprc' specifying version: {$phpVersion}");
         }
 
         PhpFpm::useVersion($phpVersion, $force);
@@ -560,6 +561,40 @@ You might also want to investigate your global Composer configs. Helpful command
 
         table(['Path', 'PHP Version'], $sites->all());
     })->descriptions('List all sites using isolated versions of PHP.');
+
+    /**
+     * Get the PHP executable path for a site.
+     */
+    $app->command('which-php [site]', function ($site) {
+        $host = Site::host($site ?: getcwd()).'.'.Configuration::read()['tld'];
+        $phpVersion = Site::customPhpVersion($host);
+
+        if (! $phpVersion) {
+            $phpVersion = Site::phpRcVersion($site ?: basename(getcwd()));
+        }
+
+        return output(Brew::getPhpExecutablePath($phpVersion));
+    })->descriptions('Get the PHP executable path for a given site', [
+        'site' => 'The site to get the PHP executable path for',
+    ]);
+
+    /**
+     * Proxy commands through to an isolated site's version of PHP.
+     */
+    $app->command('php [command]', function ($command) {
+        warning('It looks like you are running `cli/valet.php` directly; please use the `valet` script in the project root instead.');
+    })->descriptions("Proxy PHP commands with isolated site's PHP executable", [
+        'command' => "Command to run with isolated site's PHP executable",
+    ]);
+
+    /**
+     * Proxy commands through to an isolated site's version of Composer.
+     */
+    $app->command('composer [command]', function ($command) {
+        warning('It looks like you are running `cli/valet.php` directly; please use the `valet` script in the project root instead.');
+    })->descriptions("Proxy Composer commands with isolated site's PHP executable", [
+        'command' => "Composer command to run with isolated site's PHP executable",
+    ]);
 
     /**
      * Tail log file.

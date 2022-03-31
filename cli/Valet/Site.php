@@ -3,6 +3,7 @@
 namespace Valet;
 
 use DomainException;
+use PhpFpm;
 
 class Site
 {
@@ -1107,5 +1108,22 @@ class Site
         $siteConf = preg_replace('/# '.ISOLATED_PHP_VERSION.'.*\n/', '', $siteConf); // Remove ISOLATED_PHP_VERSION line from config
 
         return '# '.ISOLATED_PHP_VERSION.'='.$phpVersion.PHP_EOL.$siteConf;
+    }
+
+    /**
+     * Get PHP version from .valetphprc for a site.
+     *
+     * @param  string  $site
+     * @return string|null
+     */
+    public function phpRcVersion($site)
+    {
+        if ($site = $this->parked()->merge($this->links())->where('site', $site)->first()) {
+            $path = data_get($site, 'path').'/.valetphprc';
+
+            if ($this->files->exists($path)) {
+                return PhpFpm::normalizePhpVersion(trim($this->files->get($path)));
+            }
+        }
     }
 }

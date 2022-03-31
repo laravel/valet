@@ -819,6 +819,55 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $this->assertSame(['helloworld.tld'], $sites);
     }
+
+    public function test_it_can_read_php_rc_version()
+    {
+        $config = Mockery::mock(Configuration::class);
+        $files = Mockery::mock(Filesystem::class);
+
+        swap(Configuration::class, $config);
+        swap(Filesystem::class, $files);
+
+        $siteMock = Mockery::mock(Site::class, [
+            resolve(Configuration::class),
+            resolve(CommandLine::class),
+            resolve(Filesystem::class),
+        ])->makePartial();
+
+        swap(Site::class, $siteMock);
+
+        $config->shouldReceive('read')
+            ->andReturn(['tld' => 'test', 'loopback' => VALET_LOOPBACK, 'paths' => []]);
+
+        $siteMock->shouldReceive('parked')
+            ->andReturn(collect([
+                'site1' => [
+                    'site' => 'site1',
+                    'secured' => '',
+                    'url' => 'http://site1.test',
+                    'path' => '/Users/name/code/site1',
+                ],
+            ]));
+
+        $siteMock->shouldReceive('links')->andReturn(collect([
+            'site2' => [
+                'site' => 'site2',
+                'secured' => 'X',
+                'url' => 'http://site2.test',
+                'path' => '/Users/name/some-other-directory/site2',
+            ],
+        ]));
+
+        $files->shouldReceive('exists')->with('/Users/name/code/site1/.valetphprc')->andReturn(true);
+        $files->shouldReceive('get')->with('/Users/name/code/site1/.valetphprc')->andReturn('php@8.1');
+
+        $files->shouldReceive('exists')->with('/Users/name/some-other-directory/site2/.valetphprc')->andReturn(true);
+        $files->shouldReceive('get')->with('/Users/name/some-other-directory/site2/.valetphprc')->andReturn('php@8.0');
+
+        $this->assertEquals('php@8.1', $siteMock->phpRcVersion('site1'));
+        $this->assertEquals('php@8.0', $siteMock->phpRcVersion('site2'));
+        $this->assertEquals(null, $siteMock->phpRcVersion('site3')); // Site doesn't exists
+    }
 }
 
 class CommandLineFake extends CommandLine

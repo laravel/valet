@@ -3,6 +3,7 @@
 namespace Valet;
 
 use DomainException;
+use PhpFpm;
 
 class Brew
 {
@@ -264,16 +265,7 @@ class Brew
 
         $resolvedPath = $this->files->readLink(BREW_PREFIX.'/bin/php');
 
-        /**
-         * Typical homebrew path resolutions are like:
-         * "../Cellar/php@7.4/7.4.13/bin/php"
-         * or older styles:
-         * "../Cellar/php/7.4.9_2/bin/php
-         * "../Cellar/php55/bin/php.
-         */
-        preg_match('~\w{3,}/(php)(@?\d\.?\d)?/(\d\.\d)?([_\d\.]*)?/?\w{3,}~', $resolvedPath, $matches);
-
-        return $matches;
+        return $this->parsePhpPath($resolvedPath);
     }
 
     /**
@@ -302,13 +294,49 @@ class Brew
 
         return $this->supportedPhpVersions()->first(
             function ($version) use ($resolvedPhpVersion) {
-                $resolvedVersionNormalized = preg_replace('/[^\d]/', '', $resolvedPhpVersion);
-                $versionNormalized = preg_replace('/[^\d]/', '', $version);
-
-                return $resolvedVersionNormalized === $versionNormalized;
+                return $this->arePhpVersionsEqual($resolvedPhpVersion, $version);
             }, function () use ($resolvedPhpVersion) {
                 throw new DomainException("Unable to determine linked PHP when parsing '$resolvedPhpVersion'");
             });
+    }
+
+    /**
+     * Extract PHP executable path from PHP Version.
+     *
+     * @param  string  $phpVersion  For example, "php@8.1"
+     * @return string
+     */
+    public function getPhpExecutablePath($phpVersion = null)
+    {
+        if (! $phpVersion) {
+            return BREW_PREFIX.'/bin/php';
+        }
+
+        $phpVersion = PhpFpm::normalizePhpVersion($phpVersion);
+
+        // Check the default `/opt/homebrew/opt/php@8.1/bin/php` location first
+        if ($this->files->exists(BREW_PREFIX."/opt/{$phpVersion}/bin/php")) {
+            return BREW_PREFIX."/opt/{$phpVersion}/bin/php";
+        }
+
+        // Check the `/opt/homebrew/opt/php71/bin/php` location for older installations
+        $phpVersion = str_replace(['@', '.'], '', $phpVersion); // php@8.1 to php81
+        if ($this->files->exists(BREW_PREFIX."/opt/{$phpVersion}/bin/php")) {
+            return BREW_PREFIX."/opt/{$phpVersion}/bin/php";
+        }
+
+        // Check if the default PHP is the version we are looking for
+        if ($this->files->isLink(BREW_PREFIX.'/opt/php')) {
+            $resolvedPath = $this->files->readLink(BREW_PREFIX.'/opt/php');
+            $matches = $this->parsePhpPath($resolvedPath);
+            $resolvedPhpVersion = $matches[3] ?: $matches[2];
+
+            if ($this->arePhpVersionsEqual($resolvedPhpVersion, $phpVersion)) {
+                return BREW_PREFIX.'/opt/php/bin/php';
+            }
+        }
+
+        return BREW_PREFIX.'/bin/php';
     }
 
     /**
@@ -475,5 +503,40 @@ class Brew
                 output($errorOutput);
             }
         );
+    }
+
+    /**
+     * Parse homebrew PHP Path.
+     *
+     * @param  string  $resolvedPath
+     * @return array
+     */
+    public function parsePhpPath($resolvedPath)
+    {
+        /**
+         * Typical homebrew path resolutions are like:
+         * "../Cellar/php@7.4/7.4.13/bin/php"
+         * or older styles:
+         * "../Cellar/php/7.4.9_2/bin/php
+         * "../Cellar/php55/bin/php.
+         */
+        preg_match('~\w{3,}/(php)(@?\d\.?\d)?/(\d\.\d)?([_\d\.]*)?/?\w{3,}~', $resolvedPath, $matches);
+
+        return $matches;
+    }
+
+    /**
+     * Check if two PHP versions are equal.
+     *
+     * @param  string  $versionA
+     * @param  string  $versionB
+     * @return bool
+     */
+    public function arePhpVersionsEqual($versionA, $versionB)
+    {
+        $versionANormalized = preg_replace('/[^\d]/', '', $versionA);
+        $versionBNormalized = preg_replace('/[^\d]/', '', $versionB);
+
+        return $versionANormalized === $versionBNormalized;
     }
 }
