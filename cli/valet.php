@@ -508,7 +508,15 @@ You might also want to investigate your global Composer configs. Helpful command
         if (! $phpVersion) {
             $site = basename(getcwd());
             $linkedVersion = Brew::linkedPhp();
-            $phpVersion = Site::phpRcVersion($site);
+
+            if ($phpVersion = Site::phpRcVersion($site)) {
+                info("Found '{$site}/.valetphprc' specifying version: {$phpVersion}");
+            } else {
+                $domain = $site.'.'.data_get(Configuration::read(), 'tld');
+                if ($phpVersion = PhpFpm::normalizePhpVersion(Site::customPhpVersion($domain))) {
+                    info("Found isolated site '{$domain}' specifying version: {$phpVersion}");
+                }
+            }
 
             if (! $phpVersion) {
                 return info("Valet is using {$linkedVersion}.");
@@ -517,8 +525,6 @@ You might also want to investigate your global Composer configs. Helpful command
             if ($linkedVersion == $phpVersion && ! $force) {
                 return info("Valet is already using {$linkedVersion}.");
             }
-
-            info("Found '{$site}/.valetphprc' specifying version: {$phpVersion}");
         }
 
         PhpFpm::useVersion($phpVersion, $force);
@@ -532,6 +538,11 @@ You might also want to investigate your global Composer configs. Helpful command
     $app->command('isolate [phpVersion] [--site=]', function ($phpVersion, $site = null) {
         if (! $site) {
             $site = basename(getcwd());
+        }
+
+        if (! $phpVersion) {
+            $phpVersion = Site::phpRcVersion($site);
+            info("Found '{$site}/.valetphprc' specifying version: {$phpVersion}");
         }
 
         PhpFpm::isolateDirectory($site, $phpVersion);
