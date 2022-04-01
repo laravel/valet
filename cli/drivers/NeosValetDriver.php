@@ -28,6 +28,7 @@ class NeosValetDriver extends ValetDriver
         if ($this->isActualFile($staticFilePath = $sitePath.'/Web'.$uri)) {
             return $staticFilePath;
         }
+
         return false;
     }
 
@@ -45,6 +46,7 @@ class NeosValetDriver extends ValetDriver
         putenv('FLOW_REWRITEURLS=1');
         $_SERVER['SCRIPT_FILENAME'] = $sitePath.'/Web/index.php';
         $_SERVER['SCRIPT_NAME'] = '/index.php';
+
         return $sitePath.'/Web/index.php';
     }
 }

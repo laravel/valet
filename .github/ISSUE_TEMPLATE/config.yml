@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Feature request
+    url: https://github.com/laravel/valet/discussions
+    about: 'For ideas or feature requests, start a new discussion'
+  - name: Support question
+    url: https://github.com/laravel/valet/discussions
+    about: 'This repository is only for reporting bugs. For support, start a new discussion'
+  - name: Documentation issue
+    url: https://github.com/laravel/docs
+    about: For documentation issues, open a pull request at the laravel/docs repository

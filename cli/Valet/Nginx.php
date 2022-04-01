@@ -6,12 +6,12 @@ use DomainException;
 
 class Nginx
 {
-    var $brew;
-    var $cli;
-    var $files;
-    var $configuration;
-    var $site;
-    const NGINX_CONF = '/usr/local/etc/nginx/nginx.conf';
+    public $brew;
+    public $cli;
+    public $files;
+    public $configuration;
+    public $site;
+    const NGINX_CONF = BREW_PREFIX.'/etc/nginx/nginx.conf';
 
     /**
      * Create a new Nginx instance.
@@ -23,7 +23,7 @@ class Nginx
      * @param  Site  $site
      * @return void
      */
-    function __construct(Brew $brew, CommandLine $cli, Filesystem $files,
+    public function __construct(Brew $brew, CommandLine $cli, Filesystem $files,
                          Configuration $configuration, Site $site)
     {
         $this->cli = $cli;
@@ -38,10 +38,10 @@ class Nginx
      *
      * @return void
      */
-    function install()
+    public function install()
     {
-        if (!$this->brew->hasInstalledNginx()) {
-            $this->brew->installOrFail('nginx', ['--with-http2']);
+        if (! $this->brew->hasInstalledNginx()) {
+            $this->brew->installOrFail('nginx', []);
         }
 
         $this->installConfiguration();
@@ -54,7 +54,7 @@ class Nginx
      *
      * @return void
      */
-    function installConfiguration()
+    public function installConfiguration()
     {
         info('Installing nginx configuration...');
 
@@ -71,33 +71,33 @@ class Nginx
      *
      * @return void
      */
-    function installServer()
+    public function installServer()
     {
-        $this->files->ensureDirExists('/usr/local/etc/nginx/valet');
+        $this->files->ensureDirExists(BREW_PREFIX.'/etc/nginx/valet');
 
         $this->files->putAsUser(
-            '/usr/local/etc/nginx/valet/valet.conf',
+            BREW_PREFIX.'/etc/nginx/valet/valet.conf',
             str_replace(
                 ['VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_STATIC_PREFIX'],
                 [VALET_HOME_PATH, VALET_SERVER_PATH, VALET_STATIC_PREFIX],
-                $this->files->get(__DIR__.'/../stubs/valet.conf')
+                $this->site->replaceLoopback($this->files->get(__DIR__.'/../stubs/valet.conf'))
             )
         );
 
         $this->files->putAsUser(
-            '/usr/local/etc/nginx/fastcgi_params',
+            BREW_PREFIX.'/etc/nginx/fastcgi_params',
             $this->files->get(__DIR__.'/../stubs/fastcgi_params')
         );
     }
 
     /**
-     * Install the Nginx configuration directory to the ~/.valet directory.
+     * Install the Nginx configuration directory to the ~/.config/valet directory.
      *
      * This directory contains all site-specific Nginx servers.
      *
      * @return void
      */
-    function installNginxDirectory()
+    public function installNginxDirectory()
     {
         info('Installing nginx directory...');
 
@@ -115,10 +115,10 @@ class Nginx
      */
     private function lint()
     {
-        $this->cli->quietly(
+        $this->cli->run(
             'sudo nginx -c '.static::NGINX_CONF.' -t',
             function ($exitCode, $outputMessage) {
-                throw new DomainException("Nginx cannot start, please check your nginx.conf [$exitCode: $outputMessage].");
+                throw new DomainException("Nginx cannot start; please check your nginx.conf [$exitCode: $outputMessage].");
             }
         );
     }
@@ -128,11 +128,18 @@ class Nginx
      *
      * @return void
      */
-    function rewriteSecureNginxFiles()
+    public function rewriteSecureNginxFiles()
     {
-        $domain = $this->configuration->read()['domain'];
+        $tld = $this->configuration->read()['tld'];
+        $loopback = $this->configuration->read()['loopback'];
 
-        $this->site->resecureForNewDomain($domain, $domain);
+        if ($loopback !== VALET_LOOPBACK) {
+            $this->site->aliasLoopback(VALET_LOOPBACK, $loopback);
+        }
+
+        $config = compact('tld', 'loopback');
+
+        $this->site->resecureForNewConfiguration($config, $config);
     }
 
     /**
@@ -140,7 +147,7 @@ class Nginx
      *
      * @return void
      */
-    function restart()
+    public function restart()
     {
         $this->lint();
 
@@ -152,20 +159,33 @@ class Nginx
      *
      * @return void
      */
-    function stop()
+    public function stop()
     {
-        info('Stopping nginx...');
-
-        $this->cli->quietly('sudo brew services stop '. $this->brew->nginxServiceName());
+        $this->brew->stopService(['nginx']);
     }
 
     /**
-     * Prepare Nginx for uninstallation.
+     * Forcefully uninstall Nginx.
      *
      * @return void
      */
-    function uninstall()
+    public function uninstall()
     {
-        $this->stop();
+        $this->brew->stopService(['nginx', 'nginx-full']);
+        $this->brew->uninstallFormula('nginx nginx-full');
+        $this->cli->quietly('rm -rf '.BREW_PREFIX.'/etc/nginx '.BREW_PREFIX.'/var/log/nginx');
+    }
+
+    /**
+     * Return a list of all sites with explicit Nginx configurations.
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public function configuredSites()
+    {
+        return collect($this->files->scandir(VALET_HOME_PATH.'/Nginx'))
+            ->reject(function ($file) {
+                return starts_with($file, '.');
+            });
     }
 }

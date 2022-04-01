@@ -2,17 +2,17 @@
 
 class Concrete5ValetDriver extends BasicValetDriver
 {
-
     /**
-     * If a concrete directory exists, it's probably c5
-     * @param string $sitePath
-     * @param string $siteName
-     * @param string $uri
+     * If a concrete directory exists, it's probably c5.
+     *
+     * @param  string  $sitePath
+     * @param  string  $siteName
+     * @param  string  $uri
      * @return bool
      */
     public function serves($sitePath, $siteName, $uri)
     {
-        return file_exists($sitePath . "/concrete/config/install/base");
+        return file_exists($sitePath.'/concrete/config/install/base');
     }
 
     /**
@@ -33,14 +33,14 @@ class Concrete5ValetDriver extends BasicValetDriver
     }
 
     /**
-     * @param string $sitePath
-     * @param string $siteName
-     * @param string $uri
+     * @param  string  $sitePath
+     * @param  string  $siteName
+     * @param  string  $uri
      * @return string
      */
     public function frontControllerPath($sitePath, $siteName, $uri)
     {
-        if (!getenv('CONCRETE5_ENV')) {
+        if (! getenv('CONCRETE5_ENV')) {
             putenv('CONCRETE5_ENV=valet');
         }
 
@@ -52,14 +52,13 @@ class Concrete5ValetDriver extends BasicValetDriver
                 $_SERVER['SCRIPT_FILENAME'] = $sitePath.$filename;
                 $_SERVER['SCRIPT_NAME'] = $filename;
 
-                return $sitePath . $filename;
+                return $sitePath.$filename;
             }
         }
 
-        $_SERVER['SCRIPT_FILENAME'] = $sitePath . '/index.php';
+        $_SERVER['SCRIPT_FILENAME'] = $sitePath.'/index.php';
         $_SERVER['SCRIPT_NAME'] = '/index.php';
 
-        return $sitePath . '/index.php';
+        return $sitePath.'/index.php';
     }
-
 }

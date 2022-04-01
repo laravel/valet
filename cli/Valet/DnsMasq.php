@@ -2,30 +2,26 @@
 
 namespace Valet;
 
-use Exception;
-use Symfony\Component\Process\Process;
-
 class DnsMasq
 {
-    var $brew, $cli, $files;
+    public $brew;
+    public $cli;
+    public $files;
+    public $configuration;
 
-    var $resolverPath = '/etc/resolver';
-    var $configPath = '/usr/local/etc/dnsmasq.conf';
-    var $exampleConfigPath = '/usr/local/opt/dnsmasq/dnsmasq.conf.example';
+    public $dnsmasqMasterConfigFile = BREW_PREFIX.'/etc/dnsmasq.conf';
+    public $dnsmasqSystemConfDir = BREW_PREFIX.'/etc/dnsmasq.d';
+    public $resolverPath = '/etc/resolver';
 
     /**
      * Create a new DnsMasq instance.
-     *
-     * @param  Brew  $brew
-     * @param  CommandLine  $cli
-     * @param  Filesystem  $files
-     * @return void
      */
-    function __construct(Brew $brew, CommandLine $cli, Filesystem $files)
+    public function __construct(Brew $brew, CommandLine $cli, Filesystem $files, Configuration $configuration)
     {
         $this->cli = $cli;
         $this->brew = $brew;
         $this->files = $files;
+        $this->configuration = $configuration;
     }
 
     /**
@@ -33,104 +29,138 @@ class DnsMasq
      *
      * @return void
      */
-    function install($domain = 'test')
+    public function install($tld = 'test')
     {
         $this->brew->ensureInstalled('dnsmasq');
 
-        // For DnsMasq, we create our own custom configuration file which will be imported
-        // in the main DnsMasq file. This allows Valet to make changes to our own files
-        // without needing to modify the "primary" DnsMasq configuration files again.
-        $this->createCustomConfigFile($domain);
+        // For DnsMasq, we enable its feature of loading *.conf from /usr/local/etc/dnsmasq.d/
+        // and then we put a valet config file in there to point to the user's home .config/valet/dnsmasq.d
+        // This allows Valet to make changes to our own files without needing to modify the core dnsmasq configs
+        $this->ensureUsingDnsmasqDForConfigs();
 
-        $this->createDomainResolver($domain);
+        $this->createDnsmasqTldConfigFile($tld);
 
+        $this->createTldResolver($tld);
+
+        $this->brew->restartService('dnsmasq');
+
+        info('Valet is configured to serve for TLD [.'.$tld.']');
+    }
+
+    /**
+     * Forcefully uninstall dnsmasq.
+     *
+     * @return void
+     */
+    public function uninstall()
+    {
+        $this->brew->stopService('dnsmasq');
+        $this->brew->uninstallFormula('dnsmasq');
+        $this->cli->run('rm -rf '.BREW_PREFIX.'/etc/dnsmasq.d/dnsmasq-valet.conf');
+        $tld = $this->configuration->read()['tld'];
+        $this->files->unlink($this->resolverPath.'/'.$tld);
+    }
+
+    /**
+     * Tell Homebrew to restart dnsmasq.
+     *
+     * @return void
+     */
+    public function restart()
+    {
         $this->brew->restartService('dnsmasq');
     }
 
     /**
-     * Append the custom DnsMasq configuration file to the main configuration file.
-     *
-     * @param  string  $domain
-     * @return void
-     */
-    function createCustomConfigFile($domain)
-    {
-        $customConfigPath = $this->customConfigPath();
-
-        $this->copyExampleConfig();
-
-        $this->appendCustomConfigImport($customConfigPath);
-
-        $this->files->putAsUser($customConfigPath, 'address=/.'.$domain.'/127.0.0.1'.PHP_EOL.'listen-address=127.0.0.1'.PHP_EOL);
-    }
-
-    /**
-     * Copy the Homebrew installed example DnsMasq configuration file.
+     * Ensure the DnsMasq configuration primary config is set to read custom configs.
      *
      * @return void
      */
-    function copyExampleConfig()
+    public function ensureUsingDnsmasqDForConfigs()
     {
-        if (! $this->files->exists($this->configPath)) {
-            $this->files->copyAsUser(
-                $this->exampleConfigPath,
-                $this->configPath
-            );
+        info('Updating Dnsmasq configuration...');
+
+        // set primary config to look for configs in /usr/local/etc/dnsmasq.d/*.conf
+        $contents = $this->files->get($this->dnsmasqMasterConfigFile);
+        // ensure the line we need to use is present, and uncomment it if needed
+        if (false === strpos($contents, 'conf-dir='.BREW_PREFIX.'/etc/dnsmasq.d/,*.conf')) {
+            $contents .= PHP_EOL.'conf-dir='.BREW_PREFIX.'/etc/dnsmasq.d/,*.conf'.PHP_EOL;
         }
-    }
+        $contents = str_replace('#conf-dir='.BREW_PREFIX.'/etc/dnsmasq.d/,*.conf', 'conf-dir='.BREW_PREFIX.'/etc/dnsmasq.d/,*.conf', $contents);
 
-    /**
-     * Append import command for our custom configuration to DnsMasq file.
-     *
-     * @param  string  $customConfigPath
-     * @return void
-     */
-    function appendCustomConfigImport($customConfigPath)
-    {
-        if (! $this->customConfigIsBeingImported($customConfigPath)) {
-            $this->files->appendAsUser(
-                $this->configPath,
-                PHP_EOL.'conf-file='.$customConfigPath.PHP_EOL
-            );
+        // remove entries used by older Valet versions:
+        $contents = preg_replace('/^conf-file.*valet.*$/m', '', $contents);
+
+        // save the updated config file
+        $this->files->put($this->dnsmasqMasterConfigFile, $contents);
+
+        // remove old ~/.config/valet/dnsmasq.conf file because things are moved to the ~/.config/valet/dnsmasq.d/ folder now
+        if (file_exists($file = dirname($this->dnsmasqUserConfigDir()).'/dnsmasq.conf')) {
+            unlink($file);
         }
+
+        // add a valet-specific config file to point to user's home directory valet config
+        $contents = $this->files->get(__DIR__.'/../stubs/etc-dnsmasq-valet.conf');
+        $contents = str_replace('VALET_HOME_PATH', VALET_HOME_PATH, $contents);
+        $this->files->ensureDirExists($this->dnsmasqSystemConfDir, user());
+        $this->files->putAsUser($this->dnsmasqSystemConfDir.'/dnsmasq-valet.conf', $contents);
+
+        $this->files->ensureDirExists(VALET_HOME_PATH.'/dnsmasq.d', user());
     }
 
     /**
-     * Determine if Valet's custom DnsMasq configuration is being imported.
+     * Create the TLD-specific dnsmasq config file.
      *
-     * @param  string  $customConfigPath
-     * @return bool
-     */
-    function customConfigIsBeingImported($customConfigPath)
-    {
-        return strpos($this->files->get($this->configPath), $customConfigPath) !== false;
-    }
-
-    /**
-     * Create the resolver file to point the configured domain to 127.0.0.1.
-     *
-     * @param  string  $domain
+     * @param  string  $tld
      * @return void
      */
-    function createDomainResolver($domain)
+    public function createDnsmasqTldConfigFile($tld)
+    {
+        $tldConfigFile = $this->dnsmasqUserConfigDir().'tld-'.$tld.'.conf';
+        $loopback = $this->configuration->read()['loopback'];
+
+        $this->files->putAsUser($tldConfigFile, 'address=/.'.$tld.'/'.$loopback.PHP_EOL.'listen-address='.$loopback.PHP_EOL);
+    }
+
+    /**
+     * Create the resolver file to point the configured TLD to configured loopback address.
+     *
+     * @param  string  $tld
+     * @return void
+     */
+    public function createTldResolver($tld)
     {
         $this->files->ensureDirExists($this->resolverPath);
+        $loopback = $this->configuration->read()['loopback'];
 
-        $this->files->put($this->resolverPath.'/'.$domain, 'nameserver 127.0.0.1'.PHP_EOL);
+        $this->files->put($this->resolverPath.'/'.$tld, 'nameserver '.$loopback.PHP_EOL);
     }
 
     /**
-     * Update the domain used by DnsMasq.
+     * Update the TLD/domain resolved by DnsMasq.
      *
-     * @param  string  $oldDomain
-     * @param  string  $newDomain
+     * @param  string  $oldTld
+     * @param  string  $newTld
      * @return void
      */
-    function updateDomain($oldDomain, $newDomain)
+    public function updateTld($oldTld, $newTld)
     {
-        $this->files->unlink($this->resolverPath.'/'.$oldDomain);
+        $this->files->unlink($this->resolverPath.'/'.$oldTld);
+        $this->files->unlink($this->dnsmasqUserConfigDir().'tld-'.$oldTld.'.conf');
 
-        $this->install($newDomain);
+        $this->install($newTld);
+    }
+
+    /**
+     * Refresh the DnsMasq configuration.
+     *
+     * @return void
+     */
+    public function refreshConfiguration()
+    {
+        $tld = $this->configuration->read()['tld'];
+
+        $this->updateTld($tld, $tld);
     }
 
     /**
@@ -138,8 +168,8 @@ class DnsMasq
      *
      * @return string
      */
-    function customConfigPath()
+    public function dnsmasqUserConfigDir()
     {
-        return $_SERVER['HOME'].'/.valet/dnsmasq.conf';
+        return $_SERVER['HOME'].'/.config/valet/dnsmasq.d/';
     }
 }

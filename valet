@@ -5,7 +5,7 @@ SOURCE="${BASH_SOURCE[0]}"
 # If the current source is a symbolic link, we need to resolve it to an
 # actual directory name. We'll use PHP to do this easier than we can
 # do it in pure Bash. So, we'll call into PHP CLI here to resolve.
-if [[ -L $SOURCE ]]
+if [[ -L "$SOURCE" ]]
 then
     DIR=$(php -r "echo dirname(realpath('$SOURCE'));")
 else
@@ -20,35 +20,91 @@ then
     DIR=$(php -r "echo realpath('$DIR/../laravel/valet');")
 fi
 
-if [[ "$EUID" -ne 0 ]]
-then
-    sudo $SOURCE "$@"
-    exit
-fi
-
 # If the command is the "share" command we will need to resolve out any
 # symbolic links for the site. Before starting Ngrok, we will fire a
 # process to retrieve the live Ngrok tunnel URL in the background.
 if [[ "$1" = "share" ]]
 then
-    HOST="${PWD##*/}"
-    DOMAIN=$(php "$DIR/cli/valet.php" domain)
-
-    for linkname in ~/.valet/Sites/*; do
-        if [[ "$(readlink $linkname)" = "$PWD" ]]
-        then
-            HOST="${linkname##*/}"
+    # Check for parameters to pass through to ngrok (these will start with '-' or '--')
+    PARAMS=(${@:2})
+    for PARAM in ${PARAMS[@]}
+    do
+        if [[ ${PARAM:0:1} != '-' ]]; then
+            PARAMS=("${PARAMS[@]/$PARAM}") #Quotes when working with strings
         fi
     done
 
-    # Fetch Ngrok URL In Background...
-    bash "$DIR/cli/scripts/fetch-share-url.sh" &
-    sudo -u $(logname) "$DIR/bin/ngrok" http "$HOST.$DOMAIN:80" -host-header=rewrite ${*:2}
+    PARAMS=${PARAMS[@]}
+
+    HOST="${PWD##*/}"
+
+    # Check for custom domain passed through to the share command ($2 w/o '-' prefix)
+    if [[ ${2:0:1} != '-' ]]; then
+        # If not blank and is a link, or is the cwd, use it
+        if [[ ! -z $2 && (-L ~/.config/valet/Sites/$2 || $2 == $HOST) ]]; then
+            HOST=$2
+            CLIHOST=$2
+        fi
+    fi
+
+    # If no custom domain passed, then check if there's a linked site for cwd
+    if [[ -z $CLIHOST ]]; then
+        # Find the first linked site for the current dir, if one exists
+        for linkname in ~/.config/valet/Sites/*; do
+            if [[ "$(readlink $linkname)" = "$PWD" ]]
+            then
+                HOST="${linkname##*/}"
+                break
+            fi
+        done
+    fi
+
+    TLD=$(php "$DIR/cli/valet.php" tld)
+
+	# Decide the correct PORT: uses 60 for secure, else 80
+	if grep --quiet --no-messages 443 ~/.config/valet/Nginx/$HOST*
+	then
+		PORT=60
+	else
+		PORT=80
+	fi
+
+	# Fetch Ngrok URL In Background...
+	bash "$DIR/cli/scripts/fetch-share-url.sh" "$HOST" &
+
+    ARCH=$(uname -m)
+
+    if [[ $ARCH == 'arm64' ]]; then
+        "$DIR/bin/ngrok-arm" http "$HOST.$TLD:$PORT" -host-header=rewrite $PARAMS
+    else
+        "$DIR/bin/ngrok" http "$HOST.$TLD:$PORT" -host-header=rewrite $PARAMS
+    fi
+
+    exit
+
+# Proxy PHP commands to the "php" executable on the isolated site
+elif [[ "$1" = "php" ]]
+then
+    $(php "$DIR/cli/valet.php" which-php) "${@:2}"
+
+    exit
+
+# Proxy Composer commands with the "php" executable on the isolated site
+elif [[ "$1" = "composer" ]]
+then
+    $(php "$DIR/cli/valet.php" which-php) $(which composer) "${@:2}"
+
     exit
 
 # Finally, for every other command we will just proxy into the PHP tool
 # and let it handle the request. These are commands which can be run
 # without sudo and don't require taking over terminals like Ngrok.
 else
+    if [[ "$EUID" -ne 0 ]]
+    then
+        sudo USER="$USER" --preserve-env "$SOURCE" "$@"
+        exit
+    fi
+
     php "$DIR/cli/valet.php" "$@"
 fi

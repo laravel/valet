@@ -25,11 +25,13 @@ class KirbyValetDriver extends ValetDriver
      */
     public function isStaticFile($sitePath, $siteName, $uri)
     {
-       if ($this->isActualFile($staticFilePath = $sitePath.$uri)) {
-           return $staticFilePath;
-       }
+        if ($this->isActualFile($staticFilePath = $sitePath.$uri)) {
+            return $staticFilePath;
+        } elseif ($this->isActualFile($staticFilePath = $sitePath.'/public'.$uri)) {
+            return $staticFilePath;
+        }
 
-       return false;
+        return false;
     }
 
     /**
@@ -42,19 +44,27 @@ class KirbyValetDriver extends ValetDriver
      */
     public function frontControllerPath($sitePath, $siteName, $uri)
     {
-        // Needed to force Kirby to use *.dev to generate its URLs...
+        $scriptName = '/index.php';
+
+        if ($this->isActualFile($sitePath.'/index.php')) {
+            $indexPath = $sitePath.'/index.php';
+        }
+
+        if ($isAboveWebroot = $this->isActualFile($sitePath.'/public/index.php')) {
+            $indexPath = $sitePath.'/public/index.php';
+        }
+
+        if (preg_match('/^\/panel/', $uri) && $this->isActualFile($sitePath.'/panel/index.php')) {
+            $scriptName = '/panel/index.php';
+            $indexPath = $sitePath.'/panel/index.php';
+        }
+
+        $sitePathPrefix = ($isAboveWebroot) ? $sitePath.'/public' : $sitePath;
+
         $_SERVER['SERVER_NAME'] = $_SERVER['HTTP_HOST'];
+        $_SERVER['SCRIPT_NAME'] = $scriptName;
+        $_SERVER['SCRIPT_FILENAME'] = $sitePathPrefix.$scriptName;
 
-        if (preg_match('/^\/panel/', $uri)) {
-            $_SERVER['SCRIPT_NAME'] = '/panel/index.php';
-
-            return $sitePath.'/panel/index.php';
-        }
-
-        if (file_exists($indexPath = $sitePath.'/index.php')) {
-            $_SERVER['SCRIPT_NAME'] = '/index.php';
-
-            return $indexPath;
-        }
+        return $indexPath;
     }
 }

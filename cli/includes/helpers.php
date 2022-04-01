@@ -1,16 +1,29 @@
 <?php
 
+namespace Valet;
+
+use Exception;
 use Illuminate\Container\Container;
-use Symfony\Component\Process\Process;
-use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
 /**
- * Define the ~/.valet path as a constant.
+ * Define constants.
  */
-define('VALET_HOME_PATH', $_SERVER['HOME'].'/.valet');
-define('VALET_SERVER_PATH', realpath(__DIR__ . '/../../server.php'));
-define('VALET_STATIC_PREFIX', '41c270e4-5535-4daa-b23e-c269744c2f45');
+if (! defined('VALET_HOME_PATH')) {
+    define('VALET_HOME_PATH', $_SERVER['HOME'].'/.config/valet');
+}
+if (! defined('VALET_STATIC_PREFIX')) {
+    define('VALET_STATIC_PREFIX', '41c270e4-5535-4daa-b23e-c269744c2f45');
+}
+
+define('VALET_LOOPBACK', '127.0.0.1');
+define('VALET_SERVER_PATH', realpath(__DIR__.'/../../server.php'));
+define('VALET_LEGACY_HOME_PATH', $_SERVER['HOME'].'/.valet');
+
+define('BREW_PREFIX', (new CommandLine())->runAsUser('printf $(brew --prefix)'));
+
+define('ISOLATED_PHP_VERSION', 'ISOLATED_PHP_VERSION');
 
 /**
  * Output the given text to the console.
@@ -37,8 +50,8 @@ function warning($output)
 /**
  * Output a table to the console.
  *
- * @param array $headers
- * @param array $rows
+ * @param  array  $headers
+ * @param  array  $rows
  * @return void
  */
 function table(array $headers = [], array $rows = [])
@@ -62,7 +75,7 @@ function output($output)
         return;
     }
 
-    (new ConsoleOutput)->writeln($output);
+    (new ConsoleOutput())->writeln($output);
 }
 
 if (! function_exists('resolve')) {
@@ -156,18 +169,40 @@ if (! function_exists('ends_with')) {
      * @param  string|array  $needles
      * @return bool
      */
-    function ends_with($haystack, $needles) {
+    function ends_with($haystack, $needles)
+    {
         foreach ((array) $needles as $needle) {
             if (substr($haystack, -strlen($needle)) === (string) $needle) {
                 return true;
             }
         }
+
+        return false;
+    }
+}
+
+if (! function_exists('starts_with')) {
+    /**
+     * Determine if a given string starts with a given substring.
+     *
+     * @param  string  $haystack
+     * @param  string|string[]  $needles
+     * @return bool
+     */
+    function starts_with($haystack, $needles)
+    {
+        foreach ((array) $needles as $needle) {
+            if ((string) $needle !== '' && strncmp($haystack, $needle, strlen($needle)) === 0) {
+                return true;
+            }
+        }
+
         return false;
     }
 }
 
 /**
- * Get the user
+ * Get the user.
  */
 function user()
 {

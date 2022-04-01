@@ -2,15 +2,14 @@
 
 use Valet\Filesystem;
 
-class FilesystemTest extends PHPUnit_Framework_TestCase
+class FilesystemTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 {
-    public function tearDown()
+    public function tear_down()
     {
         exec('rm -rf '.__DIR__.'/output');
         mkdir(__DIR__.'/output');
         touch(__DIR__.'/output/.gitkeep');
     }
-
 
     public function test_remove_broken_links_removes_broken_symlinks()
     {
@@ -20,6 +19,6 @@ class FilesystemTest extends PHPUnit_Framework_TestCase
         $this->assertFileExists(__DIR__.'/output/file.link');
         unlink(__DIR__.'/output/file.out');
         $files->removeBrokenLinksAt(__DIR__.'/output');
-        $this->assertFileNotExists(__DIR__.'/output/file.link');
+        $this->assertFileDoesNotExist(__DIR__.'/output/file.link');
     }
 }

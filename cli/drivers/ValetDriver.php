@@ -113,12 +113,14 @@ abstract class ValetDriver
 
         $drivers = [];
 
-        foreach (scandir($path) as $file) {
-            if ($file !== 'ValetDriver.php' && strpos($file, 'ValetDriver') !== false) {
-                require_once $path.'/'.$file;
+        $dir = new RecursiveDirectoryIterator($path);
+        $iterator = new RecursiveIteratorIterator($dir);
+        $regex = new RegexIterator($iterator, '/^.+ValetDriver\.php$/i', RecursiveRegexIterator::GET_MATCH);
 
-                $drivers[] = basename($file, '.php');
-            }
+        foreach ($regex as $file) {
+            require_once $file[0];
+
+            $drivers[] = basename($file[0], '.php');
         }
 
         return $drivers;
@@ -164,7 +166,7 @@ abstract class ValetDriver
         header('Content-Type: text/html');
         header_remove('Content-Type');
 
-        header('X-Accel-Redirect: /' . VALET_STATIC_PREFIX . $staticFilePath);
+        header('X-Accel-Redirect: /'.VALET_STATIC_PREFIX.$staticFilePath);
     }
 
     /**
@@ -176,5 +178,41 @@ abstract class ValetDriver
     protected function isActualFile($path)
     {
         return ! is_dir($path) && file_exists($path);
+    }
+
+    /**
+     * Load server environment variables if available.
+     * Processes any '*' entries first, and then adds site-specific entries.
+     *
+     * @param  string  $sitePath
+     * @param  string  $siteName
+     * @return void
+     */
+    public function loadServerEnvironmentVariables($sitePath, $siteName)
+    {
+        $varFilePath = $sitePath.'/.valet-env.php';
+        if (! file_exists($varFilePath)) {
+            $varFilePath = VALET_HOME_PATH.'/.valet-env.php';
+        }
+        if (! file_exists($varFilePath)) {
+            return;
+        }
+
+        $variables = include $varFilePath;
+
+        $variablesToSet = isset($variables['*']) ? $variables['*'] : [];
+
+        if (isset($variables[$siteName])) {
+            $variablesToSet = array_merge($variablesToSet, $variables[$siteName]);
+        }
+
+        foreach ($variablesToSet as $key => $value) {
+            if (! is_string($key)) {
+                continue;
+            }
+            $_SERVER[$key] = $value;
+            $_ENV[$key] = $value;
+            putenv($key.'='.$value);
+        }
     }
 }
