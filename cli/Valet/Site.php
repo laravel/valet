@@ -364,7 +364,7 @@ class Site
     /**
      * Get the PHP version for the given site.
      *
-     * @param  string  $url Site URL including the TLD
+     * @param  string  $url  Site URL including the TLD
      * @return string
      */
     public function getPhpVersion($url)

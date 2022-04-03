@@ -1,11 +1,11 @@
 <?php
 
 use Illuminate\Container\Container;
+use Valet\Brew;
 use Valet\CommandLine;
 use Valet\Configuration;
 use Valet\Filesystem;
 use function Valet\resolve;
-use Valet\Brew;
 use Valet\Site;
 use function Valet\swap;
 use function Valet\user;
