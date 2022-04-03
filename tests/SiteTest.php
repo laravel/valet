@@ -5,6 +5,7 @@ use Valet\CommandLine;
 use Valet\Configuration;
 use Valet\Filesystem;
 use function Valet\resolve;
+use Valet\Brew;
 use Valet\Site;
 use function Valet\swap;
 use function Valet\user;
@@ -68,17 +69,24 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $files->shouldReceive('ensureDirExists')
             ->once()
             ->with($dirPath, user());
+        $files->shouldReceive('exists')->andReturn(false);
 
         $config = Mockery::mock(Configuration::class);
         $config->shouldReceive('read')
             ->once()
             ->andReturn(['tld' => 'local']);
 
+        $brew = Mockery::mock(Brew::class);
+        $brew->shouldReceive('linkedPhp')->andReturn('php@8.1');
+
         swap(Filesystem::class, $files);
         swap(Configuration::class, $config);
+        swap(Brew::class, $brew);
 
         /** @var Site $site */
         $site = resolve(Site::class);
+
+        $phpVersion = $site->brew->linkedPhp();
 
         $certs = Mockery::mock(\Illuminate\Support\Collection::class);
         $certs->shouldReceive('has')
@@ -96,12 +104,14 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
             'secured' => '',
             'url' => 'http://sitetwo.local',
             'path' => $dirPath.'/sitetwo',
+            'phpVersion' => $phpVersion,
         ], $sites->first());
         $this->assertSame([
             'site' => 'sitethree',
             'secured' => ' X',
             'url' => 'https://sitethree.local',
             'path' => $dirPath.'/sitethree',
+            'phpVersion' => $phpVersion,
         ], $sites->last());
     }
 
@@ -125,17 +135,24 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $files->shouldReceive('ensureDirExists')
             ->once()
             ->with($dirPath, user());
+        $files->shouldReceive('exists')->andReturn(false);
 
         $config = Mockery::mock(Configuration::class);
         $config->shouldReceive('read')
             ->once()
             ->andReturn(['tld' => 'local']);
 
+        $brew = Mockery::mock(Brew::class);
+        $brew->shouldReceive('linkedPhp')->andReturn('php@8.1');
+
         swap(Filesystem::class, $files);
         swap(Configuration::class, $config);
+        swap(Brew::class, $brew);
 
         /** @var Site $site */
         $site = resolve(Site::class);
+
+        $phpVersion = $site->brew->linkedPhp();
 
         $sites = $site->getSites($dirPath, collect());
         $this->assertCount(1, $sites);
@@ -144,6 +161,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
             'secured' => '',
             'url' => 'http://sitetwo.local',
             'path' => $dirPath.'/sitetwo',
+            'phpVersion' => $phpVersion,
         ], $sites->first());
     }
 
@@ -162,17 +180,24 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $files->shouldReceive('ensureDirExists')
             ->once()
             ->with($dirPath, user());
+        $files->shouldReceive('exists')->andReturn(false);
 
         $config = Mockery::mock(Configuration::class);
         $config->shouldReceive('read')
             ->once()
             ->andReturn(['tld' => 'local']);
 
+        $brew = Mockery::mock(Brew::class);
+        $brew->shouldReceive('linkedPhp')->andReturn('php@8.1');
+
         swap(Filesystem::class, $files);
         swap(Configuration::class, $config);
+        swap(Brew::class, $brew);
 
         /** @var Site $site */
         $site = resolve(Site::class);
+
+        $phpVersion = $site->brew->linkedPhp();
 
         $sites = $site->getSites($dirPath, collect());
         $this->assertCount(1, $sites);
@@ -181,6 +206,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
             'secured' => '',
             'url' => 'http://siteone.local',
             'path' => $dirPath.'/siteone',
+            'phpVersion' => $phpVersion,
         ], $sites->first());
     }
 
@@ -204,17 +230,24 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $files->shouldReceive('ensureDirExists')
             ->once()
             ->with($dirPath, user());
+        $files->shouldReceive('exists')->andReturn(false);
 
         $config = Mockery::mock(Configuration::class);
         $config->shouldReceive('read')
             ->once()
             ->andReturn(['tld' => 'local']);
 
+        $brew = Mockery::mock(Brew::class);
+        $brew->shouldReceive('linkedPhp')->andReturn('php@8.1');
+
         swap(Filesystem::class, $files);
         swap(Configuration::class, $config);
+        swap(Brew::class, $brew);
 
         /** @var Site $site */
         $site = resolve(Site::class);
+
+        $phpVersion = $site->brew->linkedPhp();
 
         $sites = $site->getSites($dirPath, collect());
         $this->assertCount(1, $sites);
@@ -223,6 +256,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
             'secured' => '',
             'url' => 'http://siteone.local',
             'path' => $linkedPath,
+            'phpVersion' => $phpVersion,
         ], $sites->first());
     }
 
@@ -534,6 +568,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         swap(Configuration::class, $config);
 
         $siteMock = Mockery::mock(Site::class, [
+            resolve(Brew::class),
             resolve(Configuration::class),
             resolve(CommandLine::class),
             resolve(Filesystem::class),
@@ -585,6 +620,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         swap(Configuration::class, $config);
 
         $siteMock = Mockery::mock(Site::class, [
+            resolve(Brew::class),
             resolve(Configuration::class),
             resolve(CommandLine::class),
             resolve(Filesystem::class),
@@ -609,6 +645,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $config = Mockery::mock(Configuration::class);
 
         $siteMock = Mockery::mock(Site::class, [
+            resolve(Brew::class),
             $config,
             Mockery::mock(CommandLine::class),
             $files,
@@ -641,6 +678,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $cli = Mockery::mock(CommandLine::class);
 
         $siteMock = Mockery::mock(Site::class, [
+            resolve(Brew::class),
             $config,
             $cli,
             $files,
@@ -662,12 +700,40 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         resolve(Site::class)->unsecure('site2.test');
     }
 
+    public function test_php_version_returns_correct_version_for_site()
+    {
+        $files = Mockery::mock(Filesystem::class);
+        $files->shouldReceive('exists')->andReturn(false);
+
+        $brew = Mockery::mock(Brew::class);
+        $brew->shouldReceive('linkedPhp')->andReturn('php@8.1');
+
+        swap(Brew::class, $brew);
+
+        $site = Mockery::mock(Site::class, [
+            resolve(Brew::class),
+            Mockery::mock(Configuration::class),
+            Mockery::mock(CommandLine::class),
+            $files,
+        ])->makePartial();
+        $site->shouldReceive('customPhpVersion')->with('site1.test')->andReturn('73')->once();
+        $site->shouldReceive('customPhpVersion')->with('site2.test')->andReturn(null)->once();
+
+        swap(Site::class, $site);
+
+        $phpVersion = $site->brew->linkedPhp();
+
+        $this->assertEquals('php@7.3', $site->getPhpVersion('site1.test'));
+        $this->assertEquals($phpVersion, $site->getPhpVersion('site2.test'));
+    }
+
     public function test_can_install_nginx_site_config_for_specific_php_version()
     {
         $files = Mockery::mock(Filesystem::class);
         $config = Mockery::mock(Configuration::class);
 
         $siteMock = Mockery::mock(Site::class, [
+            resolve(Brew::class),
             $config,
             resolve(CommandLine::class),
             $files,
@@ -719,6 +785,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $files = Mockery::mock(Filesystem::class);
 
         $siteMock = Mockery::mock(Site::class, [
+            resolve(Brew::class),
             resolve(Configuration::class),
             resolve(CommandLine::class),
             $files,
@@ -744,6 +811,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $files = Mockery::mock(Filesystem::class);
 
         $siteMock = Mockery::mock(Site::class, [
+            resolve(Brew::class),
             resolve(Configuration::class),
             resolve(CommandLine::class),
             $files,
@@ -829,6 +897,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         swap(Filesystem::class, $files);
 
         $siteMock = Mockery::mock(Site::class, [
+            resolve(Brew::class),
             resolve(Configuration::class),
             resolve(CommandLine::class),
             resolve(Filesystem::class),

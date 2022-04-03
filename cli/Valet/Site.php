@@ -7,6 +7,7 @@ use PhpFpm;
 
 class Site
 {
+    public $brew;
     public $config;
     public $cli;
     public $files;
@@ -14,12 +15,14 @@ class Site
     /**
      * Create a new Site instance.
      *
+     * @param  Brew  $brew
      * @param  Configuration  $config
      * @param  CommandLine  $cli
      * @param  Filesystem  $files
      */
-    public function __construct(Configuration $config, CommandLine $cli, Filesystem $files)
+    public function __construct(Brew $brew, Configuration $config, CommandLine $cli, Filesystem $files)
     {
+        $this->brew = $brew;
         $this->cli = $cli;
         $this->files = $files;
         $this->config = $config;
@@ -317,12 +320,14 @@ class Site
         })->map(function ($path, $site) use ($certs, $config) {
             $secured = $certs->has($site);
             $url = ($secured ? 'https' : 'http').'://'.$site.'.'.$config['tld'];
+            $phpVersion = $this->getPhpVersion($site.'.'.$config['tld']);
 
             return [
                 'site' => $site,
                 'secured' => $secured ? ' X' : '',
                 'url' => $url,
                 'path' => $path,
+                'phpVersion' => $phpVersion,
             ];
         });
     }
@@ -354,6 +359,22 @@ class Site
         $this->files->ensureDirExists($this->sitesPath(), user());
 
         $this->files->removeBrokenLinksAt($this->sitesPath());
+    }
+
+    /**
+     * Get the PHP version for the given site.
+     *
+     * @param  string  $url Site URL including the TLD
+     * @return string
+     */
+    public function getPhpVersion($url)
+    {
+        $defaultPhpVersion = $this->brew->linkedPhp();
+        $phpVersion = PhpFpm::normalizePhpVersion($this->customPhpVersion($url));
+        if (empty($phpVersion)) {
+            $phpVersion = PhpFpm::normalizePhpVersion($defaultPhpVersion);
+        }
+        return $phpVersion;
     }
 
     /**
