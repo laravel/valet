@@ -540,8 +540,7 @@ You might also want to investigate your global Composer configs. Helpful command
             $site = basename(getcwd());
         }
 
-        if (! $phpVersion) {
-            $phpVersion = Site::phpRcVersion($site);
+        if (is_null($phpVersion) && $phpVersion = Site::phpRcVersion($site)) {
             info("Found '{$site}/.valetphprc' specifying version: {$phpVersion}");
         }
 
