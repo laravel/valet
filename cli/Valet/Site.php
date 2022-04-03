@@ -374,6 +374,7 @@ class Site
         if (empty($phpVersion)) {
             $phpVersion = PhpFpm::normalizePhpVersion($defaultPhpVersion);
         }
+
         return $phpVersion;
     }
 
