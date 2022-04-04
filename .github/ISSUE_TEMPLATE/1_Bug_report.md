@@ -7,7 +7,9 @@ about: 'Report a general library issue. Please ensure your version is still supp
 `composer self-update`
 `composer global update`
 `brew upgrade`
-... in fact it's good to run these commands at least once a month! -->
+... in fact it's good to run these commands at least once a month! 
+
+Alternatively, try to reboot your machine first to see if it solves your current issue.-->
 
 - Valet Version: #.#.#
 - PHP Version: #.#.#
