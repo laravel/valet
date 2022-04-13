@@ -102,7 +102,7 @@ class PhpFpm
         $contents = str_replace(
             ['VALET_USER', 'VALET_HOME_PATH', 'valet.sock'],
             [user(), VALET_HOME_PATH, self::fpmSockName($phpVersion)],
-            $this->files->get(__DIR__.'/../stubs/etc-phpfpm-valet.conf')
+            $this->files->getStub('etc-phpfpm-valet.conf')
         );
         $this->files->put($fpmConfigFile, $contents);
 
@@ -112,13 +112,13 @@ class PhpFpm
 
         $this->files->putAsUser(
             $destDir.'/php-memory-limits.ini',
-            $this->files->get(__DIR__.'/../stubs/php-memory-limits.ini')
+            $this->files->getStub('php-memory-limits.ini')
         );
 
         $contents = str_replace(
             ['VALET_USER', 'VALET_HOME_PATH'],
             [user(), VALET_HOME_PATH],
-            $this->files->get(__DIR__.'/../stubs/etc-phpfpm-error_log.ini')
+            $this->files->getStub('etc-phpfpm-error_log.ini')
         );
         $this->files->putAsUser($destDir.'/error_log.ini', $contents);
 
