@@ -341,7 +341,7 @@ class Filesystem
     }
 
     /**
-     * Get custom stub file if exists
+     * Get custom stub file if exists.
      *
      * @param  string  $filename
      * @return string
