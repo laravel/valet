@@ -12,6 +12,7 @@ abstract class Command extends SymfonyCommand
     {
         $this->input = $input;
         $this->output = $output;
+
         return (int) $this->fire();
     }
 

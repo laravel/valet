@@ -16,7 +16,6 @@ use Illuminate\Container\Container;
 use Silly\Application;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Valet\Commands\Tld;
-
 use function Valet\info;
 use function Valet\output;
 use function Valet\table;

@@ -10,7 +10,6 @@ use Site;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface as Input;
 use Symfony\Component\Console\Output\OutputInterface as Output;
-
 use function Valet\info;
 use function Valet\output;
 
@@ -26,11 +25,14 @@ class Tld extends Command
             );
     }
 
-    protected function fire () {}
+    protected function fire()
+    {
+    }
 
     public function execute(Input $input, Output $output)
     {
         $output->writeLn('test');
+
         return 0;
 
         $tld = $input->getArgument('tld');

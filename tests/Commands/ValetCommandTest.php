@@ -4,7 +4,6 @@ use Illuminate\Container\Container;
 use Silly\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Valet\Commands\Tld;
-
 use function Valet\user;
 
 class ValetCommandTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
