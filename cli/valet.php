@@ -166,7 +166,7 @@ if (is_dir(VALET_HOME_PATH)) {
     $app->command('links', function () {
         $links = Site::links();
 
-        table(['Site', 'SSL', 'URL', 'Path'], $links->all());
+        table(['Site', 'SSL', 'URL', 'Path', 'PHP Version'], $links->all());
     })->descriptions('Display all of the registered Valet links');
 
     /**

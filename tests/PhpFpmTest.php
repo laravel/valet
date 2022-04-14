@@ -425,6 +425,8 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
     public function test_isolate_will_throw_if_site_is_not_parked_or_linked()
     {
         $brewMock = Mockery::mock(Brew::class);
+        $brewMock->shouldReceive('linkedPhp')->andReturn('php@7.4');
+
         $configMock = Mockery::mock(Configuration::class);
         $configMock->shouldReceive('read')->andReturn(['tld' => 'jamble', 'paths' => []]);
 
