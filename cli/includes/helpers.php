@@ -72,7 +72,7 @@ function table(array $headers = [], array $rows = [])
 function output($output)
 {
     if (isset($_ENV['APP_ENV']) && $_ENV['APP_ENV'] === 'testing') {
-        return;
+        // return;
     }
 
     (new ConsoleOutput())->writeln($output);

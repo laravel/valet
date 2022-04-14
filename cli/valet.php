@@ -15,6 +15,8 @@ if (file_exists(__DIR__.'/../vendor/autoload.php')) {
 use Illuminate\Container\Container;
 use Silly\Application;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Valet\Commands\Tld;
+
 use function Valet\info;
 use function Valet\output;
 use function Valet\table;
@@ -75,24 +77,29 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Get or set the TLD currently being used by Valet.
      */
-    $app->command('tld [tld]', function ($tld = null) {
-        if ($tld === null) {
-            return output(Configuration::read()['tld']);
-        }
+    $app->add(Container::getInstance()[Tld::class]);
 
-        DnsMasq::updateTld(
-            $oldTld = Configuration::read()['tld'],
-            $tld = trim($tld, '.')
-        );
+    /**
+     * Get or set the TLD currently being used by Valet.
+     */
+    // $app->command('tld [tld]', function ($tld = null) {
+    //     if ($tld === null) {
+    //         return output(Configuration::read()['tld']);
+    //     }
 
-        Configuration::updateKey('tld', $tld);
+    //     DnsMasq::updateTld(
+    //         $oldTld = Configuration::read()['tld'],
+    //         $tld = trim($tld, '.')
+    //     );
 
-        Site::resecureForNewConfiguration(['tld' => $oldTld], ['tld' => $tld]);
-        PhpFpm::restart();
-        Nginx::restart();
+    //     Configuration::updateKey('tld', $tld);
 
-        info('Your Valet TLD has been updated to ['.$tld.'].');
-    }, ['domain'])->descriptions('Get or set the TLD used for Valet sites.');
+    //     Site::resecureForNewConfiguration(['tld' => $oldTld], ['tld' => $tld]);
+    //     PhpFpm::restart();
+    //     Nginx::restart();
+
+    //     info('Your Valet TLD has been updated to ['.$tld.'].');
+    // }, ['domain'])->descriptions('Get or set the TLD used for Valet sites.');
 
     /**
      * Get or set the loopback address currently being used by Valet.
