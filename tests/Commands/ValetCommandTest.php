@@ -24,9 +24,6 @@ class ValetCommandTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
     public function test_tld_command()
     {
-        // $kernel = self::bootKernel();
-        // $application = new Application($kernel);
-        // $application = new Application('Laravel Valet', '1.1.1');
         $command = $this->app->find('tld');
         $commandTester = new CommandTester($command);
         $commandTester->execute([
@@ -41,9 +38,6 @@ class ValetCommandTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         // The output of the command in the console
         $output = $commandTester->getDisplay();
-        // dd($output);
-        // $this->assertStringContainsString('test', $output);
-
-        // ...
+        $this->assertStringContainsString('test', $output);
     }
 }

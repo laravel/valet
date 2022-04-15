@@ -8,10 +8,6 @@ use Nginx;
 use PhpFpm;
 use Site;
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface as Input;
-use Symfony\Component\Console\Output\OutputInterface as Output;
-use function Valet\info;
-use function Valet\output;
 
 class Tld extends Command
 {
@@ -25,20 +21,12 @@ class Tld extends Command
             );
     }
 
-    protected function fire()
+    public function fire()
     {
-    }
-
-    public function execute(Input $input, Output $output)
-    {
-        $output->writeLn('test');
-
-        return 0;
-
-        $tld = $input->getArgument('tld');
+        $tld = $this->input->getArgument('tld');
 
         if ($tld === null) {
-            return output(Configuration::read()['tld']);
+            return $this->output(Configuration::read()['tld']);
         }
 
         DnsMasq::updateTld(
@@ -52,6 +40,6 @@ class Tld extends Command
         PhpFpm::restart();
         Nginx::restart();
 
-        info('Your Valet TLD has been updated to ['.$tld.'].');
+        $this->info('Your Valet TLD has been updated to ['.$tld.'].');
     }
 }

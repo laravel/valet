@@ -16,5 +16,15 @@ abstract class Command extends SymfonyCommand
         return (int) $this->fire();
     }
 
+    public function output($string)
+    {
+        $this->output->writeLn($string);
+    }
+
+    public function info($string)
+    {
+        $this->output('<info>'.$string.'</info>');
+    }
+
     abstract protected function fire();
 }
