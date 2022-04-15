@@ -1080,13 +1080,13 @@ class Site
      */
     public function domain($domain)
     {
-        if ($this->parked()->pluck('site')->contains($domain)) {
-            return $domain;
-        }
+        // if ($this->parked()->pluck('site')->contains($domain)) {
+        //     return $domain;
+        // }
 
-        if ($parked = $this->parked()->where('path', getcwd())->first()) {
-            return $parked['site'];
-        }
+        // if ($parked = $this->parked()->where('path', getcwd())->first()) {
+        //     return $parked['site'];
+        // }
 
         return ($domain ?: $this->host(getcwd())).'.'.$this->config->read()['tld'];
     }
