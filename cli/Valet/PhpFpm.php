@@ -324,7 +324,7 @@ class PhpFpm
      */
     public function normalizePhpVersion($version)
     {
-        return preg_replace('/(?:php@?)?([0-9+])(?:.)?([0-9+])/i', 'php@$1.$2', $version);
+        return preg_replace('/(?:php@?)?([0-9+])(?:.)?([0-9+])/i', 'php@$1.$2', (string) $version);
     }
 
     /**
