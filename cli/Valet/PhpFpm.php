@@ -46,6 +46,8 @@ class PhpFpm
      */
     public function install()
     {
+        info('Installing and configuring phpfpm...');
+
         if (! $this->brew->hasInstalledPhp()) {
             $this->brew->ensureInstalled('php', [], $this->taps);
         }
