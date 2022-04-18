@@ -14,6 +14,8 @@ if (file_exists(__DIR__.'/../vendor/autoload.php')) {
 
 use Illuminate\Container\Container;
 use Silly\Application;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use function Valet\info;
 use function Valet\output;
@@ -75,9 +77,19 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Get or set the TLD currently being used by Valet.
      */
-    $app->command('tld [tld]', function ($tld = null) {
+    $app->command('tld [tld]', function (InputInterface $input, OutputInterface $output, $tld = null) {
         if ($tld === null) {
             return output(Configuration::read()['tld']);
+        }
+
+        $helper = $this->getHelperSet()->get('question');
+        $question = new ConfirmationQuestion(
+            'Using a different tld than the standard supported ".test" tld provided by Valet is not officially supported and may lead to unexpected results. Do you wish to proceed? [y/N]',
+            false
+        );
+
+        if (false === $helper->ask($input, $output, $question)) {
+            return warning('No new Valet tld was set.');
         }
 
         DnsMasq::updateTld(
