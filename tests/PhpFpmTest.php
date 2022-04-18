@@ -63,6 +63,8 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $this->assertEquals('php@8.1', resolve(PhpFpm::class)->normalizePhpVersion('php81'));
         $this->assertEquals('php@8.1', resolve(PhpFpm::class)->normalizePhpVersion('8.1'));
         $this->assertEquals('php@8.1', resolve(PhpFpm::class)->normalizePhpVersion('81'));
+        $this->assertEquals('', resolve(PhpFpm::class)->normalizePhpVersion(''));
+        $this->assertEquals('', resolve(PhpFpm::class)->normalizePhpVersion(null));
     }
 
     public function test_it_validates_php_versions_when_installed()
