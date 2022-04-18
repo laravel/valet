@@ -84,7 +84,7 @@ if (is_dir(VALET_HOME_PATH)) {
 
         $helper = $this->getHelperSet()->get('question');
         $question = new ConfirmationQuestion(
-            'Using a different tld than the standard supported ".test" tld provided by Valet is not officially supported and may lead to unexpected results. Do you wish to proceed? [y/N]',
+            'Using a custom TLD is no longer officially supported and may lead to unexpected behavior. Do you wish to proceed? [y/N]',
             false
         );
 
