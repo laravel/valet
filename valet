@@ -69,6 +69,9 @@ then
 		PORT=80
 	fi
 
+    # Lowercase the host to match how the rest of our domains are looked up
+    HOST=$(echo "$HOST" | tr '[:upper:]' '[:lower:]')
+
 	# Fetch Ngrok URL In Background...
 	bash "$DIR/cli/scripts/fetch-share-url.sh" "$HOST" &
 
