@@ -2,11 +2,11 @@
 
 use Symfony\Component\Console\Tester\ApplicationTester;
 
-class CliTest extends  Yoast\PHPUnitPolyfills\TestCases\TestCase
+class CliTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 {
     public function testParkCommands()
     {
-        $application = require_once __DIR__ . '/../cli/app.php';
+        $application = require_once __DIR__.'/../cli/app.php';
         $application->setAutoExit(false);
 
         $tester = new ApplicationTester($application);
