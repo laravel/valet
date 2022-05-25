@@ -16,7 +16,7 @@ class CliTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $tester = new ApplicationTester($application);
 
         $tester->run(['command' => 'park', 'path' => './tests/output']);
-        $tester->assertCommandIsSuccessful();
+        $this->assertSame(0, $tester->getStatusCode());
 
         $output = $tester->getDisplay();
         $this->assertStringContainsString("The [./tests/output] directory has been added to Valet's paths.", $output);
