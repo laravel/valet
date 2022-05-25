@@ -2,6 +2,9 @@
 
 use Symfony\Component\Console\Tester\ApplicationTester;
 
+/**
+ * @requires PHP >= 8.0
+ */
 class CliTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 {
     public function testParkCommand()
