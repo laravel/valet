@@ -4,6 +4,13 @@ use Symfony\Component\Console\Tester\ApplicationTester;
 
 class CliTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 {
+    protected function setUp(): void
+    {
+        if (! getenv('CI')) {
+            $this->markTestSkipped('This test is only run on CI.');
+        }
+    }
+
     public function testParkCommands()
     {
         $application = require_once __DIR__.'/../cli/app.php';
