@@ -12,13 +12,13 @@ class CliTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $application = require_once __DIR__.'/../cli/app.php';
         $application->setAutoExit(false);
-
         $tester = new ApplicationTester($application);
 
         $tester->run(['command' => 'park', 'path' => './tests/output']);
-        $this->assertSame(0, $tester->getStatusCode());
 
-        $output = $tester->getDisplay();
-        $this->assertStringContainsString("The [./tests/output] directory has been added to Valet's paths.", $output);
+        $this->assertStringContainsString(
+            "The [./tests/output] directory has been added to Valet's paths.",
+            $tester->getDisplay()
+        );
     }
 }
