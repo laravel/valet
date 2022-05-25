@@ -123,10 +123,10 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Add the current working directory to the paths configuration.
      */
-    $app->command('park [path]', function ($path = null) {
+    $app->command('park [path]', function (OutputInterface $output, $path = null) {
         Configuration::addPath($path ?: getcwd());
 
-        info(($path === null ? 'This' : "The [{$path}]")." directory has been added to Valet's paths.");
+        $output->writeln(($path === null ? 'This' : "The [{$path}]")." directory has been added to Valet's paths.");
     })->descriptions('Register the current working (or specified) directory with Valet');
 
     /**

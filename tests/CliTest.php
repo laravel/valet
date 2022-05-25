@@ -11,23 +11,17 @@ class CliTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         }
     }
 
-    public function testParkCommands()
+    public function testParkCommand()
     {
         $application = require_once __DIR__.'/../cli/app.php';
         $application->setAutoExit(false);
 
         $tester = new ApplicationTester($application);
 
-        $tester->run(['command' => 'park ./output']);
+        $tester->run(['command' => 'park', 'path' => './tests/output']);
         $tester->assertCommandIsSuccessful();
 
         $output = $tester->getDisplay();
-        $this->assertStringContainsString("The [./output] directory has been added to Valet's paths.", $output);
-
-        $tester->run(['command' => 'parked']);
-        $tester->assertCommandIsSuccessful();
-
-        $output = $tester->getDisplay();
-        $this->assertStringContainsString('./output', $output);
+        $this->assertStringContainsString("The [./tests/output] directory has been added to Valet's paths.", $output);
     }
 }
