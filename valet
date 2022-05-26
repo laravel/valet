@@ -78,9 +78,9 @@ then
     ARCH=$(uname -m)
 
     if [[ $ARCH == 'arm64' ]]; then
-        "$DIR/bin/ngrok-arm" http "$HOST.$TLD:$PORT" -host-header=rewrite $PARAMS
+        "$DIR/bin/ngrok-arm" http "$HOST.$TLD:$PORT" --host-header=rewrite $PARAMS
     else
-        "$DIR/bin/ngrok" http "$HOST.$TLD:$PORT" -host-header=rewrite $PARAMS
+        "$DIR/bin/ngrok" http "$HOST.$TLD:$PORT" --host-header=rewrite $PARAMS
     fi
 
     exit
