@@ -19,4 +19,3 @@ phpunit.xml.dist export-ignore
 UPGRADE.md export-ignore
 
 /bin/ngrok -diff
-/bin/ngrok-arm -diff

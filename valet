@@ -75,13 +75,7 @@ then
 	# Fetch Ngrok URL In Background...
 	bash "$DIR/cli/scripts/fetch-share-url.sh" "$HOST" &
 
-    ARCH=$(uname -m)
-
-    if [[ $ARCH == 'arm64' ]]; then
-        "$DIR/bin/ngrok-arm" http "$HOST.$TLD:$PORT" -host-header=rewrite $PARAMS
-    else
-        "$DIR/bin/ngrok" http "$HOST.$TLD:$PORT" -host-header=rewrite $PARAMS
-    fi
+	sudo -u "$USER" "$DIR/bin/ngrok" http "$HOST.$TLD:$PORT" --host-header=rewrite $PARAMS
 
     exit
 
