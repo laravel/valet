@@ -11,9 +11,6 @@ about: 'Report a general library issue. Please ensure your version is still supp
 
 Alternatively, try to reboot your machine first to see if it solves your current issue.-->
 
-- Valet Version: #.#.#
-- PHP Version: #.#.#
-
 ### Description:
 
 
