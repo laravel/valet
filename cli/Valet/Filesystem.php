@@ -3,6 +3,8 @@
 namespace Valet;
 
 use CommandLine as CommandLineFacade;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 
 class Filesystem
 {
@@ -241,6 +243,24 @@ class Filesystem
         if (file_exists($path) || is_link($path)) {
             @unlink($path);
         }
+    }
+
+    /**
+     * Recursively delete a directory and its contents.
+     *
+     * @param  string  $path
+     * @return void
+     */
+    public function rmDirAndContents($path)
+    {
+        $dir = new RecursiveDirectoryIterator($path, RecursiveDirectoryIterator::SKIP_DOTS);
+        $files = new RecursiveIteratorIterator($dir, RecursiveIteratorIterator::CHILD_FIRST);
+
+        foreach ($files as $file) {
+            $file->isDir() ? rmdir($file->getRealPath()) : unlink($file->getRealPath());
+        }
+
+        rmdir($path);
     }
 
     /**

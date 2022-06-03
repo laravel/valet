@@ -11,6 +11,17 @@ use function Valet\table;
 use function Valet\warning;
 
 /**
+ * Load correct autoloader depending on install location.
+ */
+if (file_exists(__DIR__.'/../vendor/autoload.php')) {
+    require_once __DIR__.'/../vendor/autoload.php';
+} elseif (file_exists(__DIR__.'/../../../autoload.php')) {
+    require_once __DIR__.'/../../../autoload.php';
+} else {
+    require_once getenv('HOME').'/.composer/vendor/autoload.php';
+}
+
+/**
  * Relocate config dir to ~/.config/valet/ if found in old location.
  */
 if (is_dir(VALET_LEGACY_HOME_PATH) && ! is_dir(VALET_HOME_PATH)) {
