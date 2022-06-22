@@ -3,6 +3,60 @@
 class WordPressValetDriver extends BasicValetDriver
 {
     /**
+     * @var string real wordpress site path.
+     */
+    public $wpSitePath = '';
+
+    /**
+     * Determine is a WordPress site.
+     *
+     * @param  string  $path
+     * @return bool
+     */
+    public function isWordPress($path)
+    {
+        return file_exists($path . '/wp-config.php') || file_exists($path . '/wp-config-sample.php');
+    }
+
+    /**
+     * Find real wordpress site path
+     *
+     * @param  string  $sitePath
+     * @param  string  $uri
+     * @return string
+     */
+    public function wpSitePath($sitePath, $uri)
+    {
+        $uri = rtrim($uri, '/');
+
+        if ($this->isWordPress($sitePath . $uri)) {
+            return $sitePath . $uri;
+        } elseif (substr_count($uri, '/') > 1) {
+            $pos = strripos($uri, '/');
+            $uri = substr($uri, 0, $pos);
+
+            return $this->wpSitePath($sitePath, $uri);
+        }
+
+        return '';
+    }
+
+    /**
+     * Get prepared wordpress uri
+     *
+     * @param  string  $sitePath
+     * @param  string  $uri
+     * @return string
+     */
+    public function wpUri($sitePath, $uri)
+    {
+        $wpSitePath = $this->wpSitePath;
+        $replace = str_replace($wpSitePath, '', $sitePath . $uri);
+
+        return is_string($replace) ? $replace : '';
+    }
+
+    /**
      * Determine if the driver serves the request.
      *
      * @param  string  $sitePath
@@ -12,7 +66,9 @@ class WordPressValetDriver extends BasicValetDriver
      */
     public function serves($sitePath, $siteName, $uri)
     {
-        return file_exists($sitePath.'/wp-config.php') || file_exists($sitePath.'/wp-config-sample.php');
+        $this->wpSitePath = $this->wpSitePath($sitePath, $uri);
+
+        return !empty($this->wpSitePath);
     }
 
     /**
@@ -29,8 +85,11 @@ class WordPressValetDriver extends BasicValetDriver
         $_SERVER['SERVER_ADDR'] = '127.0.0.1';
         $_SERVER['SERVER_NAME'] = $_SERVER['HTTP_HOST'];
 
+        $wpSitePath = $this->wpSitePath;
+        $wpUri = $this->wpUri($sitePath, $uri);
+
         return parent::frontControllerPath(
-            $sitePath, $siteName, $this->forceTrailingSlash($uri)
+            $wpSitePath, $siteName, $this->forceTrailingSlash($wpUri)
         );
     }
 
