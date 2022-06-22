@@ -15,11 +15,11 @@ class WordPressValetDriver extends BasicValetDriver
      */
     public function isWordPress($path)
     {
-        return file_exists($path . '/wp-config.php') || file_exists($path . '/wp-config-sample.php');
+        return file_exists($path.'/wp-config.php') || file_exists($path.'/wp-config-sample.php');
     }
 
     /**
-     * Find real wordpress site path
+     * Find real wordpress site path.
      *
      * @param  string  $sitePath
      * @param  string  $uri
@@ -29,8 +29,8 @@ class WordPressValetDriver extends BasicValetDriver
     {
         $uri = rtrim($uri, '/');
 
-        if ($this->isWordPress($sitePath . $uri)) {
-            return $sitePath . $uri;
+        if ($this->isWordPress($sitePath.$uri)) {
+            return $sitePath.$uri;
         } elseif (substr_count($uri, '/') > 1) {
             $pos = strripos($uri, '/');
             $uri = substr($uri, 0, $pos);
@@ -42,7 +42,7 @@ class WordPressValetDriver extends BasicValetDriver
     }
 
     /**
-     * Get prepared wordpress uri
+     * Get prepared wordpress uri.
      *
      * @param  string  $sitePath
      * @param  string  $uri
@@ -51,7 +51,7 @@ class WordPressValetDriver extends BasicValetDriver
     public function wpUri($sitePath, $uri)
     {
         $wpSitePath = $this->wpSitePath;
-        $replace = str_replace($wpSitePath, '', $sitePath . $uri);
+        $replace = str_replace($wpSitePath, '', $sitePath.$uri);
 
         return is_string($replace) ? $replace : '';
     }
@@ -68,7 +68,7 @@ class WordPressValetDriver extends BasicValetDriver
     {
         $this->wpSitePath = $this->wpSitePath($sitePath, $uri);
 
-        return !empty($this->wpSitePath);
+        return ! empty($this->wpSitePath);
     }
 
     /**
