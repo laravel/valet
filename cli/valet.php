@@ -14,6 +14,8 @@ if (file_exists(__DIR__.'/../vendor/autoload.php')) {
 
 use Illuminate\Container\Container;
 use Silly\Application;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use function Valet\info;
 use function Valet\output;
@@ -32,7 +34,7 @@ if (is_dir(VALET_LEGACY_HOME_PATH) && ! is_dir(VALET_HOME_PATH)) {
  */
 Container::setInstance(new Container);
 
-$version = '3.1.1';
+$version = '3.1.8';
 
 $app = new Application('Laravel Valet', $version);
 
@@ -75,9 +77,19 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Get or set the TLD currently being used by Valet.
      */
-    $app->command('tld [tld]', function ($tld = null) {
+    $app->command('tld [tld]', function (InputInterface $input, OutputInterface $output, $tld = null) {
         if ($tld === null) {
             return output(Configuration::read()['tld']);
+        }
+
+        $helper = $this->getHelperSet()->get('question');
+        $question = new ConfirmationQuestion(
+            'Using a custom TLD is no longer officially supported and may lead to unexpected behavior. Do you wish to proceed? [y/N]',
+            false
+        );
+
+        if (false === $helper->ask($input, $output, $question)) {
+            return warning('No new Valet tld was set.');
         }
 
         DnsMasq::updateTld(
@@ -166,7 +178,7 @@ if (is_dir(VALET_HOME_PATH)) {
     $app->command('links', function () {
         $links = Site::links();
 
-        table(['Site', 'SSL', 'URL', 'Path'], $links->all());
+        table(['Site', 'SSL', 'URL', 'Path', 'PHP Version'], $links->all());
     })->descriptions('Display all of the registered Valet links');
 
     /**
@@ -180,7 +192,7 @@ if (is_dir(VALET_HOME_PATH)) {
      * Secure the given domain with a trusted TLS certificate.
      */
     $app->command('secure [domain] [--expireIn=]', function ($domain = null, $expireIn = 368) {
-        $url = ($domain ?: Site::host(getcwd())).'.'.Configuration::read()['tld'];
+        $url = Site::domain($domain);
 
         Site::secure($url, null, $expireIn);
 
@@ -201,7 +213,7 @@ if (is_dir(VALET_HOME_PATH)) {
             return;
         }
 
-        $url = ($domain ?: Site::host(getcwd())).'.'.Configuration::read()['tld'];
+        $url = Site::domain($domain);
 
         Site::unsecure($url);
 
@@ -280,7 +292,7 @@ if (is_dir(VALET_HOME_PATH)) {
      * Open the current or given directory in the browser.
      */
     $app->command('open [domain]', function ($domain = null) {
-        $url = 'http://'.($domain ?: Site::host(getcwd())).'.'.Configuration::read()['tld'];
+        $url = 'http://'.Site::domain($domain);
         CommandLine::runAsUser('open '.escapeshellarg($url));
     })->descriptions('Open the site for the current (or specified) directory in your browser');
 
@@ -295,7 +307,7 @@ if (is_dir(VALET_HOME_PATH)) {
      * Echo the currently tunneled URL.
      */
     $app->command('fetch-share-url [domain]', function ($domain = null) {
-        output(Ngrok::currentTunnelUrl($domain ?: Site::host(getcwd()).'.'.Configuration::read()['tld']));
+        output(Ngrok::currentTunnelUrl(Site::domain($domain)));
     })->descriptions('Get the URL to the current Ngrok tunnel');
 
     /**

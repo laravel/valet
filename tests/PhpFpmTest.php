@@ -63,6 +63,8 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $this->assertEquals('php@8.1', resolve(PhpFpm::class)->normalizePhpVersion('php81'));
         $this->assertEquals('php@8.1', resolve(PhpFpm::class)->normalizePhpVersion('8.1'));
         $this->assertEquals('php@8.1', resolve(PhpFpm::class)->normalizePhpVersion('81'));
+        $this->assertEquals('', resolve(PhpFpm::class)->normalizePhpVersion(''));
+        $this->assertEquals('', resolve(PhpFpm::class)->normalizePhpVersion(null));
     }
 
     public function test_it_validates_php_versions_when_installed()
@@ -425,6 +427,8 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
     public function test_isolate_will_throw_if_site_is_not_parked_or_linked()
     {
         $brewMock = Mockery::mock(Brew::class);
+        $brewMock->shouldReceive('linkedPhp')->andReturn('php@7.4');
+
         $configMock = Mockery::mock(Configuration::class);
         $configMock->shouldReceive('read')->andReturn(['tld' => 'jamble', 'paths' => []]);
 

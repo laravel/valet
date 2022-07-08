@@ -46,6 +46,8 @@ class PhpFpm
      */
     public function install()
     {
+        info('Installing and configuring phpfpm...');
+
         if (! $this->brew->hasInstalledPhp()) {
             $this->brew->ensureInstalled('php', [], $this->taps);
         }
@@ -324,7 +326,7 @@ class PhpFpm
      */
     public function normalizePhpVersion($version)
     {
-        return preg_replace('/(?:php@?)?([0-9+])(?:.)?([0-9+])/i', 'php@$1.$2', $version);
+        return preg_replace('/(?:php@?)?([0-9+])(?:.)?([0-9+])/i', 'php@$1.$2', (string) $version);
     }
 
     /**

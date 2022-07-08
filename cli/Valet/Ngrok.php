@@ -51,7 +51,7 @@ class Ngrok
         // find the one responding on HTTP. Each tunnel has an HTTP and a HTTPS address
         // but for local dev purposes we just desire the plain HTTP URL endpoint.
         foreach ($tunnels as $tunnel) {
-            if ($tunnel->proto === 'http' && strpos($tunnel->config->addr, $domain)) {
+            if ($tunnel->proto === 'http' && strpos($tunnel->config->addr, strtolower($domain))) {
                 return $tunnel->public_url;
             }
         }
