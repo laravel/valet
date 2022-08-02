@@ -82,14 +82,53 @@ then
 # Proxy PHP commands to the "php" executable on the isolated site
 elif [[ "$1" = "php" ]]
 then
-    $(php "$DIR/cli/valet.php" which-php) "${@:2}"
+
+    # Find and extract an optional flag "--site=foo" to cater for sites that use
+    # a custom domain. The "=" after the flag is mandatory "--site foo" will not work.
+    SITE=""
+    PARSED_ARGS=()
+    for i in "$@"; do
+        case $i in
+        --site=*)
+          SITE="${i#*=}"
+          shift
+          ;;
+        *)    # All other input / commands / options
+        PARSED_ARGS+=("$i") # save it in an array for later
+        shift
+        ;;
+        esac
+    done
+
+    echo "${PARSED_ARGS[@]}"
+    exit
+
+    $(php "$DIR/cli/valet.php" which-php $SITE) "${PARSED_ARGS[@]:1}"
 
     exit
 
 # Proxy Composer commands with the "php" executable on the isolated site
 elif [[ "$1" = "composer" ]]
 then
-    $(php "$DIR/cli/valet.php" which-php) $(which composer) "${@:2}"
+
+    # Find and extract an optional flag "--site=foo" to cater for sites that use
+    # a custom domain. The "=" after the flag is mandatory "--site foo" will not work.
+    SITE=""
+    PARSED_ARGS=()
+    for i in "$@"; do
+        case $i in
+        --site=*)
+          SITE="${i#*=}"
+          shift
+          ;;
+        *)    # All other input / commands / options
+        PARSED_ARGS+=("$i") # save it in an array for later
+        shift
+        ;;
+        esac
+    done
+
+    $(php "$DIR/cli/valet.php" which-php $SITE) $(which composer) "${PARSED_ARGS[@]:1}"
 
     exit
 
