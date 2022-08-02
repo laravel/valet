@@ -100,9 +100,6 @@ then
         esac
     done
 
-    echo "${PARSED_ARGS[@]}"
-    exit
-
     $(php "$DIR/cli/valet.php" which-php $SITE) "${PARSED_ARGS[@]:1}"
 
     exit
