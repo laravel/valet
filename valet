@@ -93,12 +93,19 @@ then
           SITE="${i#*=}"
           shift
           ;;
+        ---site=*)
+          PARSED_ARGS+=("${i:1}")
+          shift
+          ;;
         *)    # All other input / commands / options
         PARSED_ARGS+=("$i") # save it in an array for later
         shift
         ;;
         esac
     done
+
+    echo "${PARSED_ARGS[@]}"
+    exit
 
     $(php "$DIR/cli/valet.php" which-php $SITE) "${PARSED_ARGS[@]:1}"
 
