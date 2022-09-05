@@ -63,6 +63,10 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $this->assertFalse($brew->hasInstalledPhp());
 
         $brew = Mockery::mock(Brew::class.'[installedPhpFormulae]', [new CommandLine, new Filesystem]);
+        $brew->shouldReceive('installedPhpFormulae')->andReturn(collect(['php@8.2']));
+        $this->assertTrue($brew->hasInstalledPhp());
+
+        $brew = Mockery::mock(Brew::class.'[installedPhpFormulae]', [new CommandLine, new Filesystem]);
         $brew->shouldReceive('installedPhpFormulae')->andReturn(collect(['php@8.1']));
         $this->assertTrue($brew->hasInstalledPhp());
 
