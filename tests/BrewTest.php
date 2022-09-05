@@ -141,13 +141,13 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
             return $brewMock;
         };
-try {
-        $files = Mockery::mock(Filesystem::class);
-        $files->shouldReceive('readLink')->once()->with(BREW_PREFIX.'/bin/php')->andReturn('/test/path/php/7.4.0/test');
-        $this->assertSame('php@7.4', $getBrewMock($files)->linkedPhp());
-} catch (\Exception $e) {
-    var_dump(debug_backtrace());
-}
+        try {
+            $files = Mockery::mock(Filesystem::class);
+            $files->shouldReceive('readLink')->once()->with(BREW_PREFIX.'/bin/php')->andReturn('/test/path/php/7.4.0/test');
+            $this->assertSame('php@7.4', $getBrewMock($files)->linkedPhp());
+        } catch (\Exception $e) {
+            var_dump(debug_backtrace());
+        }
 
         $files = Mockery::mock(Filesystem::class);
         $files->shouldReceive('readLink')->once()->with(BREW_PREFIX.'/bin/php')->andReturn('/test/path/php/7.3.0/test');
