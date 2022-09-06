@@ -168,7 +168,7 @@ class PhpFpm
         $versionNormalized = $this->normalizePhpVersion($phpVersion === 'php' ? Brew::LATEST_PHP_VERSION : $phpVersion);
         $versionNormalized = preg_replace('~[^\d\.]~', '', $versionNormalized);
 
-        return BREW_PREFIX."/etc/php/${versionNormalized}/php-fpm.d/valet-fpm.conf";
+        return BREW_PREFIX."/etc/php/{$versionNormalized}/php-fpm.d/valet-fpm.conf";
     }
 
     /**
