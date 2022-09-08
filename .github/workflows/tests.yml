@@ -34,6 +34,6 @@ jobs:
         run: composer install --no-interaction --prefer-dist
 
       - name: Execute tests
-        run: vendor/bin/phpunit --verbose --stop-on-failure
+        run: vendor/bin/phpunit --verbose
         env:
           APP_ENV: testing
