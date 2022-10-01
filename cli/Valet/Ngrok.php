@@ -2,6 +2,7 @@
 
 namespace Valet;
 
+use Exception;
 use DomainException;
 use GuzzleHttp\Client;
 
@@ -23,16 +24,24 @@ class Ngrok
         sleep(1);
 
         foreach ($this->tunnelsEndpoints as $endpoint) {
-            $response = retry(20, function () use ($endpoint, $domain) {
-                $body = json_decode((new Client())->get($endpoint)->getBody());
+            try {
+                $response = retry(20, function () use ($endpoint, $domain) {
+                    $body = json_decode((new Client())->get($endpoint)->getBody());
 
-                if (isset($body->tunnels) && count($body->tunnels) > 0) {
-                    return $this->findHttpTunnelUrl($body->tunnels, $domain);
+                    if (isset($body->tunnels) && count($body->tunnels) > 0) {
+                        if ($tunnelUrl = $this->findHttpTunnelUrl($body->tunnels, $domain)) {
+                            return $tunnelUrl;
+                        }
+                    }
+
+                    throw new DomainException('Failed to retrieve tunnel URL.');
+                }, 250);
+
+                if (! empty($response)) {
+                    return $response;
                 }
-            }, 250);
-
-            if (! empty($response)) {
-                return $response;
+            } catch (Exception $e) {
+                // Do nothing, suppress the exception to check the other port
             }
         }
 
