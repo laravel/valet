@@ -2,8 +2,8 @@
 
 namespace Valet;
 
-use Exception;
 use DomainException;
+use Exception;
 use GuzzleHttp\Client;
 
 class Ngrok
