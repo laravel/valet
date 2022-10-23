@@ -52,7 +52,7 @@ class BedrockValetDriver extends BasicValetDriver
         $_SERVER['SERVER_NAME'] = $_SERVER['HTTP_HOST'];
 
         return parent::frontControllerPath(
-            $sitePath . '/web',
+            $sitePath.'/web',
             $siteName,
             $this->forceTrailingSlash($uri)
         );
