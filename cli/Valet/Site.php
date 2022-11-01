@@ -1088,7 +1088,7 @@ class Site
         //     return $parked['site'];
         // }
 
-        return ($domain ?: $this->host(getcwd())).'.'.$this->config->read()['tld'];
+        return ($domain ?: $this->host(getcwd()).'.'.$this->config->read()['tld']);
     }
 
     /**
