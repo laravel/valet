@@ -596,6 +596,12 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
                 'url' => 'http://site2.test',
                 'path' => '/Users/name/code/site2',
             ],
+            'portal.test-site' => [
+                'site' => 'portal.test-site',
+                'secured' => 'X',
+                'url' => 'http://portal.test-site.test',
+                'path' => '/Users/name/code/portal.test-site',
+            ],
         ]));
 
         $siteMock->shouldReceive('host')->andReturn('site1');
@@ -610,6 +616,9 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $this->assertEquals('site2.test', $site->getSiteUrl('site2'));
         $this->assertEquals('site2.test', $site->getSiteUrl('site2.test'));
+
+        $this->assertEquals('portal.test-site.test', $site->getSiteUrl('portal.test-site'));
+        $this->assertEquals('portal.test-site.test', $site->getSiteUrl('portal.test-site.test'));
     }
 
     public function test_it_throws_getting_nonexistent_site()
