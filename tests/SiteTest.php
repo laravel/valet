@@ -610,6 +610,12 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $this->assertEquals('site2.test', $site->getSiteUrl('site2'));
         $this->assertEquals('site2.test', $site->getSiteUrl('site2.test'));
+
+        $this->assertEquals('site1.test', $site->domain(''));
+
+        $this->assertEquals('site2.test', $site->domain('site2'));
+    	$this->assertEquals('site2.test', $site->domain('site2.test'));
+    	$this->assertEquals('www.example.com', $site->domain('www.example.com'));
     }
 
     public function test_it_throws_getting_nonexistent_site()
