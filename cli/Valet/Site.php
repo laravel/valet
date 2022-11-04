@@ -1078,9 +1078,9 @@ class Site
      *
      * @return string
      */
-    public function domain($domain='')
+    public function domain($domain)
     {
-    	if (str_contains($domain, '.')) {
+    	if (is_string($domain) && str_contains($domain, '.')) {
     		return $domain;
     	}
         return ($domain ?: $this->host(getcwd())) .'.'.$this->config->read()['tld'];

@@ -610,12 +610,33 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $this->assertEquals('site2.test', $site->getSiteUrl('site2'));
         $this->assertEquals('site2.test', $site->getSiteUrl('site2.test'));
+    }
 
-        $this->assertEquals('site1.test', $site->domain(''));
+    public function test_site_correctly_generates_domain_names()
+    {
 
-        $this->assertEquals('site2.test', $site->domain('site2'));
-    	$this->assertEquals('site2.test', $site->domain('site2.test'));
-    	$this->assertEquals('www.example.com', $site->domain('www.example.com'));
+    	$config = Mockery::mock(Configuration::class);
+
+        swap(Configuration::class, $config);
+
+        $siteMock = Mockery::mock(Site::class, [
+            resolve(Brew::class),
+            resolve(Configuration::class),
+            resolve(CommandLine::class),
+            resolve(Filesystem::class),
+        ])->makePartial();
+
+        swap(Site::class, $siteMock);
+
+        $config->shouldReceive('read')
+            ->andReturn(['tld' => 'test', 'loopback' => VALET_LOOPBACK, 'paths' => []]);
+
+ 		$siteMock->shouldReceive('host')->andReturn('site1');
+
+    	$this->assertEquals('site1.test', $siteMock->domain(null));
+        $this->assertEquals('site2.test', $siteMock->domain('site2'));
+    	$this->assertEquals('site2.test', $siteMock->domain('site2.test'));
+    	$this->assertEquals('www.example.com', $siteMock->domain('www.example.com'));
     }
 
     public function test_it_throws_getting_nonexistent_site()
