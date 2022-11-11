@@ -209,7 +209,7 @@ class Site
         }
 
         // Remove .tld from the end of sitename if it was provided
-        if (ends_with($directory, '.'.$tld) {
+        if (ends_with($directory, '.'.$tld)) {
             $directory = substr($directory, 0, -(strlen('.'.$tld)));
         }
 
