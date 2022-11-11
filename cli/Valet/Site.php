@@ -208,9 +208,9 @@ class Site
             $directory = $this->host(getcwd());
         }
 
-        $length = strlen('.'.$tld);
-        if (substr($directory, -$length) === '.'.$tld) {
-            $directory = substr($directory, 0, -$length); // Remove .tld from sitename if it was provided
+        // Remove .tld from the end of sitename if it was provided
+        if (ends_with($directory, '.'.$tld) {
+            $directory = substr($directory, 0, -(strlen('.'.$tld)));
         }
 
         if (! $this->parked()->merge($this->links())->where('site', $directory)->count() > 0) {
