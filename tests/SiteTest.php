@@ -614,8 +614,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
     public function test_site_correctly_generates_domain_names()
     {
-
-    	$config = Mockery::mock(Configuration::class);
+        $config = Mockery::mock(Configuration::class);
 
         swap(Configuration::class, $config);
 
@@ -631,12 +630,12 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $config->shouldReceive('read')
             ->andReturn(['tld' => 'test', 'loopback' => VALET_LOOPBACK, 'paths' => []]);
 
- 		$siteMock->shouldReceive('host')->andReturn('site1');
+        $siteMock->shouldReceive('host')->andReturn('site1');
 
-    	$this->assertEquals('site1.test', $siteMock->domain(null));
+        $this->assertEquals('site1.test', $siteMock->domain(null));
         $this->assertEquals('site2.test', $siteMock->domain('site2'));
-    	$this->assertEquals('site2.test', $siteMock->domain('site2.test'));
-    	$this->assertEquals('www.example.com', $siteMock->domain('www.example.com'));
+        $this->assertEquals('site2.test', $siteMock->domain('site2.test'));
+        $this->assertEquals('www.example.com', $siteMock->domain('www.example.com'));
     }
 
     public function test_it_throws_getting_nonexistent_site()
