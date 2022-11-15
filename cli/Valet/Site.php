@@ -1080,7 +1080,7 @@ class Site
      */
     public function domain($domain)
     {
-    	if (is_string($domain) && str_contains($domain, '.')) {
+    	if (is_string($domain) && (strpos($domain, '.') !== false)) {
     		return $domain;
     	}
         return ($domain ?: $this->host(getcwd())) .'.'.$this->config->read()['tld'];
