@@ -1,6 +1,12 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v3.1.12...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v3.1.13...master)
+
+## [v3.1.13](https://github.com/laravel/valet/compare/v3.1.12...v3.1.13) - 2022-11-15
+
+### Fixed
+
+- Fix bedrockvaletdriver by @EHLOVader in https://github.com/laravel/valet/pull/1289
 
 ## [v3.1.12](https://github.com/laravel/valet/compare/v3.1.11...v3.1.12) - 2022-10-25
 
