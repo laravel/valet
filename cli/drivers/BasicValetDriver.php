@@ -68,6 +68,22 @@ class BasicValetDriver extends ValetDriver
             }
         }
 
+        $publicDynamicCandidates = [
+            $this->asActualFile($sitePath.'/public', $uri),
+            $this->asPhpIndexFileInDirectory($sitePath.'/public', $uri),
+            $this->asHtmlIndexFileInDirectory($sitePath.'/public', $uri),
+        ];
+
+        foreach ($publicDynamicCandidates as $candidate) {
+            if ($this->isActualFile($candidate)) {
+                $_SERVER['SCRIPT_FILENAME'] = $candidate;
+                $_SERVER['SCRIPT_NAME'] = str_replace($sitePath.'/public', '', $candidate);
+                $_SERVER['DOCUMENT_ROOT'] = $sitePath.'/public';
+
+                return $candidate;
+            }
+        }
+
         $fixedCandidatesAndDocroots = [
             $this->asRootPhpIndexFile($sitePath) => $sitePath,
             $this->asPublicPhpIndexFile($sitePath) => $sitePath.'/public',
