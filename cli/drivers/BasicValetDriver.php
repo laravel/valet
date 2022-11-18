@@ -68,17 +68,19 @@ class BasicValetDriver extends ValetDriver
             }
         }
 
+        $sitePathPublic = $sitePath.'/public';
+
         $publicDynamicCandidates = [
-            $this->asActualFile($sitePath.'/public', $uri),
-            $this->asPhpIndexFileInDirectory($sitePath.'/public', $uri),
-            $this->asHtmlIndexFileInDirectory($sitePath.'/public', $uri),
+            $this->asActualFile($sitePathPublic, $uri),
+            $this->asPhpIndexFileInDirectory($sitePathPublic, $uri),
+            $this->asHtmlIndexFileInDirectory($sitePathPublic, $uri),
         ];
 
         foreach ($publicDynamicCandidates as $candidate) {
             if ($this->isActualFile($candidate)) {
                 $_SERVER['SCRIPT_FILENAME'] = $candidate;
-                $_SERVER['SCRIPT_NAME'] = str_replace($sitePath.'/public', '', $candidate);
-                $_SERVER['DOCUMENT_ROOT'] = $sitePath.'/public';
+                $_SERVER['SCRIPT_NAME'] = str_replace($sitePathPublic, '', $candidate);
+                $_SERVER['DOCUMENT_ROOT'] = $sitePathPublic;
 
                 return $candidate;
             }
@@ -86,8 +88,8 @@ class BasicValetDriver extends ValetDriver
 
         $fixedCandidatesAndDocroots = [
             $this->asRootPhpIndexFile($sitePath) => $sitePath,
-            $this->asPublicPhpIndexFile($sitePath) => $sitePath.'/public',
-            $this->asPublicHtmlIndexFile($sitePath) => $sitePath.'/public',
+            $this->asPublicPhpIndexFile($sitePath) => $sitePathPublic,
+            $this->asPublicHtmlIndexFile($sitePath) => $sitePathPublic,
         ];
 
         foreach ($fixedCandidatesAndDocroots as $candidate => $docroot) {
