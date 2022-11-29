@@ -409,7 +409,7 @@ class Site
             $newUrl = str_replace('.'.$oldTld, '.'.$tld, $url);
             $siteConf = $this->getSiteConfigFileContents($url, '.'.$oldTld);
 
-            if (! empty($siteConf) && strpos($siteConf, '# valet stub: proxy.valet.conf') === 0) {
+            if (! empty($siteConf) && strpos($siteConf, '# valet stub: secure.proxy.valet.conf') === 0) {
                 // proxy config
                 $this->unsecure($url);
                 $this->secure(
