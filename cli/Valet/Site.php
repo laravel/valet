@@ -208,7 +208,10 @@ class Site
             $directory = $this->host(getcwd());
         }
 
-        $directory = str_replace('.'.$tld, '', $directory); // Remove .tld from sitename if it was provided
+        // Remove .tld from the end of sitename if it was provided
+        if (ends_with($directory, '.'.$tld)) {
+            $directory = substr($directory, 0, -(strlen('.'.$tld)));
+        }
 
         if (! $this->parked()->merge($this->links())->where('site', $directory)->count() > 0) {
             throw new DomainException("The [{$directory}] site could not be found in Valet's site list.");
