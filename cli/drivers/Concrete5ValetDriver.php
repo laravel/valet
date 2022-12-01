@@ -16,6 +16,23 @@ class Concrete5ValetDriver extends BasicValetDriver
     }
 
     /**
+     * Determine if the incoming request is for a static file.
+     *
+     * @param  string  $sitePath
+     * @param  string  $siteName
+     * @param  string  $uri
+     * @return string|false
+     */
+    public function isStaticFile($sitePath, $siteName, $uri)
+    {
+        if (stripos($uri, '/application/files') === 0) {
+            return $sitePath . $uri;
+        }
+
+        return parent::isStaticFile($sitePath, $siteName, $uri);
+    }
+
+    /**
      * @param  string  $sitePath
      * @param  string  $siteName
      * @param  string  $uri
