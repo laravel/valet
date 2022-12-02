@@ -1,7 +1,5 @@
 <?php
 
-use Symfony\Component\Console\Tester\ApplicationTester;
-
 /**
  * @requires PHP >= 8.0
  */
