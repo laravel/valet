@@ -30,9 +30,9 @@ define('BREW_PREFIX', (new CommandLine())->runAsUser('printf $(brew --prefix)'))
 define('ISOLATED_PHP_VERSION', 'ISOLATED_PHP_VERSION');
 
 /**
- * Set or get a global console writer
+ * Set or get a global console writer.
  *
- * @param null|Symfony\Component\Console\Output\ConsoleOutputInterface $writer
+ * @param  null|Symfony\Component\Console\Output\ConsoleOutputInterface  $writer
  * @return void|Symfony\Component\Console\Output\ConsoleOutputInterface
  */
 function writer($writer = null)
