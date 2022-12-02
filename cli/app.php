@@ -8,7 +8,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-
 use function Valet\info;
 use function Valet\output;
 use function Valet\table;
@@ -41,7 +40,6 @@ Container::setInstance(new Container);
 $version = '3.1.13';
 
 $app = new Application('Laravel Valet', $version);
-
 
 $dispatcher = new EventDispatcher();
 $app->setDispatcher($dispatcher);
