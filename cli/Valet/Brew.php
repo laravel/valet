@@ -163,7 +163,7 @@ class Brew
             warning('Note: older PHP versions may take 10+ minutes to compile from source. Please wait ...');
         }
 
-        $this->cli->runAsUser(trim(static::BREW_DISABLE_AUTO_CLEANUP . ' brew install '.$formula.' '.implode(' ', $options)), function ($exitCode, $errorOutput) use ($formula) {
+        $this->cli->runAsUser(trim(static::BREW_DISABLE_AUTO_CLEANUP.' brew install '.$formula.' '.implode(' ', $options)), function ($exitCode, $errorOutput) use ($formula) {
             output($errorOutput);
 
             throw new DomainException('Brew was unable to install ['.$formula.'].');
@@ -181,7 +181,7 @@ class Brew
         $formulas = is_array($formulas) ? $formulas : func_get_args();
 
         foreach ($formulas as $formula) {
-            $this->cli->passthru(static::BREW_DISABLE_AUTO_CLEANUP . ' sudo -u "'.user().'" brew tap '.$formula);
+            $this->cli->passthru(static::BREW_DISABLE_AUTO_CLEANUP.' sudo -u "'.user().'" brew tap '.$formula);
         }
     }
 
@@ -487,7 +487,7 @@ class Brew
      */
     public function uninstallFormula($formula)
     {
-        $this->cli->runAsUser(static::BREW_DISABLE_AUTO_CLEANUP . ' brew uninstall --force '.$formula);
+        $this->cli->runAsUser(static::BREW_DISABLE_AUTO_CLEANUP.' brew uninstall --force '.$formula);
         $this->cli->run('rm -rf '.BREW_PREFIX.'/Cellar/'.$formula);
     }
 
