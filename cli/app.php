@@ -1,14 +1,14 @@
 <?php
 
 use Illuminate\Container\Container;
+use Illuminate\Container\Container;
+use Silly\Application;
 use Silly\Application;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
-use function Valet\info;
-use function Valet\output;
-use function Valet\table;
-use function Valet\warning;
 
 /**
  * Load correct autoloader depending on install location.
@@ -21,14 +21,14 @@ if (file_exists(__DIR__.'/../vendor/autoload.php')) {
     require_once getenv('HOME').'/.composer/vendor/autoload.php';
 }
 
-use Illuminate\Container\Container;
-use Silly\Application;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use function Valet\info;
+use function Valet\info;
+use function Valet\output;
 use function Valet\output;
 use function Valet\table;
+use function Valet\table;
+use function Valet\warning;
 use function Valet\warning;
 
 /**
