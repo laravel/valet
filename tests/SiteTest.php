@@ -770,9 +770,9 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         // When no Nginx file exists, it will create a new config file from the template
         $files->shouldReceive('exists')->once()->with($siteMock->nginxPath('site2.test'))->andReturn(false);
-        $files->shouldReceive('get')
+        $files->shouldReceive('getStub')
             ->once()
-            ->with(dirname(__DIR__).'/cli/Valet/../stubs/site.valet.conf')
+            ->with('site.valet.conf')
             ->andReturn(file_get_contents(__DIR__.'/../cli/stubs/site.valet.conf'));
 
         $files->shouldReceive('putAsUser')

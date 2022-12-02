@@ -100,7 +100,7 @@ class DnsMasq
         }
 
         // add a valet-specific config file to point to user's home directory valet config
-        $contents = $this->files->get(__DIR__.'/../stubs/etc-dnsmasq-valet.conf');
+        $contents = $this->files->getStub('etc-dnsmasq-valet.conf');
         $contents = str_replace('VALET_HOME_PATH', VALET_HOME_PATH, $contents);
         $this->files->ensureDirExists($this->dnsmasqSystemConfDir, user());
         $this->files->putAsUser($this->dnsmasqSystemConfDir.'/dnsmasq-valet.conf', $contents);
