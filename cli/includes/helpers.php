@@ -30,6 +30,27 @@ define('BREW_PREFIX', (new CommandLine())->runAsUser('printf $(brew --prefix)'))
 define('ISOLATED_PHP_VERSION', 'ISOLATED_PHP_VERSION');
 
 /**
+ * Set or get a global console writer
+ *
+ * @param null|Symfony\Component\Console\Output\ConsoleOutputInterface $writer
+ * @return void|Symfony\Component\Console\Output\ConsoleOutputInterface
+ */
+function writer($writer = null)
+{
+    $container = Container::getInstance();
+
+    if (! $writer) {
+        if (! $container->bound('writer')) {
+            $container->instance('writer', new ConsoleOutput());
+        }
+
+        return $container->make('writer');
+    }
+
+    Container::getInstance()->instance('writer', $writer);
+}
+
+/**
  * Output the given text to the console.
  *
  * @param  string  $output
@@ -60,7 +81,7 @@ function warning($output)
  */
 function table(array $headers = [], array $rows = [])
 {
-    $table = new Table(new ConsoleOutput);
+    $table = new Table(writer());
 
     $table->setHeaders($headers)->setRows($rows);
 
@@ -85,11 +106,7 @@ function testing()
  */
 function output($output)
 {
-    if (testing()) {
-        return;
-    }
-
-    (new ConsoleOutput())->writeln($output);
+    writer()->writeln($output);
 }
 
 if (! function_exists('resolve')) {

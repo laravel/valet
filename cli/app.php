@@ -50,7 +50,9 @@ if (is_dir(VALET_HOME_PATH)) {
 /**
  * Install Valet and any required services.
  */
-$app->command('install', function () {
+$app->command('install', function (OutputInterface $output) {
+    writer($output);
+
     Nginx::stop();
 
     Configuration::install();
@@ -78,6 +80,8 @@ if (is_dir(VALET_HOME_PATH)) {
      * Get or set the TLD currently being used by Valet.
      */
     $app->command('tld [tld]', function (InputInterface $input, OutputInterface $output, $tld = null) {
+        writer($output);
+
         if ($tld === null) {
             return output(Configuration::read()['tld']);
         }
@@ -109,7 +113,9 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Get or set the loopback address currently being used by Valet.
      */
-    $app->command('loopback [loopback]', function ($loopback = null) {
+    $app->command('loopback [loopback]', function (InputInterface $input, OutputInterface $output, $loopback = null) {
+        writer($output);
+
         if ($loopback === null) {
             return output(Configuration::read()['loopback']);
         }
@@ -135,16 +141,20 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Add the current working directory to the paths configuration.
      */
-    $app->command('park [path]', function ($path = null) {
+    $app->command('park [path]', function (OutputInterface $output, $path = null) {
+        writer($output);
+
         Configuration::addPath($path ?: getcwd());
 
-        info(($path === null ? 'This' : "The [{$path}]")." directory has been added to Valet's paths.");
+        info(($path === null ? 'This' : "The [{$path}]")." directory has been added to Valet's paths.", $output);
     })->descriptions('Register the current working (or specified) directory with Valet');
 
     /**
      * Get all the current sites within paths parked with 'park {path}'.
      */
-    $app->command('parked', function () {
+    $app->command('parked', function (OutputInterface $output) {
+        writer($output);
+
         $parked = Site::parked();
 
         table(['Site', 'SSL', 'URL', 'Path'], $parked->all());
@@ -153,7 +163,9 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Remove the current working directory from the paths configuration.
      */
-    $app->command('forget [path]', function ($path = null) {
+    $app->command('forget [path]', function (OutputInterface $output, $path = null) {
+        writer($output);
+
         Configuration::removePath($path ?: getcwd());
 
         info(($path === null ? 'This' : "The [{$path}]")." directory has been removed from Valet's paths.");
@@ -162,7 +174,9 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Register a symbolic link with Valet.
      */
-    $app->command('link [name] [--secure]', function ($name, $secure) {
+    $app->command('link [name] [--secure]', function (OutputInterface $output, $name, $secure) {
+        writer($output);
+
         $linkPath = Site::link(getcwd(), $name = $name ?: basename(getcwd()));
 
         info('A ['.$name.'] symbolic link has been created in ['.$linkPath.'].');
@@ -175,7 +189,9 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Display all of the registered symbolic links.
      */
-    $app->command('links', function () {
+    $app->command('links', function (OutputInterface $output) {
+        writer($output);
+
         $links = Site::links();
 
         table(['Site', 'SSL', 'URL', 'Path', 'PHP Version'], $links->all());
@@ -184,14 +200,18 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Unlink a link from the Valet links directory.
      */
-    $app->command('unlink [name]', function ($name) {
+    $app->command('unlink [name]', function (OutputInterface $output, $name) {
+        writer($output);
+
         info('The ['.Site::unlink($name).'] symbolic link has been removed.');
     })->descriptions('Remove the specified Valet link');
 
     /**
      * Secure the given domain with a trusted TLS certificate.
      */
-    $app->command('secure [domain] [--expireIn=]', function ($domain = null, $expireIn = 368) {
+    $app->command('secure [domain] [--expireIn=]', function (OutputInterface $output, $domain = null, $expireIn = 368) {
+        writer($output);
+
         $url = Site::domain($domain);
 
         Site::secure($url, null, $expireIn);
@@ -206,7 +226,9 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Stop serving the given domain over HTTPS and remove the trusted TLS certificate.
      */
-    $app->command('unsecure [domain] [--all]', function ($domain = null, $all = null) {
+    $app->command('unsecure [domain] [--all]', function (OutputInterface $output, $domain = null, $all = null) {
+        writer($output);
+
         if ($all) {
             Site::unsecureAll();
 
@@ -225,7 +247,9 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Display all of the currently secured sites.
      */
-    $app->command('secured', function () {
+    $app->command('secured', function (OutputInterface $output) {
+        writer($output);
+
         $sites = collect(Site::secured())->map(function ($url) {
             return ['Site' => $url];
         });
@@ -236,7 +260,9 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Create an Nginx proxy config for the specified domain.
      */
-    $app->command('proxy domain host [--secure]', function ($domain, $host, $secure) {
+    $app->command('proxy domain host [--secure]', function (OutputInterface $output, $domain, $host, $secure) {
+        writer($output);
+
         Site::proxyCreate($domain, $host, $secure);
         Nginx::restart();
     })->descriptions('Create an Nginx proxy site for the specified host. Useful for docker, mailhog etc.', [
@@ -246,7 +272,9 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Delete an Nginx proxy config.
      */
-    $app->command('unproxy domain', function ($domain) {
+    $app->command('unproxy domain', function (OutputInterface $output, $domain) {
+        writer($output);
+
         Site::proxyDelete($domain);
         Nginx::restart();
     })->descriptions('Delete an Nginx proxy config.');
@@ -254,7 +282,9 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Display all of the sites that are proxies.
      */
-    $app->command('proxies', function () {
+    $app->command('proxies', function (OutputInterface $output) {
+        writer($output);
+
         $proxies = Site::proxies();
 
         table(['Site', 'SSL', 'URL', 'Host'], $proxies->all());
@@ -263,7 +293,9 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Determine which Valet driver the current directory is using.
      */
-    $app->command('which', function () {
+    $app->command('which', function (OutputInterface $output) {
+        writer($output);
+
         require __DIR__.'/drivers/require.php';
 
         $driver = ValetDriver::assign(getcwd(), basename(getcwd()), '/');
@@ -278,7 +310,9 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Display all of the registered paths.
      */
-    $app->command('paths', function () {
+    $app->command('paths', function (OutputInterface $output) {
+        writer($output);
+
         $paths = Configuration::read()['paths'];
 
         if (count($paths) > 0) {
@@ -291,7 +325,9 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Open the current or given directory in the browser.
      */
-    $app->command('open [domain]', function ($domain = null) {
+    $app->command('open [domain]', function (OutputInterface $output, $domain = null) {
+        writer($output);
+
         $url = 'http://'.Site::domain($domain);
         CommandLine::runAsUser('open '.escapeshellarg($url));
     })->descriptions('Open the site for the current (or specified) directory in your browser');
@@ -299,21 +335,27 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Generate a publicly accessible URL for your project.
      */
-    $app->command('share', function () {
+    $app->command('share', function (OutputInterface $output) {
+        writer($output);
+
         warning('It looks like you are running `cli/valet.php` directly; please use the `valet` script in the project root instead.');
     })->descriptions('Generate a publicly accessible URL for your project');
 
     /**
      * Echo the currently tunneled URL.
      */
-    $app->command('fetch-share-url [domain]', function ($domain = null) {
+    $app->command('fetch-share-url [domain]', function (OutputInterface $output, $domain = null) {
+        writer($output);
+
         output(Ngrok::currentTunnelUrl(Site::domain($domain)));
     })->descriptions('Get the URL to the current Ngrok tunnel');
 
     /**
      * Start the daemon services.
      */
-    $app->command('start [service]', function ($service) {
+    $app->command('start [service]', function (OutputInterface $output, $service) {
+        writer($output);
+
         switch ($service) {
             case '':
                 DnsMasq::restart();
@@ -341,7 +383,9 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Restart the daemon services.
      */
-    $app->command('restart [service]', function ($service) {
+    $app->command('restart [service]', function (OutputInterface $output, $service) {
+        writer($output);
+
         switch ($service) {
             case '':
                 DnsMasq::restart();
@@ -369,7 +413,9 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Stop the daemon services.
      */
-    $app->command('stop [service]', function ($service) {
+    $app->command('stop [service]', function (OutputInterface $output, $service) {
+        writer($output);
+
         switch ($service) {
             case '':
                 PhpFpm::stopRunning();
@@ -392,7 +438,9 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Uninstall Valet entirely. Requires --force to actually remove; otherwise manual instructions are displayed.
      */
-    $app->command('uninstall [--force]', function ($input, $output, $force) {
+    $app->command('uninstall [--force]', function (InputInterface $input, OutputInterface $output, $force) {
+        writer($output);
+
         if ($force) {
             warning('YOU ARE ABOUT TO UNINSTALL Nginx, PHP, Dnsmasq and all Valet configs and logs.');
             $helper = $this->getHelperSet()->get('question');
@@ -485,7 +533,9 @@ You might also want to investigate your global Composer configs. Helpful command
     /**
      * Determine if this is the latest release of Valet.
      */
-    $app->command('on-latest-version', function () use ($version) {
+    $app->command('on-latest-version', function (OutputInterface $output) use ($version) {
+        writer($output);
+
         if (Valet::onLatestVersion($version)) {
             output('Yes');
         } else {
@@ -497,7 +547,9 @@ You might also want to investigate your global Composer configs. Helpful command
     /**
      * Install the sudoers.d entries so password is no longer required.
      */
-    $app->command('trust [--off]', function ($off) {
+    $app->command('trust [--off]', function (OutputInterface $output, $off) {
+        writer($output);
+
         if ($off) {
             Brew::removeSudoersEntry();
             Valet::removeSudoersEntry();
@@ -516,7 +568,9 @@ You might also want to investigate your global Composer configs. Helpful command
     /**
      * Allow the user to change the version of php Valet uses.
      */
-    $app->command('use [phpVersion] [--force]', function ($phpVersion, $force) {
+    $app->command('use [phpVersion] [--force]', function (OutputInterface $output, $phpVersion, $force) {
+        writer($output);
+
         if (! $phpVersion) {
             $site = basename(getcwd());
             $linkedVersion = Brew::linkedPhp();
@@ -547,7 +601,9 @@ You might also want to investigate your global Composer configs. Helpful command
     /**
      * Allow the user to change the version of PHP Valet uses to serve the current site.
      */
-    $app->command('isolate [phpVersion] [--site=]', function ($phpVersion, $site = null) {
+    $app->command('isolate [phpVersion] [--site=]', function (OutputInterface $output, $phpVersion, $site = null) {
+        writer($output);
+
         if (! $site) {
             $site = basename(getcwd());
         }
@@ -565,7 +621,9 @@ You might also want to investigate your global Composer configs. Helpful command
     /**
      * Allow the user to un-do specifying the version of PHP Valet uses to serve the current site.
      */
-    $app->command('unisolate [--site=]', function ($site = null) {
+    $app->command('unisolate [--site=]', function (OutputInterface $output, $site = null) {
+        writer($output);
+
         if (! $site) {
             $site = basename(getcwd());
         }
@@ -578,7 +636,9 @@ You might also want to investigate your global Composer configs. Helpful command
     /**
      * List isolated sites.
      */
-    $app->command('isolated', function () {
+    $app->command('isolated', function (OutputInterface $output) {
+        writer($output);
+
         $sites = PhpFpm::isolatedDirectories();
 
         table(['Path', 'PHP Version'], $sites->all());
@@ -587,7 +647,9 @@ You might also want to investigate your global Composer configs. Helpful command
     /**
      * Get the PHP executable path for a site.
      */
-    $app->command('which-php [site]', function ($site) {
+    $app->command('which-php [site]', function (OutputInterface $output, $site) {
+        writer($output);
+
         $phpVersion = Site::customPhpVersion(
             Site::host($site ?: getcwd()).'.'.Configuration::read()['tld']
         );
@@ -604,7 +666,9 @@ You might also want to investigate your global Composer configs. Helpful command
     /**
      * Proxy commands through to an isolated site's version of PHP.
      */
-    $app->command('php [command]', function ($command) {
+    $app->command('php [command]', function (OutputInterface $output, $command) {
+        writer($output);
+
         warning('It looks like you are running `cli/valet.php` directly; please use the `valet` script in the project root instead.');
     })->descriptions("Proxy PHP commands with isolated site's PHP executable", [
         'command' => "Command to run with isolated site's PHP executable",
@@ -613,7 +677,9 @@ You might also want to investigate your global Composer configs. Helpful command
     /**
      * Proxy commands through to an isolated site's version of Composer.
      */
-    $app->command('composer [command]', function ($command) {
+    $app->command('composer [command]', function (OutputInterface $output, $command) {
+        writer($output);
+
         warning('It looks like you are running `cli/valet.php` directly; please use the `valet` script in the project root instead.');
     })->descriptions("Proxy Composer commands with isolated site's PHP executable", [
         'command' => "Composer command to run with isolated site's PHP executable",
@@ -622,7 +688,9 @@ You might also want to investigate your global Composer configs. Helpful command
     /**
      * Tail log file.
      */
-    $app->command('log [-f|--follow] [-l|--lines=] [key]', function ($follow, $lines, $key = null) {
+    $app->command('log [-f|--follow] [-l|--lines=] [key]', function (OutputInterface $output, $follow, $lines, $key = null) {
+        writer($output);
+
         $defaultLogs = [
             'php-fpm' => BREW_PREFIX.'/var/log/php-fpm.log',
             'nginx' => VALET_HOME_PATH.'/Log/nginx-error.log',
@@ -690,7 +758,9 @@ You might also want to investigate your global Composer configs. Helpful command
     /**
      * Configure or display the directory-listing setting.
      */
-    $app->command('directory-listing [status]', function ($status = null) {
+    $app->command('directory-listing [status]', function (OutputInterface $output, $status = null) {
+        writer($output);
+
         $key = 'directory-listing';
         $config = Configuration::read();
 
@@ -710,7 +780,9 @@ You might also want to investigate your global Composer configs. Helpful command
     /**
      * Output diagnostics to aid in debugging Valet.
      */
-    $app->command('diagnose [-p|--print] [--plain]', function ($print, $plain) {
+    $app->command('diagnose [-p|--print] [--plain]', function (OutputInterface $output, $print, $plain) {
+        writer($output);
+
         info('Running diagnostics... (this may take a while)');
 
         Diagnose::run($print, $plain);
@@ -728,3 +800,5 @@ You might also want to investigate your global Composer configs. Helpful command
 foreach (Valet::extensions() as $extension) {
     include $extension;
 }
+
+return $app;

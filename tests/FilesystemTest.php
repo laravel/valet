@@ -4,6 +4,13 @@ use Valet\Filesystem;
 
 class FilesystemTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 {
+    use UsesNullWriter;
+
+    public function set_up()
+    {
+        $this->setNullWriter();
+    }
+
     public function tear_down()
     {
         exec('rm -rf '.__DIR__.'/output');
