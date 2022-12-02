@@ -63,6 +63,10 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $this->assertFalse($brew->hasInstalledPhp());
 
         $brew = Mockery::mock(Brew::class.'[installedPhpFormulae]', [new CommandLine, new Filesystem]);
+        $brew->shouldReceive('installedPhpFormulae')->andReturn(collect(['php@8.2']));
+        $this->assertTrue($brew->hasInstalledPhp());
+
+        $brew = Mockery::mock(Brew::class.'[installedPhpFormulae]', [new CommandLine, new Filesystem]);
         $brew->shouldReceive('installedPhpFormulae')->andReturn(collect(['php@8.1']));
         $this->assertTrue($brew->hasInstalledPhp());
 
@@ -98,9 +102,10 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
     public function test_tap_taps_the_given_homebrew_repository()
     {
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('passthru')->once()->with('sudo -u "'.user().'" brew tap php@8.0');
-        $cli->shouldReceive('passthru')->once()->with('sudo -u "'.user().'" brew tap php@7.1');
-        $cli->shouldReceive('passthru')->once()->with('sudo -u "'.user().'" brew tap php@7.0');
+        $prefix = Brew::BREW_DISABLE_AUTO_CLEANUP;
+        $cli->shouldReceive('passthru')->once()->with($prefix.' sudo -u "'.user().'" brew tap php@8.0');
+        $cli->shouldReceive('passthru')->once()->with($prefix.' sudo -u "'.user().'" brew tap php@7.1');
+        $cli->shouldReceive('passthru')->once()->with($prefix.' sudo -u "'.user().'" brew tap php@7.0');
         swap(CommandLine::class, $cli);
         resolve(Brew::class)->tap('php@8.0', 'php@7.1', 'php@7.0');
     }
@@ -193,7 +198,7 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
     public function test_install_or_fail_will_install_brew_formulae()
     {
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('runAsUser')->once()->with('brew install dnsmasq', Mockery::type('Closure'));
+        $cli->shouldReceive('runAsUser')->once()->with(Brew::BREW_DISABLE_AUTO_CLEANUP.' brew install dnsmasq', Mockery::type('Closure'));
         swap(CommandLine::class, $cli);
         resolve(Brew::class)->installOrFail('dnsmasq');
     }
@@ -201,7 +206,7 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
     public function test_install_or_fail_can_install_taps()
     {
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('runAsUser')->once()->with('brew install dnsmasq', Mockery::type('Closure'));
+        $cli->shouldReceive('runAsUser')->once()->with(Brew::BREW_DISABLE_AUTO_CLEANUP.' brew install dnsmasq', Mockery::type('Closure'));
         swap(CommandLine::class, $cli);
         $brew = Mockery::mock(Brew::class.'[tap]', [$cli, new Filesystem]);
         $brew->shouldReceive('tap')->once()->with(['test/tap']);

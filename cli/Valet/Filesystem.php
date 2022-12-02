@@ -359,4 +359,21 @@ class Filesystem
                         return in_array($file, ['.', '..']);
                     })->values()->all();
     }
+
+    /**
+     * Get custom stub file if exists.
+     *
+     * @param  string  $filename
+     * @return string
+     */
+    public function getStub($filename)
+    {
+        $default = __DIR__.'/../stubs/'.$filename;
+
+        $custom = VALET_HOME_PATH.'/stubs/'.$filename;
+
+        $path = file_exists($custom) ? $custom : $default;
+
+        return $this->get($path);
+    }
 }

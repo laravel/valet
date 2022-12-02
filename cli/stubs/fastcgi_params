@@ -18,3 +18,5 @@ fastcgi_param SERVER_NAME  $server_name;
 fastcgi_param HTTPS   $https if_not_empty;
 fastcgi_param REDIRECT_STATUS  200;
 fastcgi_param HTTP_PROXY  "";
+fastcgi_buffer_size 512k;
+fastcgi_buffers 16 512k;

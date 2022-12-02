@@ -596,6 +596,12 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
                 'url' => 'http://site2.test',
                 'path' => '/Users/name/code/site2',
             ],
+            'portal.test-site' => [
+                'site' => 'portal.test-site',
+                'secured' => 'X',
+                'url' => 'http://portal.test-site.test',
+                'path' => '/Users/name/code/portal.test-site',
+            ],
         ]));
 
         $siteMock->shouldReceive('host')->andReturn('site1');
@@ -610,6 +616,9 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $this->assertEquals('site2.test', $site->getSiteUrl('site2'));
         $this->assertEquals('site2.test', $site->getSiteUrl('site2.test'));
+
+        $this->assertEquals('portal.test-site.test', $site->getSiteUrl('portal.test-site'));
+        $this->assertEquals('portal.test-site.test', $site->getSiteUrl('portal.test-site.test'));
     }
 
     public function test_it_throws_getting_nonexistent_site()
@@ -761,9 +770,9 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         // When no Nginx file exists, it will create a new config file from the template
         $files->shouldReceive('exists')->once()->with($siteMock->nginxPath('site2.test'))->andReturn(false);
-        $files->shouldReceive('get')
+        $files->shouldReceive('getStub')
             ->once()
-            ->with(dirname(__DIR__).'/cli/Valet/../stubs/site.valet.conf')
+            ->with('site.valet.conf')
             ->andReturn(file_get_contents(__DIR__.'/../cli/stubs/site.valet.conf'));
 
         $files->shouldReceive('putAsUser')

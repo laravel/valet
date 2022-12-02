@@ -58,7 +58,7 @@ class Nginx
     {
         info('Installing nginx configuration...');
 
-        $contents = $this->files->get(__DIR__.'/../stubs/nginx.conf');
+        $contents = $this->files->getStub('nginx.conf');
 
         $this->files->putAsUser(
             static::NGINX_CONF,
@@ -80,13 +80,13 @@ class Nginx
             str_replace(
                 ['VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_STATIC_PREFIX'],
                 [VALET_HOME_PATH, VALET_SERVER_PATH, VALET_STATIC_PREFIX],
-                $this->site->replaceLoopback($this->files->get(__DIR__.'/../stubs/valet.conf'))
+                $this->site->replaceLoopback($this->files->getStub('valet.conf'))
             )
         );
 
         $this->files->putAsUser(
             BREW_PREFIX.'/etc/nginx/fastcgi_params',
-            $this->files->get(__DIR__.'/../stubs/fastcgi_params')
+            $this->files->getStub('fastcgi_params')
         );
     }
 

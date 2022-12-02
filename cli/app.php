@@ -13,18 +13,28 @@ use function Valet\warning;
 /**
  * Load correct autoloader depending on install location.
  */
-if (file_exists(__DIR__.'/../vendor/autoload.php')) {
-    require_once __DIR__.'/../vendor/autoload.php';
-} elseif (file_exists(__DIR__.'/../../../autoload.php')) {
-    require_once __DIR__.'/../../../autoload.php';
+if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
+    require __DIR__ . '/../vendor/autoload.php';
+} elseif (file_exists(__DIR__ . '/../../../autoload.php')) {
+    require __DIR__ . '/../../../autoload.php';
 } else {
-    require_once getenv('HOME').'/.composer/vendor/autoload.php';
+    require getenv('HOME') . '/.composer/vendor/autoload.php';
 }
+
+use Illuminate\Container\Container;
+use Silly\Application;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
+use function Valet\info;
+use function Valet\output;
+use function Valet\table;
+use function Valet\warning;
 
 /**
  * Relocate config dir to ~/.config/valet/ if found in old location.
  */
-if (is_dir(VALET_LEGACY_HOME_PATH) && ! is_dir(VALET_HOME_PATH)) {
+if (is_dir(VALET_LEGACY_HOME_PATH) && !is_dir(VALET_HOME_PATH)) {
     Configuration::createConfigurationDirectory();
 }
 
@@ -33,7 +43,7 @@ if (is_dir(VALET_LEGACY_HOME_PATH) && ! is_dir(VALET_HOME_PATH)) {
  */
 Container::setInstance(new Container);
 
-$version = '3.1.8';
+$version = '3.1.13';
 
 $app = new Application('Laravel Valet', $version);
 
@@ -59,7 +69,7 @@ $app->command('install', function () {
     Nginx::restart();
     Valet::symlinkToUsersBin();
 
-    output(PHP_EOL.'<info>Valet installed successfully!</info>');
+    output(PHP_EOL . '<info>Valet installed successfully!</info>');
 })->descriptions('Install the Valet services');
 
 /**
@@ -102,7 +112,7 @@ if (is_dir(VALET_HOME_PATH)) {
         PhpFpm::restart();
         Nginx::restart();
 
-        info('Your Valet TLD has been updated to ['.$tld.'].');
+        info('Your Valet TLD has been updated to [' . $tld . '].');
     }, ['domain'])->descriptions('Get or set the TLD used for Valet sites.');
 
     /**
@@ -114,7 +124,7 @@ if (is_dir(VALET_HOME_PATH)) {
         }
 
         if (filter_var($loopback, FILTER_VALIDATE_IP) === false) {
-            return warning('['.$loopback.'] is not a valid IP address');
+            return warning('[' . $loopback . '] is not a valid IP address');
         }
 
         $oldLoopback = Configuration::read()['loopback'];
@@ -128,16 +138,16 @@ if (is_dir(VALET_HOME_PATH)) {
         Nginx::installServer();
         Nginx::restart();
 
-        info('Your valet loopback address has been updated to ['.$loopback.']');
+        info('Your valet loopback address has been updated to [' . $loopback . ']');
     })->descriptions('Get or set the loopback address used for Valet sites');
 
     /**
      * Add the current working directory to the paths configuration.
      */
-    $app->command('park [path]', function (OutputInterface $output, $path = null) {
+    $app->command('park [path]', function ($path = null) {
         Configuration::addPath($path ?: getcwd());
 
-        $output->writeln(($path === null ? 'This' : "The [{$path}]")." directory has been added to Valet's paths.");
+        info(($path === null ? 'This' : "The [{$path}]") . " directory has been added to Valet's paths.");
     })->descriptions('Register the current working (or specified) directory with Valet');
 
     /**
@@ -155,7 +165,7 @@ if (is_dir(VALET_HOME_PATH)) {
     $app->command('forget [path]', function ($path = null) {
         Configuration::removePath($path ?: getcwd());
 
-        info(($path === null ? 'This' : "The [{$path}]")." directory has been removed from Valet's paths.");
+        info(($path === null ? 'This' : "The [{$path}]") . " directory has been removed from Valet's paths.");
     }, ['unpark'])->descriptions('Remove the current working (or specified) directory from Valet\'s list of paths');
 
     /**
@@ -164,10 +174,10 @@ if (is_dir(VALET_HOME_PATH)) {
     $app->command('link [name] [--secure]', function ($name, $secure) {
         $linkPath = Site::link(getcwd(), $name = $name ?: basename(getcwd()));
 
-        info('A ['.$name.'] symbolic link has been created in ['.$linkPath.'].');
+        info('A [' . $name . '] symbolic link has been created in [' . $linkPath . '].');
 
         if ($secure) {
-            $this->runCommand('secure '.$name);
+            $this->runCommand('secure ' . $name);
         }
     })->descriptions('Link the current working directory to Valet');
 
@@ -184,7 +194,7 @@ if (is_dir(VALET_HOME_PATH)) {
      * Unlink a link from the Valet links directory.
      */
     $app->command('unlink [name]', function ($name) {
-        info('The ['.Site::unlink($name).'] symbolic link has been removed.');
+        info('The [' . Site::unlink($name) . '] symbolic link has been removed.');
     })->descriptions('Remove the specified Valet link');
 
     /**
@@ -197,7 +207,7 @@ if (is_dir(VALET_HOME_PATH)) {
 
         Nginx::restart();
 
-        info('The ['.$url.'] site has been secured with a fresh TLS certificate.');
+        info('The [' . $url . '] site has been secured with a fresh TLS certificate.');
     })->descriptions('Secure the given domain with a trusted TLS certificate', [
         '--expireIn' => 'The amount of days the self signed certificate is valid for. Default is set to "368"',
     ]);
@@ -218,11 +228,11 @@ if (is_dir(VALET_HOME_PATH)) {
 
         Nginx::restart();
 
-        info('The ['.$url.'] site will now serve traffic over HTTP.');
+        info('The [' . $url . '] site will now serve traffic over HTTP.');
     })->descriptions('Stop serving the given domain over HTTPS and remove the trusted TLS certificate');
 
     /**
-     * Get all the current secured sites.
+     * Display all of the currently secured sites.
      */
     $app->command('secured', function () {
         $sites = collect(Site::secured())->map(function ($url) {
@@ -230,7 +240,7 @@ if (is_dir(VALET_HOME_PATH)) {
         });
 
         table(['Site'], $sites->all());
-    });
+    })->descriptions('Display all of the currently secured sites');
 
     /**
      * Create an Nginx proxy config for the specified domain.
@@ -263,12 +273,12 @@ if (is_dir(VALET_HOME_PATH)) {
      * Determine which Valet driver the current directory is using.
      */
     $app->command('which', function () {
-        require __DIR__.'/drivers/require.php';
+        require __DIR__ . '/drivers/require.php';
 
         $driver = ValetDriver::assign(getcwd(), basename(getcwd()), '/');
 
         if ($driver) {
-            info('This site is served by ['.get_class($driver).'].');
+            info('This site is served by [' . get_class($driver) . '].');
         } else {
             warning('Valet could not determine which driver to use for this site.');
         }
@@ -291,8 +301,8 @@ if (is_dir(VALET_HOME_PATH)) {
      * Open the current or given directory in the browser.
      */
     $app->command('open [domain]', function ($domain = null) {
-        $url = 'http://'.Site::domain($domain);
-        CommandLine::runAsUser('open '.escapeshellarg($url));
+        $url = 'http://' . Site::domain($domain);
+        CommandLine::runAsUser('open ' . escapeshellarg($url));
     })->descriptions('Open the site for the current (or specified) directory in your browser');
 
     /**
@@ -425,7 +435,7 @@ NOTE: Composer may have other dependencies for other global apps you have instal
 Thus, you may need to delete things from your <info>~/.composer/composer.json</info> file before running <info>composer global update</info> successfully.
 Then to finish removing any Composer fragments of Valet:
 Run <info>composer global remove laravel/valet</info>
-and then <info>rm '.BREW_PREFIX.'/bin/valet</info> to remove the Valet bin link if it still exists.
+and then <info>rm ' . BREW_PREFIX . '/bin/valet</info> to remove the Valet bin link if it still exists.
 Optional:
 - <info>brew list --formula</info> will show any other Homebrew services installed, in case you want to make changes to those as well.
 - <info>brew doctor</info> can indicate if there might be any broken things left behind.
@@ -454,13 +464,13 @@ You can run <comment>composer global remove laravel/valet</comment> to uninstall
 
 <info>4. Homebrew Services</info>
 <fg=red>You may remove the core services (php, nginx, dnsmasq) by running:</> <comment>brew uninstall --force php nginx dnsmasq</comment>
-<fg=red>You can then remove selected leftover configurations for these services manually</> in both <comment>'.BREW_PREFIX.'/etc/</comment> and <comment>'.BREW_PREFIX.'/logs/</comment>.
+<fg=red>You can then remove selected leftover configurations for these services manually</> in both <comment>' . BREW_PREFIX . '/etc/</comment> and <comment>' . BREW_PREFIX . '/logs/</comment>.
 (If you have other PHP versions installed, run <info>brew list --formula | grep php</info> to see which versions you should also uninstall manually.)
 
 <error>BEWARE:</error> Uninstalling PHP via Homebrew will leave your Mac with its original PHP version, which may not be compatible with other Composer dependencies you have installed. Thus you may get unexpected errors.
 
 Some additional services which you may have installed (but which Valet does not directly configure or manage) include: <comment>mariadb mysql mailhog</comment>.
-If you wish to also remove them, you may manually run <comment>brew uninstall SERVICENAME</comment> and clean up their configurations in '.BREW_PREFIX.'/etc if necessary.
+If you wish to also remove them, you may manually run <comment>brew uninstall SERVICENAME</comment> and clean up their configurations in ' . BREW_PREFIX . '/etc if necessary.
 
 You can discover more Homebrew services by running: <comment>brew services list</comment> and <comment>brew list --formula</comment>
 
@@ -516,24 +526,24 @@ You might also want to investigate your global Composer configs. Helpful command
      * Allow the user to change the version of php Valet uses.
      */
     $app->command('use [phpVersion] [--force]', function ($phpVersion, $force) {
-        if (! $phpVersion) {
+        if (!$phpVersion) {
             $site = basename(getcwd());
             $linkedVersion = Brew::linkedPhp();
 
             if ($phpVersion = Site::phpRcVersion($site)) {
                 info("Found '{$site}/.valetphprc' specifying version: {$phpVersion}");
             } else {
-                $domain = $site.'.'.data_get(Configuration::read(), 'tld');
+                $domain = $site . '.' . data_get(Configuration::read(), 'tld');
                 if ($phpVersion = PhpFpm::normalizePhpVersion(Site::customPhpVersion($domain))) {
                     info("Found isolated site '{$domain}' specifying version: {$phpVersion}");
                 }
             }
 
-            if (! $phpVersion) {
+            if (!$phpVersion) {
                 return info("Valet is using {$linkedVersion}.");
             }
 
-            if ($linkedVersion == $phpVersion && ! $force) {
+            if ($linkedVersion == $phpVersion && !$force) {
                 return info("Valet is already using {$linkedVersion}.");
             }
         }
@@ -547,7 +557,7 @@ You might also want to investigate your global Composer configs. Helpful command
      * Allow the user to change the version of PHP Valet uses to serve the current site.
      */
     $app->command('isolate [phpVersion] [--site=]', function ($phpVersion, $site = null) {
-        if (! $site) {
+        if (!$site) {
             $site = basename(getcwd());
         }
 
@@ -565,7 +575,7 @@ You might also want to investigate your global Composer configs. Helpful command
      * Allow the user to un-do specifying the version of PHP Valet uses to serve the current site.
      */
     $app->command('unisolate [--site=]', function ($site = null) {
-        if (! $site) {
+        if (!$site) {
             $site = basename(getcwd());
         }
 
@@ -588,10 +598,10 @@ You might also want to investigate your global Composer configs. Helpful command
      */
     $app->command('which-php [site]', function ($site) {
         $phpVersion = Site::customPhpVersion(
-            Site::host($site ?: getcwd()).'.'.Configuration::read()['tld']
+            Site::host($site ?: getcwd()) . '.' . Configuration::read()['tld']
         );
 
-        if (! $phpVersion) {
+        if (!$phpVersion) {
             $phpVersion = Site::phpRcVersion($site ?: basename(getcwd()));
         }
 
@@ -623,21 +633,21 @@ You might also want to investigate your global Composer configs. Helpful command
      */
     $app->command('log [-f|--follow] [-l|--lines=] [key]', function ($follow, $lines, $key = null) {
         $defaultLogs = [
-            'php-fpm' => BREW_PREFIX.'/var/log/php-fpm.log',
-            'nginx' => VALET_HOME_PATH.'/Log/nginx-error.log',
-            'mailhog' => BREW_PREFIX.'/var/log/mailhog.log',
-            'redis' => BREW_PREFIX.'/var/log/redis.log',
+            'php-fpm' => BREW_PREFIX . '/var/log/php-fpm.log',
+            'nginx' => VALET_HOME_PATH . '/Log/nginx-error.log',
+            'mailhog' => BREW_PREFIX . '/var/log/mailhog.log',
+            'redis' => BREW_PREFIX . '/var/log/redis.log',
         ];
 
         $configLogs = data_get(Configuration::read(), 'logs');
-        if (! is_array($configLogs)) {
+        if (!is_array($configLogs)) {
             $configLogs = [];
         }
 
         $logs = array_merge($defaultLogs, $configLogs);
         ksort($logs);
 
-        if (! $key) {
+        if (!$key) {
             info(implode(PHP_EOL, [
                 'In order to tail a log, pass the relevant log key (e.g. "nginx")',
                 'along with any optional tail parameters (e.g. "-f" for follow).',
@@ -658,19 +668,19 @@ You might also want to investigate your global Composer configs. Helpful command
             info(implode(PHP_EOL, [
                 null,
                 'Tip: Set custom logs by adding a "logs" key/file object',
-                'to your "'.Configuration::path().'" file.',
+                'to your "' . Configuration::path() . '" file.',
             ]));
 
             exit;
         }
 
-        if (! isset($logs[$key])) {
-            return warning('No logs found for ['.$key.'].');
+        if (!isset($logs[$key])) {
+            return warning('No logs found for [' . $key . '].');
         }
 
         $file = $logs[$key];
-        if (! file_exists($file)) {
-            return warning('Log path ['.$file.'] does not (yet) exist.');
+        if (!file_exists($file)) {
+            return warning('Log path [' . $file . '] does not (yet) exist.');
         }
 
         $options = [];
@@ -678,7 +688,7 @@ You might also want to investigate your global Composer configs. Helpful command
             $options[] = '-f';
         }
         if ((int) $lines) {
-            $options[] = '-n '.(int) $lines;
+            $options[] = '-n ' . (int) $lines;
         }
 
         $command = implode(' ', array_merge(['tail'], $options, [$file]));
@@ -697,11 +707,11 @@ You might also want to investigate your global Composer configs. Helpful command
             $config[$key] = $status;
             Configuration::write($config);
 
-            return output('Directory listing setting is now: '.$status);
+            return output('Directory listing setting is now: ' . $status);
         }
 
         $current = isset($config[$key]) ? $config[$key] : 'off';
-        output('Directory listing is '.$current);
+        output('Directory listing is ' . $current);
     })->descriptions('Determine directory-listing behavior. Default is off, which means a 404 will display.', [
         'status' => 'on or off. (default=off) will show a 404 page; [on] will display a listing if project folder exists but requested URI not found',
     ]);
@@ -727,5 +737,3 @@ You might also want to investigate your global Composer configs. Helpful command
 foreach (Valet::extensions() as $extension) {
     include $extension;
 }
-
-return $app;
