@@ -12,11 +12,14 @@ use function Valet\user;
 
 class DnsMasqTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 {
+    use UsesNullWriter;
+
     public function set_up()
     {
         $_SERVER['SUDO_USER'] = user();
 
         Container::setInstance(new Container);
+        $this->setNullWriter();
     }
 
     public function tear_down()

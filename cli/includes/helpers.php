@@ -11,7 +11,11 @@ use Symfony\Component\Console\Output\ConsoleOutput;
  * Define constants.
  */
 if (! defined('VALET_HOME_PATH')) {
-    define('VALET_HOME_PATH', $_SERVER['HOME'].'/.config/valet');
+    if (testing()) {
+        define('VALET_HOME_PATH', __DIR__.'/../../tests/config/valet');
+    } else {
+        define('VALET_HOME_PATH', $_SERVER['HOME'].'/.config/valet');
+    }
 }
 if (! defined('VALET_STATIC_PREFIX')) {
     define('VALET_STATIC_PREFIX', '41c270e4-5535-4daa-b23e-c269744c2f45');
@@ -24,6 +28,27 @@ define('VALET_LEGACY_HOME_PATH', $_SERVER['HOME'].'/.valet');
 define('BREW_PREFIX', (new CommandLine())->runAsUser('printf $(brew --prefix)'));
 
 define('ISOLATED_PHP_VERSION', 'ISOLATED_PHP_VERSION');
+
+/**
+ * Set or get a global console writer.
+ *
+ * @param  null|Symfony\Component\Console\Output\ConsoleOutputInterface  $writer
+ * @return void|Symfony\Component\Console\Output\ConsoleOutputInterface
+ */
+function writer($writer = null)
+{
+    $container = Container::getInstance();
+
+    if (! $writer) {
+        if (! $container->bound('writer')) {
+            $container->instance('writer', new ConsoleOutput());
+        }
+
+        return $container->make('writer');
+    }
+
+    Container::getInstance()->instance('writer', $writer);
+}
 
 /**
  * Output the given text to the console.
@@ -56,11 +81,21 @@ function warning($output)
  */
 function table(array $headers = [], array $rows = [])
 {
-    $table = new Table(new ConsoleOutput);
+    $table = new Table(writer());
 
     $table->setHeaders($headers)->setRows($rows);
 
     $table->render();
+}
+
+/**
+ * Return whether the app is in the testing environment.
+ *
+ * @return bool
+ */
+function testing()
+{
+    return strpos($_SERVER['SCRIPT_NAME'], 'phpunit') !== false;
 }
 
 /**
@@ -71,11 +106,7 @@ function table(array $headers = [], array $rows = [])
  */
 function output($output)
 {
-    if (isset($_ENV['APP_ENV']) && $_ENV['APP_ENV'] === 'testing') {
-        return;
-    }
-
-    (new ConsoleOutput())->writeln($output);
+    writer()->writeln($output);
 }
 
 if (! function_exists('resolve')) {
