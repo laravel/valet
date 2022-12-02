@@ -689,7 +689,7 @@ class Site
      */
     public function buildCertificateConf($path, $url)
     {
-        $config = str_replace('VALET_DOMAIN', $url, $this->files->get(__DIR__.'/../stubs/openssl.conf'));
+        $config = str_replace('VALET_DOMAIN', $url, $this->files->getStub('openssl.conf'));
         $this->files->putAsUser($path, $config);
     }
 
@@ -704,7 +704,7 @@ class Site
     {
         if ($siteConf === null) {
             $siteConf = $this->replaceOldLoopbackWithNew(
-                $this->files->get(__DIR__.'/../stubs/secure.valet.conf'),
+                $this->files->getStub('secure.valet.conf'),
                 'VALET_LOOPBACK',
                 $this->valetLoopback()
             );
@@ -742,7 +742,7 @@ class Site
             $siteConf = str_replace(
                 ['VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_STATIC_PREFIX', 'VALET_SITE', 'VALET_PHP_FPM_SOCKET', 'VALET_ISOLATED_PHP_VERSION'],
                 [VALET_HOME_PATH, VALET_SERVER_PATH, VALET_STATIC_PREFIX, $valetSite, PhpFpm::fpmSockName($phpVersion), $phpVersion],
-                $this->replaceLoopback($this->files->get(__DIR__.'/../stubs/site.valet.conf'))
+                $this->replaceLoopback($this->files->getStub('site.valet.conf'))
             );
         }
 
@@ -852,9 +852,7 @@ class Site
         }
 
         $siteConf = $this->replaceOldLoopbackWithNew(
-            $this->files->get(
-                $secure ? __DIR__.'/../stubs/secure.proxy.valet.conf' : __DIR__.'/../stubs/proxy.valet.conf'
-            ),
+            $this->files->getStub($secure ? 'secure.proxy.valet.conf' : 'proxy.valet.conf'),
             'VALET_LOOPBACK',
             $this->valetLoopback()
         );
@@ -979,7 +977,7 @@ class Site
                 str_replace(
                     'VALET_LOOPBACK',
                     $loopback,
-                    $this->files->get(__DIR__.'/../stubs/loopback.plist')
+                    $this->files->getStub('loopback.plist')
                 )
             );
 
