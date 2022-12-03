@@ -19,4 +19,12 @@ class ValetDriverTest extends BaseDriverTestCase
 
         $this->assertEquals('Valet\Drivers\BedrockValetDriver', get_class($assignedDriver));
     }
+
+    public function test_it_prioritizes_non_basic_matches()
+    {
+        $assignedDriver = ValetDriver::assign($this->projectDir('laravel'), 'my-site', '/');
+
+        $this->assertNotEquals('Valet\Drivers\BasicWithPublicValetDriver', get_class($assignedDriver));
+        $this->assertNotEquals('Valet\Drivers\BasicValetDriver', get_class($assignedDriver));
+    }
 }
