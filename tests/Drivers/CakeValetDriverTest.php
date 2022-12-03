@@ -23,6 +23,6 @@ class CakeValetDriverTest extends BaseDriverTestCase
         $driver = new CakeValetDriver();
 
         $projectPath = $this->projectDir('cake');
-        $this->assertEquals($projectPath . '/webroot/index.php', $driver->frontControllerPath($projectPath, 'my-site', '/'));
+        $this->assertEquals($projectPath.'/webroot/index.php', $driver->frontControllerPath($projectPath, 'my-site', '/'));
     }
 }

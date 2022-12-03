@@ -23,6 +23,6 @@ class NeosValetDriverTest extends BaseDriverTestCase
         $driver = new NeosValetDriver();
 
         $projectPath = $this->projectDir('neos');
-        $this->assertEquals($projectPath . '/Web/index.php', $driver->frontControllerPath($projectPath, 'my-site', '/'));
+        $this->assertEquals($projectPath.'/Web/index.php', $driver->frontControllerPath($projectPath, 'my-site', '/'));
     }
 }

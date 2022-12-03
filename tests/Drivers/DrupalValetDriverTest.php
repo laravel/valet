@@ -15,7 +15,7 @@ class DrupalValetDriverTest extends BaseDriverTestCase
     {
         $driver = new DrupalValetDriver();
 
-        $this->assertFalse(!! $driver->serves($this->projectDir('public-with-index-non-laravel'), 'my-site', '/'));
+        $this->assertFalse((bool) $driver->serves($this->projectDir('public-with-index-non-laravel'), 'my-site', '/'));
     }
 
     public function test_it_gets_front_controller()
@@ -25,6 +25,6 @@ class DrupalValetDriverTest extends BaseDriverTestCase
         $_SERVER['HTTP_HOST'] = 'this is set in Valet requests but not phpunit';
 
         $projectPath = $this->projectDir('drupal');
-        $this->assertEquals($projectPath . '/public/index.php', $driver->frontControllerPath($projectPath, 'my-site', '/'));
+        $this->assertEquals($projectPath.'/public/index.php', $driver->frontControllerPath($projectPath, 'my-site', '/'));
     }
 }

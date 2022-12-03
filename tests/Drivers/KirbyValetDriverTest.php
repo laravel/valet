@@ -25,6 +25,6 @@ class KirbyValetDriverTest extends BaseDriverTestCase
         $_SERVER['HTTP_HOST'] = 'this is set in Valet requests but not phpunit';
 
         $projectPath = $this->projectDir('kirby');
-        $this->assertEquals($projectPath . '/index.php', $driver->frontControllerPath($projectPath, 'my-site', '/'));
+        $this->assertEquals($projectPath.'/index.php', $driver->frontControllerPath($projectPath, 'my-site', '/'));
     }
 }

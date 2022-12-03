@@ -23,6 +23,6 @@ class Magento2ValetDriverTest extends BaseDriverTestCase
         $driver = new Magento2ValetDriver();
 
         $projectPath = $this->projectDir('magento2');
-        $this->assertEquals($projectPath . '/pub/index.php', $driver->frontControllerPath($projectPath, 'my-site', '/'));
+        $this->assertEquals($projectPath.'/pub/index.php', $driver->frontControllerPath($projectPath, 'my-site', '/'));
     }
 }
