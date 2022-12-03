@@ -1,0 +1,5 @@
+{
+    "require": {
+        "sculpin/sculpin": "1.0"
+    }
+}

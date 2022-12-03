@@ -1,5 +1,5 @@
 .DS_Store
-vendor/
+/vendor/
 composer.lock
 error.log
 .idea

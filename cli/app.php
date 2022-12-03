@@ -8,6 +8,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Valet\Drivers\ValetDriver;
 use function Valet\info;
 use function Valet\output;
 use function Valet\table;
@@ -276,8 +277,6 @@ if (is_dir(VALET_HOME_PATH)) {
      * Determine which Valet driver the current directory is using.
      */
     $app->command('which', function (OutputInterface $output) {
-        require __DIR__.'/drivers/require.php';
-
         $driver = ValetDriver::assign(getcwd(), basename(getcwd()), '/');
 
         if ($driver) {
