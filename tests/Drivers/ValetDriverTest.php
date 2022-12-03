@@ -6,7 +6,7 @@ class ValetDriverTest extends BaseDriverTestCase
 {
     public function test_it_gets_drivers_in_given_path()
     {
-        $output = ValetDriver::driversIn(__DIR__ . '/../files/Drivers');
+        $output = ValetDriver::driversIn(__DIR__.'/../files/Drivers');
 
         $this->assertEquals(2, count($output));
         $this->assertContains('Test1ValetDriver', $output);
