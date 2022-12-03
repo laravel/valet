@@ -19,7 +19,8 @@
             "cli/includes/facades.php",
             "cli/includes/helpers.php",
             "tests/UsesNullWriter.php",
-            "tests/BaseApplicationTestCase.php"
+            "tests/BaseApplicationTestCase.php",
+            "tests/Drivers/BaseDriverTestCase.php"
         ],
         "psr-4": {
             "Valet\\": "cli/Valet/"

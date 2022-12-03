@@ -3,6 +3,9 @@
 /**
  * Define the user's "~/.config/valet" path.
  */
+
+use Valet\Drivers\ValetDriver;
+
 define('VALET_HOME_PATH', posix_getpwuid(fileowner(__FILE__))['dir'].'/.config/valet');
 define('VALET_STATIC_PREFIX', '41c270e4-5535-4daa-b23e-c269744c2f45');
 
@@ -177,8 +180,6 @@ $valetSitePath = realpath($valetSitePath);
  * Find the appropriate Valet driver for the request.
  */
 $valetDriver = null;
-
-require __DIR__.'/cli/drivers/require.php';
 
 $valetDriver = ValetDriver::assign($valetSitePath, $siteName, $uri);
 
