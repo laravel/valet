@@ -11,6 +11,10 @@
         {
             "name": "Adam Wathan",
             "email": "adam.wathan@gmail.com"
+        },
+        {
+            "name": "Matt Stauffer",
+            "email": "matt@tighten.co"
         }
     ],
     "autoload": {
