@@ -6,11 +6,6 @@ use Valet\Drivers\ValetDriver;
 
 /**
  * Define the user's "~/.config/valet" path.
-
-use Valet\Drivers\ValetDriver;
-
-/**
- * Define the user's "~/.config/valet" path.
  */
 
 define('VALET_HOME_PATH', posix_getpwuid(fileowner(__FILE__))['dir'].'/.config/valet');
