@@ -51,14 +51,13 @@ function show_directory_listing($valetSitePath, $uri)
 }
 
 /**
- * You may use wildcard DNS providers xip.io or nip.io as a tool for testing your site via an IP address.
+ * You may use wildcard DNS provider nip.io as a tool for testing your site via an IP address.
  * It's simple to use: First determine the IP address of your local computer (like 192.168.0.10).
- * Then simply use http://project.your-ip.xip.io - ie: http://laravel.192.168.0.10.xip.io.
+ * Then simply use http://project.your-ip.nip.io - ie: http://laravel.192.168.0.10.nip.io.
  */
 function valet_support_wildcard_dns($domain, $config)
 {
     $services = [
-        '.*.*.*.*.xip.io',
         '.*.*.*.*.nip.io',
         '-*-*-*-*.nip.io',
     ];
