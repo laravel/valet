@@ -81,8 +81,13 @@ abstract class ValetDriver
         $drivers[] = 'BasicValetDriver';
 
         foreach ($drivers as $driver) {
-            $className = "Valet\Drivers\\$driver";
-            $driver = new $className;
+            try {
+                // Try for old, un-namespaced drivers
+                $driver = new $driver;
+            } catch (\Throwable $e) {
+                $className = "Valet\Drivers\\$driver";
+                $driver = new $className;
+            }
 
             if ($driver->serves($sitePath, $siteName, $driver->mutateUri($uri))) {
                 return $driver;
