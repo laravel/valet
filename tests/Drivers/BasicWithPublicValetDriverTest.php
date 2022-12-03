@@ -26,7 +26,7 @@ class BasicWithPublicValetDriverTest extends BaseDriverTestCase
         $_SERVER['HTTP_HOST'] = 'this is set in Valet requests but not phpunit';
 
         $this->assertEquals(
-            $projectPath . '/public/file-in-public.php',
+            $projectPath.'/public/file-in-public.php',
             $driver->frontControllerPath($projectPath, 'my-site', '/file-in-public.php')
         );
     }
@@ -52,7 +52,7 @@ class BasicWithPublicValetDriverTest extends BaseDriverTestCase
         $_SERVER['HTTP_HOST'] = 'this is set in Valet requests but not phpunit';
 
         $this->assertEquals(
-            $projectPath . '/public/about/index.php',
+            $projectPath.'/public/about/index.php',
             $driver->frontControllerPath($projectPath, 'my-site', '/about')
         );
     }
@@ -65,7 +65,7 @@ class BasicWithPublicValetDriverTest extends BaseDriverTestCase
         $_SERVER['HTTP_HOST'] = 'this is set in Valet requests but not phpunit';
 
         $this->assertEquals(
-            $projectPath . '/public/index.php',
+            $projectPath.'/public/index.php',
             $driver->frontControllerPath($projectPath, 'my-site', '/not-a-real-url')
         );
     }
