@@ -1,6 +1,12 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v3.2.0...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v3.2.1...master)
+
+## [v3.2.1](https://github.com/laravel/valet/compare/v3.2.0...v3.2.1) - 2022-12-06
+
+### Fixed
+
+- Fix autoloading in distribution by @mattstauffer in https://github.com/laravel/valet/commit/35998a0f86b9d57b5766f2663a41a2c99af3d579
 
 ## [v3.2.0](https://github.com/laravel/valet/compare/v3.1.13...v3.2.0) - 2022-12-06
 
