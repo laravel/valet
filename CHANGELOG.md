@@ -1,6 +1,21 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v3.1.13...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v3.2.0...master)
+
+## [v3.2.0](https://github.com/laravel/valet/compare/v3.1.13...v3.2.0) - 2022-12-06
+
+### Changed
+
+- When formatting provided site name, only remove .tld if it's at the end by @ErikDohmen in https://github.com/laravel/valet/pull/1297
+- Set files path as a static path for concrete5 driver by @KorvinSzanto in https://github.com/laravel/valet/pull/514
+- Allow users to provide custom stub files by @jjpmann in https://github.com/laravel/valet/pull/1238
+- Disable brew auto cleanup on installation, to avoid upgrade errors failing install by @JoshuaBehrens in https://github.com/laravel/valet/pull/995
+- Move all drivers to PSR autoload, and write tests for drivers by @mattstauffer in https://github.com/laravel/valet/pull/1310
+
+### Fixed
+
+- Retain secure proxies by @ashleyshenton in https://github.com/laravel/valet/pull/1305
+- Prevent 502 errors when using AJAX by @mattkingshott in https://github.com/laravel/valet/pull/1079
 
 ## [v3.1.13](https://github.com/laravel/valet/compare/v3.1.12...v3.1.13) - 2022-11-15
 
