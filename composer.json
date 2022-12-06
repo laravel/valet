@@ -22,14 +22,18 @@
             "cli/includes/compatibility.php",
             "cli/includes/facades.php",
             "cli/includes/helpers.php",
-            "cli/includes/ValetDriver.php",
-            "tests/UsesNullWriter.php",
-            "tests/BaseApplicationTestCase.php",
-            "tests/Drivers/BaseDriverTestCase.php"
+            "cli/includes/ValetDriver.php"
         ],
         "psr-4": {
             "Valet\\": "cli/Valet/"
         }
+    },
+    "autoload-dev": {
+        "files": [
+            "tests/UsesNullWriter.php",
+            "tests/BaseApplicationTestCase.php",
+            "tests/Drivers/BaseDriverTestCase.php"
+        ]
     },
     "require": {
         "php": "^7.0|^8.0",
