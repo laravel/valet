@@ -22,7 +22,7 @@
             "cli/includes/compatibility.php",
             "cli/includes/facades.php",
             "cli/includes/helpers.php",
-            "cli/includes/ValetDriver.php"
+            "cli/includes/require-legacy-files.php"
         ],
         "psr-4": {
             "Valet\\": "cli/Valet/"

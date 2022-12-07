@@ -17,6 +17,10 @@ class ValetDriverTest extends BaseDriverTestCase
     {
         $assignedDriver = ValetDriver::assign($this->projectDir('bedrock'), 'my-site', '/');
 
-        $this->assertEquals('Valet\Drivers\BedrockValetDriver', get_class($assignedDriver));
+        // For v4:
+        // $this->assertEquals('Valet\Drivers\BedrockValetDriver', get_class($assignedDriver));
+
+        // For now, because legacy:
+        $this->assertEquals('BedrockValetDriver', get_class($assignedDriver));
     }
 }
