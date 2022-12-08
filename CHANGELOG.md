@@ -1,6 +1,12 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v3.2.1...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v3.2.2...master)
+
+## [v3.2.2](https://github.com/laravel/valet/compare/v3.2.1...v3.2.2) - 2022-12-08
+
+### Fixed
+
+- Fix how drivers are available for extension by @mattstauffer in https://github.com/laravel/valet/pull/1317
 
 ## [v3.2.1](https://github.com/laravel/valet/compare/v3.2.0...v3.2.1) - 2022-12-06
 
