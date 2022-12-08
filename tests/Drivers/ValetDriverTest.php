@@ -1,5 +1,6 @@
 <?php
 
+use Valet\Drivers\BedrockValetDriver;
 use Valet\Drivers\ValetDriver;
 
 class ValetDriverTest extends BaseDriverTestCase
@@ -17,10 +18,6 @@ class ValetDriverTest extends BaseDriverTestCase
     {
         $assignedDriver = ValetDriver::assign($this->projectDir('bedrock'), 'my-site', '/');
 
-        // For v4:
-        // $this->assertEquals('Valet\Drivers\BedrockValetDriver', get_class($assignedDriver));
-
-        // For now, because legacy:
-        $this->assertEquals('BedrockValetDriver', get_class($assignedDriver));
+        $this->assertEquals(BedrockValetDriver::class, get_class($assignedDriver));
     }
 }

@@ -1,7 +1,6 @@
 <?php
 
 require_once './cli/includes/require-drivers.php';
-require_once './cli/includes/require-legacy-files.php';
 
 use Valet\Drivers\ValetDriver;
 
