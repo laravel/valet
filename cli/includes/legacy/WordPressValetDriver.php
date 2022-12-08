@@ -1,5 +1,5 @@
 <?php
 
-class WordPressValetDriver extends Valet\Drivers\WordpressValetDriver
+class WordPressValetDriver extends Valet\Drivers\WordPressValetDriver
 {
 }
