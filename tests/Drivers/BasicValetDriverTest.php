@@ -18,8 +18,6 @@ class BasicValetDriverTest extends BaseDriverTestCase
         $projectPath = $this->projectDir('basic-no-public');
         $driver = new BasicValetDriver();
 
-        $_SERVER['HTTP_HOST'] = 'this is set in Valet requests but not phpunit';
-
         $this->assertEquals(
             $projectPath.'/file-in-root.php',
             $driver->frontControllerPath($projectPath, 'my-site', '/file-in-root.php')
@@ -30,8 +28,6 @@ class BasicValetDriverTest extends BaseDriverTestCase
     {
         $projectPath = $this->projectDir('basic-no-public');
         $driver = new BasicValetDriver();
-
-        $_SERVER['HTTP_HOST'] = 'this is set in Valet requests but not phpunit';
 
         $this->assertEquals(
             $projectPath.'/about/index.php',
@@ -44,8 +40,6 @@ class BasicValetDriverTest extends BaseDriverTestCase
         $projectPath = $this->projectDir('basic-no-public');
         $driver = new BasicValetDriver();
 
-        $_SERVER['HTTP_HOST'] = 'this is set in Valet requests but not phpunit';
-
         $this->assertEquals(
             $projectPath.'/index.php',
             $driver->frontControllerPath($projectPath, 'my-site', '/not-a-real-url')
@@ -57,8 +51,6 @@ class BasicValetDriverTest extends BaseDriverTestCase
         $projectPath = $this->projectDir('basic-no-public');
         $driver = new BasicValetDriver();
 
-        $_SERVER['HTTP_HOST'] = 'this is set in Valet requests but not phpunit';
-
         $this->assertEquals(
             $projectPath.'/team/index.html',
             $driver->isStaticFile($projectPath, 'my-site', '/team')
@@ -69,8 +61,6 @@ class BasicValetDriverTest extends BaseDriverTestCase
     {
         $projectPath = $this->projectDir('basic-no-public');
         $driver = new BasicValetDriver();
-
-        $_SERVER['HTTP_HOST'] = 'this is set in Valet requests but not phpunit';
 
         $this->assertEquals(
             $projectPath.'/assets/document.txt',

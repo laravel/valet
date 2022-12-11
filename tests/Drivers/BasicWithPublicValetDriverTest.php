@@ -23,8 +23,6 @@ class BasicWithPublicValetDriverTest extends BaseDriverTestCase
         $projectPath = $this->projectDir('public-with-index-non-laravel');
         $driver = new BasicWithPublicValetDriver();
 
-        $_SERVER['HTTP_HOST'] = 'this is set in Valet requests but not phpunit';
-
         $this->assertEquals(
             $projectPath.'/public/file-in-public.php',
             $driver->frontControllerPath($projectPath, 'my-site', '/file-in-public.php')
@@ -35,8 +33,6 @@ class BasicWithPublicValetDriverTest extends BaseDriverTestCase
     {
         $projectPath = $this->projectDir('public-with-index-non-laravel');
         $driver = new BasicWithPublicValetDriver();
-
-        $_SERVER['HTTP_HOST'] = 'this is set in Valet requests but not phpunit';
 
         $this->assertEquals(
             $projectPath.'/public/index.php',
@@ -49,8 +45,6 @@ class BasicWithPublicValetDriverTest extends BaseDriverTestCase
         $projectPath = $this->projectDir('public-with-index-non-laravel');
         $driver = new BasicWithPublicValetDriver();
 
-        $_SERVER['HTTP_HOST'] = 'this is set in Valet requests but not phpunit';
-
         $this->assertEquals(
             $projectPath.'/public/about/index.php',
             $driver->frontControllerPath($projectPath, 'my-site', '/about')
@@ -61,8 +55,6 @@ class BasicWithPublicValetDriverTest extends BaseDriverTestCase
     {
         $projectPath = $this->projectDir('public-with-index-non-laravel');
         $driver = new BasicWithPublicValetDriver();
-
-        $_SERVER['HTTP_HOST'] = 'this is set in Valet requests but not phpunit';
 
         $this->assertEquals(
             $projectPath.'/public/index.php',
@@ -75,8 +67,6 @@ class BasicWithPublicValetDriverTest extends BaseDriverTestCase
         $projectPath = $this->projectDir('public-with-index-non-laravel');
         $driver = new BasicWithPublicValetDriver();
 
-        $_SERVER['HTTP_HOST'] = 'this is set in Valet requests but not phpunit';
-
         $this->assertEquals(
             $projectPath.'/public/team/index.html',
             $driver->isStaticFile($projectPath, 'my-site', '/team')
@@ -87,8 +77,6 @@ class BasicWithPublicValetDriverTest extends BaseDriverTestCase
     {
         $projectPath = $this->projectDir('public-with-index-non-laravel');
         $driver = new BasicWithPublicValetDriver();
-
-        $_SERVER['HTTP_HOST'] = 'this is set in Valet requests but not phpunit';
 
         $this->assertEquals(
             $projectPath.'/public/assets/document.txt',
