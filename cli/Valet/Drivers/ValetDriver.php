@@ -78,6 +78,7 @@ abstract class ValetDriver
         $drivers[] = 'NeosValetDriver';
         $drivers[] = 'Magento2ValetDriver';
 
+        $drivers[] = 'BasicWithPublicValetDriver';
         $drivers[] = 'BasicValetDriver';
 
         foreach ($drivers as $driver) {
