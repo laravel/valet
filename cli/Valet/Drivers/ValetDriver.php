@@ -6,6 +6,7 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RecursiveRegexIterator;
 use RegexIterator;
+use Throwable;
 
 abstract class ValetDriver
 {
@@ -17,7 +18,7 @@ abstract class ValetDriver
      * @param  string  $uri
      * @return bool
      */
-    abstract public function serves($sitePath, $siteName, $uri);
+    abstract public function serves(string $sitePath, string $siteName, string $uri): bool;
 
     /**
      * Determine if the incoming request is for a static file.
@@ -27,7 +28,7 @@ abstract class ValetDriver
      * @param  string  $uri
      * @return string|false
      */
-    abstract public function isStaticFile($sitePath, $siteName, $uri);
+    abstract public function isStaticFile(string $sitePath, string $siteName, string $uri): string|false;
 
     /**
      * Get the fully resolved path to the application's front controller.
@@ -37,7 +38,7 @@ abstract class ValetDriver
      * @param  string  $uri
      * @return string
      */
-    abstract public function frontControllerPath($sitePath, $siteName, $uri);
+    abstract public function frontControllerPath(string $sitePath, string $siteName, string $uri): string;
 
     /**
      * Find a driver that can serve the incoming request.
@@ -47,7 +48,7 @@ abstract class ValetDriver
      * @param  string  $uri
      * @return ValetDriver|null
      */
-    public static function assign($sitePath, $siteName, $uri)
+    public static function assign(string $sitePath, string $siteName, string $uri): ?ValetDriver
     {
         $drivers = [];
 
@@ -84,8 +85,8 @@ abstract class ValetDriver
             try {
                 // Try for old, un-namespaced drivers
                 $driver = new $driver;
-            } catch (\Throwable $e) {
-                $className = "Valet\Drivers\\$driver";
+            } catch (Throwable $e) {
+                $className = "Valet\Drivers\\{$driver}";
                 $driver = new $className;
             }
 
@@ -99,9 +100,9 @@ abstract class ValetDriver
      * Get the custom driver class from the site path, if one exists.
      *
      * @param  string  $sitePath
-     * @return string
+     * @return string|null
      */
-    public static function customSiteDriver($sitePath)
+    public static function customSiteDriver(string $sitePath): ?string
     {
         if (! file_exists($sitePath.'/LocalValetDriver.php')) {
             return;
@@ -118,7 +119,7 @@ abstract class ValetDriver
      * @param  string  $path
      * @return array
      */
-    public static function driversIn($path)
+    public static function driversIn(string $path): array
     {
         if (! is_dir($path)) {
             return [];
@@ -145,7 +146,7 @@ abstract class ValetDriver
      * @param  string  $uri
      * @return string
      */
-    public function mutateUri($uri)
+    public function mutateUri(string $uri): string
     {
         return $uri;
     }
@@ -159,7 +160,7 @@ abstract class ValetDriver
      * @param  string  $uri
      * @return void
      */
-    public function serveStaticFile($staticFilePath, $sitePath, $siteName, $uri)
+    public function serveStaticFile(string $staticFilePath, string $sitePath, string $siteName, string $uri): void
     {
         /**
          * Back story...
@@ -201,7 +202,7 @@ abstract class ValetDriver
      * @param  string  $siteName
      * @return void
      */
-    public function loadServerEnvironmentVariables($sitePath, $siteName)
+    public function loadServerEnvironmentVariables(string $sitePath, string $siteName): void
     {
         $varFilePath = $sitePath.'/.valet-env.php';
         if (! file_exists($varFilePath)) {
