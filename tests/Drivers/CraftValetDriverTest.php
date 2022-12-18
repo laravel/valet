@@ -22,8 +22,6 @@ class CraftValetDriverTest extends BaseDriverTestCase
     {
         $driver = new CraftValetDriver();
 
-        $_SERVER['HTTP_HOST'] = 'this is set in Valet requests but not phpunit';
-
         $projectPath = $this->projectDir('craft');
         $this->assertEquals($projectPath.'/public/index.php', $driver->frontControllerPath($projectPath, 'my-site', '/'));
     }

@@ -22,8 +22,6 @@ class DrupalValetDriverTest extends BaseDriverTestCase
     {
         $driver = new DrupalValetDriver();
 
-        $_SERVER['HTTP_HOST'] = 'this is set in Valet requests but not phpunit';
-
         $projectPath = $this->projectDir('drupal');
         $this->assertEquals($projectPath.'/public/index.php', $driver->frontControllerPath($projectPath, 'my-site', '/'));
     }
