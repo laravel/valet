@@ -6,7 +6,7 @@
 function show_valet_404()
 {
     http_response_code(404);
-    require __DIR__ . '/cli/templates/404.html';
+    require __DIR__.'/cli/templates/404.html';
     exit;
 }
 
@@ -19,9 +19,9 @@ function show_valet_404()
 function show_directory_listing(string $valetSitePath, string $uri)
 {
     $is_root = ($uri == '/');
-    $directory = ($is_root) ? $valetSitePath : $valetSitePath . $uri;
+    $directory = ($is_root) ? $valetSitePath : $valetSitePath.$uri;
 
-    if (!file_exists($directory)) {
+    if (! file_exists($directory)) {
         show_valet_404();
     }
 
@@ -50,7 +50,7 @@ function show_directory_listing(string $valetSitePath, string $uri)
  *
  * @param  string  $domain
  * @param  array  $valetConfig
- * @return  string
+ * @return string
  */
 function valet_support_wildcard_dns(string $domain, array $valetConfig): string
 {
@@ -67,12 +67,12 @@ function valet_support_wildcard_dns(string $domain, array $valetConfig): string
     foreach ($services as $service) {
         $pattern = preg_quote($service, '#');
         $pattern = str_replace('\*', '.*', $pattern);
-        $patterns[] = '(.*)' . $pattern;
+        $patterns[] = '(.*)'.$pattern;
     }
 
     $pattern = implode('|', $patterns);
 
-    if (preg_match('#(?:' . $pattern . ')\z#u', $domain, $matches)) {
+    if (preg_match('#(?:'.$pattern.')\z#u', $domain, $matches)) {
         $domain = array_pop($matches);
     }
 
@@ -98,7 +98,7 @@ function valet_default_site_path(array $valetConfig): ?string
  * Determine the fully qualified path to the site.
  * Inspects registered path directories, case-sensitive.
  *
- * @param  array   $valetConfig
+ * @param  array  $valetConfig
  * @param  string  $siteName
  * @param  string  $domain
  * @return string
@@ -117,7 +117,7 @@ function get_valet_site_path(array $valetConfig, string $siteName, string $domai
         $dirs = [];
 
         while (false !== ($file = readdir($handle))) {
-            if (is_dir($path . '/' . $file) && !in_array($file, ['.', '..'])) {
+            if (is_dir($path.'/'.$file) && ! in_array($file, ['.', '..'])) {
                 $dirs[] = $file;
             }
         }
@@ -128,12 +128,12 @@ function get_valet_site_path(array $valetConfig, string $siteName, string $domai
         foreach ($dirs as $dir) {
             if (strtolower($dir) === $siteName) {
                 // early return when exact match for linked subdomain
-                return $path . '/' . $dir;
+                return $path.'/'.$dir;
             }
 
             if (strtolower($dir) === $domain) {
                 // no early return here because the foreach may still have some subdomains to process with higher priority
-                $valetSitePath = $path . '/' . $dir;
+                $valetSitePath = $path.'/'.$dir;
             }
         }
 
