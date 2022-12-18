@@ -1,6 +1,8 @@
 <?php
 
-namespace Valet\Drivers;
+namespace Valet\Drivers\Specific;
+
+use Valet\Drivers\ValetDriver;
 
 class CraftValetDriver extends ValetDriver
 {
@@ -12,7 +14,7 @@ class CraftValetDriver extends ValetDriver
      * @param  string  $uri
      * @return bool
      */
-    public function serves($sitePath, $siteName, $uri)
+    public function serves(string $sitePath, string $siteName, string $uri): bool
     {
         return file_exists($sitePath.'/craft');
     }
@@ -32,6 +34,7 @@ class CraftValetDriver extends ValetDriver
                 return $dir;
             }
         }
+
         // Give up, and just return the default
         return is_file($sitePath.'/craft') ? 'web' : 'public';
     }
@@ -44,7 +47,7 @@ class CraftValetDriver extends ValetDriver
      * @param  string  $uri
      * @return string|false
      */
-    public function isStaticFile($sitePath, $siteName, $uri)
+    public function isStaticFile(string $sitePath, string $siteName, string $uri): string|false
     {
         $frontControllerDirectory = $this->frontControllerDirectory($sitePath);
 
@@ -63,7 +66,7 @@ class CraftValetDriver extends ValetDriver
      * @param  string  $uri
      * @return string
      */
-    public function frontControllerPath($sitePath, $siteName, $uri)
+    public function frontControllerPath(string $sitePath, string $siteName, string $uri): string
     {
         $frontControllerDirectory = $this->frontControllerDirectory($sitePath);
 

@@ -1,6 +1,8 @@
 <?php
 
-namespace Valet\Drivers;
+namespace Valet\Drivers\Specific;
+
+use Valet\Drivers\ValetDriver;
 
 class StatamicValetDriver extends ValetDriver
 {
@@ -12,7 +14,7 @@ class StatamicValetDriver extends ValetDriver
      * @param  string  $uri
      * @return bool
      */
-    public function serves($sitePath, $siteName, $uri)
+    public function serves(string $sitePath, string $siteName, string $uri): bool
     {
         return is_dir($sitePath.'/statamic');
     }
@@ -25,7 +27,7 @@ class StatamicValetDriver extends ValetDriver
      * @param  string  $uri
      * @return string|false
      */
-    public function isStaticFile($sitePath, $siteName, $uri)
+    public function isStaticFile(string $sitePath, string $siteName, string $uri): string|false
     {
         if (strpos($uri, '/site') === 0 && strpos($uri, '/site/themes') !== 0) {
             return false;
@@ -48,7 +50,7 @@ class StatamicValetDriver extends ValetDriver
      * @param  string  $uri
      * @return string
      */
-    public function frontControllerPath($sitePath, $siteName, $uri)
+    public function frontControllerPath(string $sitePath, string $siteName, string $uri): string
     {
         if ($_SERVER['REQUEST_METHOD'] === 'GET' && $this->isActualFile($staticPath = $this->getStaticPath($sitePath))) {
             return $staticPath;

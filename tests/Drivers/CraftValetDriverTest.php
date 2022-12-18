@@ -1,6 +1,6 @@
 <?php
 
-use Valet\Drivers\CraftValetDriver;
+use Valet\Drivers\Specific\CraftValetDriver;
 
 class CraftValetDriverTest extends BaseDriverTestCase
 {

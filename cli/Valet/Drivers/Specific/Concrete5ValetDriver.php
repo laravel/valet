@@ -1,6 +1,8 @@
 <?php
 
-namespace Valet\Drivers;
+namespace Valet\Drivers\Specific;
+
+use Valet\Drivers\BasicValetDriver;
 
 class Concrete5ValetDriver extends BasicValetDriver
 {
@@ -12,7 +14,7 @@ class Concrete5ValetDriver extends BasicValetDriver
      * @param  string  $uri
      * @return bool
      */
-    public function serves($sitePath, $siteName, $uri)
+    public function serves(string $sitePath, string $siteName, string $uri): bool
     {
         return file_exists($sitePath.'/concrete/config/install/base');
     }
@@ -25,7 +27,7 @@ class Concrete5ValetDriver extends BasicValetDriver
      * @param  string  $uri
      * @return string|false
      */
-    public function isStaticFile($sitePath, $siteName, $uri)
+    public function isStaticFile(string $sitePath, string $siteName, string $uri): string|false
     {
         if (stripos($uri, '/application/files') === 0) {
             return $sitePath.$uri;
@@ -40,7 +42,7 @@ class Concrete5ValetDriver extends BasicValetDriver
      * @param  string  $uri
      * @return string
      */
-    public function frontControllerPath($sitePath, $siteName, $uri)
+    public function frontControllerPath(string $sitePath, string $siteName, string $uri): string
     {
         if (! getenv('CONCRETE5_ENV')) {
             putenv('CONCRETE5_ENV=valet');

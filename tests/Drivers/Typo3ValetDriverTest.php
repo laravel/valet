@@ -1,6 +1,6 @@
 <?php
 
-use Valet\Drivers\Typo3ValetDriver;
+use Valet\Drivers\Specific\Typo3ValetDriver;
 
 class Typo3ValetDriverTest extends BaseDriverTestCase
 {

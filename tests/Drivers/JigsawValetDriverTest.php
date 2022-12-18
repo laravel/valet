@@ -1,6 +1,6 @@
 <?php
 
-use Valet\Drivers\JigsawValetDriver;
+use Valet\Drivers\Specific\JigsawValetDriver;
 
 class JigsawValetDriverTest extends BaseDriverTestCase
 {

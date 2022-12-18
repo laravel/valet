@@ -1,6 +1,6 @@
 <?php
 
-use Valet\Drivers\DrupalValetDriver;
+use Valet\Drivers\Specific\DrupalValetDriver;
 
 class DrupalValetDriverTest extends BaseDriverTestCase
 {

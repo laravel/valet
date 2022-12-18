@@ -1,6 +1,8 @@
 <?php
 
-namespace Valet\Drivers;
+namespace Valet\Drivers\Specific;
+
+use Valet\Drivers\BasicValetDriver;
 
 class WordPressValetDriver extends BasicValetDriver
 {
@@ -12,9 +14,24 @@ class WordPressValetDriver extends BasicValetDriver
      * @param  string  $uri
      * @return bool
      */
-    public function serves($sitePath, $siteName, $uri)
+    public function serves(string $sitePath, string $siteName, string $uri): bool
     {
         return file_exists($sitePath.'/wp-config.php') || file_exists($sitePath.'/wp-config-sample.php');
+    }
+
+    /**
+     * Take any steps necessary before loading the front controller for this driver.
+     *
+     * @param  string  $sitePath
+     * @param  string  $siteName
+     * @param  string  $uri
+     * @return void
+     */
+    public function beforeLoading(string $sitePath, string $siteName, string $uri): void
+    {
+        $_SERVER['PHP_SELF'] = $uri;
+        $_SERVER['SERVER_ADDR'] = '127.0.0.1';
+        $_SERVER['SERVER_NAME'] = $_SERVER['HTTP_HOST'];
     }
 
     /**
@@ -25,12 +42,8 @@ class WordPressValetDriver extends BasicValetDriver
      * @param  string  $uri
      * @return string
      */
-    public function frontControllerPath($sitePath, $siteName, $uri)
+    public function frontControllerPath(string $sitePath, string $siteName, string $uri): string
     {
-        $_SERVER['PHP_SELF'] = $uri;
-        $_SERVER['SERVER_ADDR'] = '127.0.0.1';
-        $_SERVER['SERVER_NAME'] = $_SERVER['HTTP_HOST'];
-
         return parent::frontControllerPath(
             $sitePath, $siteName, $this->forceTrailingSlash($uri)
         );

@@ -1,6 +1,6 @@
 <?php
 
-use Valet\Drivers\WordPressValetDriver;
+use Valet\Drivers\Specific\WordPressValetDriver;
 
 class WordPressValetDriverTest extends BaseDriverTestCase
 {

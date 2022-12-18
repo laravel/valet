@@ -1,6 +1,6 @@
 <?php
 
-use Valet\Drivers\SymfonyValetDriver;
+use Valet\Drivers\Specific\SymfonyValetDriver;
 
 class SymfonyValetDriverTest extends BaseDriverTestCase
 {

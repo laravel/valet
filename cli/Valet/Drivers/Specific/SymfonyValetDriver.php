@@ -1,6 +1,8 @@
 <?php
 
-namespace Valet\Drivers;
+namespace Valet\Drivers\Specific;
+
+use Valet\Drivers\ValetDriver;
 
 class SymfonyValetDriver extends ValetDriver
 {
@@ -12,7 +14,7 @@ class SymfonyValetDriver extends ValetDriver
      * @param  string  $uri
      * @return bool
      */
-    public function serves($sitePath, $siteName, $uri)
+    public function serves(string $sitePath, string $siteName, string $uri): bool
     {
         return (file_exists($sitePath.'/web/app_dev.php') || file_exists($sitePath.'/web/app.php')) &&
                (file_exists($sitePath.'/app/AppKernel.php')) || (file_exists($sitePath.'/public/index.php')) &&
@@ -27,7 +29,7 @@ class SymfonyValetDriver extends ValetDriver
      * @param  string  $uri
      * @return string|false
      */
-    public function isStaticFile($sitePath, $siteName, $uri)
+    public function isStaticFile(string $sitePath, string $siteName, string $uri): string|false
     {
         if ($this->isActualFile($staticFilePath = $sitePath.'/web/'.$uri)) {
             return $staticFilePath;
@@ -46,7 +48,7 @@ class SymfonyValetDriver extends ValetDriver
      * @param  string  $uri
      * @return string
      */
-    public function frontControllerPath($sitePath, $siteName, $uri)
+    public function frontControllerPath(string $sitePath, string $siteName, string $uri): string
     {
         $frontControllerPath = null;
 

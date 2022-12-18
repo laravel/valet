@@ -1,6 +1,8 @@
 <?php
 
-namespace Valet\Drivers;
+namespace Valet\Drivers\Specific;
+
+use Valet\Drivers\BasicValetDriver;
 
 class SculpinValetDriver extends BasicValetDriver
 {
@@ -12,7 +14,7 @@ class SculpinValetDriver extends BasicValetDriver
      * @param  string  $uri
      * @return bool
      */
-    public function serves($sitePath, $siteName, $uri)
+    public function serves(string $sitePath, string $siteName, string $uri): bool
     {
         return $this->isModernSculpinProject($sitePath) ||
             $this->isLegacySculpinProject($sitePath);
@@ -52,7 +54,7 @@ class SculpinValetDriver extends BasicValetDriver
      * @param  string  $uri
      * @return string
      */
-    public function mutateUri($uri)
+    public function mutateUri(string $uri): string
     {
         return rtrim('/output_dev'.$uri, '/');
     }

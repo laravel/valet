@@ -1,6 +1,8 @@
 <?php
 
-namespace Valet\Drivers;
+namespace Valet\Drivers\Specific;
+
+use Valet\Drivers\BasicValetDriver;
 
 class JoomlaValetDriver extends BasicValetDriver
 {
@@ -12,23 +14,21 @@ class JoomlaValetDriver extends BasicValetDriver
      * @param  string  $uri
      * @return bool
      */
-    public function serves($sitePath, $siteName, $uri)
+    public function serves(string $sitePath, string $siteName, string $uri): bool
     {
         return is_dir($sitePath.'/libraries/joomla');
     }
 
     /**
-     * Get the fully resolved path to the application's front controller.
+     * Take any steps necessary before loading the front controller for this driver.
      *
      * @param  string  $sitePath
      * @param  string  $siteName
      * @param  string  $uri
-     * @return string
+     * @return void
      */
-    public function frontControllerPath($sitePath, $siteName, $uri)
+    public function beforeLoading(string $sitePath, string $siteName, string $uri): void
     {
         $_SERVER['PHP_SELF'] = $uri;
-
-        return parent::frontControllerPath($sitePath, $siteName, $uri);
     }
 }

@@ -1,6 +1,8 @@
 <?php
 
-namespace Valet\Drivers;
+namespace Valet\Drivers\Specific;
+
+use Valet\Drivers\BasicValetDriver;
 
 class BedrockValetDriver extends BasicValetDriver
 {
@@ -12,12 +14,27 @@ class BedrockValetDriver extends BasicValetDriver
      * @param  string  $uri
      * @return bool
      */
-    public function serves($sitePath, $siteName, $uri)
+    public function serves(string $sitePath, string $siteName, string $uri): bool
     {
         return file_exists($sitePath.'/web/app/mu-plugins/bedrock-autoloader.php') ||
               (is_dir($sitePath.'/web/app/') &&
                file_exists($sitePath.'/web/wp-config.php') &&
                file_exists($sitePath.'/config/application.php'));
+    }
+
+    /**
+     * Take any steps necessary before loading the front controller for this driver.
+     *
+     * @param  string  $sitePath
+     * @param  string  $siteName
+     * @param  string  $uri
+     * @return void
+     */
+    public function beforeLoading(string $sitePath, string $siteName, string $uri): void
+    {
+        $_SERVER['PHP_SELF'] = $uri;
+        $_SERVER['SERVER_ADDR'] = '127.0.0.1';
+        $_SERVER['SERVER_NAME'] = $_SERVER['HTTP_HOST'];
     }
 
     /**
@@ -28,7 +45,7 @@ class BedrockValetDriver extends BasicValetDriver
      * @param  string  $uri
      * @return string|false
      */
-    public function isStaticFile($sitePath, $siteName, $uri)
+    public function isStaticFile(string $sitePath, string $siteName, string $uri): string|false
     {
         $staticFilePath = $sitePath.'/web'.$uri;
 
@@ -47,12 +64,8 @@ class BedrockValetDriver extends BasicValetDriver
      * @param  string  $uri
      * @return string
      */
-    public function frontControllerPath($sitePath, $siteName, $uri)
+    public function frontControllerPath(string $sitePath, string $siteName, string $uri): string
     {
-        $_SERVER['PHP_SELF'] = $uri;
-        $_SERVER['SERVER_ADDR'] = '127.0.0.1';
-        $_SERVER['SERVER_NAME'] = $_SERVER['HTTP_HOST'];
-
         return parent::frontControllerPath(
             $sitePath.'/web',
             $siteName,

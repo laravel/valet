@@ -1,6 +1,8 @@
 <?php
 
-namespace Valet\Drivers;
+namespace Valet\Drivers\Specific;
+
+use Valet\Drivers\ValetDriver;
 
 /**
  * This driver serves TYPO3 instances (version 7.0 and up). It activates, if it
@@ -40,6 +42,25 @@ class Typo3ValetDriver extends ValetDriver
     ];
 
     /**
+     * Take any steps necessary before loading the front controller for this driver.
+     *
+     * @param  string  $sitePath
+     * @param  string  $siteName
+     * @param  string  $uri
+     * @return void
+     */
+    public function beforeLoading(string $sitePath, string $siteName, string $uri): void
+    {
+        // without modifying the URI, redirect if necessary
+        $this->handleRedirectBackendShorthandUris($uri);
+
+        $_SERVER['SERVER_NAME'] = $siteName.'.dev';
+        $_SERVER['DOCUMENT_URI'] = $uri;
+        $_SERVER['SCRIPT_NAME'] = $uri;
+        $_SERVER['PHP_SELF'] = $uri;
+    }
+
+    /**
      * Determine if the driver serves the request. For TYPO3, this is the
      * case, if a folder called "typo3" is present in the document root.
      *
@@ -48,7 +69,7 @@ class Typo3ValetDriver extends ValetDriver
      * @param  string  $uri
      * @return bool
      */
-    public function serves($sitePath, $siteName, $uri)
+    public function serves(string $sitePath, string $siteName, string $uri): bool
     {
         $typo3Dir = $sitePath.$this->documentRoot.'/typo3';
 
@@ -65,7 +86,7 @@ class Typo3ValetDriver extends ValetDriver
      * @param  string  $uri
      * @return string|false
      */
-    public function isStaticFile($sitePath, $siteName, $uri)
+    public function isStaticFile(string $sitePath, string $siteName, string $uri): string|false
     {
         // May the file contains a cache busting version string like filename.12345678.css
         // If that is the case, the file cannot be found on disk, so remove the version
@@ -112,11 +133,8 @@ class Typo3ValetDriver extends ValetDriver
      * @param  string  $uri
      * @return string
      */
-    public function frontControllerPath($sitePath, $siteName, $uri)
+    public function frontControllerPath(string $sitePath, string $siteName, string $uri): string
     {
-        // without modifying the URI, redirect if necessary
-        $this->handleRedirectBackendShorthandUris($uri);
-
         // from now on, remove trailing / for convenience for all the following join operations
         $uri = rtrim($uri, '/');
 
@@ -125,7 +143,7 @@ class Typo3ValetDriver extends ValetDriver
             if (is_dir($absoluteFilePath)) {
                 if (file_exists($absoluteFilePath.'/index.php')) {
                     // this folder can be served by index.php
-                    return $this->serveScript($sitePath, $siteName, $uri.'/index.php');
+                    return $this->serveScript($sitePath, $uri.'/index.php');
                 }
 
                 if (file_exists($absoluteFilePath.'/index.html')) {
@@ -134,12 +152,12 @@ class Typo3ValetDriver extends ValetDriver
                 }
             } elseif (pathinfo($absoluteFilePath, PATHINFO_EXTENSION) === 'php') {
                 // this file can be served directly
-                return $this->serveScript($sitePath, $siteName, $uri);
+                return $this->serveScript($sitePath, $uri);
             }
         }
 
         // the global index.php will handle all other cases
-        return $this->serveScript($sitePath, $siteName, '/index.php');
+        return $this->serveScript($sitePath, '/index.php');
     }
 
     /**
@@ -167,22 +185,17 @@ class Typo3ValetDriver extends ValetDriver
      * the specified URI and returns it absolute file path.
      *
      * @param  string  $sitePath
-     * @param  string  $siteName
      * @param  string  $uri
      * @param  string  $script
      * @return string
      */
-    private function serveScript($sitePath, $siteName, $uri)
+    private function serveScript($sitePath, $uri)
     {
         $docroot = $sitePath.$this->documentRoot;
         $abspath = $docroot.$uri;
 
-        $_SERVER['SERVER_NAME'] = $siteName.'.dev';
         $_SERVER['DOCUMENT_ROOT'] = $docroot;
-        $_SERVER['DOCUMENT_URI'] = $uri;
         $_SERVER['SCRIPT_FILENAME'] = $abspath;
-        $_SERVER['SCRIPT_NAME'] = $uri;
-        $_SERVER['PHP_SELF'] = $uri;
 
         return $abspath;
     }

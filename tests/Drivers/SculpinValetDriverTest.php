@@ -1,6 +1,6 @@
 <?php
 
-use Valet\Drivers\SculpinValetDriver;
+use Valet\Drivers\Specific\SculpinValetDriver;
 
 class SculpinValetDriverTest extends BaseDriverTestCase
 {

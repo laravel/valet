@@ -1,6 +1,8 @@
 <?php
 
-namespace Valet\Drivers;
+namespace Valet\Drivers\Specific;
+
+use Valet\Drivers\ValetDriver;
 
 class KirbyValetDriver extends ValetDriver
 {
@@ -12,7 +14,7 @@ class KirbyValetDriver extends ValetDriver
      * @param  string  $uri
      * @return void
      */
-    public function serves($sitePath, $siteName, $uri)
+    public function serves(string $sitePath, string $siteName, string $uri): bool
     {
         return is_dir($sitePath.'/kirby');
     }
@@ -25,7 +27,7 @@ class KirbyValetDriver extends ValetDriver
      * @param  string  $uri
      * @return string|false
      */
-    public function isStaticFile($sitePath, $siteName, $uri)
+    public function isStaticFile(string $sitePath, string $siteName, string $uri): string|false
     {
         if ($this->isActualFile($staticFilePath = $sitePath.$uri)) {
             return $staticFilePath;
@@ -44,7 +46,7 @@ class KirbyValetDriver extends ValetDriver
      * @param  string  $uri
      * @return string
      */
-    public function frontControllerPath($sitePath, $siteName, $uri)
+    public function frontControllerPath(string $sitePath, string $siteName, string $uri): string
     {
         $scriptName = '/index.php';
 

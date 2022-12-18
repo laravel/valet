@@ -1,6 +1,6 @@
 <?php
 
-use Valet\Drivers\BedrockValetDriver;
+use Valet\Drivers\Specific\BedrockValetDriver;
 
 class BedrockValetDriverTest extends BaseDriverTestCase
 {
