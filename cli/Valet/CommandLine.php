@@ -12,7 +12,7 @@ class CommandLine
      * @param  string  $command
      * @return void
      */
-    public function quietly($command)
+    public function quietly(string $command): void
     {
         $this->runCommand($command.' > /dev/null 2>&1');
     }
@@ -23,7 +23,7 @@ class CommandLine
      * @param  string  $command
      * @return void
      */
-    public function quietlyAsUser($command)
+    public function quietlyAsUser(string $command): void
     {
         $this->quietly('sudo -u "'.user().'" '.$command.' > /dev/null 2>&1');
     }
@@ -34,7 +34,7 @@ class CommandLine
      * @param  string  $command
      * @return void
      */
-    public function passthru($command)
+    public function passthru(string $command): void
     {
         passthru($command);
     }
@@ -46,7 +46,7 @@ class CommandLine
      * @param  callable  $onError
      * @return string
      */
-    public function run($command, callable $onError = null)
+    public function run(string $command, callable $onError = null): string
     {
         return $this->runCommand($command, $onError);
     }
@@ -58,7 +58,7 @@ class CommandLine
      * @param  callable  $onError
      * @return string
      */
-    public function runAsUser($command, callable $onError = null)
+    public function runAsUser(string $command, callable $onError = null): string
     {
         return $this->runCommand('sudo -u "'.user().'" '.$command, $onError);
     }
@@ -70,7 +70,7 @@ class CommandLine
      * @param  callable  $onError
      * @return string
      */
-    public function runCommand($command, callable $onError = null)
+    public function runCommand(string $command, callable $onError = null): string
     {
         $onError = $onError ?: function () {
         };

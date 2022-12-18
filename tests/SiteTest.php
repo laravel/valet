@@ -953,15 +953,17 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
 class CommandLineFake extends CommandLine
 {
-    public function runCommand($command, callable $onError = null)
+    public function runCommand(string $command, callable $onError = null): string
     {
         // noop
         //
-        // This let's us pretend like every command executes correctly
+        // This lets us pretend like every command executes correctly
         // so we can (elsewhere) ensure the things we meant to do
         // (like "create a certificate") look like they
         // happened without actually running any
         // commands for real.
+
+        return 'hooray!';
     }
 }
 
