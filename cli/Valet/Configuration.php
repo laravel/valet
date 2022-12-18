@@ -21,7 +21,7 @@ class Configuration
      *
      * @return void
      */
-    public function install()
+    public function install(): void
     {
         $this->createConfigurationDirectory();
         $this->createDriversDirectory();
@@ -39,7 +39,7 @@ class Configuration
      *
      * @return void
      */
-    public function uninstall()
+    public function uninstall(): void
     {
         $this->files->unlink(VALET_HOME_PATH);
     }
@@ -49,7 +49,7 @@ class Configuration
      *
      * @return void
      */
-    public function createConfigurationDirectory()
+    public function createConfigurationDirectory(): void
     {
         $this->files->ensureDirExists(preg_replace('~/valet$~', '', VALET_HOME_PATH), user());
 
@@ -68,7 +68,7 @@ class Configuration
      *
      * @return void
      */
-    public function createDriversDirectory()
+    public function createDriversDirectory(): void
     {
         if ($this->files->isDir($driversDirectory = VALET_HOME_PATH.'/Drivers')) {
             return;
@@ -87,7 +87,7 @@ class Configuration
      *
      * @return void
      */
-    public function createSitesDirectory()
+    public function createSitesDirectory(): void
     {
         $this->files->ensureDirExists(VALET_HOME_PATH.'/Sites', user());
     }
@@ -97,7 +97,7 @@ class Configuration
      *
      * @return void
      */
-    public function createExtensionsDirectory()
+    public function createExtensionsDirectory(): void
     {
         $this->files->ensureDirExists(VALET_HOME_PATH.'/Extensions', user());
     }
@@ -107,7 +107,7 @@ class Configuration
      *
      * @return void
      */
-    public function createLogDirectory()
+    public function createLogDirectory(): void
     {
         $this->files->ensureDirExists(VALET_HOME_PATH.'/Log', user());
 
@@ -119,15 +119,17 @@ class Configuration
      *
      * @return void
      */
-    public function createCertificatesDirectory()
+    public function createCertificatesDirectory(): void
     {
         $this->files->ensureDirExists(VALET_HOME_PATH.'/Certificates', user());
     }
 
     /**
      * Write the base, initial configuration for Valet.
+     *
+     * @return void
      */
-    public function writeBaseConfiguration()
+    public function writeBaseConfiguration(): void
     {
         if (! $this->files->exists($this->path())) {
             $this->write(['tld' => 'test', 'loopback' => VALET_LOOPBACK, 'paths' => []]);
@@ -154,7 +156,7 @@ class Configuration
      * @param  bool  $prepend
      * @return void
      */
-    public function addPath($path, $prepend = false)
+    public function addPath(string $path, bool $prepend = false): void
     {
         $this->write(tap($this->read(), function (&$config) use ($path, $prepend) {
             $method = $prepend ? 'prepend' : 'push';
@@ -169,7 +171,7 @@ class Configuration
      * @param  string  $path
      * @return void
      */
-    public function prependPath($path)
+    public function prependPath(string $path): void
     {
         $this->addPath($path, true);
     }
@@ -180,7 +182,7 @@ class Configuration
      * @param  string  $path
      * @return void
      */
-    public function removePath($path)
+    public function removePath(string $path): void
     {
         if ($path == VALET_HOME_PATH.'/Sites') {
             info("Cannot remove this directory because this is where Valet stores its site definitions.\nRun [valet paths] for a list of parked paths.");
@@ -199,7 +201,7 @@ class Configuration
      *
      * @return void
      */
-    public function prune()
+    public function prune(): void
     {
         if (! $this->files->exists($this->path())) {
             return;
@@ -217,7 +219,7 @@ class Configuration
      *
      * @return array
      */
-    public function read()
+    public function read(): array
     {
         return json_decode($this->files->get($this->path()), true);
     }
@@ -229,7 +231,7 @@ class Configuration
      * @param  mixed  $value
      * @return array
      */
-    public function updateKey($key, $value)
+    public function updateKey(string $key, $value): array
     {
         return tap($this->read(), function (&$config) use ($key, $value) {
             $config[$key] = $value;
@@ -244,7 +246,7 @@ class Configuration
      * @param  array  $config
      * @return void
      */
-    public function write($config)
+    public function write(array $config): void
     {
         $this->files->putAsUser($this->path(), json_encode(
             $config, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
@@ -256,7 +258,7 @@ class Configuration
      *
      * @return string
      */
-    public function path()
+    public function path(): string
     {
         return VALET_HOME_PATH.'/config.json';
     }
