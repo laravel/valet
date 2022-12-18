@@ -16,7 +16,7 @@ class JigsawValetDriver extends BasicValetDriver
      */
     public function serves(string $sitePath, string $siteName, string $uri): bool
     {
-        return is_dir($sitePath . '/build_local');
+        return is_dir($sitePath.'/build_local');
     }
 
     /**

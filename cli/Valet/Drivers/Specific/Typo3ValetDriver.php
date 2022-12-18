@@ -44,9 +44,9 @@ class Typo3ValetDriver extends ValetDriver
     /**
      * Take any steps necessary before loading the front controller for this driver.
      *
-     * @param  string $sitePath
-     * @param  string $siteName
-     * @param  string $uri
+     * @param  string  $sitePath
+     * @param  string  $siteName
+     * @param  string  $uri
      * @return void
      */
     public function beforeLoading(string $sitePath, string $siteName, string $uri): void
@@ -54,7 +54,7 @@ class Typo3ValetDriver extends ValetDriver
         // without modifying the URI, redirect if necessary
         $this->handleRedirectBackendShorthandUris($uri);
 
-        $_SERVER['SERVER_NAME'] = $siteName . '.dev';
+        $_SERVER['SERVER_NAME'] = $siteName.'.dev';
         $_SERVER['DOCUMENT_URI'] = $uri;
         $_SERVER['SCRIPT_NAME'] = $uri;
         $_SERVER['PHP_SELF'] = $uri;

@@ -22,16 +22,16 @@ class NeosValetDriver extends ValetDriver
     /**
      * Take any steps necessary before loading the front controller for this driver.
      *
-     * @param  string $sitePath
-     * @param  string $siteName
-     * @param  string $uri
+     * @param  string  $sitePath
+     * @param  string  $siteName
+     * @param  string  $uri
      * @return void
      */
     public function beforeLoading(string $sitePath, string $siteName, string $uri): void
     {
         putenv('FLOW_CONTEXT=Development');
         putenv('FLOW_REWRITEURLS=1');
-        $_SERVER['SCRIPT_FILENAME'] = $sitePath . '/Web/index.php';
+        $_SERVER['SCRIPT_FILENAME'] = $sitePath.'/Web/index.php';
         $_SERVER['SCRIPT_NAME'] = '/index.php';
     }
 

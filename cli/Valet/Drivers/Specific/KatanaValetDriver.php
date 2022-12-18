@@ -16,7 +16,7 @@ class KatanaValetDriver extends BasicValetDriver
      */
     public function serves(string $sitePath, string $siteName, string $uri): bool
     {
-        return file_exists($sitePath . '/katana');
+        return file_exists($sitePath.'/katana');
     }
 
     /**

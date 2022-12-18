@@ -122,15 +122,15 @@ abstract class ValetDriver
     {
         return array_map(function ($item) {
             return 'Specific\\'.$item;
-        }, static::driversIn(__DIR__ . '/Specific'));
+        }, static::driversIn(__DIR__.'/Specific'));
     }
 
     /**
      * Take any steps necessary before loading the front controller for this driver.
      *
-     * @param  string $sitePath
-     * @param  string $siteName
-     * @param  string $uri
+     * @param  string  $sitePath
+     * @param  string  $siteName
+     * @param  string  $uri
      * @return void
      */
     public function beforeLoading(string $sitePath, string $siteName, string $uri): void
