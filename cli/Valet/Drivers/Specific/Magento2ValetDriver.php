@@ -1,6 +1,8 @@
 <?php
 
-namespace Valet\Drivers;
+namespace Valet\Drivers\Specific;
+
+use Valet\Drivers\ValetDriver;
 
 class Magento2ValetDriver extends ValetDriver
 {
@@ -19,7 +21,7 @@ class Magento2ValetDriver extends ValetDriver
      * @param  string  $uri
      * @return bool
      */
-    public function serves($sitePath, $siteName, $uri)
+    public function serves(string $sitePath, string $siteName, string $uri): bool
     {
         return file_exists($sitePath.'/bin/magento') && file_exists($sitePath.'/pub/index.php');
     }
@@ -32,7 +34,7 @@ class Magento2ValetDriver extends ValetDriver
      * @param  string  $uri
      * @return string|false
      */
-    public function isStaticFile($sitePath, $siteName, $uri)
+    public function isStaticFile(string $sitePath, string $siteName, string $uri): string|false
     {
         $this->checkMageMode($sitePath);
 
@@ -142,7 +144,7 @@ class Magento2ValetDriver extends ValetDriver
      * @param  string  $uri
      * @return string
      */
-    public function frontControllerPath($sitePath, $siteName, $uri)
+    public function frontControllerPath(string $sitePath, string $siteName, string $uri): string
     {
         $this->checkMageMode($sitePath);
 
@@ -151,6 +153,7 @@ class Magento2ValetDriver extends ValetDriver
 
             return $sitePath.'/index.php';
         }
+
         $_SERVER['DOCUMENT_ROOT'] = $sitePath.'/pub';
 
         return $sitePath.'/pub/index.php';

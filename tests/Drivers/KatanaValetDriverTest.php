@@ -1,6 +1,6 @@
 <?php
 
-use Valet\Drivers\KatanaValetDriver;
+use Valet\Drivers\Specific\KatanaValetDriver;
 
 class KatanaValetDriverTest extends BaseDriverTestCase
 {

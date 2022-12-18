@@ -6,7 +6,6 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RecursiveRegexIterator;
 use RegexIterator;
-use Throwable;
 
 abstract class ValetDriver
 {
@@ -52,43 +51,22 @@ abstract class ValetDriver
     {
         $drivers = [];
 
+        // Queue custom driver based on path
         if ($customSiteDriver = static::customSiteDriver($sitePath)) {
             $drivers[] = $customSiteDriver;
         }
 
+        // Queue custom drivers for this environment
         $drivers = array_merge($drivers, static::driversIn(VALET_HOME_PATH.'/Drivers'));
 
+        // Queue Valet-shipped drivers
         $drivers[] = 'LaravelValetDriver';
-
-        $drivers[] = 'WordPressValetDriver';
-        $drivers[] = 'BedrockValetDriver';
-        $drivers[] = 'ContaoValetDriver';
-        $drivers[] = 'SymfonyValetDriver';
-        $drivers[] = 'CraftValetDriver';
-        $drivers[] = 'StatamicValetDriver';
-        $drivers[] = 'StatamicV1ValetDriver';
-        $drivers[] = 'CakeValetDriver';
-        $drivers[] = 'SculpinValetDriver';
-        $drivers[] = 'JigsawValetDriver';
-        $drivers[] = 'KirbyValetDriver';
-        $drivers[] = 'KatanaValetDriver';
-        $drivers[] = 'JoomlaValetDriver';
-        $drivers[] = 'DrupalValetDriver';
-        $drivers[] = 'Concrete5ValetDriver';
-        $drivers[] = 'Typo3ValetDriver';
-        $drivers[] = 'NeosValetDriver';
-        $drivers[] = 'Magento2ValetDriver';
-
+        $drivers = array_merge($drivers, static::specificDrivers());
         $drivers[] = 'BasicValetDriver';
 
         foreach ($drivers as $driver) {
-            try {
-                // Try for old, un-namespaced drivers
-                $driver = new $driver;
-            } catch (Throwable $e) {
-                $className = "Valet\Drivers\\{$driver}";
-                $driver = new $className;
-            }
+            $className = "Valet\Drivers\\{$driver}";
+            $driver = new $className;
 
             if ($driver->serves($sitePath, $siteName, $driver->mutateUri($uri))) {
                 return $driver;
@@ -100,9 +78,9 @@ abstract class ValetDriver
      * Get the custom driver class from the site path, if one exists.
      *
      * @param  string  $sitePath
-     * @return string|null
+     * @return string|null|void
      */
-    public static function customSiteDriver(string $sitePath): ?string
+    public static function customSiteDriver(string $sitePath)
     {
         if (! file_exists($sitePath.'/LocalValetDriver.php')) {
             return;
@@ -138,6 +116,26 @@ abstract class ValetDriver
         }
 
         return $drivers;
+    }
+
+    public static function specificDrivers(): array
+    {
+        return array_map(function ($item) {
+            return 'Specific\\'.$item;
+        }, static::driversIn(__DIR__ . '/Specific'));
+    }
+
+    /**
+     * Take any steps necessary before loading the front controller for this driver.
+     *
+     * @param  string $sitePath
+     * @param  string $siteName
+     * @param  string $uri
+     * @return void
+     */
+    public function beforeLoading(string $sitePath, string $siteName, string $uri): void
+    {
+        // Do nothing
     }
 
     /**

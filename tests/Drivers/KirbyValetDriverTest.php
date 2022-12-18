@@ -1,6 +1,6 @@
 <?php
 
-use Valet\Drivers\KirbyValetDriver;
+use Valet\Drivers\Specific\KirbyValetDriver;
 
 class KirbyValetDriverTest extends BaseDriverTestCase
 {

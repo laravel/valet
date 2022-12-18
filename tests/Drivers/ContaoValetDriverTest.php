@@ -1,6 +1,6 @@
 <?php
 
-use Valet\Drivers\ContaoValetDriver;
+use Valet\Drivers\Specific\ContaoValetDriver;
 
 class ContaoValetDriverTest extends BaseDriverTestCase
 {

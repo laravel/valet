@@ -1,6 +1,6 @@
 <?php
 
-use Valet\Drivers\JoomlaValetDriver;
+use Valet\Drivers\Specific\JoomlaValetDriver;
 
 class JoomlaValetDriverTest extends BaseDriverTestCase
 {

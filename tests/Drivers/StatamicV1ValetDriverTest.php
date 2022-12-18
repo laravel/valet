@@ -1,6 +1,6 @@
 <?php
 
-use Valet\Drivers\StatamicV1ValetDriver;
+use Valet\Drivers\Specific\StatamicV1ValetDriver;
 
 class StatamicV1ValetDriverTest extends BaseDriverTestCase
 {

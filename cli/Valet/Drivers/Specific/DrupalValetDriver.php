@@ -1,6 +1,8 @@
 <?php
 
-namespace Valet\Drivers;
+namespace Valet\Drivers\Specific;
+
+use Valet\Drivers\ValetDriver;
 
 class DrupalValetDriver extends ValetDriver
 {
@@ -12,7 +14,7 @@ class DrupalValetDriver extends ValetDriver
      * @param  string  $uri
      * @return void
      */
-    public function serves($sitePath, $siteName, $uri)
+    public function serves(string $sitePath, string $siteName, string $uri): bool
     {
         $sitePath = $this->addSubdirectory($sitePath);
 
@@ -24,6 +26,8 @@ class DrupalValetDriver extends ValetDriver
           file_exists($sitePath.'/core/lib/Drupal.php')) {
             return true;
         }
+
+        return false;
     }
 
     /**
@@ -34,7 +38,7 @@ class DrupalValetDriver extends ValetDriver
      * @param  string  $uri
      * @return string|false
      */
-    public function isStaticFile($sitePath, $siteName, $uri)
+    public function isStaticFile(string $sitePath, string $siteName, string $uri): string|false
     {
         $sitePath = $this->addSubdirectory($sitePath);
 
@@ -55,7 +59,7 @@ class DrupalValetDriver extends ValetDriver
      * @param  string  $uri
      * @return string
      */
-    public function frontControllerPath($sitePath, $siteName, $uri)
+    public function frontControllerPath(string $sitePath, string $siteName, string $uri): string
     {
         $sitePath = $this->addSubdirectory($sitePath);
 

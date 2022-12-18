@@ -1,9 +1,10 @@
 <?php
 
 require_once './cli/includes/require-drivers.php';
-require_once './cli/includes/server-helpers.php';
+require_once './cli/Valet/Server.php';
 
 use Valet\Drivers\ValetDriver;
+use Valet\Server;
 
 /**
  * Define the user's "~/.config/valet" path.
@@ -18,28 +19,17 @@ $valetConfig = json_decode(
     file_get_contents(VALET_HOME_PATH.'/config.json'), true
 );
 
+$server = new Server($valetConfig);
+
 /**
  * Parse the URI and site / host for the incoming request.
  */
-$uri = rawurldecode(
-    explode('?', $_SERVER['REQUEST_URI'])[0]
-);
+$uri = $server->uriFromRequestUri($_SERVER['REQUEST_URI']);
+$siteName = $server->siteNameFromHttpHost($_SERVER['HTTP_HOST']);
+$valetSitePath = $server->sitePath($siteName);
 
-$siteName = basename(
-    // Filter host to support wildcard dns feature
-    valet_support_wildcard_dns($_SERVER['HTTP_HOST'], $valetConfig),
-    '.'.$valetConfig['tld']
-);
-
-if (strpos($siteName, 'www.') === 0) {
-    $siteName = substr($siteName, 4);
-}
-
-$domain = array_slice(explode('.', $siteName), -1)[0];
-$valetSitePath = get_valet_site_path($valetConfig, $siteName, $domain);
-
-if (is_null($valetSitePath) && is_null($valetSitePath = valet_default_site_path($valetConfig))) {
-    show_valet_404();
+if (is_null($valetSitePath) && is_null($valetSitePath = $server->defaultSitePath())) {
+    $server->show404();
 }
 
 $valetSitePath = realpath($valetSitePath);
@@ -50,7 +40,7 @@ $valetSitePath = realpath($valetSitePath);
 $valetDriver = ValetDriver::assign($valetSitePath, $siteName, $uri);
 
 if (! $valetDriver) {
-    show_valet_404();
+    $server->show404();
 }
 
 /**
@@ -82,6 +72,12 @@ if ($uri !== '/' && ! $isPhpFile && $staticFilePath = $valetDriver->isStaticFile
 }
 
 /**
+ * Allow for drivers to take pre-loading actions (e.g. setting server variables)
+ */
+
+$valetDriver->beforeLoading($valetSitePath, $siteName, $uri);
+
+/**
  * Attempt to dispatch to a front controller.
  */
 $frontControllerPath = $valetDriver->frontControllerPath(
@@ -90,10 +86,10 @@ $frontControllerPath = $valetDriver->frontControllerPath(
 
 if (! $frontControllerPath) {
     if (isset($valetConfig['directory-listing']) && $valetConfig['directory-listing'] == 'on') {
-        show_directory_listing($valetSitePath, $uri);
+        $server->showDirectoryListing($valetSitePath, $uri);
     }
 
-    show_valet_404();
+    $server->show404();
 }
 
 chdir(dirname($frontControllerPath));

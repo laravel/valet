@@ -1,6 +1,6 @@
 <?php
 
-use Valet\Drivers\Magento2ValetDriver;
+use Valet\Drivers\Specific\Magento2ValetDriver;
 
 class Magento2ValetDriverTest extends BaseDriverTestCase
 {

@@ -12,10 +12,26 @@ class LaravelValetDriver extends ValetDriver
      * @param  string  $uri
      * @return bool
      */
-    public function serves($sitePath, $siteName, $uri)
+    public function serves(string $sitePath, string $siteName, string $uri): bool
     {
         return file_exists($sitePath.'/public/index.php') &&
                file_exists($sitePath.'/artisan');
+    }
+
+    /**
+     * Take any steps necessary before loading the front controller for this driver.
+     *
+     * @param  string $sitePath
+     * @param  string $siteName
+     * @param  string $uri
+     * @return void
+     */
+    public function beforeLoading(string $sitePath, string $siteName, string $uri): void
+    {
+        // Shortcut for getting the "local" hostname as the HTTP_HOST
+        if (isset($_SERVER['HTTP_X_ORIGINAL_HOST'], $_SERVER['HTTP_X_FORWARDED_HOST'])) {
+            $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_X_FORWARDED_HOST'];
+        }
     }
 
     /**
@@ -26,7 +42,7 @@ class LaravelValetDriver extends ValetDriver
      * @param  string  $uri
      * @return string|false
      */
-    public function isStaticFile($sitePath, $siteName, $uri)
+    public function isStaticFile(string $sitePath, string $siteName, string $uri): string|false
     {
         if (file_exists($staticFilePath = $sitePath.'/public'.$uri)
            && is_file($staticFilePath)) {
@@ -54,13 +70,8 @@ class LaravelValetDriver extends ValetDriver
      * @param  string  $uri
      * @return string
      */
-    public function frontControllerPath($sitePath, $siteName, $uri)
+    public function frontControllerPath(string $sitePath, string $siteName, string $uri): string
     {
-        // Shortcut for getting the "local" hostname as the HTTP_HOST
-        if (isset($_SERVER['HTTP_X_ORIGINAL_HOST'], $_SERVER['HTTP_X_FORWARDED_HOST'])) {
-            $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_X_FORWARDED_HOST'];
-        }
-
         return $sitePath.'/public/index.php';
     }
 }
