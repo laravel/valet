@@ -72,9 +72,8 @@ if ($uri !== '/' && ! $isPhpFile && $staticFilePath = $valetDriver->isStaticFile
 }
 
 /**
- * Allow for drivers to take pre-loading actions (e.g. setting server variables)
+ * Allow for drivers to take pre-loading actions (e.g. setting server variables).
  */
-
 $valetDriver->beforeLoading($valetSitePath, $siteName, $uri);
 
 /**

@@ -12,10 +12,10 @@ class Server
     }
 
     /**
-     * Extract $uri from $SERVER['REQUEST_URI'] variable
+     * Extract $uri from $SERVER['REQUEST_URI'] variable.
      *
-     * @param   string  $requestUri  $_SERVER['REQUEST_URI']
-     * @return  string
+     * @param  string  $requestUri  $_SERVER['REQUEST_URI']
+     * @return string
      */
     public function uriFromRequestUri(string $requestUri): string
     {
@@ -25,10 +25,10 @@ class Server
     }
 
     /**
-     * Extract site name from HTTP host, stripping www. and supporting wildcard DNS
+     * Extract site name from HTTP host, stripping www. and supporting wildcard DNS.
      *
-     * @param   string  $httpHost
-     * @return  string
+     * @param  string  $httpHost
+     * @return string
      */
     public function siteNameFromHttpHost(string $httpHost): string
     {
@@ -50,8 +50,8 @@ class Server
      * First, determine the IP address of your local computer (like 192.168.0.10).
      * Then, visit http://project.your-ip.nip.io - e.g.: http://laravel.192.168.0.10.nip.io.
      *
-     * @param   string  $domain
-     * @return  string
+     * @param  string  $domain
+     * @return string
      */
     public function allowWildcardDnsDomains(string $domain): string
     {
@@ -68,12 +68,12 @@ class Server
         foreach ($services as $service) {
             $pattern = preg_quote($service, '#');
             $pattern = str_replace('\*', '.*', $pattern);
-            $patterns[] = '(.*)' . $pattern;
+            $patterns[] = '(.*)'.$pattern;
         }
 
         $pattern = implode('|', $patterns);
 
-        if (preg_match('#(?:' . $pattern . ')\z#u', $domain, $matches)) {
+        if (preg_match('#(?:'.$pattern.')\z#u', $domain, $matches)) {
             $domain = array_pop($matches);
         }
 
@@ -117,7 +117,7 @@ class Server
             $dirs = [];
 
             while (false !== ($file = readdir($handle))) {
-                if (is_dir($path . '/' . $file) && !in_array($file, ['.', '..'])) {
+                if (is_dir($path.'/'.$file) && ! in_array($file, ['.', '..'])) {
                     $dirs[] = $file;
                 }
             }
@@ -128,12 +128,12 @@ class Server
             foreach ($dirs as $dir) {
                 if (strtolower($dir) === $siteName) {
                     // early return when exact match for linked subdomain
-                    return $path . '/' . $dir;
+                    return $path.'/'.$dir;
                 }
 
                 if (strtolower($dir) === $domain) {
                     // no early return here because the foreach may still have some subdomains to process with higher priority
-                    $valetSitePath = $path . '/' . $dir;
+                    $valetSitePath = $path.'/'.$dir;
                 }
             }
 
@@ -149,7 +149,7 @@ class Server
     public function show404()
     {
         http_response_code(404);
-        require __DIR__ . '/cli/templates/404.html';
+        require __DIR__.'/cli/templates/404.html';
         exit;
     }
 
@@ -172,9 +172,9 @@ class Server
     public function showDirectoryListing(string $valetSitePath, string $uri)
     {
         $is_root = ($uri == '/');
-        $directory = ($is_root) ? $valetSitePath : $valetSitePath . $uri;
+        $directory = ($is_root) ? $valetSitePath : $valetSitePath.$uri;
 
-        if (!file_exists($directory)) {
+        if (! file_exists($directory)) {
             show_valet_404();
         }
 
