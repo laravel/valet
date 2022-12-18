@@ -3,8 +3,8 @@
 namespace Valet;
 
 use DomainException;
-use PhpFpm;
 use Illuminate\Support\Collection;
+use PhpFpm;
 
 class Brew
 {
@@ -377,7 +377,7 @@ class Brew
     /**
      * Link passed formula.
      *
-     * @param  string $formula
+     * @param  string  $formula
      * @param  bool  $force
      * @return string
      */
@@ -396,7 +396,7 @@ class Brew
     /**
      * Unlink passed formula.
      *
-     * @param string $formula
+     * @param  string  $formula
      * @return string
      */
     public function unlink(string $formula): string
