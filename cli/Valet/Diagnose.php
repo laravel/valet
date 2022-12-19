@@ -2,6 +2,7 @@
 
 namespace Valet;
 
+use Illuminate\Support\Collection;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
@@ -70,8 +71,12 @@ class Diagnose
 
     /**
      * Run diagnostics.
+     *
+     * @param  boolean  $print
+     * @param  boolean  $plainText
+     * @return void
      */
-    public function run($print, $plainText)
+    public function run(bool $print, bool $plainText): void
     {
         $this->print = $print;
 
@@ -102,7 +107,7 @@ class Diagnose
         $this->afterRun();
     }
 
-    public function beforeRun()
+    public function beforeRun(): void
     {
         if ($this->print) {
             return;
@@ -113,7 +118,7 @@ class Diagnose
         $this->progressBar->start();
     }
 
-    public function afterRun()
+    public function afterRun(): void
     {
         if ($this->progressBar) {
             $this->progressBar->finish();
@@ -122,21 +127,21 @@ class Diagnose
         output('');
     }
 
-    public function runCommand($command)
+    public function runCommand(string $command): string
     {
         return strpos($command, 'sudo ') === 0
             ? $this->cli->run($command)
             : $this->cli->runAsUser($command);
     }
 
-    public function beforeCommand($command)
+    public function beforeCommand(string $command): void
     {
         if ($this->print) {
             info(PHP_EOL."$ $command");
         }
     }
 
-    public function afterCommand($command, $output)
+    public function afterCommand(string $command, string $output): void
     {
         if ($this->print) {
             output(trim($output));
@@ -145,12 +150,12 @@ class Diagnose
         }
     }
 
-    public function ignoreOutput($command)
+    public function ignoreOutput(string $command): bool
     {
         return strpos($command, '> /dev/null 2>&1') !== false;
     }
 
-    public function format($results, $plainText)
+    public function format(Collection $results, bool $plainText): string
     {
         return $results->map(function ($result) use ($plainText) {
             $command = $result['command'];
