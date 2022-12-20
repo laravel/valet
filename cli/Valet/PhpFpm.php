@@ -326,7 +326,7 @@ class PhpFpm
      * If passed php7.4, or php74, 7.4, or 74 formats, normalize to php@7.4 format.
      *
      * @param  string|null
-     * @return  string
+     * @return string
      */
     public function normalizePhpVersion(?string $version): string
     {
