@@ -296,7 +296,7 @@ class Site
      *
      * @param  string  $path
      * @param  Collection  $certs
-     * @return  Collection
+     * @return Collection
      */
     public function getSites(string $path, Collection $certs): Collection
     {
@@ -700,7 +700,7 @@ class Site
      * @param  string|null  $siteConf  (optional) Nginx site config file content
      * @return string
      */
-    public function buildSecureNginxServer(string $url, ?string$siteConf = null): string
+    public function buildSecureNginxServer(string $url, ?string $siteConf = null): string
     {
         if ($siteConf === null) {
             $siteConf = $this->replaceOldLoopbackWithNew(
@@ -817,6 +817,7 @@ class Site
 
         if ($secured->count() === 0) {
             info('No sites to unsecure. You may list all servable sites or links by running <comment>valet parked</comment> or <comment>valet links</comment>.');
+
             return;
         }
 
@@ -1053,7 +1054,7 @@ class Site
      * Get the path to Nginx site configuration files.
      *
      * @param  string|null  $additionalPath
-     * @return  string
+     * @return string
      */
     public function nginxPath(?string $additionalPath = null): string
     {
