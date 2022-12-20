@@ -972,7 +972,7 @@ class FixturesSiteFake extends Site
     private $valetHomePath;
     private $crtCounter = 0;
 
-    public function valetHomePath()
+    public function valetHomePath(): string
     {
         if (! isset($this->valetHomePath)) {
             throw new \RuntimeException(static::class.' needs to be configured using useFixtures or useOutput');
@@ -999,7 +999,7 @@ class FixturesSiteFake extends Site
         $this->valetHomePath = __DIR__.'/output';
     }
 
-    public function createCa($caExpireInDays)
+    public function createCa(int $caExpireInDays): void
     {
         // noop
         //
@@ -1008,7 +1008,7 @@ class FixturesSiteFake extends Site
         // CA for our faked Site.
     }
 
-    public function createCertificate($urlWithTld, $caExpireInDays)
+    public function createCertificate(string $urlWithTld, int $caExpireInDays): void
     {
         // We're not actually going to generate a real certificate
         // here. We are going to do something basic to include
@@ -1075,7 +1075,7 @@ class FixturesSiteFake extends Site
 
 class StubForRemovingLinks extends Site
 {
-    public function sitesPath($additionalPath = null)
+    public function sitesPath(?string $additionalPath = null): string
     {
         return __DIR__.'/output'.($additionalPath ? '/'.$additionalPath : '');
     }

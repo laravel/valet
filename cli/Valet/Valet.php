@@ -28,7 +28,7 @@ class Valet
      *
      * @return void
      */
-    public function symlinkToUsersBin()
+    public function symlinkToUsersBin(): void
     {
         $this->unlinkFromUsersBin();
 
@@ -40,7 +40,7 @@ class Valet
      *
      * @return void
      */
-    public function unlinkFromUsersBin()
+    public function unlinkFromUsersBin(): void
     {
         $this->cli->quietlyAsUser('rm '.$this->valetBin);
     }
@@ -50,7 +50,7 @@ class Valet
      *
      * @return array
      */
-    public function extensions()
+    public function extensions(): array
     {
         if (! $this->files->isDir(VALET_HOME_PATH.'/Extensions')) {
             return [];
@@ -74,7 +74,7 @@ class Valet
      *
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function onLatestVersion($currentVersion)
+    public function onLatestVersion(string $currentVersion): bool
     {
         $url = 'https://api.github.com/repos/laravel/valet/releases/latest';
         $response = json_decode((new Client())->get($url)->getBody());
@@ -87,7 +87,7 @@ class Valet
      *
      * @return void
      */
-    public function createSudoersEntry()
+    public function createSudoersEntry(): void
     {
         $this->files->ensureDirExists('/etc/sudoers.d');
 
@@ -100,23 +100,27 @@ class Valet
      *
      * @return void
      */
-    public function removeSudoersEntry()
+    public function removeSudoersEntry(): void
     {
         $this->cli->quietly('rm /etc/sudoers.d/valet');
     }
 
     /**
      * Run composer global diagnose.
+     *
+     * @return void
      */
-    public function composerGlobalDiagnose()
+    public function composerGlobalDiagnose(): void
     {
         $this->cli->runAsUser('composer global diagnose');
     }
 
     /**
      * Run composer global update.
+     *
+     * @return void
      */
-    public function composerGlobalUpdate()
+    public function composerGlobalUpdate(): void
     {
         $this->cli->runAsUser('composer global update');
     }
