@@ -72,8 +72,8 @@ class Diagnose
     /**
      * Run diagnostics.
      *
-     * @param  boolean  $print
-     * @param  boolean  $plainText
+     * @param  bool  $print
+     * @param  bool  $plainText
      * @return void
      */
     public function run(bool $print, bool $plainText): void
