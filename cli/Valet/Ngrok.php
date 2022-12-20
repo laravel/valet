@@ -16,9 +16,10 @@ class Ngrok
     /**
      * Get the current tunnel URL from the Ngrok API.
      *
+     * @param  string|null  $domain
      * @return string
      */
-    public function currentTunnelUrl($domain = null)
+    public function currentTunnelUrl(?string $domain = null): string
     {
         // wait a second for ngrok to start before attempting to find available tunnels
         sleep(1);
@@ -52,9 +53,10 @@ class Ngrok
      * Find the HTTP tunnel URL from the list of tunnels.
      *
      * @param  array  $tunnels
+     * @param  string  $domain
      * @return string|null
      */
-    public function findHttpTunnelUrl($tunnels, $domain)
+    public function findHttpTunnelUrl(array $tunnels, string $domain): ?string
     {
         // If there are active tunnels on the Ngrok instance we will spin through them and
         // find the one responding on HTTP. Each tunnel has an HTTP and a HTTPS address
