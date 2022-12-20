@@ -563,8 +563,14 @@ You might also want to investigate your global Composer configs. Helpful command
             $site = basename(getcwd());
         }
 
-        if (is_null($phpVersion) && $phpVersion = Site::phpRcVersion($site)) {
-            info("Found '{$site}/.valetphprc' specifying version: {$phpVersion}");
+        if (is_null($phpVersion)) {
+            if ($phpVersion = Site::phpRcVersion($site)) {
+                info("Found '{$site}/.valetphprc' specifying version: {$phpVersion}");
+            } else {
+                info("\nPlease provide a version number. E.g.:");
+                info("valet isolate php@8.2");
+                exit;
+            }
         }
 
         PhpFpm::isolateDirectory($site, $phpVersion);
