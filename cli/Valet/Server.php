@@ -43,7 +43,7 @@ class Server
     public static function show404()
     {
         http_response_code(404);
-        require __DIR__ . '/cli/templates/404.html';
+        require __DIR__.'/cli/templates/404.html';
         exit;
     }
 
@@ -56,9 +56,9 @@ class Server
     public static function showDirectoryListing(string $valetSitePath, string $uri)
     {
         $is_root = ($uri == '/');
-        $directory = ($is_root) ? $valetSitePath : $valetSitePath . $uri;
+        $directory = ($is_root) ? $valetSitePath : $valetSitePath.$uri;
 
-        if (!file_exists($directory)) {
+        if (! file_exists($directory)) {
             static::show404();
         }
 
