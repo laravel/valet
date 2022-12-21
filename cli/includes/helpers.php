@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Container\Container;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Define constants.
@@ -32,10 +33,10 @@ define('ISOLATED_PHP_VERSION', 'ISOLATED_PHP_VERSION');
 /**
  * Set or get a global console writer.
  *
- * @param  null|Symfony\Component\Console\Output\ConsoleOutputInterface  $writer
- * @return void|Symfony\Component\Console\Output\ConsoleOutputInterface
+ * @param  null|OutputInterface  $writer
+ * @return OutputInterface  Or anonymous class
  */
-function writer($writer = null)
+function writer(?OutputInterface $writer = null)/*: OutputInterface*/
 {
     $container = Container::getInstance();
 
@@ -47,7 +48,7 @@ function writer($writer = null)
         return $container->make('writer');
     }
 
-    Container::getInstance()->instance('writer', $writer);
+    return Container::getInstance()->instance('writer', $writer);
 }
 
 /**
@@ -67,7 +68,7 @@ function info($output)
  * @param  string  $output
  * @return void
  */
-function warning($output)
+function warning(string $output): void
 {
     output('<fg=red>'.$output.'</>');
 }
@@ -79,7 +80,7 @@ function warning($output)
  * @param  array  $rows
  * @return void
  */
-function table(array $headers = [], array $rows = [])
+function table(array $headers = [], array $rows = []): void
 {
     $table = new Table(writer());
 
@@ -93,7 +94,7 @@ function table(array $headers = [], array $rows = [])
  *
  * @return bool
  */
-function testing()
+function testing(): bool
 {
     return strpos($_SERVER['SCRIPT_NAME'], 'phpunit') !== false;
 }
@@ -104,22 +105,20 @@ function testing()
  * @param  string  $output
  * @return void
  */
-function output($output)
+function output(string $output): void
 {
     writer()->writeln($output);
 }
 
-if (! function_exists('resolve')) {
-    /**
-     * Resolve the given class from the container.
-     *
-     * @param  string  $class
-     * @return mixed
-     */
-    function resolve($class)
-    {
-        return Container::getInstance()->make($class);
-    }
+/**
+ * Resolve the given class from the container.
+ *
+ * @param  string  $class
+ * @return mixed
+ */
+function resolve(string $class): mixed
+{
+    return Container::getInstance()->make($class);
 }
 
 /**
@@ -129,38 +128,36 @@ if (! function_exists('resolve')) {
  * @param  mixed  $instance
  * @return void
  */
-function swap($class, $instance)
+function swap(string $class, mixed $instance): void
 {
     Container::getInstance()->instance($class, $instance);
 }
 
-if (! function_exists('retry')) {
-    /**
-     * Retry the given function N times.
-     *
-     * @param  int  $retries
-     * @param  callable  $retries
-     * @param  int  $sleep
-     * @return mixed
-     */
-    function retry($retries, $fn, $sleep = 0)
-    {
-        beginning:
-        try {
-            return $fn();
-        } catch (Exception $e) {
-            if (! $retries) {
-                throw $e;
-            }
-
-            $retries--;
-
-            if ($sleep > 0) {
-                usleep($sleep * 1000);
-            }
-
-            goto beginning;
+/**
+ * Retry the given function N times.
+ *
+ * @param  int  $retries
+ * @param  callable  $retries
+ * @param  int  $sleep
+ * @return mixed
+ */
+function retry(int $retries, callable $fn, int $sleep = 0): mixed
+{
+    beginning:
+    try {
+        return $fn();
+    } catch (Exception $e) {
+        if (! $retries) {
+            throw $e;
         }
+
+        $retries--;
+
+        if ($sleep > 0) {
+            usleep($sleep * 1000);
+        }
+
+        goto beginning;
     }
 }
 
@@ -169,73 +166,67 @@ if (! function_exists('retry')) {
  *
  * @return void
  */
-function should_be_sudo()
+function should_be_sudo(): void
 {
     if (! isset($_SERVER['SUDO_USER'])) {
         throw new Exception('This command must be run with sudo.');
     }
 }
 
-if (! function_exists('tap')) {
-    /**
-     * Tap the given value.
-     *
-     * @param  mixed  $value
-     * @param  callable  $callback
-     * @return mixed
-     */
-    function tap($value, callable $callback)
-    {
-        $callback($value);
+/**
+ * Tap the given value.
+ *
+ * @param  mixed  $value
+ * @param  callable  $callback
+ * @return mixed
+ */
+function tap(mixed $value, callable $callback): mixed
+{
+    $callback($value);
 
-        return $value;
-    }
+    return $value;
 }
 
-if (! function_exists('ends_with')) {
-    /**
-     * Determine if a given string ends with a given substring.
-     *
-     * @param  string  $haystack
-     * @param  string|array  $needles
-     * @return bool
-     */
-    function ends_with($haystack, $needles)
-    {
-        foreach ((array) $needles as $needle) {
-            if (substr($haystack, -strlen($needle)) === (string) $needle) {
-                return true;
-            }
+/**
+ * Determine if a given string ends with a given substring.
+ *
+ * @param  string  $haystack
+ * @param  string|array  $needles
+ * @return bool
+ */
+function ends_with(string $haystack, array|string $needles): bool
+{
+    foreach ((array) $needles as $needle) {
+        if (substr($haystack, -strlen($needle)) === (string) $needle) {
+            return true;
         }
-
-        return false;
     }
+
+    return false;
 }
 
-if (! function_exists('starts_with')) {
-    /**
-     * Determine if a given string starts with a given substring.
-     *
-     * @param  string  $haystack
-     * @param  string|string[]  $needles
-     * @return bool
-     */
-    function starts_with($haystack, $needles)
-    {
-        foreach ((array) $needles as $needle) {
-            if ((string) $needle !== '' && strncmp($haystack, $needle, strlen($needle)) === 0) {
-                return true;
-            }
+/**
+ * Determine if a given string starts with a given substring.
+ *
+ * @param  string  $haystack
+ * @param  string|string[]  $needles
+ * @return bool
+ */
+function starts_with(string $haystack, array|string $needles): bool
+{
+    foreach ((array) $needles as $needle) {
+        if ((string) $needle !== '' && strncmp($haystack, $needle, strlen($needle)) === 0) {
+            return true;
         }
-
-        return false;
     }
+
+    return false;
 }
 
 /**
  * Get the user.
  */
-function user()
+function user(): string
 {
     if (! isset($_SERVER['SUDO_USER'])) {
         return $_SERVER['USER'];
