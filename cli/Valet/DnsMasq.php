@@ -9,7 +9,7 @@ class DnsMasq
     public $resolverPath = '/etc/resolver';
 
     /**
-     * Create a new DnsMasq Instance
+     * Create a new DnsMasq Instance.
      *
      * @param  Brew  $brew
      * @param  CommandLine  $cli
