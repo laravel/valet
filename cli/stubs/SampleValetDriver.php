@@ -1,5 +1,9 @@
 <?php
 
+namespace Valet\Drivers\Specific;
+
+use Valet\Drivers\ValetDriver;
+
 class SampleValetDriver extends ValetDriver
 {
     /**

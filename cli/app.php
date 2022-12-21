@@ -9,11 +9,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Valet\Drivers\ValetDriver;
+
 use function Valet\info;
 use function Valet\output;
 use function Valet\table;
 use function Valet\warning;
 use function Valet\writer;
+
+$version = '4.0.0';
 
 /**
  * Load correct autoloader depending on install location.
@@ -27,23 +30,13 @@ if (file_exists(__DIR__.'/../vendor/autoload.php')) {
 }
 
 /**
- * Relocate config dir to ~/.config/valet/ if found in old location.
- */
-if (is_dir(VALET_LEGACY_HOME_PATH) && ! is_dir(VALET_HOME_PATH)) {
-    Configuration::createConfigurationDirectory();
-}
-
-/**
  * Create the application.
  */
 Container::setInstance(new Container);
 
-$version = '4.0.0';
-
 $app = new Application('Laravel Valet', $version);
 
-$dispatcher = new EventDispatcher();
-$app->setDispatcher($dispatcher);
+$app->setDispatcher($dispatcher = new EventDispatcher());
 
 $dispatcher->addListener(
     ConsoleEvents::COMMAND,
@@ -51,14 +44,11 @@ $dispatcher->addListener(
         writer($event->getOutput());
     });
 
-/**
- * Prune missing directories and symbolic links on every command.
- */
-if (is_dir(VALET_HOME_PATH)) {
-    Configuration::prune();
-
-    Site::pruneLinks();
-}
+Upgrader::relocateOldConfig();
+Upgrader::pruneMissingDirectories();
+Upgrader::pruneSymbolicLinks();
+Upgrader::fixOldSampleValetDriver();
+Upgrader::errorIfOldCustomDrivers();
 
 /**
  * Install Valet and any required services.
