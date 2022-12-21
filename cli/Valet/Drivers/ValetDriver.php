@@ -188,7 +188,7 @@ abstract class ValetDriver
      * @param  string  $path
      * @return bool
      */
-    protected function isActualFile($path)
+    protected function isActualFile(string $path): bool
     {
         return ! is_dir($path) && file_exists($path);
     }

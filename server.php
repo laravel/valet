@@ -24,12 +24,12 @@ $server = new Server($valetConfig);
 /**
  * Parse the URI and site / host for the incoming request.
  */
-$uri = $server->uriFromRequestUri($_SERVER['REQUEST_URI']);
+$uri = Server::uriFromRequestUri($_SERVER['REQUEST_URI']);
 $siteName = $server->siteNameFromHttpHost($_SERVER['HTTP_HOST']);
 $valetSitePath = $server->sitePath($siteName);
 
 if (is_null($valetSitePath) && is_null($valetSitePath = $server->defaultSitePath())) {
-    $server->show404();
+    Server::show404();
 }
 
 $valetSitePath = realpath($valetSitePath);
@@ -40,7 +40,7 @@ $valetSitePath = realpath($valetSitePath);
 $valetDriver = ValetDriver::assign($valetSitePath, $siteName, $uri);
 
 if (! $valetDriver) {
-    $server->show404();
+    Server::show404();
 }
 
 /**
@@ -85,10 +85,10 @@ $frontControllerPath = $valetDriver->frontControllerPath(
 
 if (! $frontControllerPath) {
     if (isset($valetConfig['directory-listing']) && $valetConfig['directory-listing'] == 'on') {
-        $server->showDirectoryListing($valetSitePath, $uri);
+        Server::showDirectoryListing($valetSitePath, $uri);
     }
 
-    $server->show404();
+    Server::show404();
 }
 
 chdir(dirname($frontControllerPath));
