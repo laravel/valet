@@ -2,7 +2,6 @@
 
 use Illuminate\Container\Container;
 use Valet\Server;
-
 use function Valet\user;
 
 class ServerTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
@@ -65,7 +64,7 @@ class ServerTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $realPath = __DIR__.'/files/sites/tighten';
         $this->assertEquals($realPath, $server->sitePath('tighten'));
-        $realPath = __DIR__ . '/files/sites/tighten';
+        $realPath = __DIR__.'/files/sites/tighten';
         $this->assertEquals($realPath, $server->sitePath('subdomain.tighten'));
     }
 
