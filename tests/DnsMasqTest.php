@@ -70,7 +70,7 @@ class DnsMasqTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
 class StubForCreatingCustomDnsMasqConfigFiles extends DnsMasq
 {
-    public function dnsmasqUserConfigDir()
+    public function dnsmasqUserConfigDir(): string
     {
         return __DIR__.'/output/';
     }

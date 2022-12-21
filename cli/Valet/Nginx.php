@@ -3,6 +3,7 @@
 namespace Valet;
 
 use DomainException;
+use Illuminate\Support\Collection;
 
 class Nginx
 {
@@ -38,7 +39,7 @@ class Nginx
      *
      * @return void
      */
-    public function install()
+    public function install(): void
     {
         if (! $this->brew->hasInstalledNginx()) {
             $this->brew->installOrFail('nginx', []);
@@ -54,7 +55,7 @@ class Nginx
      *
      * @return void
      */
-    public function installConfiguration()
+    public function installConfiguration(): void
     {
         info('Installing nginx configuration...');
 
@@ -71,7 +72,7 @@ class Nginx
      *
      * @return void
      */
-    public function installServer()
+    public function installServer(): void
     {
         $this->files->ensureDirExists(BREW_PREFIX.'/etc/nginx/valet');
 
@@ -97,7 +98,7 @@ class Nginx
      *
      * @return void
      */
-    public function installNginxDirectory()
+    public function installNginxDirectory(): void
     {
         info('Installing nginx directory...');
 
@@ -113,7 +114,7 @@ class Nginx
     /**
      * Check nginx.conf for errors.
      */
-    private function lint()
+    private function lint(): void
     {
         $this->cli->run(
             'sudo nginx -c '.static::NGINX_CONF.' -t',
@@ -128,7 +129,7 @@ class Nginx
      *
      * @return void
      */
-    public function rewriteSecureNginxFiles()
+    public function rewriteSecureNginxFiles(): void
     {
         $tld = $this->configuration->read()['tld'];
         $loopback = $this->configuration->read()['loopback'];
@@ -147,7 +148,7 @@ class Nginx
      *
      * @return void
      */
-    public function restart()
+    public function restart(): void
     {
         $this->lint();
 
@@ -159,7 +160,7 @@ class Nginx
      *
      * @return void
      */
-    public function stop()
+    public function stop(): void
     {
         $this->brew->stopService(['nginx']);
     }
@@ -169,7 +170,7 @@ class Nginx
      *
      * @return void
      */
-    public function uninstall()
+    public function uninstall(): void
     {
         $this->brew->stopService(['nginx', 'nginx-full']);
         $this->brew->uninstallFormula('nginx nginx-full');
@@ -179,9 +180,9 @@ class Nginx
     /**
      * Return a list of all sites with explicit Nginx configurations.
      *
-     * @return \Illuminate\Support\Collection
+     * @return Collection
      */
-    public function configuredSites()
+    public function configuredSites(): Collection
     {
         return collect($this->files->scandir(VALET_HOME_PATH.'/Nginx'))
             ->reject(function ($file) {

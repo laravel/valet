@@ -953,15 +953,17 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
 class CommandLineFake extends CommandLine
 {
-    public function runCommand($command, callable $onError = null)
+    public function runCommand(string $command, callable $onError = null): string
     {
         // noop
         //
-        // This let's us pretend like every command executes correctly
+        // This lets us pretend like every command executes correctly
         // so we can (elsewhere) ensure the things we meant to do
         // (like "create a certificate") look like they
         // happened without actually running any
         // commands for real.
+
+        return 'hooray!';
     }
 }
 
@@ -970,7 +972,7 @@ class FixturesSiteFake extends Site
     private $valetHomePath;
     private $crtCounter = 0;
 
-    public function valetHomePath()
+    public function valetHomePath(): string
     {
         if (! isset($this->valetHomePath)) {
             throw new \RuntimeException(static::class.' needs to be configured using useFixtures or useOutput');
@@ -997,7 +999,7 @@ class FixturesSiteFake extends Site
         $this->valetHomePath = __DIR__.'/output';
     }
 
-    public function createCa($caExpireInDays)
+    public function createCa(int $caExpireInDays): void
     {
         // noop
         //
@@ -1006,7 +1008,7 @@ class FixturesSiteFake extends Site
         // CA for our faked Site.
     }
 
-    public function createCertificate($urlWithTld, $caExpireInDays)
+    public function createCertificate(string $urlWithTld, int $caExpireInDays): void
     {
         // We're not actually going to generate a real certificate
         // here. We are going to do something basic to include
@@ -1073,7 +1075,7 @@ class FixturesSiteFake extends Site
 
 class StubForRemovingLinks extends Site
 {
-    public function sitesPath($additionalPath = null)
+    public function sitesPath(?string $additionalPath = null): string
     {
         return __DIR__.'/output'.($additionalPath ? '/'.$additionalPath : '');
     }

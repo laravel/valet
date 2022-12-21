@@ -27,9 +27,10 @@ class DnsMasq
     /**
      * Install and configure DnsMasq.
      *
+     * @param  string  $tld
      * @return void
      */
-    public function install($tld = 'test')
+    public function install(string $tld = 'test'): void
     {
         $this->brew->ensureInstalled('dnsmasq');
 
@@ -52,7 +53,7 @@ class DnsMasq
      *
      * @return void
      */
-    public function uninstall()
+    public function uninstall(): void
     {
         $this->brew->stopService('dnsmasq');
         $this->brew->uninstallFormula('dnsmasq');
@@ -66,7 +67,7 @@ class DnsMasq
      *
      * @return void
      */
-    public function restart()
+    public function restart(): void
     {
         $this->brew->restartService('dnsmasq');
     }
@@ -76,7 +77,7 @@ class DnsMasq
      *
      * @return void
      */
-    public function ensureUsingDnsmasqDForConfigs()
+    public function ensureUsingDnsmasqDForConfigs(): void
     {
         info('Updating Dnsmasq configuration...');
 
@@ -114,7 +115,7 @@ class DnsMasq
      * @param  string  $tld
      * @return void
      */
-    public function createDnsmasqTldConfigFile($tld)
+    public function createDnsmasqTldConfigFile(string $tld): void
     {
         $tldConfigFile = $this->dnsmasqUserConfigDir().'tld-'.$tld.'.conf';
         $loopback = $this->configuration->read()['loopback'];
@@ -128,7 +129,7 @@ class DnsMasq
      * @param  string  $tld
      * @return void
      */
-    public function createTldResolver($tld)
+    public function createTldResolver(string $tld): void
     {
         $this->files->ensureDirExists($this->resolverPath);
         $loopback = $this->configuration->read()['loopback'];
@@ -143,7 +144,7 @@ class DnsMasq
      * @param  string  $newTld
      * @return void
      */
-    public function updateTld($oldTld, $newTld)
+    public function updateTld(string $oldTld, string $newTld): void
     {
         $this->files->unlink($this->resolverPath.'/'.$oldTld);
         $this->files->unlink($this->dnsmasqUserConfigDir().'tld-'.$oldTld.'.conf');
@@ -156,7 +157,7 @@ class DnsMasq
      *
      * @return void
      */
-    public function refreshConfiguration()
+    public function refreshConfiguration(): void
     {
         $tld = $this->configuration->read()['tld'];
 
@@ -168,7 +169,7 @@ class DnsMasq
      *
      * @return string
      */
-    public function dnsmasqUserConfigDir()
+    public function dnsmasqUserConfigDir(): string
     {
         return $_SERVER['HOME'].'/.config/valet/dnsmasq.d/';
     }
