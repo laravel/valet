@@ -4,24 +4,20 @@ namespace Valet;
 
 class DnsMasq
 {
-    public $brew;
-    public $cli;
-    public $files;
-    public $configuration;
-
     public $dnsmasqMasterConfigFile = BREW_PREFIX.'/etc/dnsmasq.conf';
     public $dnsmasqSystemConfDir = BREW_PREFIX.'/etc/dnsmasq.d';
     public $resolverPath = '/etc/resolver';
 
     /**
-     * Create a new DnsMasq instance.
+     * Create a new DnsMasq Instance
+     *
+     * @param  Brew  $brew
+     * @param  CommandLine  $cli
+     * @param  Filesystem  $files
+     * @param  Configuration  $configuration
      */
-    public function __construct(Brew $brew, CommandLine $cli, Filesystem $files, Configuration $configuration)
+    public function __construct(public Brew $brew, public CommandLine $cli, public Filesystem $files, public Configuration $configuration)
     {
-        $this->cli = $cli;
-        $this->brew = $brew;
-        $this->files = $files;
-        $this->configuration = $configuration;
     }
 
     /**

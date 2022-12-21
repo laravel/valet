@@ -4,11 +4,13 @@ namespace Valet;
 
 class Server
 {
-    public $config;
-
-    public function __construct(array $config)
+    /**
+     * Create a new Server instance.
+     *
+     * @param  array  $config
+     */
+    public function __construct(public array $config)
     {
-        $this->config = $config;
     }
 
     /**

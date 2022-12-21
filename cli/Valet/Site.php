@@ -8,11 +8,6 @@ use PhpFpm;
 
 class Site
 {
-    public $brew;
-    public $config;
-    public $cli;
-    public $files;
-
     /**
      * Create a new Site instance.
      *
@@ -21,12 +16,8 @@ class Site
      * @param  CommandLine  $cli
      * @param  Filesystem  $files
      */
-    public function __construct(Brew $brew, Configuration $config, CommandLine $cli, Filesystem $files)
+    public function __construct(public Brew $brew, public Configuration $config, public CommandLine $cli, public Filesystem $files)
     {
-        $this->brew = $brew;
-        $this->cli = $cli;
-        $this->files = $files;
-        $this->config = $config;
     }
 
     /**

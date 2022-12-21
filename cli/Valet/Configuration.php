@@ -4,16 +4,13 @@ namespace Valet;
 
 class Configuration
 {
-    public $files;
-
     /**
      * Create a new Valet configuration class instance.
      *
      * @param  Filesystem  $files
      */
-    public function __construct(Filesystem $files)
+    public function __construct(public Filesystem $files)
     {
-        $this->files = $files;
     }
 
     /**

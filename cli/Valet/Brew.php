@@ -17,20 +17,14 @@ class Brew
     const BREW_DISABLE_AUTO_CLEANUP = 'HOMEBREW_NO_INSTALL_CLEANUP=1';
     const LATEST_PHP_VERSION = 'php@8.2';
 
-    public $cli;
-    public $files;
-
     /**
      * Create a new Brew instance.
      *
      * @param  CommandLine  $cli
      * @param  Filesystem  $files
-     * @return void
      */
-    public function __construct(CommandLine $cli, Filesystem $files)
+    public function __construct(public CommandLine $cli, public Filesystem $files)
     {
-        $this->cli = $cli;
-        $this->files = $files;
     }
 
     /**

@@ -7,13 +7,6 @@ use Illuminate\Support\Collection;
 
 class PhpFpm
 {
-    public $brew;
-    public $cli;
-    public $files;
-    public $config;
-    public $site;
-    public $nginx;
-
     public $taps = [
         'homebrew/homebrew-core',
         'shivammathur/php',
@@ -28,16 +21,9 @@ class PhpFpm
      * @param  Configuration  $config
      * @param  Site  $site
      * @param  Nginx  $nginx
-     * @return void
      */
-    public function __construct(Brew $brew, CommandLine $cli, Filesystem $files, Configuration $config, Site $site, Nginx $nginx)
+    public function __construct(public Brew $brew, public CommandLine $cli, public Filesystem $files, public Configuration $config, public Site $site, public Nginx $nginx)
     {
-        $this->cli = $cli;
-        $this->brew = $brew;
-        $this->files = $files;
-        $this->config = $config;
-        $this->site = $site;
-        $this->nginx = $nginx;
     }
 
     /**

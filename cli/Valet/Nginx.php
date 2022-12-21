@@ -7,11 +7,6 @@ use Illuminate\Support\Collection;
 
 class Nginx
 {
-    public $brew;
-    public $cli;
-    public $files;
-    public $configuration;
-    public $site;
     const NGINX_CONF = BREW_PREFIX.'/etc/nginx/nginx.conf';
 
     /**
@@ -22,16 +17,10 @@ class Nginx
      * @param  Filesystem  $files
      * @param  Configuration  $configuration
      * @param  Site  $site
-     * @return void
      */
-    public function __construct(Brew $brew, CommandLine $cli, Filesystem $files,
-                         Configuration $configuration, Site $site)
+    public function __construct(public Brew $brew, public CommandLine $cli, public Filesystem $files,
+                         public Configuration $configuration, public Site $site)
     {
-        $this->cli = $cli;
-        $this->brew = $brew;
-        $this->site = $site;
-        $this->files = $files;
-        $this->configuration = $configuration;
     }
 
     /**

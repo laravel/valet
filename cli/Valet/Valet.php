@@ -6,9 +6,6 @@ use GuzzleHttp\Client;
 
 class Valet
 {
-    public $cli;
-    public $files;
-
     public $valetBin = BREW_PREFIX.'/bin/valet';
 
     /**
@@ -17,10 +14,8 @@ class Valet
      * @param  CommandLine  $cli
      * @param  Filesystem  $files
      */
-    public function __construct(CommandLine $cli, Filesystem $files)
+    public function __construct(public CommandLine $cli, public Filesystem $files)
     {
-        $this->cli = $cli;
-        $this->files = $files;
     }
 
     /**
