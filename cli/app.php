@@ -9,9 +9,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Valet\Drivers\ValetDriver;
-use Valet\OS\Os;
-
 use function Valet\info;
+use Valet\OS\Os;
 use function Valet\output;
 use function Valet\table;
 use function Valet\warning;
