@@ -75,7 +75,7 @@ class Ngrok
     /**
      * Set the Ngrok auth token.
      *
-     * @param string $token
+     * @param  string  $token
      * @return string
      */
     public function setToken($token)

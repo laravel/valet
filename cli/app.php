@@ -576,7 +576,7 @@ You might also want to investigate your global Composer configs. Helpful command
                 info("Found '{$site}/.valetphprc' specifying version: {$phpVersion}");
             } else {
                 info("\nPlease provide a version number. E.g.:");
-                info("valet isolate php@8.2");
+                info('valet isolate php@8.2');
                 exit;
             }
         }
