@@ -48,9 +48,9 @@ function writer($writer = null)
     }
 
     $container->instance('writer', $writer);
+
     return null;
 }
-
 
 /**
  * Output the given text to the console.
