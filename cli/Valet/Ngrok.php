@@ -8,10 +8,16 @@ use GuzzleHttp\Client;
 
 class Ngrok
 {
+    public $cli;
     public $tunnelsEndpoints = [
         'http://127.0.0.1:4040/api/tunnels',
         'http://127.0.0.1:4041/api/tunnels',
     ];
+
+    public function __construct(CommandLine $cli)
+    {
+        $this->cli = $cli;
+    }
 
     /**
      * Get the current tunnel URL from the Ngrok API.
@@ -64,5 +70,16 @@ class Ngrok
                 return $tunnel->public_url;
             }
         }
+    }
+
+    /**
+     * Set the Ngrok auth token.
+     *
+     * @param  string  $token
+     * @return string
+     */
+    public function setToken($token)
+    {
+        return $this->cli->runAsUser('./bin/ngrok authtoken '.$token);
     }
 }
