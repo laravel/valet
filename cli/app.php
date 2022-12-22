@@ -427,7 +427,7 @@ Optional:
 - <info>brew list --formula</info> will show any other Homebrew services installed, in case you want to make changes to those as well.
 - <info>brew doctor</info> can indicate if there might be any broken things left behind.
 - <info>brew cleanup</info> can purge old cached Homebrew downloads.
-<fg=red>If you had customized your Mac DNS settings in System Preferences->Network, you will need to remove 127.0.0.1 from that list.</>
+<fg=red>If you had customized your machine\'s DNS settings in System Preferences->Network, you will need to remove 127.0.0.1 from that list.</>
 Additionally you might also want to open Keychain Access and search for <comment>valet</comment> to remove any leftover trust certificates.
 ');
         }
@@ -454,14 +454,14 @@ You can run <comment>composer global remove laravel/valet</comment> to uninstall
 <fg=red>You can then remove selected leftover configurations for these services manually</> in both <comment>'.BREW_PREFIX.'/etc/</comment> and <comment>'.BREW_PREFIX.'/logs/</comment>.
 (If you have other PHP versions installed, run <info>brew list --formula | grep php</info> to see which versions you should also uninstall manually.)
 
-<error>BEWARE:</error> Uninstalling PHP via Homebrew will leave your Mac with its original PHP version, which may not be compatible with other Composer dependencies you have installed. Thus you may get unexpected errors.
+<error>BEWARE:</error> Uninstalling PHP via Homebrew will leave your machine with its original PHP version, which may not be compatible with other Composer dependencies you have installed. Thus you may get unexpected errors.
 
 Some additional services which you may have installed (but which Valet does not directly configure or manage) include: <comment>mariadb mysql mailhog</comment>.
 If you wish to also remove them, you may manually run <comment>brew uninstall SERVICENAME</comment> and clean up their configurations in '.BREW_PREFIX.'/etc if necessary.
 
 You can discover more Homebrew services by running: <comment>brew services list</comment> and <comment>brew list --formula</comment>
 
-<fg=red>If you have customized your Mac DNS settings in System Preferences->Network, you may need to add or remove 127.0.0.1 from the top of that list.</>
+<fg=red>If you have customized your machine\'s DNS settings in System Preferences->Network, you may need to add or remove 127.0.0.1 from the top of that list.</>
 
 <info>5. GENERAL TROUBLESHOOTING</info>
 If your reasons for considering an uninstall are more for troubleshooting purposes, consider running <comment>brew doctor</comment> and/or <comment>brew cleanup</comment> to see if any problems exist there.

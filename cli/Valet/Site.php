@@ -646,7 +646,7 @@ class Site
     }
 
     /**
-     * Trust the given root certificate file in the Mac Keychain.
+     * Trust the given root certificate file.
      *
      * @param  string  $pemPath
      * @return void
@@ -659,7 +659,7 @@ class Site
     }
 
     /**
-     * Trust the given certificate file in the Mac Keychain.
+     * Trust the given certificate file.
      *
      * @param  string  $crtPath
      * @return void

@@ -1,6 +1,6 @@
 {
     "name": "laravel/valet",
-    "description": "A more enjoyable local development experience for Mac.",
+    "description": "A more enjoyable local development experience for Mac & Linux.",
     "keywords": ["laravel", "zonda", "wwdhhd"],
     "license": "MIT",
     "authors": [
