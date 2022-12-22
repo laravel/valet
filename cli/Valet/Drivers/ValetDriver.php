@@ -129,7 +129,7 @@ abstract class ValetDriver
     public static function customDrivers(): array
     {
         return array_map(function ($item) {
-            return 'Custom\\' . $item;
+            return 'Custom\\'.$item;
         }, static::driversIn(VALET_HOME_PATH.'/Drivers'));
     }
 

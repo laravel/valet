@@ -552,7 +552,7 @@ You might also want to investigate your global Composer configs. Helpful command
             if ($phpVersion = Site::phpRcVersion($site)) {
                 info("Found '{$site}/.valetphprc' specifying version: {$phpVersion}");
             } else {
-                info(PHP_EOL."Please provide a version number. E.g.:");
+                info(PHP_EOL.'Please provide a version number. E.g.:');
                 info('valet isolate php@8.2');
                 exit;
             }
