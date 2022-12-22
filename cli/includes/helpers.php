@@ -11,6 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Define constants.
  */
+// @todo fix for linux--including finding a way to have a BREW_PREFIX alternative
 if (! defined('VALET_HOME_PATH')) {
     if (testing()) {
         define('VALET_HOME_PATH', __DIR__.'/../../tests/config/valet');

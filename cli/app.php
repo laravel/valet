@@ -9,6 +9,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Valet\Drivers\ValetDriver;
+use Valet\OS\Os;
+
 use function Valet\info;
 use function Valet\output;
 use function Valet\table;
@@ -24,14 +26,17 @@ if (file_exists(__DIR__.'/../vendor/autoload.php')) {
     require_once __DIR__.'/../vendor/autoload.php';
 } elseif (file_exists(__DIR__.'/../../../autoload.php')) {
     require_once __DIR__.'/../../../autoload.php';
-} else {
+} elseif (file_exists(getenv('HOME').'/.composer/vendor/autoload.php')) {
     require_once getenv('HOME').'/.composer/vendor/autoload.php';
+} else {
+    // @todo require it for linux
 }
 
 /**
  * Create the application.
  */
-Container::setInstance(new Container);
+Container::setInstance($container = new Container);
+$container->instance('os', Os::assign());
 
 $app = new Application('Laravel Valet', $version);
 
@@ -391,11 +396,14 @@ if (is_dir(VALET_HOME_PATH)) {
     $app->command('uninstall [--force]', function (InputInterface $input, OutputInterface $output, $force) {
         if ($force) {
             warning('YOU ARE ABOUT TO UNINSTALL Nginx, PHP, Dnsmasq and all Valet configs and logs.');
+
             $helper = $this->getHelperSet()->get('question');
             $question = new ConfirmationQuestion('Are you sure you want to proceed? ', false);
+
             if (false === $helper->ask($input, $output, $question)) {
                 return warning('Uninstall aborted.');
             }
+
             info('Removing certificates for all Secured sites...');
             Site::unsecureAll();
             info('Removing Nginx and configs...');
@@ -625,6 +633,7 @@ You might also want to investigate your global Composer configs. Helpful command
      * Tail log file.
      */
     $app->command('log [-f|--follow] [-l|--lines=] [key]', function (OutputInterface $output, $follow, $lines, $key = null) {
+        // @todo update for Linux
         $defaultLogs = [
             'php-fpm' => BREW_PREFIX.'/var/log/php-fpm.log',
             'nginx' => VALET_HOME_PATH.'/Log/nginx-error.log',
