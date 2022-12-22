@@ -8,7 +8,6 @@ if (php_sapi_name() !== 'cli') {
 /**
  * Check the system's compatibility with Valet.
  */
-
 $inTestingEnvironment = strpos($_SERVER['SCRIPT_NAME'], 'phpunit') !== false;
 
 // if (PHP_OS !== 'Darwin' && ! $inTestingEnvironment) {
