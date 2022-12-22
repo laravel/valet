@@ -79,12 +79,12 @@ abstract class ValetDriver
      * Get the custom driver class from the site path, if one exists.
      *
      * @param  string  $sitePath
-     * @return string|null|void
+     * @return string|null
      */
-    public static function customSiteDriver(string $sitePath)
+    public static function customSiteDriver(string $sitePath): ?string
     {
         if (! file_exists($sitePath.'/LocalValetDriver.php')) {
-            return;
+            return null;
         }
 
         require_once $sitePath.'/LocalValetDriver.php';
@@ -119,6 +119,11 @@ abstract class ValetDriver
         return $drivers;
     }
 
+    /**
+     * Get all of the specific drivers shipped with Valet.
+     *
+     * @return array
+     */
     public static function specificDrivers(): array
     {
         return array_map(function ($item) {
@@ -126,6 +131,11 @@ abstract class ValetDriver
         }, static::driversIn(__DIR__.'/Specific'));
     }
 
+    /**
+     * Get all of the custom drivers defined by the user locally.
+     *
+     * @return array
+     */
     public static function customDrivers(): array
     {
         return array_map(function ($item) {

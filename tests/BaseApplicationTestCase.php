@@ -12,6 +12,11 @@ class BaseApplicationTestCase extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $this->setNullWriter();
     }
 
+    /**
+     * Prepare a test to run using the full application.
+     *
+     * @return void
+     */
     public function prepTestConfig()
     {
         require_once __DIR__.'/../cli/includes/helpers.php';
@@ -25,7 +30,12 @@ class BaseApplicationTestCase extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         Configuration::writeBaseConfiguration();
     }
 
-    public function appAndTester()
+    /**
+     * Return an array with two items: the application instance and the ApplicationTester.
+     *
+     * @return array
+     */
+    public function appAndTester(): array
     {
         $app = require __DIR__.'/../cli/app.php';
         $app->setAutoExit(false);
