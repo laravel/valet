@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Container\Container;
+use Valet\CommandLine;
 use Valet\Ngrok;
 use function Valet\user;
 
@@ -47,7 +48,7 @@ class NgrokTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
             ],
         ];
 
-        $ngrok = new Ngrok;
+        $ngrok = new Ngrok(new CommandLine);
         $this->assertEquals('http://right-one.ngrok.io/', $ngrok->findHttpTunnelUrl($tunnels, 'mysite'));
     }
 
@@ -63,7 +64,7 @@ class NgrokTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
             ],
         ];
 
-        $ngrok = new Ngrok;
+        $ngrok = new Ngrok(new CommandLine);
         $this->assertEquals('http://right-one.ngrok.io/', $ngrok->findHttpTunnelUrl($tunnels, 'MySite'));
     }
 }

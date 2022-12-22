@@ -47,7 +47,7 @@ function writer(?OutputInterface $writer = null): OutputInterface|\NullWriter|nu
         return $container->make('writer');
     }
 
-    Container::getInstance()->instance('writer', $writer);
+    $container->instance('writer', $writer);
 
     return null;
 }
