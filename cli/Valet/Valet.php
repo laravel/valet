@@ -128,6 +128,6 @@ class Valet
      */
     public function homePath(string $file): string
     {
-        return posix_getpwuid(fileowner($file))['dir'] . '/.config/valet'
+        return posix_getpwuid(fileowner($file))['dir'].'/.config/valet';
     }
 }

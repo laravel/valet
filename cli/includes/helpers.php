@@ -24,7 +24,6 @@ if (! defined('VALET_STATIC_PREFIX')) {
 
 define('VALET_LOOPBACK', '127.0.0.1');
 define('VALET_SERVER_PATH', realpath(__DIR__.'/../../server.php'));
-define('VALET_LEGACY_HOME_PATH', $_SERVER['HOME'].'/.valet');
 
 define('BREW_PREFIX', (new CommandLine())->runAsUser('printf $(brew --prefix)'));
 
