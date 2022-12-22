@@ -49,9 +49,9 @@ class StatamicV1ValetDriver extends ValetDriver
      * @param  string  $sitePath
      * @param  string  $siteName
      * @param  string  $uri
-     * @return string
+     * @return string|null
      */
-    public function frontControllerPath(string $sitePath, string $siteName, string $uri): string
+    public function frontControllerPath(string $sitePath, string $siteName, string $uri): ?string
     {
         if (strpos($uri, '/admin.php') === 0) {
             $_SERVER['SCRIPT_NAME'] = '/admin.php';

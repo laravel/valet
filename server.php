@@ -68,8 +68,11 @@ $uri = $valetDriver->mutateUri($uri);
 $isPhpFile = pathinfo($uri, PATHINFO_EXTENSION) === 'php';
 
 if ($uri !== '/' && ! $isPhpFile && $staticFilePath = $valetDriver->isStaticFile($valetSitePath, $siteName, $uri)) {
+    exit('is static');
     return $valetDriver->serveStaticFile($staticFilePath, $valetSitePath, $siteName, $uri);
 }
+
+exit('is not static');
 
 /**
  * Allow for drivers to take pre-loading actions (e.g. setting server variables).

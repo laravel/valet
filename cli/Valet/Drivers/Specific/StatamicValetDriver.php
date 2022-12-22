@@ -48,9 +48,9 @@ class StatamicValetDriver extends ValetDriver
      * @param  string  $sitePath
      * @param  string  $siteName
      * @param  string  $uri
-     * @return string
+     * @return string|null
      */
-    public function frontControllerPath(string $sitePath, string $siteName, string $uri): string
+    public function frontControllerPath(string $sitePath, string $siteName, string $uri): ?string
     {
         if ($_SERVER['REQUEST_METHOD'] === 'GET' && $this->isActualFile($staticPath = $this->getStaticPath($sitePath))) {
             return $staticPath;

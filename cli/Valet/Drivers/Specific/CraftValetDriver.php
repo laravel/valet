@@ -64,9 +64,9 @@ class CraftValetDriver extends ValetDriver
      * @param  string  $sitePath
      * @param  string  $siteName
      * @param  string  $uri
-     * @return string
+     * @return string|null
      */
-    public function frontControllerPath(string $sitePath, string $siteName, string $uri): string
+    public function frontControllerPath(string $sitePath, string $siteName, string $uri): ?string
     {
         $frontControllerDirectory = $this->frontControllerDirectory($sitePath);
 
