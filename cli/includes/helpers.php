@@ -32,8 +32,8 @@ define('ISOLATED_PHP_VERSION', 'ISOLATED_PHP_VERSION');
 /**
  * Set or get a global console writer.
  *
- * @param  null|Symfony\Component\Console\Output\ConsoleOutputInterface  $writer
- * @return Symfony\Component\Console\Output\ConsoleOutputInterface
+ * @param  null|OutputInterface  $writer
+ * @return OutputInterface|\NullWriter|null
  */
 function writer($writer = null)
 {
@@ -47,8 +47,10 @@ function writer($writer = null)
         return $container->make('writer');
     }
 
-    return Container::getInstance()->instance('writer', $writer);
+    $container->instance('writer', $writer);
+    return null;
 }
+
 
 /**
  * Output the given text to the console.

@@ -6,12 +6,14 @@ trait UsesNullWriter
 {
     public function setNullWriter()
     {
-        Container::getInstance()->instance('writer', new class
-        {
-            public function writeLn($msg)
-            {
-                // do nothing
-            }
-        });
+        Container::getInstance()->instance('writer', new NullWriter);
+    }
+}
+
+class NullWriter
+{
+    public function writeLn($msg)
+    {
+        // do nothing
     }
 }
