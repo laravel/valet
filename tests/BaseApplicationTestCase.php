@@ -21,6 +21,7 @@ class BaseApplicationTestCase extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         }
 
         Configuration::createConfigurationDirectory();
+        Configuration::createDriversDirectory();
         Configuration::writeBaseConfiguration();
     }
 

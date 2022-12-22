@@ -71,7 +71,7 @@ class Server
         // Output the HTML for the directory listing
         echo "<h1>Index of $uri</h1>";
         echo '<hr>';
-        echo implode("<br>\n", array_map(function ($path) use ($uri, $is_root) {
+        echo implode("<br>".PHP_EOL, array_map(function ($path) use ($uri, $is_root) {
             $file = basename($path);
 
             return ($is_root) ? "<a href='/$file'>/$file</a>" : "<a href='$uri/$file'>$uri/$file/</a>";

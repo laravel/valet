@@ -182,7 +182,8 @@ class Configuration
     public function removePath(string $path): void
     {
         if ($path == VALET_HOME_PATH.'/Sites') {
-            info("Cannot remove this directory because this is where Valet stores its site definitions.\nRun [valet paths] for a list of parked paths.");
+            info("Cannot remove this directory because this is where Valet stores its site definitions.");
+            info("Run [valet paths] for a list of parked paths.");
             exit();
         }
 

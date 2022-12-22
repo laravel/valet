@@ -12,6 +12,20 @@ class Upgrader
     }
 
     /**
+     * Run all the upgrades that should be run every time Valet commands are run.
+     *
+     * @return void
+     */
+    public function onEveryRun(): void
+    {
+        $this->relocateOldConfig();
+        $this->pruneMissingDirectories();
+        $this->pruneSymbolicLinks();
+        $this->fixOldSampleValetDriver();
+        $this->errorIfOldCustomDrivers();
+    }
+
+    /**
      * Relocate config dir to ~/.config/valet/ if found in old location.
      *
      * @return void
@@ -23,17 +37,33 @@ class Upgrader
         }
     }
 
-    public function pruneMissingDirectories()
+    /**
+     * Prune all non-existent paths from the configuration.
+     *
+     * @return void
+     */
+    public function pruneMissingDirectories(): void
     {
         Configuration::prune();
     }
 
-    public function pruneSymbolicLinks()
+    /**
+     * Remove all broken symbolic links in the Valet config Sites diretory.
+     *
+     * @return void
+     */
+    public function pruneSymbolicLinks(): void
     {
         Site::pruneLinks();
     }
 
-    public function fixOldSampleValetDriver()
+    /**
+     * If the user has the old `SampleValetDriver` without the Valet namespace,
+     * replace it with the new `SampleValetDriver` that uses the namespace.
+     *
+     * @return void
+     */
+    public function fixOldSampleValetDriver(): void
     {
         $samplePath = VALET_HOME_PATH.'/Drivers/SampleValetDriver.php';
 
@@ -47,7 +77,12 @@ class Upgrader
         }
     }
 
-    public function errorIfOldCustomDrivers()
+    /**
+     * Throw an exception if the user has old (non-namespaced) custom drivers.
+     *
+     * @return void
+     */
+    public function errorIfOldCustomDrivers(): void
     {
         $driversPath = VALET_HOME_PATH.'/Drivers';
 

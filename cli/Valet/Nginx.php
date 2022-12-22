@@ -95,7 +95,7 @@ class Nginx
             $this->files->mkdirAsUser($nginxDirectory);
         }
 
-        $this->files->putAsUser($nginxDirectory.'/.keep', "\n");
+        $this->files->putAsUser($nginxDirectory.'/.keep', PHP_EOL);
 
         $this->rewriteSecureNginxFiles();
     }

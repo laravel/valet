@@ -57,7 +57,7 @@ abstract class ValetDriver
         }
 
         // Queue custom drivers for this environment
-        $drivers = array_merge($drivers, static::driversIn(VALET_HOME_PATH.'/Drivers'));
+        $drivers = array_merge($drivers, static::customDrivers());
 
         // Queue Valet-shipped drivers
         $drivers[] = 'LaravelValetDriver';
@@ -124,6 +124,13 @@ abstract class ValetDriver
         return array_map(function ($item) {
             return 'Specific\\'.$item;
         }, static::driversIn(__DIR__.'/Specific'));
+    }
+
+    public static function customDrivers(): array
+    {
+        return array_map(function ($item) {
+            return 'Custom\\' . $item;
+        }, static::driversIn(VALET_HOME_PATH.'/Drivers'));
     }
 
     /**

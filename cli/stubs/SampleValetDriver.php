@@ -1,6 +1,6 @@
 <?php
 
-namespace Valet\Drivers\Specific;
+namespace Valet\Drivers\Custom;
 
 use Valet\Drivers\ValetDriver;
 
