@@ -24,7 +24,6 @@ if (! defined('VALET_STATIC_PREFIX')) {
 
 define('VALET_LOOPBACK', '127.0.0.1');
 define('VALET_SERVER_PATH', realpath(__DIR__.'/../../server.php'));
-define('VALET_LEGACY_HOME_PATH', $_SERVER['HOME'].'/.valet');
 
 define('BREW_PREFIX', (new CommandLine())->runAsUser('printf $(brew --prefix)'));
 
@@ -34,9 +33,9 @@ define('ISOLATED_PHP_VERSION', 'ISOLATED_PHP_VERSION');
  * Set or get a global console writer.
  *
  * @param  null|OutputInterface  $writer
- * @return OutputInterface Or anonymous class
+ * @return OutputInterface|\NullWriter|null
  */
-function writer(?OutputInterface $writer = null)/*: OutputInterface*/
+function writer(?OutputInterface $writer = null): OutputInterface|\NullWriter|null
 {
     $container = Container::getInstance();
 
@@ -48,7 +47,9 @@ function writer(?OutputInterface $writer = null)/*: OutputInterface*/
         return $container->make('writer');
     }
 
-    return Container::getInstance()->instance('writer', $writer);
+    Container::getInstance()->instance('writer', $writer);
+
+    return null;
 }
 
 /**

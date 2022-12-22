@@ -18,23 +18,10 @@ class Upgrader
      */
     public function onEveryRun(): void
     {
-        $this->relocateOldConfig();
         $this->pruneMissingDirectories();
         $this->pruneSymbolicLinks();
         $this->fixOldSampleValetDriver();
         $this->errorIfOldCustomDrivers();
-    }
-
-    /**
-     * Relocate config dir to ~/.config/valet/ if found in old location.
-     *
-     * @return void
-     */
-    public function relocateOldConfig()
-    {
-        if (is_dir(VALET_LEGACY_HOME_PATH) && ! is_dir(VALET_HOME_PATH)) {
-            Configuration::createConfigurationDirectory();
-        }
     }
 
     /**
