@@ -42,9 +42,9 @@ class CakeValetDriver extends ValetDriver
      * @param  string  $sitePath
      * @param  string  $siteName
      * @param  string  $uri
-     * @return string
+     * @return string|null
      */
-    public function frontControllerPath(string $sitePath, string $siteName, string $uri): string
+    public function frontControllerPath(string $sitePath, string $siteName, string $uri): ?string
     {
         $_SERVER['DOCUMENT_ROOT'] = $sitePath.'/webroot';
         $_SERVER['SCRIPT_FILENAME'] = $sitePath.'/webroot/index.php';

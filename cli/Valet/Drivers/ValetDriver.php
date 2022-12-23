@@ -35,9 +35,9 @@ abstract class ValetDriver
      * @param  string  $sitePath
      * @param  string  $siteName
      * @param  string  $uri
-     * @return string
+     * @return string|null
      */
-    abstract public function frontControllerPath(string $sitePath, string $siteName, string $uri): string;
+    abstract public function frontControllerPath(string $sitePath, string $siteName, string $uri): ?string;
 
     /**
      * Find a driver that can serve the incoming request.

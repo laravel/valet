@@ -346,6 +346,10 @@ class Site
      */
     public function pruneLinks(): void
     {
+        if (! $this->files->isDir(VALET_HOME_PATH)) {
+            return;
+        }
+
         $this->files->ensureDirExists($this->sitesPath(), user());
 
         $this->files->removeBrokenLinksAt($this->sitesPath());

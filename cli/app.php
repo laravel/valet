@@ -311,6 +311,13 @@ if (is_dir(VALET_HOME_PATH)) {
     })->descriptions('Get the URL to the current Ngrok tunnel');
 
     /**
+     * Set the ngrok auth token.
+     */
+    $app->command('set-ngrok-token [token]', function (OutputInterface $output, $token = null) {
+        output(Ngrok::setToken($token));
+    })->descriptions('Set the Ngrok auth token');
+
+    /**
      * Start the daemon services.
      */
     $app->command('start [service]', function (OutputInterface $output, $service) {

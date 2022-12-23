@@ -44,9 +44,9 @@ class BasicWithPublicValetDriver extends ValetDriver
      * @param  string  $sitePath
      * @param  string  $siteName
      * @param  string  $uri
-     * @return string
+     * @return string|null
      */
-    public function frontControllerPath(string $sitePath, string $siteName, string $uri): string
+    public function frontControllerPath(string $sitePath, string $siteName, string $uri): ?string
     {
         $_SERVER['PHP_SELF'] = $uri;
         $_SERVER['SERVER_ADDR'] = '127.0.0.1';
@@ -71,5 +71,7 @@ class BasicWithPublicValetDriver extends ValetDriver
                 return $candidate;
             }
         }
+
+        return null;
     }
 }

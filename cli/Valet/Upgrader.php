@@ -73,7 +73,7 @@ class Upgrader
     {
         $driversPath = VALET_HOME_PATH.'/Drivers';
 
-        if (! $this->files->isDir($driversPath)) {
+        if (!$this->files->isDir($driversPath)) {
             return;
         }
 
