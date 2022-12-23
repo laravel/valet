@@ -6,7 +6,10 @@ class Os
 {
     public static function assign()
     {
-        // @todo
-        return new Mac();
+        if (PHP_OS === 'Darwin') {
+            return new Mac();
+        }
+
+        return new Linux();
     }
 }
