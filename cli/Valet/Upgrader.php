@@ -73,6 +73,10 @@ class Upgrader
     {
         $driversPath = VALET_HOME_PATH.'/Drivers';
 
+        if (!$this->files->isDir($driversPath)) {
+            return;
+        }
+
         foreach ($this->files->scanDir($driversPath) as $driver) {
             if (! str_contains($this->files->get($driversPath.'/'.$driver), 'namespace')) {
                 warning('Please make sure all custom drivers have been upgraded for Valet 4.');

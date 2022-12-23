@@ -28,7 +28,7 @@ if (file_exists(__DIR__.'/../vendor/autoload.php')) {
 } elseif (file_exists(getenv('HOME').'/.composer/vendor/autoload.php')) {
     require_once getenv('HOME').'/.composer/vendor/autoload.php';
 } else {
-    // @todo require it for linux
+    require_once getenv('HOME').'/.config/composer/vendor/autoload.php';
 }
 
 /**
