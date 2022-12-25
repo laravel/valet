@@ -16,6 +16,4 @@ class Apt extends Installer
     public function __construct(public CommandLine $cli, public Filesystem $files)
     {
     }
-
-
 }

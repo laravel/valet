@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Container\Container;
 use Valet\Configuration;
 use Valet\Filesystem;
 use Valet\Nginx;

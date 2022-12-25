@@ -1,11 +1,10 @@
 <?php
 
-use Illuminate\Container\Container;
-use Valet\Os\Mac\Brew;
 use Valet\CommandLine;
 use Valet\Configuration;
 use Valet\Filesystem;
 use Valet\Nginx;
+use Valet\Os\Mac\Brew;
 use Valet\PhpFpm;
 use function Valet\resolve;
 use Valet\Site;

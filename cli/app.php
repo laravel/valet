@@ -9,9 +9,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Valet\Drivers\ValetDriver;
-use Valet\Os\Installer;
-
 use function Valet\info;
+use Valet\Os\Installer;
 use Valet\Os\Os;
 use function Valet\output;
 use function Valet\table;
@@ -615,7 +614,8 @@ You might also want to investigate your global Composer configs. Helpful command
         if (! $phpVersion) {
             $phpVersion = Site::phpRcVersion($site ?: basename(getcwd()));
         }
-exit('todo');
+        exit('todo');
+
         return output(Brew::getPhpExecutablePath($phpVersion));
     })->descriptions('Get the PHP executable path for a given site', [
         'site' => 'The site to get the PHP executable path for',
