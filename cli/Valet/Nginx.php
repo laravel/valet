@@ -4,6 +4,8 @@ namespace Valet;
 
 use DomainException;
 use Illuminate\Support\Collection;
+use function Valet\starts_with;
+use Valet\Os\Installer;
 
 class Nginx
 {
@@ -12,14 +14,14 @@ class Nginx
     /**
      * Create a new Nginx instance.
      *
-     * @param  Brew  $brew
      * @param  CommandLine  $cli
      * @param  Filesystem  $files
      * @param  Configuration  $configuration
      * @param  Site  $site
+     * @param  Installer  $isntaller
      */
-    public function __construct(public Brew $brew, public CommandLine $cli, public Filesystem $files,
-                         public Configuration $configuration, public Site $site)
+    public function __construct(public CommandLine $cli, public Filesystem $files,
+                         public Configuration $configuration, public Site $site, public Installer $installer)
     {
     }
 
@@ -30,8 +32,8 @@ class Nginx
      */
     public function install(): void
     {
-        if (! $this->brew->hasInstalledNginx()) {
-            $this->brew->installOrFail('nginx', []);
+        if (! $this->installer->hasInstalledNginx()) {
+            $this->installer->installOrFail('nginx', []);
         }
 
         $this->installConfiguration();
@@ -141,7 +143,7 @@ class Nginx
     {
         $this->lint();
 
-        $this->brew->restartService($this->brew->nginxServiceName());
+        $this->installer->restartService($this->installer->nginxServiceName());
     }
 
     /**
@@ -151,7 +153,7 @@ class Nginx
      */
     public function stop(): void
     {
-        $this->brew->stopService(['nginx']);
+        $this->installer->stopService(['nginx']);
     }
 
     /**
@@ -161,8 +163,8 @@ class Nginx
      */
     public function uninstall(): void
     {
-        $this->brew->stopService(['nginx', 'nginx-full']);
-        $this->brew->uninstallFormula('nginx nginx-full');
+        $this->installer->stopService(['nginx', 'nginx-full']);
+        $this->installer->uninstallFormula('nginx nginx-full');
         $this->cli->quietly('rm -rf '.BREW_PREFIX.'/etc/nginx '.BREW_PREFIX.'/var/log/nginx');
     }
 

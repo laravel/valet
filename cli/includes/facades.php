@@ -31,6 +31,10 @@ class Facade
 
 class Brew extends Facade
 {
+    public static function containerKey()
+    {
+        return 'Valet\Os\Mac\Brew';
+    }
 }
 class Nginx extends Facade
 {

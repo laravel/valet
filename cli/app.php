@@ -9,6 +9,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Valet\Drivers\ValetDriver;
+use Valet\Os\Installer;
+
 use function Valet\info;
 use Valet\Os\Os;
 use function Valet\output;
@@ -35,7 +37,8 @@ if (file_exists(__DIR__.'/../vendor/autoload.php')) {
  * Create the application.
  */
 Container::setInstance($container = new Container);
-$container->instance('os', Os::assign());
+$container->instance('os', $os = Os::assign());
+$container->instance(Installer::class, $os->installer());
 
 $app = new Application('Laravel Valet', $version);
 
@@ -425,7 +428,7 @@ if (is_dir(VALET_HOME_PATH)) {
             info('Attempting to unlink Valet from bin path...');
             Valet::unlinkFromUsersBin();
             info('Removing sudoers entries...');
-            Brew::removeSudoersEntry();
+            // Brew::removeSudoersEntry();
             Valet::removeSudoersEntry();
 
             return output('<fg=red>NOTE:</>
@@ -509,13 +512,13 @@ You might also want to investigate your global Composer configs. Helpful command
      */
     $app->command('trust [--off]', function (OutputInterface $output, $off) {
         if ($off) {
-            Brew::removeSudoersEntry();
+            // Brew::removeSudoersEntry();
             Valet::removeSudoersEntry();
 
             return info('Sudoers entries have been removed for Brew and Valet.');
         }
 
-        Brew::createSudoersEntry();
+        // Brew::createSudoersEntry();
         Valet::createSudoersEntry();
 
         info('Sudoers entries have been added for Brew and Valet.');
@@ -529,7 +532,8 @@ You might also want to investigate your global Composer configs. Helpful command
     $app->command('use [phpVersion] [--force]', function (OutputInterface $output, $phpVersion, $force) {
         if (! $phpVersion) {
             $site = basename(getcwd());
-            $linkedVersion = Brew::linkedPhp();
+            exit('todo');
+            // $linkedVersion = Brew::linkedPhp();
 
             if ($phpVersion = Site::phpRcVersion($site)) {
                 info("Found '{$site}/.valetphprc' specifying version: {$phpVersion}");
@@ -611,7 +615,7 @@ You might also want to investigate your global Composer configs. Helpful command
         if (! $phpVersion) {
             $phpVersion = Site::phpRcVersion($site ?: basename(getcwd()));
         }
-
+exit('todo');
         return output(Brew::getPhpExecutablePath($phpVersion));
     })->descriptions('Get the PHP executable path for a given site', [
         'site' => 'The site to get the PHP executable path for',

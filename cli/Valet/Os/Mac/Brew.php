@@ -1,21 +1,21 @@
 <?php
 
-namespace Valet;
+namespace Valet\Os\Mac;
 
 use DomainException;
 use Illuminate\Support\Collection;
 use PhpFpm;
+use Valet\CommandLine;
+use Valet\Filesystem;
+use Valet\Os\Installer;
+use function Valet\starts_with;
+use function Valet\user;
+use function Valet\info;
+use function Valet\output;
 
-class Brew
+class Brew extends Installer
 {
-    const SUPPORTED_PHP_VERSIONS = [
-        'php',
-        'php@8.2',
-        'php@8.1',
-        'php@8.0',
-    ];
     const BREW_DISABLE_AUTO_CLEANUP = 'HOMEBREW_NO_INSTALL_CLEANUP=1';
-    const LATEST_PHP_VERSION = 'php@8.2';
 
     /**
      * Create a new Brew instance.
@@ -62,16 +62,6 @@ class Brew
     }
 
     /**
-     * Get a list of supported PHP versions.
-     *
-     * @return Collection
-     */
-    public function supportedPhpVersions(): Collection
-    {
-        return collect(static::SUPPORTED_PHP_VERSIONS);
-    }
-
-    /**
      * Get a list of installed PHP formulae.
      *
      * @return Collection
@@ -86,9 +76,10 @@ class Brew
     /**
      * Get the aliased formula version from Homebrew.
      *
+     * @param  string  $formula
      * @return string
      */
-    public function determineAliasedVersion($formula): string
+    public function determineAliasedVersion(string $formula): string
     {
         $details = json_decode($this->cli->runAsUser("brew info $formula --json"));
 
@@ -184,7 +175,7 @@ class Brew
      * @param  dynamic[string]  $services
      * @return void
      */
-    public function restartService($services): void
+    public function restartService(array|string $services): void
     {
         $services = is_array($services) ? $services : func_get_args();
 
@@ -208,7 +199,7 @@ class Brew
      * @param  dynamic[string]  $services
      * @return
      */
-    public function stopService($services): void
+    public function stopService(array|string $services): void
     {
         $services = is_array($services) ? $services : func_get_args();
 
@@ -463,15 +454,13 @@ class Brew
     /**
      * Tell Homebrew to forcefully remove all PHP versions that Valet supports.
      *
-     * @return string
+     * @return void
      */
-    public function uninstallAllPhpVersions(): string
+    public function uninstallAllPhpVersions(): void
     {
         $this->supportedPhpVersions()->each(function ($formula) {
             $this->uninstallFormula($formula);
         });
-
-        return 'PHP versions removed.';
     }
 
     /**
@@ -519,20 +508,5 @@ class Brew
         preg_match('~\w{3,}/(php)(@?\d\.?\d)?/(\d\.\d)?([_\d\.]*)?/?\w{3,}~', $resolvedPath, $matches);
 
         return $matches;
-    }
-
-    /**
-     * Check if two PHP versions are equal.
-     *
-     * @param  string  $versionA
-     * @param  string  $versionB
-     * @return bool
-     */
-    public function arePhpVersionsEqual(string $versionA, string $versionB): bool
-    {
-        $versionANormalized = preg_replace('/[^\d]/', '', $versionA);
-        $versionBNormalized = preg_replace('/[^\d]/', '', $versionB);
-
-        return $versionANormalized === $versionBNormalized;
     }
 }

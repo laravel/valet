@@ -4,6 +4,7 @@ namespace Valet;
 
 use DomainException;
 use Illuminate\Support\Collection;
+use Valet\Os\Mac\Brew;
 
 class PhpFpm
 {

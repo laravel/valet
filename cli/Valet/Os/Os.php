@@ -1,9 +1,10 @@
 <?php
 
 namespace Valet\Os;
-
-class Os
+abstract class Os
 {
+    abstract public function installer(): Installer;
+
     public static function assign()
     {
         if (PHP_OS === 'Darwin') {

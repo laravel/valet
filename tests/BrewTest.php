@@ -1,23 +1,23 @@
 <?php
 
-use Illuminate\Container\Container;
 use Illuminate\Support\Collection;
-use Valet\Brew;
 use Valet\CommandLine;
 use Valet\Filesystem;
+use Valet\Os\Mac\Brew;
 use function Valet\resolve;
 use function Valet\swap;
 use function Valet\user;
 
 class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 {
+    use PrepsContainer;
     use UsesNullWriter;
 
     public function set_up()
     {
         $_SERVER['SUDO_USER'] = user();
 
-        Container::setInstance(new Container);
+        $this->prepContainer();
         $this->setNullWriter();
     }
 

@@ -1,7 +1,6 @@
 <?php
 
-use Illuminate\Container\Container;
-use Valet\Brew;
+use Valet\Os\Mac\Brew;
 use Valet\CommandLine;
 use Valet\Configuration;
 use Valet\Filesystem;
@@ -12,13 +11,14 @@ use function Valet\user;
 
 class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 {
+    use PrepsContainer;
     use UsesNullWriter;
 
     public function set_up()
     {
         $_SERVER['SUDO_USER'] = user();
 
-        Container::setInstance(new Container);
+        $this->prepContainer();
         $this->setNullWriter();
     }
 

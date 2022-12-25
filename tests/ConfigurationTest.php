@@ -1,9 +1,9 @@
 <?php
 
 use Illuminate\Container\Container;
-use Valet\Brew;
 use Valet\Configuration;
 use Valet\Filesystem;
+use Valet\Os\Mac\Brew;
 use function Valet\resolve;
 use function Valet\swap;
 use function Valet\user;

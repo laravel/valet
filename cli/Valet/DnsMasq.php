@@ -2,6 +2,8 @@
 
 namespace Valet;
 
+use Valet\Os\Mac\Brew;
+
 class DnsMasq
 {
     public $dnsmasqMasterConfigFile = BREW_PREFIX.'/etc/dnsmasq.conf';

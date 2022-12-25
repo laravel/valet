@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Container\Container;
-use Valet\Brew;
+use Valet\Os\Mac\Brew;
 use Valet\CommandLine;
 use Valet\Configuration;
 use Valet\DnsMasq;

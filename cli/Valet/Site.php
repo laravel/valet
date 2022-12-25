@@ -5,6 +5,7 @@ namespace Valet;
 use DomainException;
 use Illuminate\Support\Collection;
 use PhpFpm;
+use Valet\Os\Mac\Brew;
 
 class Site
 {
