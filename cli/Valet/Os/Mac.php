@@ -5,7 +5,7 @@ namespace Valet\Os;
 use Valet\Os\Mac\Brew;
 use function Valet\resolve;
 
-class Mac
+class Mac extends Os
 {
     public function installer(): Installer
     {
