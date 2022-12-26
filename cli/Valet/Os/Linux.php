@@ -3,7 +3,6 @@
 namespace Valet\Os;
 
 use Valet\Os\Linux\Apt;
-
 use function Valet\resolve;
 
 class Linux extends Os
