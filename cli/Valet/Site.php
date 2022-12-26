@@ -325,10 +325,10 @@ class Site
     /**
      * Unlink the given symbolic link.
      *
-     * @param  string  $name
+     * @param  string|null  $name
      * @return string
      */
-    public function unlink(string $name): string
+    public function unlink(?string $name = null): string
     {
         $name = $this->getRealSiteName($name);
 
