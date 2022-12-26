@@ -259,7 +259,7 @@ if (is_dir(VALET_HOME_PATH)) {
     })->descriptions('Display all of the proxy sites');
 
     /**
-     * Determine which Valet driver the current directory is using.
+     * Display which Valet driver the current directory is using.
      */
     $app->command('which', function (OutputInterface $output) {
         $driver = ValetDriver::assign(getcwd(), basename(getcwd()), '/');
@@ -269,7 +269,7 @@ if (is_dir(VALET_HOME_PATH)) {
         } else {
             warning('Valet could not determine which driver to use for this site.');
         }
-    })->descriptions('Determine which Valet driver serves the current working directory');
+    })->descriptions('Display which Valet driver serves the current working directory');
 
     /**
      * Display all of the registered paths.
