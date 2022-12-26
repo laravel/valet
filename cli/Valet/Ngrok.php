@@ -52,7 +52,7 @@ class Ngrok
             }
         }
 
-        throw new DomainException('Tunnel not established.');
+        throw new DomainException('There is no Ngrok tunnel established for '.$domain.'.');
     }
 
     /**
@@ -72,6 +72,8 @@ class Ngrok
                 return $tunnel->public_url;
             }
         }
+
+        return null;
     }
 
     /**

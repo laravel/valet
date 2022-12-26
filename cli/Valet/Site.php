@@ -1109,6 +1109,12 @@ class Site
         //     return $parked['site'];
         // }
 
+        // Don't add .TLD if user already passed the string in with the TLD on the end
+        if ($domain && str_contains($domain, '.'.$this->config->read()['tld'])) {
+            return $domain;
+        }
+
+        // Return either the passed domain, or the current folder name, with .TLD appended
         return ($domain ?: $this->host(getcwd())).'.'.$this->config->read()['tld'];
     }
 

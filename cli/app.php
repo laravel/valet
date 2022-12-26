@@ -303,7 +303,14 @@ if (is_dir(VALET_HOME_PATH)) {
      * Echo the currently tunneled URL.
      */
     $app->command('fetch-share-url [domain]', function (OutputInterface $output, $domain = null) {
-        output(Ngrok::currentTunnelUrl(Site::domain($domain)));
+        try {
+            output(Ngrok::currentTunnelUrl(Site::domain($domain)));
+        } catch (\Throwable $e) {
+            warning($e->getMessage());
+            if ($domain) {
+                warning("Make sure to leave out the TLD; `valet fetch-share-url project-name`");
+            }
+        }
     })->descriptions('Get the URL to the current Ngrok tunnel');
 
     /**
@@ -462,11 +469,6 @@ You can run <comment>composer global remove laravel/valet</comment> to uninstall
 (If you have other PHP versions installed, run <info>brew list --formula | grep php</info> to see which versions you should also uninstall manually.)
 
 <error>BEWARE:</error> Uninstalling PHP via Homebrew will leave your Mac with its original PHP version, which may not be compatible with other Composer dependencies you have installed. Thus you may get unexpected errors.
-
-Some additional services which you may have installed (but which Valet does not directly configure or manage) include: <comment>mariadb mysql mailhog</comment>.
-If you wish to also remove them, you may manually run <comment>brew uninstall SERVICENAME</comment> and clean up their configurations in '.BREW_PREFIX.'/etc if necessary.
-
-You can discover more Homebrew services by running: <comment>brew services list</comment> and <comment>brew list --formula</comment>
 
 <fg=red>If you have customized your Mac DNS settings in System Preferences->Network, you may need to add or remove 127.0.0.1 from the top of that list.</>
 

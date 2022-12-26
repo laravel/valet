@@ -949,6 +949,18 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $this->assertEquals('php@8.0', $siteMock->phpRcVersion('site2'));
         $this->assertEquals(null, $siteMock->phpRcVersion('site3')); // Site doesn't exists
     }
+
+    public function test_it_appends_tld_to_domain()
+    {
+        $site = resolve(Site::class);
+        $this->assertEquals('symposium.test', $site->domain('symposium'));
+    }
+
+    public function test_it_doesnt_double_append_tld_to_domain()
+    {
+        $site = resolve(Site::class);
+        $this->assertEquals('symposium.test', $site->domain('symposium.test'));
+    }
 }
 
 class CommandLineFake extends CommandLine
