@@ -27,7 +27,7 @@ class StatamicValetDriver extends ValetDriver
      * @param  string  $uri
      * @return string|false
      */
-    public function isStaticFile(string $sitePath, string $siteName, string $uri): string|false
+    public function isStaticFile(string $sitePath, string $siteName, string $uri)
     {
         if (strpos($uri, '/site') === 0 && strpos($uri, '/site/themes') !== 0) {
             return false;

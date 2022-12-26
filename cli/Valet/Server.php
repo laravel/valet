@@ -4,13 +4,17 @@ namespace Valet;
 
 class Server
 {
+    // Skip constructor promotion until we stop supporting PHP@7.4 isolation
+    public $config;
+
     /**
      * Create a new Server instance.
      *
      * @param  array  $config
      */
-    public function __construct(public array $config)
+    public function __construct(array $config)
     {
+        $this->config = $config;
     }
 
     /**

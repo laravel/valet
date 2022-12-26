@@ -45,7 +45,7 @@ class BedrockValetDriver extends BasicValetDriver
      * @param  string  $uri
      * @return string|false
      */
-    public function isStaticFile(string $sitePath, string $siteName, string $uri): string|false
+    public function isStaticFile(string $sitePath, string $siteName, string $uri)
     {
         $staticFilePath = $sitePath.'/web'.$uri;
 

@@ -38,7 +38,7 @@ class DrupalValetDriver extends ValetDriver
      * @param  string  $uri
      * @return string|false
      */
-    public function isStaticFile(string $sitePath, string $siteName, string $uri): string|false
+    public function isStaticFile(string $sitePath, string $siteName, string $uri)
     {
         $sitePath = $this->addSubdirectory($sitePath);
 

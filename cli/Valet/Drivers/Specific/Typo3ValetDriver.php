@@ -86,7 +86,7 @@ class Typo3ValetDriver extends ValetDriver
      * @param  string  $uri
      * @return string|false
      */
-    public function isStaticFile(string $sitePath, string $siteName, string $uri): string|false
+    public function isStaticFile(string $sitePath, string $siteName, string $uri)
     {
         // May the file contains a cache busting version string like filename.12345678.css
         // If that is the case, the file cannot be found on disk, so remove the version
