@@ -731,11 +731,4 @@ You might also want to investigate your global Composer configs. Helpful command
     ]);
 }
 
-/**
- * Load all of the Valet extensions.
- */
-foreach (Valet::extensions() as $extension) {
-    include $extension;
-}
-
 return $app;

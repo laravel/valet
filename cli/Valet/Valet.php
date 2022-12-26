@@ -41,27 +41,6 @@ class Valet
     }
 
     /**
-     * Get the paths to all of the Valet extensions.
-     *
-     * @return array
-     */
-    public function extensions(): array
-    {
-        if (! $this->files->isDir(VALET_HOME_PATH.'/Extensions')) {
-            return [];
-        }
-
-        return collect($this->files->scandir(VALET_HOME_PATH.'/Extensions'))
-                    ->reject(function ($file) {
-                        return is_dir($file);
-                    })
-                    ->map(function ($file) {
-                        return VALET_HOME_PATH.'/Extensions/'.$file;
-                    })
-                    ->values()->all();
-    }
-
-    /**
      * Determine if this is the latest version of Valet.
      *
      * @param  string  $currentVersion
