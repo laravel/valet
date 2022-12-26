@@ -2,7 +2,7 @@
 
 namespace Valet\Os;
 
-use Valet\Os\Mac\Apt;
+use Valet\Os\Linux\Apt;
 
 use function Valet\resolve;
 
