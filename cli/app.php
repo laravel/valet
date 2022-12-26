@@ -308,7 +308,7 @@ if (is_dir(VALET_HOME_PATH)) {
         } catch (\Throwable $e) {
             warning($e->getMessage());
             if ($domain) {
-                warning("Make sure to leave out the TLD; `valet fetch-share-url project-name`");
+                warning('Make sure to leave out the TLD; `valet fetch-share-url project-name`');
             }
         }
     })->descriptions('Get the URL to the current Ngrok tunnel');
