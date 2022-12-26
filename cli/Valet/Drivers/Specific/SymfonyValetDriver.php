@@ -29,7 +29,7 @@ class SymfonyValetDriver extends ValetDriver
      * @param  string  $uri
      * @return string|false
      */
-    public function isStaticFile(string $sitePath, string $siteName, string $uri): string|false
+    public function isStaticFile(string $sitePath, string $siteName, string $uri)
     {
         if ($this->isActualFile($staticFilePath = $sitePath.'/web/'.$uri)) {
             return $staticFilePath;

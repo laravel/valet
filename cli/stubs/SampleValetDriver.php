@@ -31,7 +31,7 @@ class SampleValetDriver extends ValetDriver
      * @param  string  $uri
      * @return string|false
      */
-    public function isStaticFile(string $sitePath, string $siteName, string $uri): string|false
+    public function isStaticFile(string $sitePath, string $siteName, string $uri)
     {
         if (file_exists($staticFilePath = $sitePath.'/public/'.$uri)) {
             return $staticFilePath;

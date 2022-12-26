@@ -34,7 +34,7 @@ class Magento2ValetDriver extends ValetDriver
      * @param  string  $uri
      * @return string|false
      */
-    public function isStaticFile(string $sitePath, string $siteName, string $uri): string|false
+    public function isStaticFile(string $sitePath, string $siteName, string $uri)
     {
         $this->checkMageMode($sitePath);
 
