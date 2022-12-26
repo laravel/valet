@@ -4,8 +4,6 @@ use Valet\Os\Linux;
 use Valet\Os\Linux\Apt;
 use Valet\Os\Mac;
 use Valet\Os\Mac\Brew;
-
-use function Valet\resolve;
 use function Valet\user;
 
 class OsTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
