@@ -1,11 +1,11 @@
 <?php
 
 use Illuminate\Container\Container;
-use Valet\Os\Mac\Brew;
 use Valet\CommandLine;
 use Valet\Configuration;
 use Valet\DnsMasq;
 use Valet\Filesystem;
+use Valet\Os\Mac\Brew;
 use function Valet\resolve;
 use function Valet\swap;
 use function Valet\user;

@@ -7,11 +7,11 @@ use Illuminate\Support\Collection;
 use PhpFpm;
 use Valet\CommandLine;
 use Valet\Filesystem;
+use function Valet\info;
 use Valet\Os\Installer;
+use function Valet\output;
 use function Valet\starts_with;
 use function Valet\user;
-use function Valet\info;
-use function Valet\output;
 
 class Brew extends Installer
 {

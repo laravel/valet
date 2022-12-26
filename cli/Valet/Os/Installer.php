@@ -17,23 +17,41 @@ abstract class Installer
 
     // @todo: Figure out which of these don't make sense outside of Brew (e.g. tap?)
     abstract public function hasInstalledPhp(): bool;
+
     abstract public function determineAliasedVersion(string $formula): string;
+
     abstract public function hasInstalledNginx(): bool;
+
     abstract public function nginxServiceName(): string;
+
     abstract public function ensureInstalled(string $formula, array $options = [], array $taps = []): void;
+
     abstract public function installOrFail(string $formula, array $options = [], array $taps = []): void;
+
     abstract public function restartService(array|string $services): void;
+
     abstract public function stopService(array|string $services): void;
+
     abstract public function hasLinkedPhp(): bool;
+
     abstract public function getLinkedPhpFormula(): string;
+
     abstract public function linkedPhp(): string;
+
     abstract public function getPhpExecutablePath(?string $phpVersion = null): string;
+
     abstract public function createSudoersEntry(): void;
+
     abstract public function removeSudoersEntry(): void;
+
     abstract public function link(string $formula, bool $force = false): string;
+
     abstract public function unlink(string $formula): string;
+
     abstract public function getAllRunningServices(): Collection;
+
     abstract public function uninstallAllPhpVersions(): void;
+
     abstract public function uninstallFormula(string $formula): void;
 
     /**

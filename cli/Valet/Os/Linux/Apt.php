@@ -2,6 +2,7 @@
 
 namespace Valet\Os\Linux;
 
+use Illuminate\Support\Collection;
 use Valet\CommandLine;
 use Valet\Filesystem;
 use Valet\Os\Installer;

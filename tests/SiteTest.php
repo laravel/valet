@@ -1,9 +1,9 @@
 <?php
 
-use Valet\Os\Mac\Brew;
 use Valet\CommandLine;
 use Valet\Configuration;
 use Valet\Filesystem;
+use Valet\Os\Mac\Brew;
 use function Valet\resolve;
 use Valet\Site;
 use function Valet\swap;

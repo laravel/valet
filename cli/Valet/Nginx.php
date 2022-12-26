@@ -4,7 +4,6 @@ namespace Valet;
 
 use DomainException;
 use Illuminate\Support\Collection;
-use function Valet\starts_with;
 use Valet\Os\Installer;
 
 class Nginx

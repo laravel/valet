@@ -1,6 +1,7 @@
 <?php
 
 namespace Valet\Os;
+
 abstract class Os
 {
     abstract public function installer(): Installer;
