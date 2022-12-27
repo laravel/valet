@@ -66,7 +66,7 @@ $app->command('install', function (OutputInterface $output) {
  */
 if (is_dir(VALET_HOME_PATH)) {
     /**
-     * Upgrade helper: ensure the tld config exists or the loopback config exists.
+     * Upgrade helper: ensure the tld config exists and the loopback config exists.
      */
     if (empty(Configuration::read()['tld']) || empty(Configuration::read()['loopback'])) {
         Configuration::writeBaseConfiguration();
