@@ -50,18 +50,19 @@ class Status
                 'description' => 'Is Valet installed?',
                 'check' => function () {
                     return is_dir(VALET_HOME_PATH) && file_exists($this->config->path());
-                }
+                },
             ],
             [
                 'description' => 'Is Valet config valid?',
                 'check' => function () {
                     try {
                         $this->config->read();
+
                         return true;
                     } catch (\JsonException $e) {
                         return false;
                     }
-                }
+                },
             ],
             [
                 'description' => 'Is Homebrew installed?',
@@ -95,13 +96,12 @@ class Status
             ],
 
             // @todo: Are all services (Nginx, Dnsmasq, etc.) running via Brew
-                // .. I ran `brew services list` on my local machine on which Valet is running fine,
-                // and dnsmasq shows a status of "none", as does "nginx", and I wouldnt' know how to
-                // check here which PHP version is the valid one. 😬
+            // .. I ran `brew services list` on my local machine on which Valet is running fine,
+            // and dnsmasq shows a status of "none", as does "nginx", and I wouldnt' know how to
+            // check here which PHP version is the valid one. 😬
             // @todo: Are all configuration items non-erroring (e.g. check the Nginx config, etc.)
-                // .. I ran `nginx -t` on my local machine on which Valet is running fine,
-                // and I got a warning and an emergency 🤣 I give up
+            // .. I ran `nginx -t` on my local machine on which Valet is running fine,
+            // and I got a warning and an emergency 🤣 I give up
         ];
-
     }
 }
