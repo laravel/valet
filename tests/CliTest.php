@@ -79,6 +79,11 @@ class CliTest extends BaseApplicationTestCase
 
         $this->assertStringNotContainsString('test', $tester->getDisplay());
 
-        // @todo: Park a domain, and test that we see it
+        Configuration::addPath(__DIR__ . '/fixtures/Parked/Sites');
+
+        $tester->run(['command' => 'parked']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('my-best-site', $tester->getDisplay());
     }
 }
