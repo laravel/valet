@@ -1,10 +1,23 @@
 <?php
 
+use Illuminate\Container\Container;
+use Valet\Brew;
+use Valet\CommandLine;
+use Valet\Filesystem;
+use Valet\Status;
+
+use function Valet\swap;
+
 /**
  * @requires PHP >= 8.0
  */
 class CliTest extends BaseApplicationTestCase
 {
+    public function tear_down()
+    {
+        Mockery::close();
+    }
+
     public function test_park_command()
     {
         [$app, $tester] = $this->appAndTester();
@@ -26,12 +39,28 @@ class CliTest extends BaseApplicationTestCase
 
     public function test_status_command()
     {
-        // @todo: Mock Status so it doesn't do anything real. also have it output various
-        // .      states and test the output here
         [$app, $tester] = $this->appAndTester();
+
+        $brew = Mockery::mock(Brew::class);
+        $brew->shouldReceive('hasInstalledPhp')->andReturn(true);
+        $brew->shouldReceive('installed')->twice()->andReturn(true);
+
+        $cli = Mockery::mock(CommandLine::class);
+        $cli->shouldReceive('run')->once()->andReturn(true);
+
+        $files = Mockery::mock(Filesystem::class);
+        $files->shouldReceive('exists')->once()->andReturn(true);
+
+        swap(Brew::class, $brew);
+        swap(CommandLine::class, $cli);
+        // @todo: Fix this
+        Container::getInstance()->when(Status::class)
+            ->needs(Filesystem::class)
+            ->give($files);
 
         $tester->run(['command' => 'status']);
 
         $tester->assertCommandIsSuccessful();
+        $this->assertStringNotContainsString('False', $tester->getDisplay());
     }
 }

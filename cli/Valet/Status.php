@@ -10,7 +10,7 @@ class Status
      * @param  Filesystem  $files
      * @param  Brew  $brew
      */
-    public function __construct(public Configuration $config, public Brew $brew)
+    public function __construct(public Configuration $config, public Brew $brew, public CommandLine $cli, public Filesystem $files)
     {
     }
 
@@ -67,19 +67,19 @@ class Status
             [
                 'description' => 'Is Homebrew installed?',
                 'check' => function () {
-                    return exec('which brew') !== '';
+                    return $this->cli->run('which brew') !== '';
                 },
             ],
             [
                 'description' => 'Is DnsMasq installed?',
                 'check' => function () {
-                    return exec('which dnsmasq') !== '';
+                    return $this->brew->installed('dnsmasq');
                 },
             ],
             [
                 'description' => 'Is Nginx installed?',
                 'check' => function () {
-                    return exec('which nginx') !== '';
+                    return $this->brew->installed('nginx');
                 },
             ],
             [
@@ -91,17 +91,17 @@ class Status
             [
                 'description' => 'Is valet.sock present?',
                 'check' => function () {
-                    return file_exists(VALET_HOME_PATH.'/valet.sock');
+                    return $this->files->exists(VALET_HOME_PATH.'/valet.sock');
                 },
             ],
 
             // @todo: Are all services (Nginx, Dnsmasq, etc.) running via Brew
-            // .. I ran `brew services list` on my local machine on which Valet is running fine,
-            // and dnsmasq shows a status of "none", as does "nginx", and I wouldnt' know how to
-            // check here which PHP version is the valid one. 😬
+            //   .. I ran `brew services list` on my local machine on which Valet is running fine,
+            //   and dnsmasq shows a status of "none", as does "nginx", and I wouldnt' know how to
+            //   check here which PHP version is the valid one. 😬
             // @todo: Are all configuration items non-erroring (e.g. check the Nginx config, etc.)
-            // .. I ran `nginx -t` on my local machine on which Valet is running fine,
-            // and I got a warning and an emergency 🤣 I give up
+            //   .. I ran `nginx -t` on my local machine on which Valet is running fine,
+            //   and I got a warning and an emergency 🤣 I give up
         ];
     }
 }
