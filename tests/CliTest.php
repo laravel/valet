@@ -77,11 +77,23 @@ class CliTest extends BaseApplicationTestCase
 
         $this->assertStringNotContainsString('test', $tester->getDisplay());
 
-        Configuration::addPath(__DIR__ . '/fixtures/Parked/Sites');
+        Configuration::addPath(__DIR__.'/fixtures/Parked/Sites');
 
         $tester->run(['command' => 'parked']);
         $tester->assertCommandIsSuccessful();
 
         $this->assertStringContainsString('my-best-site', $tester->getDisplay());
+    }
+
+    public function test_forget_command()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        Configuration::addPath(__DIR__.'/fixtures/Parked/Sites');
+
+        $tester->run(['command' => 'forget', 'path' => __DIR__.'/fixtures/Parked/Sites']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringNotContainsString('my-best-site', $tester->getDisplay());
     }
 }
