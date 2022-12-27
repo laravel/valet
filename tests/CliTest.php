@@ -1,7 +1,5 @@
 <?php
 
-use function PHPUnit\Framework\assertStringEndsWith;
-
 /**
  * @requires PHP >= 8.0
  */
