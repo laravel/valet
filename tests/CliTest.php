@@ -5,7 +5,6 @@ use Valet\Brew;
 use Valet\CommandLine;
 use Valet\Filesystem;
 use Valet\Status;
-
 use function Valet\swap;
 
 /**
