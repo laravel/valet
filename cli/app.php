@@ -62,6 +62,24 @@ $app->command('install', function (OutputInterface $output) {
 })->descriptions('Install the Valet services');
 
 /**
+ * Output the status of Valet and its installed services and config.
+ */
+$app->command('status', function (OutputInterface $output) {
+    info('Checking status...');
+
+    $status = Status::check();
+
+    // @todo figure out error codes; return based on $status['valid']
+    if ($status['success']) {
+        info("\nValet status: Healthy\n");
+    } else {
+        warning("\nValet status: Error\n");
+    }
+
+    table(['Check', 'Success?'], $status['output']);
+})->descriptions('Output the status of Valet and its installed services and config.');
+
+/**
  * Most commands are available only if valet is installed.
  */
 if (is_dir(VALET_HOME_PATH)) {

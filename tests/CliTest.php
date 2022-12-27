@@ -23,4 +23,15 @@ class CliTest extends BaseApplicationTestCase
         $this->assertEquals(1, count($paths));
         $this->assertEquals('./tests/output', reset($paths));
     }
+
+    public function test_status_command()
+    {
+        // @todo: Mock Status so it doesn't do anything real. also have it output various
+        // .      states and test the output here
+        [$app, $tester] = $this->appAndTester();
+
+        $tester->run(['command' => 'status']);
+
+        $tester->assertCommandIsSuccessful();
+    }
 }

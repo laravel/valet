@@ -31,7 +31,12 @@ class Upgrader
      */
     public function pruneMissingDirectories(): void
     {
-        Configuration::prune();
+        try {
+            Configuration::prune();
+        } catch (\JsonException $e) {
+            warning('Invalid confiuration file at '.Configuration::path().'.');
+            exit;
+        }
     }
 
     /**

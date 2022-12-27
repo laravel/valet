@@ -211,7 +211,7 @@ class Configuration
      */
     public function read(): array
     {
-        return json_decode($this->files->get($this->path()), true);
+        return json_decode($this->files->get($this->path()), true, 512, JSON_THROW_ON_ERROR);
     }
 
     /**
