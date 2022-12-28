@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Container\Container;
 use Valet\Brew;
 use Valet\CommandLine;
 use Valet\Filesystem;
@@ -13,7 +12,7 @@ use function Valet\swap;
  */
 class CliTest extends BaseApplicationTestCase
 {
-    public function tear_down()
+    public function tearDown(): void
     {
         Mockery::close();
     }
@@ -48,15 +47,12 @@ class CliTest extends BaseApplicationTestCase
         $cli = Mockery::mock(CommandLine::class);
         $cli->shouldReceive('run')->once()->andReturn(true);
 
-        $files = Mockery::mock(Filesystem::class);
+        $files = Mockery::mock(Filesystem::class.'[exists]');
         $files->shouldReceive('exists')->once()->andReturn(true);
 
         swap(Brew::class, $brew);
         swap(CommandLine::class, $cli);
-        // @todo: Fix this
-        Container::getInstance()->when(Status::class)
-            ->needs(Filesystem::class)
-            ->give($files);
+        swap(Filesystem::class, $files);
 
         $tester->run(['command' => 'status']);
 

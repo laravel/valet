@@ -1,8 +1,9 @@
 <?php
 
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\ApplicationTester;
 
-class BaseApplicationTestCase extends Yoast\PHPUnitPolyfills\TestCases\TestCase
+class BaseApplicationTestCase extends /*Yoast\PHPUnitPolyfills\TestCases\TestCase */ TestCase
 {
     use UsesNullWriter;
 
