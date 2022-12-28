@@ -69,7 +69,7 @@ class CliTest extends BaseApplicationTestCase
         $cli = Mockery::mock(CommandLine::class);
         $cli->shouldReceive('run')->once()->andReturn(true);
 
-        $files = Mockery::mock(Filesystem::class . '[exists]');
+        $files = Mockery::mock(Filesystem::class.'[exists]');
         $files->shouldReceive('exists')->once()->andReturn(false);
 
         swap(Brew::class, $brew);
