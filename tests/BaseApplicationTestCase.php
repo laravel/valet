@@ -22,10 +22,6 @@ class BaseApplicationTestCase extends /*Yoast\PHPUnitPolyfills\TestCases\TestCas
     {
         require_once __DIR__.'/../cli/includes/helpers.php';
 
-        if (Filesystem::isDir(VALET_HOME_PATH)) {
-            Filesystem::rmDirAndContents(VALET_HOME_PATH);
-        }
-
         Configuration::createConfigurationDirectory();
         Configuration::createDriversDirectory();
         Configuration::writeBaseConfiguration();
