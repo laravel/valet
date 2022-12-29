@@ -112,12 +112,10 @@ class CliTest extends BaseApplicationTestCase
 
     public function test_link_command_defaults_to_cwd()
     {
-
     }
 
     public function test_link_command_with_secure_flag_secures()
     {
-
     }
 
     public function test_links_command()
