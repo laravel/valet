@@ -257,7 +257,11 @@ class Filesystem
         $files = new RecursiveIteratorIterator($dir, RecursiveIteratorIterator::CHILD_FIRST);
 
         foreach ($files as $file) {
-            $file->isDir() ? rmdir($file->getRealPath()) : unlink($file->getRealPath());
+            if ($file->isLink()) {
+                unlink($file->getPathname());
+            } else {
+                $file->isDir() ? rmdir($file->getRealPath()) : unlink($file->getRealPath());
+            }
         }
 
         rmdir($path);
