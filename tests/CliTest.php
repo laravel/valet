@@ -96,4 +96,38 @@ class CliTest extends BaseApplicationTestCase
 
         $this->assertStringNotContainsString('my-best-site', $tester->getDisplay());
     }
+
+    public function test_link_command()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $tester->run(['command' => 'link', 'name' => 'tighten']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertEquals(1, Site::links()->count());
+        $this->assertEquals(1, Site::links()->filter(function ($site) {
+            return $site['site'] === 'tighten';
+        })->count());
+    }
+
+    public function test_link_command_defaults_to_cwd()
+    {
+
+    }
+
+    public function test_link_command_with_secure_flag_secures()
+    {
+
+    }
+
+    public function test_links_command()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        Site::link(__DIR__.'/fixtures/Parked/Sites/my-best-site', 'tighten');
+        $tester->run(['command' => 'links']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('tighten', $tester->getDisplay());
+    }
 }
