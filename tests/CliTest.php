@@ -163,7 +163,7 @@ class CliTest extends BaseApplicationTestCase
     {
         [$app, $tester] = $this->appAndTester();
 
-        Site::link(__DIR__ . '/fixtures/Parked/Sites/my-best-site', 'tighten');
+        Site::link(__DIR__.'/fixtures/Parked/Sites/my-best-site', 'tighten');
 
         $tester->run(['command' => 'unlink', 'name' => 'tighten']);
         $tester->assertCommandIsSuccessful();
