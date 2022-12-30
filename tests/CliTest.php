@@ -1,5 +1,9 @@
 <?php
 
+use Valet\Nginx;
+use Valet\Site as RealSite;
+use function Valet\swap;
+
 /**
  * @requires PHP >= 8.0
  */
@@ -112,12 +116,34 @@ class CliTest extends BaseApplicationTestCase
 
     public function test_link_command_defaults_to_cwd()
     {
+        [$app, $tester] = $this->appAndTester();
 
+        $site = Mockery::mock(RealSite::class);
+        $site->shouldReceive('link')->with(getcwd(), basename(getcwd()))->once();
+        swap(RealSite::class, $site);
+
+        $tester->run(['command' => 'link']);
+        $tester->assertCommandIsSuccessful();
     }
 
     public function test_link_command_with_secure_flag_secures()
     {
+        [$app, $tester] = $this->appAndTester();
 
+        $site = Mockery::mock(RealSite::class);
+        $site->shouldReceive('link')->once();
+        $site->shouldReceive('domain')->andReturn('mysite.test');
+        $site->shouldReceive('secure')->once();
+        swap(RealSite::class, $site);
+
+        $nginx = Mockery::mock(Nginx::class);
+        $nginx->shouldReceive('restart')->once();
+        swap(Nginx::class, $nginx);
+
+        $tester->run(['command' => 'link', '--secure' => true]);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('site has been secured', $tester->getDisplay());
     }
 
     public function test_links_command()
@@ -129,5 +155,36 @@ class CliTest extends BaseApplicationTestCase
         $tester->assertCommandIsSuccessful();
 
         $this->assertStringContainsString('tighten', $tester->getDisplay());
+    }
+
+    public function test_unlink_command()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        Site::link(__DIR__ . '/fixtures/Parked/Sites/my-best-site', 'tighten');
+
+        $tester->run(['command' => 'unlink', 'name' => 'tighten']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertEquals(0, Site::links()->count());
+    }
+
+    public function test_secure_command()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $site = Mockery::mock(RealSite::class);
+        $site->shouldReceive('domain')->andReturn('tighten.test');
+        $site->shouldReceive('secure')->with('tighten.test', null, 12345)->once();
+        swap(RealSite::class, $site);
+
+        $nginx = Mockery::mock(Nginx::class);
+        $nginx->shouldReceive('restart')->once();
+        swap(Nginx::class, $nginx);
+
+        $tester->run(['command' => 'secure', 'domain' => 'tighten', '--expireIn' => '12345']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('site has been secured', $tester->getDisplay());
     }
 }
