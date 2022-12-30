@@ -208,6 +208,10 @@ if (is_dir(VALET_HOME_PATH)) {
         if ($all) {
             Site::unsecureAll();
 
+            Nginx::restart();
+
+            info('All Valet sites will now serve traffic over HTTP.');
+
             return;
         }
 

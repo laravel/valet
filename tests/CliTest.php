@@ -1,6 +1,8 @@
 <?php
 
+use Valet\CommandLine;
 use Valet\Nginx;
+use Valet\Ngrok;
 use Valet\Site as RealSite;
 use function Valet\swap;
 
@@ -174,6 +176,25 @@ class CliTest extends BaseApplicationTestCase
         [$app, $tester] = $this->appAndTester();
 
         $site = Mockery::mock(RealSite::class);
+        $site->shouldReceive('domain')->with('tighten')->andReturn('tighten.test');
+        $site->shouldReceive('unsecure')->with('tighten.test')->once();
+        swap(RealSite::class, $site);
+
+        $nginx = Mockery::mock(Nginx::class);
+        $nginx->shouldReceive('restart')->once();
+        swap(Nginx::class, $nginx);
+
+        $tester->run(['command' => 'unsecure', 'domain' => 'tighten']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('will now serve traffic over HTTP.', $tester->getDisplay());
+    }
+
+    public function test_unsecure_command()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $site = Mockery::mock(RealSite::class);
         $site->shouldReceive('domain')->andReturn('tighten.test');
         $site->shouldReceive('secure')->with('tighten.test', null, 12345)->once();
         swap(RealSite::class, $site);
@@ -186,5 +207,168 @@ class CliTest extends BaseApplicationTestCase
         $tester->assertCommandIsSuccessful();
 
         $this->assertStringContainsString('site has been secured', $tester->getDisplay());
+    }
+
+    public function test_unsecure_all_command()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $site = Mockery::mock(RealSite::class);
+        $site->shouldReceive('unSecureAll')->once();
+        swap(RealSite::class, $site);
+
+        $nginx = Mockery::mock(Nginx::class);
+        $nginx->shouldReceive('restart')->once();
+        swap(Nginx::class, $nginx);
+
+        $tester->run(['command' => 'unsecure', '--all' => true]);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('All Valet sites will now serve traffic over HTTP.', $tester->getDisplay());
+    }
+
+    public function test_secured_command()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $site = Mockery::mock(RealSite::class);
+        $site->shouldReceive('secured')->andReturn(['tighten.test']);
+        swap(RealSite::class, $site);
+
+        $tester->run(['command' => 'secured']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('tighten.test', $tester->getDisplay());
+    }
+
+    public function test_proxy_command()
+    {
+        $this->markTestIncomplete();
+    }
+
+    public function test_unproxy_command()
+    {
+        $this->markTestIncomplete();
+    }
+
+    public function test_proxies_command()
+    {
+        $this->markTestIncomplete();
+    }
+
+    public function test_which_command()
+    {
+        $this->markTestIncomplete();
+    }
+
+    public function test_paths_command()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $tester->run(['command' => 'paths']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('No paths have been registered.', $tester->getDisplay());
+
+        Configuration::addPath(__DIR__);
+
+        $tester->run(['command' => 'paths']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString(__DIR__, $tester->getDisplay());
+    }
+
+    public function test_open_command()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $cli = Mockery::mock(CommandLine::class);
+        $cli->shouldReceive('runAsUser')->with("open 'http://tighten.test'")->once();
+        swap(CommandLine::class, $cli);
+
+        $tester->run(['command' => 'open', 'domain' => 'tighten']);
+        $tester->assertCommandIsSuccessful();
+    }
+
+    public function test_set_ngrok_token_command()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $ngrok = Mockery::mock(Ngrok::class);
+        $ngrok->shouldReceive('setToken')->with('your-token-here')->once()->andReturn('yay');
+        swap(Ngrok::class, $ngrok);
+
+        $tester->run(['command' => 'set-ngrok-token', 'token' => 'your-token-here']);
+        $tester->assertCommandIsSuccessful();
+    }
+
+    public function test_start_command()
+    {
+        $this->markTestIncomplete();
+    }
+
+    public function test_restart_command()
+    {
+        $this->markTestIncomplete();
+    }
+
+    public function test_stop_command()
+    {
+        $this->markTestIncomplete();
+    }
+
+    public function test_uninstall_command()
+    {
+        $this->markTestIncomplete();
+    }
+
+    public function test_trust_command()
+    {
+        $this->markTestIncomplete();
+    }
+
+    public function test_use_command()
+    {
+        $this->markTestIncomplete();
+    }
+
+    public function test_isolate_command()
+    {
+        $this->markTestIncomplete();
+    }
+
+    public function test_unisolate_command()
+    {
+        $this->markTestIncomplete();
+    }
+
+    public function test_isolated_command()
+    {
+        $this->markTestIncomplete();
+    }
+
+    public function test_which_php_command()
+    {
+        $this->markTestIncomplete();
+    }
+
+    public function test_composer_command()
+    {
+        $this->markTestIncomplete();
+    }
+
+    public function test_log_command()
+    {
+        $this->markTestIncomplete();
+    }
+
+    public function test_directory_listing_command()
+    {
+        $this->markTestIncomplete();
+    }
+
+    public function test_diagnose_command()
+    {
+        $this->markTestIncomplete();
     }
 }
