@@ -123,19 +123,6 @@ class Configuration
         if (! $this->files->exists($this->path())) {
             $this->write(['tld' => 'test', 'loopback' => VALET_LOOPBACK, 'paths' => []]);
         }
-
-        /**
-         * Migrate old configurations from 'domain' to 'tld'.
-         */
-        $config = $this->read();
-
-        if (! isset($config['tld'])) {
-            $this->updateKey('tld', ! empty($config['domain']) ? $config['domain'] : 'test');
-        }
-
-        if (! isset($config['loopback'])) {
-            $this->updateKey('loopback', VALET_LOOPBACK);
-        }
     }
 
     /**
