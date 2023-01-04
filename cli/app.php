@@ -84,7 +84,7 @@ $app->command('status', function (OutputInterface $output) {
  */
 if (is_dir(VALET_HOME_PATH)) {
     /**
-     * Upgrade helper: ensure the tld config exists or the loopback config exists.
+     * Upgrade helper: ensure the tld config exists and the loopback config exists.
      */
     if (empty(Configuration::read()['tld']) || empty(Configuration::read()['loopback'])) {
         Configuration::writeBaseConfiguration();
@@ -225,6 +225,10 @@ if (is_dir(VALET_HOME_PATH)) {
     $app->command('unsecure [domain] [--all]', function (OutputInterface $output, $domain = null, $all = null) {
         if ($all) {
             Site::unsecureAll();
+
+            Nginx::restart();
+
+            info('All Valet sites will now serve traffic over HTTP.');
 
             return;
         }

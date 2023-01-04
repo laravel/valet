@@ -13,6 +13,11 @@ class BaseApplicationTestCase extends /*Yoast\PHPUnitPolyfills\TestCases\TestCas
         $this->setNullWriter();
     }
 
+    public function tearDown(): void
+    {
+        Mockery::close();
+    }
+
     /**
      * Prepare a test to run using the full application.
      *
