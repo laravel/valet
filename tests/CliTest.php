@@ -1,5 +1,6 @@
 <?php
 
+use PHPUnit\Framework\Assert;
 use Valet\Brew;
 use Valet\CommandLine;
 use Valet\Filesystem;
@@ -120,7 +121,7 @@ class CliTest extends BaseApplicationTestCase
 
         $tester->run(['command' => 'status']);
 
-        $tester->assertCommandIsSuccessful();
+        $this->assertNotEquals(0, $tester->getStatusCode());
         $this->assertStringContainsString('False', $tester->getDisplay());
     }
 

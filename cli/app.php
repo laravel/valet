@@ -2,6 +2,7 @@
 
 use Illuminate\Container\Container;
 use Silly\Application;
+use Silly\Command\Command;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Symfony\Component\Console\Input\InputInterface;
@@ -69,7 +70,6 @@ $app->command('status', function (OutputInterface $output) {
 
     $status = Status::check();
 
-    // @todo figure out error codes; return based on $status['valid']
     if ($status['success']) {
         info("\nValet status: Healthy\n");
     } else {
@@ -77,6 +77,12 @@ $app->command('status', function (OutputInterface $output) {
     }
 
     table(['Check', 'Success?'], $status['output']);
+
+    if ($status['success']) {
+        return Command::SUCCESS;
+    } else {
+        return Command::FAILURE;
+    }
 })->descriptions('Output the status of Valet and its installed services and config.');
 
 /**
