@@ -76,8 +76,6 @@ class CliTest extends BaseApplicationTestCase
         $this->assertEquals('./tests/output', reset($paths));
     }
 
-    // @todo... for some reason, the test run immediately after this method is erroring out.
-    // But only if it's run immediately after this me
     public function test_status_command_succeeding()
     {
         [$app, $tester] = $this->appAndTester();

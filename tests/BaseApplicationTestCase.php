@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Container\Container;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\ApplicationTester;
 
@@ -26,6 +27,11 @@ class BaseApplicationTestCase extends /*Yoast\PHPUnitPolyfills\TestCases\TestCas
     public function prepTestConfig()
     {
         require_once __DIR__.'/../cli/includes/helpers.php';
+        Container::setInstance(new Container); // Reset app container from previous tests
+
+        if (Filesystem::isDir(VALET_HOME_PATH)) {
+            Filesystem::rmDirAndContents(VALET_HOME_PATH);
+        }
 
         Configuration::createConfigurationDirectory();
         Configuration::createDriversDirectory();

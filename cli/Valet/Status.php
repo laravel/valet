@@ -5,7 +5,7 @@ namespace Valet;
 class Status
 {
     /**
-     * Create a new Status isntance.
+     * Create a new Status instance.
      *
      * @param  Filesystem  $files
      * @param  Brew  $brew
