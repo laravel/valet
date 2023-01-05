@@ -4,7 +4,7 @@ use Illuminate\Container\Container;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\ApplicationTester;
 
-class BaseApplicationTestCase extends /*Yoast\PHPUnitPolyfills\TestCases\TestCase */ TestCase
+class BaseApplicationTestCase extends TestCase
 {
     use UsesNullWriter;
 
