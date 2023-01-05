@@ -382,7 +382,7 @@ class CliTest extends BaseApplicationTestCase
 
         $site = Mockery::mock(RealSite::class);
         $site->shouldReceive('proxies')->andReturn(collect([
-            ['site' => 'elasticsearch', 'secured' => 'X', 'url' => 'https://elasticsearch.test/', 'host' => 'http://127.0.0.1:9200']
+            ['site' => 'elasticsearch', 'secured' => 'X', 'url' => 'https://elasticsearch.test/', 'host' => 'http://127.0.0.1:9200'],
         ]));
 
         swap(RealSite::class, $site);
