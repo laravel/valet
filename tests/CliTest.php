@@ -1,6 +1,5 @@
 <?php
 
-use PHPUnit\Framework\Assert;
 use Valet\Brew;
 use Valet\CommandLine;
 use Valet\Filesystem;
