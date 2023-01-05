@@ -1,12 +1,9 @@
 <?php
 
 use Illuminate\Container\Container;
-use Illuminate\Support\Collection;
-use Valet\Brew;
 use Valet\CommandLine;
-use Valet\Filesystem;
-use Valet\Status;
 use function Valet\resolve;
+use Valet\Status;
 use function Valet\swap;
 use function Valet\user;
 
