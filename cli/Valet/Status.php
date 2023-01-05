@@ -114,7 +114,7 @@ class Status
             $this->brewServicesUserOutput = json_decode($this->cli->runAsUser('brew services info --all --json'), false);
         }
 
-        if (!$this->brewServicesAdminOutput) {
+        if (! $this->brewServicesAdminOutput) {
             $this->brewServicesAdminOutput = json_decode($this->cli->run('brew services info --all --json'), false);
         }
 
