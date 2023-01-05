@@ -133,7 +133,7 @@ class Status
                 if ($service->running === true) {
                     if ($exactMatch && $service->name == $name) {
                         return true;
-                    } elseif (!$exactMatch && str_contains($service->name, $name)) {
+                    } elseif (! $exactMatch && str_contains($service->name, $name)) {
                         return true;
                     }
                 }
