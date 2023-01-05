@@ -3,6 +3,7 @@
 use Valet\Brew;
 use Valet\CommandLine;
 use Valet\Configuration as RealConfiguration;
+use Valet\Diagnose;
 use Valet\DnsMasq;
 use Valet\Filesystem;
 use Valet\Nginx;
@@ -511,6 +512,15 @@ class CliTest extends BaseApplicationTestCase
 
     public function test_diagnose_command()
     {
-        $this->markTestIncomplete();
+        [$app, $tester] = $this->appAndTester();
+
+        $diagnose = Mockery::mock(Diagnose::class);
+        $diagnose->shouldReceive('run')->with(false, false);
+
+        swap(Diagnose::class, $diagnose);
+
+        $tester->run(['command' => 'diagnose']);
+        $tester->assertCommandIsSuccessful();
+        $this->assertStringContainsString('Diagnostics output', $tester->getDisplay());
     }
 }
