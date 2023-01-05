@@ -5,13 +5,10 @@ namespace Valet;
 class Status
 {
     public $brewServicesUserOutput;
-    public $brewServicesAdminOutput;
+    public $brewServicesSudoOutput;
 
     /**
      * Create a new Status instance.
-     *
-     * @param  Filesystem  $files
-     * @param  Brew  $brew
      */
     public function __construct(public Configuration $config, public Brew $brew, public CommandLine $cli, public Filesystem $files)
     {
@@ -20,8 +17,6 @@ class Status
     /**
      * Check the status of the entire Valet ecosystem and return a status boolean
      * and a set of individual checks and their respective booleans as well.
-     *
-     * @return array
      */
     public function check(): array
     {
@@ -43,8 +38,6 @@ class Status
 
     /**
      * Define a list of checks to test the health of the Valet ecosystem of tools and configs.
-     *
-     * @return array
      */
     public function checks(): array
     {
@@ -124,11 +117,11 @@ class Status
             $this->brewServicesUserOutput = json_decode($this->cli->runAsUser('brew services info --all --json'), false);
         }
 
-        if (! $this->brewServicesAdminOutput) {
-            $this->brewServicesAdminOutput = json_decode($this->cli->run('brew services info --all --json'), false);
+        if (! $this->brewServicesSudoOutput) {
+            $this->brewServicesSudoOutput = json_decode($this->cli->run('brew services info --all --json'), false);
         }
 
-        foreach ([$this->brewServicesUserOutput, $this->brewServicesAdminOutput] as $output) {
+        foreach ([$this->brewServicesUserOutput, $this->brewServicesSudoOutput] as $output) {
             foreach ($output as $service) {
                 if ($service->running === true) {
                     if ($exactMatch && $service->name == $name) {
