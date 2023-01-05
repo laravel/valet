@@ -395,7 +395,12 @@ class CliTest extends BaseApplicationTestCase
 
     public function test_which_command()
     {
-        $this->markTestIncomplete();
+        [$app, $tester] = $this->appAndTester();
+
+        $tester->run(['command' => 'which']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('served by [', $tester->getDisplay());
     }
 
     public function test_paths_command()
