@@ -4,6 +4,9 @@ namespace Valet;
 
 class Status
 {
+    public $brewServicesUserOutput;
+    public $brewServicesAdminOutput;
+
     /**
      * Create a new Status instance.
      *
@@ -76,10 +79,17 @@ class Status
                     return $this->brew->installed('dnsmasq');
                 },
             ],
+            // @todo make sure dnsmasq is running
             [
                 'description' => 'Is Nginx installed?',
                 'check' => function () {
                     return $this->brew->installed('nginx');
+                },
+            ],
+            [
+                'description' => 'Is Nginx running?',
+                'check' => function () {
+                    return $this->isBrewServiceRunning('nginx');
                 },
             ],
             [
@@ -88,20 +98,34 @@ class Status
                     return $this->brew->hasInstalledPhp();
                 },
             ],
+            // @todo make sure php is running
             [
                 'description' => 'Is valet.sock present?',
                 'check' => function () {
                     return $this->files->exists(VALET_HOME_PATH.'/valet.sock');
                 },
             ],
-
-            // @todo: Are all services (Nginx, Dnsmasq, etc.) running via Brew
-            //   .. I ran `brew services list` on my local machine on which Valet is running fine,
-            //   and dnsmasq shows a status of "none", as does "nginx", and I wouldnt' know how to
-            //   check here which PHP version is the valid one. 😬
-            // @todo: Are all configuration items non-erroring (e.g. check the Nginx config, etc.)
-            //   .. I ran `nginx -t` on my local machine on which Valet is running fine,
-            //   and I got a warning and an emergency 🤣 I give up
         ];
+    }
+
+    public function isBrewServiceRunning(string $name): bool
+    {
+        if (! $this->brewServicesUserOutput) {
+            $this->brewServicesUserOutput = json_decode($this->cli->runAsUser('brew services info --all --json'), false);
+        }
+
+        if (!$this->brewServicesAdminOutput) {
+            $this->brewServicesAdminOutput = json_decode($this->cli->run('brew services info --all --json'), false);
+        }
+
+        foreach ([$this->brewServicesUserOutput, $this->brewServicesAdminOutput] as $output) {
+            foreach ($output as $service) {
+                if ($service->name == $name && $service->running === true) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }
