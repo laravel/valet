@@ -145,7 +145,7 @@ class CliTest extends BaseApplicationTestCase
 
         $tester->run(['command' => 'status']);
 
-        // $tester->assertCommandIsSuccessful();
+        $tester->assertCommandIsSuccessful();
         $this->assertStringNotContainsString('False', $tester->getDisplay());
     }
 
@@ -344,17 +344,53 @@ class CliTest extends BaseApplicationTestCase
 
     public function test_proxy_command()
     {
-        $this->markTestIncomplete();
+        [$app, $tester] = $this->appAndTester();
+
+        $site = Mockery::mock(RealSite::class);
+        $site->shouldReceive('proxyCreate')->with('elasticsearch', 'http://127.0.0.1:9200', false)->once();
+
+        $nginx = Mockery::mock(Nginx::class);
+        $nginx->shouldReceive('restart')->once();
+
+        swap(Nginx::class, $nginx);
+        swap(RealSite::class, $site);
+
+        $tester->run(['command' => 'proxy', 'domain' => 'elasticsearch', 'host' => 'http://127.0.0.1:9200']);
+        $tester->assertCommandIsSuccessful();
     }
 
     public function test_unproxy_command()
     {
-        $this->markTestIncomplete();
+        [$app, $tester] = $this->appAndTester();
+
+        $site = Mockery::mock(RealSite::class);
+        $site->shouldReceive('proxyDelete')->with('elasticsearch')->once();
+
+        $nginx = Mockery::mock(Nginx::class);
+        $nginx->shouldReceive('restart')->once();
+
+        swap(Nginx::class, $nginx);
+        swap(RealSite::class, $site);
+
+        $tester->run(['command' => 'unproxy', 'domain' => 'elasticsearch']);
+        $tester->assertCommandIsSuccessful();
     }
 
     public function test_proxies_command()
     {
-        $this->markTestIncomplete();
+        [$app, $tester] = $this->appAndTester();
+
+        $site = Mockery::mock(RealSite::class);
+        $site->shouldReceive('proxies')->andReturn(collect([
+            ['site' => 'elasticsearch', 'secured' => 'X', 'url' => 'https://elasticsearch.test/', 'host' => 'http://127.0.0.1:9200']
+        ]));
+
+        swap(RealSite::class, $site);
+
+        $tester->run(['command' => 'proxies']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('elasticsearch', $tester->getDisplay());
     }
 
     public function test_which_command()
