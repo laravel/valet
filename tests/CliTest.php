@@ -31,8 +31,6 @@ class CliTest extends BaseApplicationTestCase
     {
         [$app, $tester] = $this->appAndTester();
 
-        Configuration::updateKey('tld', 'old');
-
         $tester->setInputs(['Y']);
 
         $dnsmasq = Mockery::mock(DnsMasq::class);
@@ -74,13 +72,35 @@ class CliTest extends BaseApplicationTestCase
 
     public function test_loopback_command_sets_loopback()
     {
-        $this->markTestIncomplete();
+        [$app, $tester] = $this->appAndTester();
 
-        // @todo: Mock everything...
-        // [$app, $tester] = $this->appAndTester();
+        $config = Mockery::mock(RealConfiguration::class);
+        $config->shouldReceive('read')->andReturn(['loopback' => '127.9.9.9'])->once();
+        $config->shouldReceive('updateKey')->with('loopback', '127.0.0.1')->once();
 
-        // $tester->run(['command' => 'loopback', 'loopback' => '127.0.0.9']);
-        // $tester->assertCommandIsSuccessful();
+        $dnsmasq = Mockery::mock(DnsMasq::class);
+        $dnsmasq->shouldReceive('refreshConfiguration')->once();
+
+        $site = Mockery::mock(RealSite::class);
+        $site->shouldReceive('aliasLoopback')->with('127.9.9.9', '127.0.0.1')->once();
+        $site->shouldReceive('resecureForNewConfiguration')->with(['loopback' => '127.9.9.9'], ['loopback' => '127.0.0.1'])->once();
+
+        $phpfpm = Mockery::mock(PhpFpm::class);
+        $phpfpm->shouldReceive('restart')->once();
+
+        $nginx = Mockery::mock(Nginx::class);
+        $nginx->shouldReceive('installServer')->once();
+        $nginx->shouldReceive('restart')->once();
+
+        swap(RealConfiguration::class, $config);
+        swap(DnsMasq::class, $dnsmasq);
+        swap(RealSite::class, $site);
+        swap(PhpFpm::class, $phpfpm);
+        swap(Nginx::class, $nginx);
+
+        $tester->run(['command' => 'loopback', 'loopback' => '127.0.0.1']);
+        $tester->assertCommandIsSuccessful();
+        $this->assertStringContainsString('Your Valet loopback address has been updated to [127.0.0.1]', $tester->getDisplay());
     }
 
     public function test_park_command()

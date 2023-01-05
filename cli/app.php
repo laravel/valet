@@ -151,7 +151,7 @@ if (is_dir(VALET_HOME_PATH)) {
         Nginx::installServer();
         Nginx::restart();
 
-        info('Your valet loopback address has been updated to ['.$loopback.']');
+        info('Your Valet loopback address has been updated to ['.$loopback.']');
     })->descriptions('Get or set the loopback address used for Valet sites');
 
     /**
