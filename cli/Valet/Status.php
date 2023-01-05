@@ -79,7 +79,12 @@ class Status
                     return $this->brew->installed('dnsmasq');
                 },
             ],
-            // @todo make sure dnsmasq is running
+            [
+                'description' => 'Is Dnsmasq running?',
+                'check' => function () {
+                    return $this->isBrewServiceRunning('dnsmasq');
+                },
+            ],
             [
                 'description' => 'Is Nginx installed?',
                 'check' => function () {
@@ -98,7 +103,12 @@ class Status
                     return $this->brew->hasInstalledPhp();
                 },
             ],
-            // @todo make sure php is running
+            [
+                'description' => 'Is PHP running?',
+                'check' => function () {
+                    return $this->isBrewServiceRunning('php', exactMatch: false);
+                },
+            ],
             [
                 'description' => 'Is valet.sock present?',
                 'check' => function () {
@@ -108,7 +118,7 @@ class Status
         ];
     }
 
-    public function isBrewServiceRunning(string $name): bool
+    public function isBrewServiceRunning(string $name, bool $exactMatch = true): bool
     {
         if (! $this->brewServicesUserOutput) {
             $this->brewServicesUserOutput = json_decode($this->cli->runAsUser('brew services info --all --json'), false);
@@ -120,8 +130,12 @@ class Status
 
         foreach ([$this->brewServicesUserOutput, $this->brewServicesAdminOutput] as $output) {
             foreach ($output as $service) {
-                if ($service->name == $name && $service->running === true) {
-                    return true;
+                if ($service->running === true) {
+                    if ($exactMatch && $service->name == $name) {
+                        return true;
+                    } elseif (!$exactMatch && str_contains($service->name, $name)) {
+                        return true;
+                    }
                 }
             }
         }
