@@ -2,6 +2,7 @@
 
 use Illuminate\Container\Container;
 use Silly\Application;
+use Silly\Command\Command;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Symfony\Component\Console\Input\InputInterface;
@@ -60,6 +61,29 @@ $app->command('install', function (OutputInterface $output) {
 
     output(PHP_EOL.'<info>Valet installed successfully!</info>');
 })->descriptions('Install the Valet services');
+
+/**
+ * Output the status of Valet and its installed services and config.
+ */
+$app->command('status', function (OutputInterface $output) {
+    info('Checking status...');
+
+    $status = Status::check();
+
+    if ($status['success']) {
+        info("\nValet status: Healthy\n");
+    } else {
+        warning("\nValet status: Error\n");
+    }
+
+    table(['Check', 'Success?'], $status['output']);
+
+    if ($status['success']) {
+        return Command::SUCCESS;
+    } else {
+        return Command::FAILURE;
+    }
+})->descriptions('Output the status of Valet and its installed services and config.');
 
 /**
  * Most commands are available only if valet is installed.

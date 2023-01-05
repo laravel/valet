@@ -1,6 +1,8 @@
 <?php
 
+use Valet\Brew;
 use Valet\CommandLine;
+use Valet\Filesystem;
 use Valet\Nginx;
 use Valet\Ngrok;
 use Valet\Site as RealSite;
@@ -72,6 +74,59 @@ class CliTest extends BaseApplicationTestCase
 
         $this->assertEquals(1, count($paths));
         $this->assertEquals('./tests/output', reset($paths));
+    }
+
+    public function test_status_command_succeeding()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $brew = Mockery::mock(Brew::class);
+        $brew->shouldReceive('hasInstalledPhp')->andReturn(true);
+        $brew->shouldReceive('installed')->twice()->andReturn(true);
+
+        $cli = Mockery::mock(CommandLine::class);
+
+        $cli->shouldReceive('run')->once()->andReturn(true);
+        $cli->shouldReceive('runAsUser')->once()->with('brew services info --all --json')->andReturn('[{"name":"nginx","running":true}]');
+        $cli->shouldReceive('run')->once()->with('brew services info --all --json')->andReturn('[{"name":"nginx","running":true},{"name":"dnsmasq","running":true},{"name":"php","running":true}]');
+
+        $files = Mockery::mock(Filesystem::class.'[exists]');
+        $files->shouldReceive('exists')->once()->andReturn(true);
+
+        swap(Brew::class, $brew);
+        swap(CommandLine::class, $cli);
+        swap(Filesystem::class, $files);
+
+        $tester->run(['command' => 'status']);
+
+        // $tester->assertCommandIsSuccessful();
+        $this->assertStringNotContainsString('False', $tester->getDisplay());
+    }
+
+    public function test_status_command_failing()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $brew = Mockery::mock(Brew::class);
+        $brew->shouldReceive('hasInstalledPhp')->andReturn(true);
+        $brew->shouldReceive('installed')->twice()->andReturn(true);
+
+        $cli = Mockery::mock(CommandLine::class);
+        $cli->shouldReceive('run')->once()->andReturn(true);
+        $cli->shouldReceive('runAsUser')->once()->with('brew services info --all --json')->andReturn('[{"name":"nginx","running":true}]');
+        $cli->shouldReceive('run')->once()->with('brew services info --all --json')->andReturn('[{"name":"nginx","running":true}]');
+
+        $files = Mockery::mock(Filesystem::class.'[exists]');
+        $files->shouldReceive('exists')->once()->andReturn(false);
+
+        swap(Brew::class, $brew);
+        swap(CommandLine::class, $cli);
+        swap(Filesystem::class, $files);
+
+        $tester->run(['command' => 'status']);
+
+        $this->assertNotEquals(0, $tester->getStatusCode());
+        $this->assertStringContainsString('False', $tester->getDisplay());
     }
 
     public function test_parked_command()
