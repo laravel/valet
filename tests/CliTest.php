@@ -2,9 +2,12 @@
 
 use Valet\Brew;
 use Valet\CommandLine;
+use Valet\Configuration as RealConfiguration;
+use Valet\DnsMasq;
 use Valet\Filesystem;
 use Valet\Nginx;
 use Valet\Ngrok;
+use Valet\PhpFpm;
 use Valet\Site as RealSite;
 use function Valet\swap;
 
@@ -26,14 +29,37 @@ class CliTest extends BaseApplicationTestCase
 
     public function test_tld_command_sets_tld()
     {
-        $this->markTestIncomplete();
+        [$app, $tester] = $this->appAndTester();
 
-        // [$app, $tester] = $this->appAndTester();
+        Configuration::updateKey('tld', 'old');
 
-        // @todo: Mock DnsMasq, Site, PhpFpm, Nginx, Configuration...
-        // $tester->setInputs(['Y']);
-        // $tester->run(['command' => 'tld', 'tld' => 'buzz']);
-        // $tester->assertCommandIsSuccessful();
+        $tester->setInputs(['Y']);
+
+        $dnsmasq = Mockery::mock(DnsMasq::class);
+        $dnsmasq->shouldReceive('updateTld')->with('old', 'buzz')->once();
+
+        $config = Mockery::mock(RealConfiguration::class);
+        $config->shouldReceive('read')->andReturn(['tld' => 'old'])->once();
+        $config->shouldReceive('updateKey')->with('tld', 'buzz')->once();
+
+        $site = Mockery::mock(RealSite::class);
+        $site->shouldReceive('resecureForNewConfiguration')->with(['tld' => 'old'], ['tld' => 'buzz'])->once();
+
+        $phpfpm = Mockery::mock(PhpFpm::class);
+        $phpfpm->shouldReceive('restart')->once();
+
+        $nginx = Mockery::mock(Nginx::class);
+        $nginx->shouldReceive('restart')->once();
+
+        swap(DnsMasq::class, $dnsmasq);
+        swap(RealConfiguration::class, $config);
+        swap(RealSite::class, $site);
+        swap(PhpFpm::class, $phpfpm);
+        swap(Nginx::class, $nginx);
+
+        $tester->run(['command' => 'tld', 'tld' => 'buzz']);
+        $tester->assertCommandIsSuccessful();
+        $this->assertStringContainsString('Your Valet TLD has been updated to [buzz]', $tester->getDisplay());
     }
 
     public function test_loopback_command_reads_loopback()
