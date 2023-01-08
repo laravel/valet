@@ -10,8 +10,8 @@ use Valet\Nginx;
 use Valet\Ngrok;
 use Valet\PhpFpm;
 use Valet\Site as RealSite;
-use Valet\Valet;
 use function Valet\swap;
+use Valet\Valet;
 
 /**
  * @requires PHP >= 8.0
