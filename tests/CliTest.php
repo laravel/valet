@@ -490,14 +490,47 @@ class CliTest extends BaseApplicationTestCase
         $this->markTestIncomplete();
     }
 
-    public function test_which_php_command()
+    public function test_which_php_command_reads_nginx()
     {
-        $this->markTestIncomplete();
+        [$app, $tester] = $this->appAndTester();
+
+        $site = Mockery::mock(RealSite::class);
+        $site->shouldReceive('host')->once()->andReturn('whatever');
+        $site->shouldReceive('customPhpVersion')->once()->andReturn('8.2');
+
+        swap(RealSite::class, $site);
+
+        $brew = Mockery::mock(Brew::class);
+        $brew->shouldReceive('getPhpExecutablePath')->with('8.2')->once()->andReturn('testOutput');
+
+        swap(Brew::class, $brew);
+
+        $tester->run(['command' => 'which-php']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('testOutput', $tester->getDisplay());
     }
 
-    public function test_composer_command()
+    public function test_which_php_command_reads_phprc()
     {
-        $this->markTestIncomplete();
+        [$app, $tester] = $this->appAndTester();
+
+        $site = Mockery::mock(RealSite::class);
+        $site->shouldReceive('host')->once()->andReturn('whatever');
+        $site->shouldReceive('customPhpVersion')->once()->andReturn(null);
+        $site->shouldReceive('phpRcVersion')->once()->andReturn('8.1');
+
+        swap(RealSite::class, $site);
+
+        $brew = Mockery::mock(Brew::class);
+        $brew->shouldReceive('getPhpExecutablePath')->with('8.1')->once()->andReturn('testOutput');
+
+        swap(Brew::class, $brew);
+
+        $tester->run(['command' => 'which-php']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('testOutput', $tester->getDisplay());
     }
 
     public function test_log_command()
@@ -505,9 +538,26 @@ class CliTest extends BaseApplicationTestCase
         $this->markTestIncomplete();
     }
 
-    public function test_directory_listing_command()
+    public function test_directory_listing_command_reads()
     {
-        $this->markTestIncomplete();
+        [$app, $tester] = $this->appAndTester();
+        Configuration::updateKey('directory-listing', 'off');
+
+        $tester->run(['command' => 'directory-listing']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('Directory listing is off', $tester->getDisplay());
+    }
+
+    public function test_directory_listing_command_sets()
+    {
+        [$app, $tester] = $this->appAndTester();
+        Configuration::updateKey('directory-listing', 'off');
+
+        $tester->run(['command' => 'directory-listing', 'status' => 'on']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('Directory listing setting is now: on', $tester->getDisplay());
     }
 
     public function test_diagnose_command()
