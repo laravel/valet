@@ -466,6 +466,36 @@ class CliTest extends BaseApplicationTestCase
         $this->markTestIncomplete();
     }
 
+    public function test_on_latest_version_command_succeeding()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $valet = Mockery::mock(Valet::class);
+        $valet->shouldReceive('onLatestVersion')->once()->andReturn(true);
+
+        swap(Valet::class, $valet);
+
+        $tester->run(['command' => 'on-latest-version']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('Yes', $tester->getDisplay());
+    }
+
+    public function test_on_latest_version_command_failing()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $valet = Mockery::mock(Valet::class);
+        $valet->shouldReceive('onLatestVersion')->once()->andReturn(false);
+
+        swap(Valet::class, $valet);
+
+        $tester->run(['command' => 'on-latest-version']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('not the latest', $tester->getDisplay());
+    }
+
     public function test_trust_command_on()
     {
         [$app, $tester] = $this->appAndTester();
