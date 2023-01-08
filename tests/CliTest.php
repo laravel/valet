@@ -10,6 +10,7 @@ use Valet\Nginx;
 use Valet\Ngrok;
 use Valet\PhpFpm;
 use Valet\Site as RealSite;
+use Valet\Valet;
 use function Valet\swap;
 
 /**
@@ -465,9 +466,44 @@ class CliTest extends BaseApplicationTestCase
         $this->markTestIncomplete();
     }
 
-    public function test_trust_command()
+    public function test_trust_command_on()
     {
-        $this->markTestIncomplete();
+        [$app, $tester] = $this->appAndTester();
+
+        $brew = Mockery::mock(Brew::class);
+        $brew->shouldReceive('createSudoersEntry')->once();
+
+        swap(Brew::class, $brew);
+
+        $valet = Mockery::mock(Valet::class);
+        $valet->shouldReceive('createSudoersEntry')->once();
+
+        swap(Valet::class, $valet);
+
+        $tester->run(['command' => 'trust']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('have been added', $tester->getDisplay());
+    }
+
+    public function test_trust_command_off()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $brew = Mockery::mock(Brew::class);
+        $brew->shouldReceive('removeSudoersEntry')->once();
+
+        swap(Brew::class, $brew);
+
+        $valet = Mockery::mock(Valet::class);
+        $valet->shouldReceive('removeSudoersEntry')->once();
+
+        swap(Valet::class, $valet);
+
+        $tester->run(['command' => 'trust', '--off' => true]);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('have been removed', $tester->getDisplay());
     }
 
     public function test_use_command()
