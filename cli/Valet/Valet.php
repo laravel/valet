@@ -141,7 +141,7 @@ You can run <comment>composer global remove laravel/valet</comment> to uninstall
 
 <info>4. Homebrew Services</info>
 You may remove the core services (php, nginx, dnsmasq) by running: <comment>brew uninstall --force php nginx dnsmasq</comment>
-You can then remove selected leftover configurations for these services manually in both <comment>' . BREW_PREFIX . '/etc/</comment> and <comment>' . BREW_PREFIX . '/logs/</comment>.
+You can then remove selected leftover configurations for these services manually in both <comment>'.BREW_PREFIX.'/etc/</comment> and <comment>'.BREW_PREFIX.'/logs/</comment>.
 (If you have other PHP versions installed, run <info>brew list --formula | grep php</info> to see which versions you should also uninstall manually.)
 
 <error>BEWARE:</error> Uninstalling PHP via Homebrew will leave your Mac with its original PHP version, which may not be compatible with other Composer dependencies you have installed. As a result, you may get unexpected errors.
