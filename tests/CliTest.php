@@ -477,17 +477,85 @@ class CliTest extends BaseApplicationTestCase
 
     public function test_isolate_command()
     {
-        $this->markTestIncomplete();
+        [$app, $tester] = $this->appAndTester();
+
+        // The site this command should assume we're in if we don't pass in --site
+        $getcwd = 'valet';
+
+        $phpfpm = Mockery::mock(PhpFpm::class);
+        $phpfpm->shouldReceive('isolateDirectory')->with($getcwd, '8.1');
+
+        swap(PhpFpm::class, $phpfpm);
+
+        $tester->run(['command' => 'isolate', 'phpVersion' => '8.1']);
+        $tester->assertCommandIsSuccessful();
+    }
+
+    public function test_isolate_command_with_phprc()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        // The site this command should assume we're in if we don't pass in --site
+        $getcwd = 'valet';
+
+        $phpfpm = Mockery::mock(PhpFpm::class);
+        $phpfpm->shouldReceive('isolateDirectory')->with($getcwd, '8.2');
+
+        swap(PhpFpm::class, $phpfpm);
+
+        $site = Mockery::mock(RealSite::class);
+        $site->shouldReceive('phpRcVersion')->once()->andReturn('8.2');
+
+        swap(RealSite::class, $site);
+
+        $tester->run(['command' => 'isolate']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('specifying version', $tester->getDisplay());
     }
 
     public function test_unisolate_command()
     {
-        $this->markTestIncomplete();
+        [$app, $tester] = $this->appAndTester();
+
+        // The site this command should assume we're in if we don't pass in --site
+        $getcwd = 'valet';
+
+        $phpfpm = Mockery::mock(PhpFpm::class);
+        $phpfpm->shouldReceive('unisolateDirectory')->with($getcwd)->once();
+
+        swap(PhpFpm::class, $phpfpm);
+
+        $tester->run(['command' => 'unisolate']);
+        $tester->assertCommandIsSuccessful();
+    }
+
+    public function test_unisolate_command_with_custom_site()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $phpfpm = Mockery::mock(PhpFpm::class);
+        $phpfpm->shouldReceive('unisolateDirectory')->with('my-best-site');
+
+        swap(PhpFpm::class, $phpfpm);
+
+        $tester->run(['command' => 'unisolate', '--site' => 'my-best-site']);
+        $tester->assertCommandIsSuccessful();
     }
 
     public function test_isolated_command()
     {
-        $this->markTestIncomplete();
+        [$app, $tester] = $this->appAndTester();
+
+        $phpfpm = Mockery::mock(PhpFpm::class);
+        $phpfpm->shouldReceive('isolatedDirectories')->andReturn(collect([['best-directory', '8.1']]));
+
+        swap(PhpFpm::class, $phpfpm);
+
+        $tester->run(['command' => 'isolated']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('best-directory', $tester->getDisplay());
     }
 
     public function test_which_php_command_reads_nginx()
