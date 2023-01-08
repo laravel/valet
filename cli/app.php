@@ -591,6 +591,7 @@ You might also want to investigate your global Composer configs. Helpful command
             } else {
                 info(PHP_EOL.'Please provide a version number. E.g.:');
                 info('valet isolate php@8.2');
+
                 return;
             }
         }
