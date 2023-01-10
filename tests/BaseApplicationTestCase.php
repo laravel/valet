@@ -1,5 +1,6 @@
 <?php
 
+use Silly\Application;
 use Symfony\Component\Console\Tester\ApplicationTester;
 
 class BaseApplicationTestCase extends Yoast\PHPUnitPolyfills\TestCases\TestCase
@@ -24,6 +25,9 @@ class BaseApplicationTestCase extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         Configuration::writeBaseConfiguration();
     }
 
+    /**
+     * @return array{0: Application, 1: ApplicationTester}
+     */
     public function appAndTester()
     {
         $app = require __DIR__.'/../cli/app.php';

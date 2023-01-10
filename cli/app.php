@@ -613,17 +613,24 @@ You might also want to investigate your global Composer configs. Helpful command
      * Get the PHP executable path for a site.
      */
     $app->command('which-php [site]', function (OutputInterface $output, $site) {
-        $phpVersion = Site::customPhpVersion(
-            Site::host($site ?: getcwd()).'.'.Configuration::read()['tld']
-        );
-
-        if (! $phpVersion) {
-            $phpVersion = Site::phpRcVersion($site ?: basename(getcwd()));
-        }
+        $phpVersion = Site::getPhpVersion($site);
 
         return output(Brew::getPhpExecutablePath($phpVersion));
     })->descriptions('Get the PHP executable path for a given site', [
         'site' => 'The site to get the PHP executable path for',
+    ]);
+
+    /**
+     * Get the PECL executable path for a site.
+     */
+    $app->command('which-pecl [site]', function ($site) {
+        $phpVersion = Site::getPhpVersion($site);
+
+        $peclPath = Brew::getPeclExecutablePath($phpVersion);
+
+        output($peclPath);
+    })->descriptions('Get the PECL executable path for a given site', [
+        'site' => 'The site to get the PECL executable path for',
     ]);
 
     /**
@@ -642,6 +649,15 @@ You might also want to investigate your global Composer configs. Helpful command
         warning('It looks like you are running `cli/valet.php` directly; please use the `valet` script in the project root instead.');
     })->descriptions("Proxy Composer commands with isolated site's PHP executable", [
         'command' => "Composer command to run with isolated site's PHP executable",
+    ]);
+
+    /**
+     * Proxy commands through to an isolated site's version of PECL.
+     */
+    $app->command('pecl [command]', function (OutputInterface $output, $command) {
+        warning('It looks like you are running `cli/valet.php` directly; please use the `valet` script in the project root instead.');
+    })->descriptions("Proxy Composer commands with isolated site's PHP executable", [
+        'command' => "PECL command to run with isolated site's PHP executable",
     ]);
 
     /**

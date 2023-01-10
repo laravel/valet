@@ -461,6 +461,63 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $this->assertEquals(BREW_PREFIX.'/bin/php', $brewMock->getPhpExecutablePath(null));
     }
 
+    public function test_it_can_get_pecl_binary_path_from_php_version()
+    {
+        // Check the default `/opt/homebrew/opt/php@8.1/bin/pecl` location first
+        $brewMock = Mockery::mock(Brew::class, [
+            Mockery::mock(CommandLine::class),
+            $files = Mockery::mock(Filesystem::class),
+        ])->makePartial();
+
+        $files->shouldReceive('exists')->once()->with(BREW_PREFIX.'/opt/php@7.4/bin/pecl')->andReturn(true);
+        $files->shouldNotReceive('exists')->with(BREW_PREFIX.'/opt/php@74/bin/pecl');
+        $this->assertEquals(BREW_PREFIX.'/opt/php@7.4/bin/pecl', $brewMock->getPeclExecutablePath('php@7.4'));
+
+        // Check the `/opt/homebrew/opt/php71/bin/php` location for older installations
+        $brewMock = Mockery::mock(Brew::class, [
+            Mockery::mock(CommandLine::class),
+            $files = Mockery::mock(Filesystem::class),
+        ])->makePartial();
+
+        $files->shouldReceive('exists')->once()->with(BREW_PREFIX.'/opt/php@7.4/bin/pecl')->andReturn(false);
+        $files->shouldReceive('exists')->with(BREW_PREFIX.'/opt/php74/bin/pecl')->andReturn(true);
+        $this->assertEquals(BREW_PREFIX.'/opt/php74/bin/pecl', $brewMock->getPeclExecutablePath('php@7.4'));
+
+        // When the default PHP is the version we are looking for
+        // poblem
+        $brewMock = Mockery::mock(Brew::class, [
+            Mockery::mock(CommandLine::class),
+            $files = Mockery::mock(Filesystem::class),
+        ])->makePartial();
+
+        $files->shouldReceive('exists')->once()->with(BREW_PREFIX.'/opt/php@7.4/bin/pecl')->andReturn(false);
+        $files->shouldReceive('exists')->with(BREW_PREFIX.'/opt/php74/bin/pecl')->andReturn(false);
+        $files->shouldReceive('isLink')->with(BREW_PREFIX.'/opt/pecl')->andReturn(true);
+        $files->shouldReceive('readLink')->with(BREW_PREFIX.'/opt/pecl')->andReturn('../Cellar/php@7.4/7.4.13/bin/pecl');
+        $this->assertEquals(BREW_PREFIX.'/opt/php/bin/pecl', $brewMock->getPeclExecutablePath('php@7.4'));
+
+        // When the default PHP is not the version we are looking for
+        // problem
+        $brewMock = Mockery::mock(Brew::class, [
+            Mockery::mock(CommandLine::class),
+            $files = Mockery::mock(Filesystem::class),
+        ])->makePartial();
+
+        $files->shouldReceive('exists')->once()->with(BREW_PREFIX.'/opt/php@7.4/bin/pecl')->andReturn(false);
+        $files->shouldReceive('exists')->with(BREW_PREFIX.'/opt/php74/bin/pecl')->andReturn(false);
+        $files->shouldReceive('isLink')->with(BREW_PREFIX.'/opt/pecl')->andReturn(true);
+        $files->shouldReceive('readLink')->with(BREW_PREFIX.'/opt/pecl')->andReturn('../Cellar/php@8.1/8.1.13/bin/pecl');
+        $this->assertEquals(BREW_PREFIX.'/bin/pecl', $brewMock->getPeclExecutablePath('php@7.4')); // Could not find a version, so retuned the default binary
+
+        // When no PHP Version is provided
+        $brewMock = Mockery::mock(Brew::class, [
+            Mockery::mock(CommandLine::class),
+            Mockery::mock(Filesystem::class),
+        ])->makePartial();
+
+        $this->assertEquals(BREW_PREFIX.'/bin/pecl', $brewMock->getPeclExecutablePath(null));
+    }
+
     public function test_it_can_compare_two_php_versions()
     {
         $this->assertTrue(resolve(Brew::class)->arePhpVersionsEqual('php71', 'php@7.1'));
