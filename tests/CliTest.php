@@ -458,7 +458,52 @@ class CliTest extends BaseApplicationTestCase
 
     public function test_stop_command()
     {
-        $this->markTestIncomplete();
+        [$app, $tester] = $this->appAndTester();
+
+        $nginx = Mockery::mock(Nginx::class);
+        $nginx->shouldReceive('stop');
+
+        swap(Nginx::class, $nginx);
+
+        $phpfpm = Mockery::mock(PhpFpm::class);
+        $phpfpm->shouldReceive('stopRunning');
+
+        swap(PhpFpm::class, $phpfpm);
+
+        $tester->run(['command' => 'stop']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('Valet services have been stopped.', $tester->getDisplay());
+    }
+
+    public function test_stop_command_stops_nginx()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $nginx = Mockery::mock(Nginx::class);
+        $nginx->shouldReceive('stop');
+
+        swap(Nginx::class, $nginx);
+
+        $tester->run(['command' => 'stop', 'service' => 'nginx']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('Nginx has been stopped', $tester->getDisplay());
+    }
+
+    public function test_stop_command_stops_php()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $phpfpm = Mockery::mock(PhpFpm::class);
+        $phpfpm->shouldReceive('stopRunning');
+
+        swap(PhpFpm::class, $phpfpm);
+
+        $tester->run(['command' => 'stop', 'service' => 'php']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('PHP has been stopped', $tester->getDisplay());
     }
 
     public function test_uninstall_command()
