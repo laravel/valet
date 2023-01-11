@@ -52,17 +52,16 @@ Upgrader::onEveryRun();
 $app->command('install', function (OutputInterface $output) {
     Nginx::stop();
 
-    output(PHP_EOL);
     Configuration::install();
-    output(PHP_EOL);
+    output();
     Nginx::install();
-    output(PHP_EOL);
+    output();
     PhpFpm::install();
-    output(PHP_EOL);
+    output();
     DnsMasq::install(Configuration::read()['tld']);
-    output(PHP_EOL);
+    output();
     Nginx::restart();
-    output(PHP_EOL);
+    output();
     Valet::symlinkToUsersBin();
 
     output(PHP_EOL.'<info>Valet installed successfully!</info>');
@@ -87,6 +86,9 @@ $app->command('status', function (OutputInterface $output) {
     if ($status['success']) {
         return Command::SUCCESS;
     }
+
+    info(PHP_EOL.'Debug suggestions:');
+    info($status['debug']);
 
     return Command::FAILURE;
 })->descriptions('Output the status of Valet and its installed services and config.');

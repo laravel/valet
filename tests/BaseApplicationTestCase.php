@@ -35,6 +35,8 @@ class BaseApplicationTestCase extends TestCase
 
         Configuration::createConfigurationDirectory();
         Configuration::createDriversDirectory();
+        Configuration::createLogDirectory();
+        Configuration::createCertificatesDirectory();
         Configuration::writeBaseConfiguration();
     }
 
