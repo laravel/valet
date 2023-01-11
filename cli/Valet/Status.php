@@ -24,7 +24,7 @@ class Status
                 $isValid = false;
             }
 
-            return ['description' => $check['description'], 'success' => $thisIsValid ? 'True' : 'False'];
+            return ['description' => $check['description'], 'success' => $thisIsValid ? 'Yes' : 'No'];
         });
 
         return [

@@ -148,7 +148,7 @@ class CliTest extends BaseApplicationTestCase
         $tester->run(['command' => 'status']);
 
         $tester->assertCommandIsSuccessful();
-        $this->assertStringNotContainsString('False', $tester->getDisplay());
+        $this->assertStringNotContainsString('No', $tester->getDisplay());
     }
 
     public function test_status_command_failing()
@@ -174,7 +174,7 @@ class CliTest extends BaseApplicationTestCase
         $tester->run(['command' => 'status']);
 
         $this->assertNotEquals(0, $tester->getStatusCode());
-        $this->assertStringContainsString('False', $tester->getDisplay());
+        $this->assertStringContainsString('No', $tester->getDisplay());
     }
 
     public function test_parked_command()
