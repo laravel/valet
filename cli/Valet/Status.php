@@ -56,8 +56,9 @@ class Status
                         $config = $this->config->read();
 
                         foreach (['tld', 'loopback', 'paths'] as $key) {
-                            if (!array_key_exists($key, $config)) {
+                            if (! array_key_exists($key, $config)) {
                                 $this->debugInstructions[] = 'Your Valet config is missing the "'.$key.'" key. Re-add this manually, or delete your config file and re-install.';
+
                                 return false;
                             }
                         }
