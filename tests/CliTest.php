@@ -446,6 +446,76 @@ class CliTest extends BaseApplicationTestCase
         $tester->assertCommandIsSuccessful();
     }
 
+    public function test_restart_command()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $dnsmasq = Mockery::mock(DnsMasq::class);
+        $dnsmasq->shouldReceive('restart')->once();
+
+        swap(DnsMasq::class, $dnsmasq);
+
+        $phpfpm = Mockery::mock(PhpFpm::class);
+        $phpfpm->shouldReceive('restart')->once();
+
+        swap(PhpFpm::class, $phpfpm);
+
+        $nginx = Mockery::mock(Nginx::class);
+        $nginx->shouldReceive('restart')->once();
+
+        swap(Nginx::class, $nginx);
+
+        $tester->run(['command' => 'restart']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('Valet services have been restarted.', $tester->getDisplay());
+    }
+
+    public function test_restart_command_restarts_dnsmasq()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $dnsmasq = Mockery::mock(DnsMasq::class);
+        $dnsmasq->shouldReceive('restart')->once();
+
+        swap(DnsMasq::class, $dnsmasq);
+
+        $tester->run(['command' => 'restart', 'service' => 'dnsmasq']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('dnsmasq has been restarted.', $tester->getDisplay());
+    }
+
+    public function test_restart_command_restarts_nginx()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $nginx = Mockery::mock(Nginx::class);
+        $nginx->shouldReceive('restart')->once();
+
+        swap(Nginx::class, $nginx);
+
+        $tester->run(['command' => 'restart', 'service' => 'nginx']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('Nginx has been restarted.', $tester->getDisplay());
+    }
+
+    public function test_restart_command_restarts_php()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $phpfpm = Mockery::mock(PhpFpm::class);
+        $phpfpm->shouldReceive('restart')->once();
+
+        swap(PhpFpm::class, $phpfpm);
+
+        $tester->run(['command' => 'restart', 'service' => 'php']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('PHP has been restarted.', $tester->getDisplay());
+    }
+
     public function test_start_command()
     {
         [$app, $tester] = $this->appAndTester();
@@ -514,11 +584,6 @@ class CliTest extends BaseApplicationTestCase
         $tester->assertCommandIsSuccessful();
 
         $this->assertStringContainsString('PHP has been started.', $tester->getDisplay());
-    }
-
-    public function test_restart_command()
-    {
-        $this->markTestIncomplete();
     }
 
     public function test_stop_command()
