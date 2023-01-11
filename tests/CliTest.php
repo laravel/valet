@@ -448,7 +448,72 @@ class CliTest extends BaseApplicationTestCase
 
     public function test_start_command()
     {
-        $this->markTestIncomplete();
+        [$app, $tester] = $this->appAndTester();
+
+        $dnsmasq = Mockery::mock(DnsMasq::class);
+        $dnsmasq->shouldReceive('restart')->once();
+
+        swap(DnsMasq::class, $dnsmasq);
+
+        $phpfpm = Mockery::mock(PhpFpm::class);
+        $phpfpm->shouldReceive('restart')->once();
+
+        swap(PhpFpm::class, $phpfpm);
+
+        $nginx = Mockery::mock(Nginx::class);
+        $nginx->shouldReceive('restart')->once();
+
+        swap(Nginx::class, $nginx);
+
+        $tester->run(['command' => 'start']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('Valet services have been started.', $tester->getDisplay());
+    }
+
+    public function test_start_command_starts_dnsmasq()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $dnsmasq = Mockery::mock(DnsMasq::class);
+        $dnsmasq->shouldReceive('restart')->once();
+
+        swap(DnsMasq::class, $dnsmasq);
+
+        $tester->run(['command' => 'start', 'service' => 'dnsmasq']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('dnsmasq has been started.', $tester->getDisplay());
+    }
+
+    public function test_start_command_starts_nginx()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $nginx = Mockery::mock(Nginx::class);
+        $nginx->shouldReceive('restart')->once();
+
+        swap(Nginx::class, $nginx);
+
+        $tester->run(['command' => 'start', 'service' => 'nginx']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('Nginx has been started.', $tester->getDisplay());
+    }
+
+    public function test_start_command_starts_php()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $phpfpm = Mockery::mock(PhpFpm::class);
+        $phpfpm->shouldReceive('restart')->once();
+
+        swap(PhpFpm::class, $phpfpm);
+
+        $tester->run(['command' => 'start', 'service' => 'php']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('PHP has been started.', $tester->getDisplay());
     }
 
     public function test_restart_command()
@@ -506,7 +571,37 @@ class CliTest extends BaseApplicationTestCase
         $this->assertStringContainsString('PHP has been stopped', $tester->getDisplay());
     }
 
-    public function test_uninstall_command()
+    public function test_stop_command_handles_bad_services()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $tester->run(['command' => 'stop', 'service' => 'not-real-services']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('Invalid valet service', $tester->getDisplay());
+    }
+
+    public function test_non_force_uninstall_command()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $phpfpm = Mockery::mock(PhpFpm::class);
+        $phpfpm->shouldReceive('stopRunning');
+
+        swap(PhpFpm::class, $phpfpm);
+
+        $nginx = Mockery::mock(Nginx::class);
+        $nginx->shouldReceive('stop');
+
+        swap(Nginx::class, $nginx);
+
+        $tester->run(['command' => 'uninstall']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('IF YOU WANT TO UNINSTALL VALET MANUALLY', $tester->getDisplay());
+    }
+
+    public function test_force_uninstall_command()
     {
         $this->markTestIncomplete();
     }
