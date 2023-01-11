@@ -9,15 +9,6 @@ class Nginx
 {
     const NGINX_CONF = BREW_PREFIX.'/etc/nginx/nginx.conf';
 
-    /**
-     * Create a new Nginx instance.
-     *
-     * @param  Brew  $brew
-     * @param  CommandLine  $cli
-     * @param  Filesystem  $files
-     * @param  Configuration  $configuration
-     * @param  Site  $site
-     */
     public function __construct(public Brew $brew, public CommandLine $cli, public Filesystem $files,
                          public Configuration $configuration, public Site $site)
     {
@@ -25,8 +16,6 @@ class Nginx
 
     /**
      * Install the configuration files for Nginx.
-     *
-     * @return void
      */
     public function install(): void
     {
@@ -41,8 +30,6 @@ class Nginx
 
     /**
      * Install the Nginx configuration file.
-     *
-     * @return void
      */
     public function installConfiguration(): void
     {
@@ -58,8 +45,6 @@ class Nginx
 
     /**
      * Install the Valet Nginx server configuration file.
-     *
-     * @return void
      */
     public function installServer(): void
     {
@@ -84,8 +69,6 @@ class Nginx
      * Install the Nginx configuration directory to the ~/.config/valet directory.
      *
      * This directory contains all site-specific Nginx servers.
-     *
-     * @return void
      */
     public function installNginxDirectory(): void
     {
@@ -115,8 +98,6 @@ class Nginx
 
     /**
      * Generate fresh Nginx servers for existing secure sites.
-     *
-     * @return void
      */
     public function rewriteSecureNginxFiles(): void
     {
@@ -134,8 +115,6 @@ class Nginx
 
     /**
      * Restart the Nginx service.
-     *
-     * @return void
      */
     public function restart(): void
     {
@@ -146,8 +125,6 @@ class Nginx
 
     /**
      * Stop the Nginx service.
-     *
-     * @return void
      */
     public function stop(): void
     {
@@ -156,8 +133,6 @@ class Nginx
 
     /**
      * Forcefully uninstall Nginx.
-     *
-     * @return void
      */
     public function uninstall(): void
     {
@@ -168,8 +143,6 @@ class Nginx
 
     /**
      * Return a list of all sites with explicit Nginx configurations.
-     *
-     * @return Collection
      */
     public function configuredSites(): Collection
     {

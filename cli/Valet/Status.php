@@ -7,9 +7,6 @@ class Status
     public $brewServicesUserOutput;
     public $brewServicesSudoOutput;
 
-    /**
-     * Create a new Status instance.
-     */
     public function __construct(public Configuration $config, public Brew $brew, public CommandLine $cli, public Filesystem $files)
     {
     }

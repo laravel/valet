@@ -8,23 +8,12 @@ class DnsMasq
     public $dnsmasqSystemConfDir = BREW_PREFIX.'/etc/dnsmasq.d';
     public $resolverPath = '/etc/resolver';
 
-    /**
-     * Create a new DnsMasq Instance.
-     *
-     * @param  Brew  $brew
-     * @param  CommandLine  $cli
-     * @param  Filesystem  $files
-     * @param  Configuration  $configuration
-     */
     public function __construct(public Brew $brew, public CommandLine $cli, public Filesystem $files, public Configuration $configuration)
     {
     }
 
     /**
      * Install and configure DnsMasq.
-     *
-     * @param  string  $tld
-     * @return void
      */
     public function install(string $tld = 'test'): void
     {
@@ -46,8 +35,6 @@ class DnsMasq
 
     /**
      * Forcefully uninstall dnsmasq.
-     *
-     * @return void
      */
     public function uninstall(): void
     {
@@ -70,8 +57,6 @@ class DnsMasq
 
     /**
      * Ensure the DnsMasq configuration primary config is set to read custom configs.
-     *
-     * @return void
      */
     public function ensureUsingDnsmasqDForConfigs(): void
     {
@@ -107,9 +92,6 @@ class DnsMasq
 
     /**
      * Create the TLD-specific dnsmasq config file.
-     *
-     * @param  string  $tld
-     * @return void
      */
     public function createDnsmasqTldConfigFile(string $tld): void
     {
@@ -121,9 +103,6 @@ class DnsMasq
 
     /**
      * Create the resolver file to point the configured TLD to configured loopback address.
-     *
-     * @param  string  $tld
-     * @return void
      */
     public function createTldResolver(string $tld): void
     {
@@ -135,10 +114,6 @@ class DnsMasq
 
     /**
      * Update the TLD/domain resolved by DnsMasq.
-     *
-     * @param  string  $oldTld
-     * @param  string  $newTld
-     * @return void
      */
     public function updateTld(string $oldTld, string $newTld): void
     {
@@ -150,8 +125,6 @@ class DnsMasq
 
     /**
      * Refresh the DnsMasq configuration.
-     *
-     * @return void
      */
     public function refreshConfiguration(): void
     {
@@ -162,8 +135,6 @@ class DnsMasq
 
     /**
      * Get the custom configuration path.
-     *
-     * @return string
      */
     public function dnsmasqUserConfigDir(): string
     {

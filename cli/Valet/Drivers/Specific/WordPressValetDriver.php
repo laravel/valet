@@ -8,11 +8,6 @@ class WordPressValetDriver extends BasicValetDriver
 {
     /**
      * Determine if the driver serves the request.
-     *
-     * @param  string  $sitePath
-     * @param  string  $siteName
-     * @param  string  $uri
-     * @return bool
      */
     public function serves(string $sitePath, string $siteName, string $uri): bool
     {
@@ -21,11 +16,6 @@ class WordPressValetDriver extends BasicValetDriver
 
     /**
      * Take any steps necessary before loading the front controller for this driver.
-     *
-     * @param  string  $sitePath
-     * @param  string  $siteName
-     * @param  string  $uri
-     * @return void
      */
     public function beforeLoading(string $sitePath, string $siteName, string $uri): void
     {
@@ -36,11 +26,6 @@ class WordPressValetDriver extends BasicValetDriver
 
     /**
      * Get the fully resolved path to the application's front controller.
-     *
-     * @param  string  $sitePath
-     * @param  string  $siteName
-     * @param  string  $uri
-     * @return string|null
      */
     public function frontControllerPath(string $sitePath, string $siteName, string $uri): ?string
     {
@@ -51,11 +36,8 @@ class WordPressValetDriver extends BasicValetDriver
 
     /**
      * Redirect to uri with trailing slash.
-     *
-     * @param  string  $uri
-     * @return string
      */
-    private function forceTrailingSlash($uri)
+    private function forceTrailingSlash($uri): ?string
     {
         if (substr($uri, -1 * strlen('/wp-admin')) == '/wp-admin') {
             header('Location: '.$uri.'/');

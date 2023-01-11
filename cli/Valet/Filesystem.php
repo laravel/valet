@@ -10,9 +10,6 @@ class Filesystem
 {
     /**
      * Determine if the given path is a directory.
-     *
-     * @param  string  $path
-     * @return bool
      */
     public function isDir(string $path): bool
     {
@@ -21,11 +18,6 @@ class Filesystem
 
     /**
      * Create a directory.
-     *
-     * @param  string  $path
-     * @param  string|null  $owner
-     * @param  int  $mode
-     * @return void
      */
     public function mkdir(string $path, ?string $owner = null, int $mode = 0755): void
     {
@@ -38,11 +30,6 @@ class Filesystem
 
     /**
      * Ensure that the given directory exists.
-     *
-     * @param  string  $path
-     * @param  string|null  $owner
-     * @param  int  $mode
-     * @return void
      */
     public function ensureDirExists(string $path, ?string $owner = null, int $mode = 0755): void
     {
@@ -53,10 +40,6 @@ class Filesystem
 
     /**
      * Create a directory as the non-root user.
-     *
-     * @param  string  $path
-     * @param  int  $mode
-     * @return void
      */
     public function mkdirAsUser(string $path, int $mode = 0755): void
     {
@@ -65,10 +48,6 @@ class Filesystem
 
     /**
      * Touch the given path.
-     *
-     * @param  string  $path
-     * @param  string|null  $owner
-     * @return string
      */
     public function touch(string $path, ?string $owner = null): string
     {
@@ -83,9 +62,6 @@ class Filesystem
 
     /**
      * Touch the given path as the non-root user.
-     *
-     * @param  string  $path
-     * @return string
      */
     public function touchAsUser(string $path): string
     {
@@ -94,9 +70,6 @@ class Filesystem
 
     /**
      * Determine if the given file exists.
-     *
-     * @param  string  $path
-     * @return bool
      */
     public function exists(string $path): bool
     {
@@ -105,9 +78,6 @@ class Filesystem
 
     /**
      * Read the contents of the given file.
-     *
-     * @param  string  $path
-     * @return string
      */
     public function get(string $path): string
     {
@@ -116,11 +86,6 @@ class Filesystem
 
     /**
      * Write to the given file.
-     *
-     * @param  string  $path
-     * @param  string  $contents
-     * @param  string|null  $owner
-     * @return void
      */
     public function put(string $path, string $contents, ?string $owner = null): void
     {
@@ -133,10 +98,6 @@ class Filesystem
 
     /**
      * Write to the given file as the non-root user.
-     *
-     * @param  string  $path
-     * @param  string|null  $contents
-     * @return void
      */
     public function putAsUser(string $path, ?string $contents): void
     {
@@ -145,11 +106,6 @@ class Filesystem
 
     /**
      * Append the contents to the given file.
-     *
-     * @param  string  $path
-     * @param  string  $contents
-     * @param  string|null  $owner
-     * @return void
      */
     public function append(string $path, string $contents, ?string $owner = null): void
     {
@@ -162,10 +118,6 @@ class Filesystem
 
     /**
      * Append the contents to the given file as the non-root user.
-     *
-     * @param  string  $path
-     * @param  string  $contents
-     * @return void
      */
     public function appendAsUser(string $path, string $contents): void
     {
@@ -174,10 +126,6 @@ class Filesystem
 
     /**
      * Copy the given file to a new location.
-     *
-     * @param  string  $from
-     * @param  string  $to
-     * @return void
      */
     public function copy(string $from, string $to): void
     {
@@ -186,10 +134,6 @@ class Filesystem
 
     /**
      * Copy the given file to a new location for the non-root user.
-     *
-     * @param  string  $from
-     * @param  string  $to
-     * @return void
      */
     public function copyAsUser(string $from, string $to): void
     {
@@ -200,10 +144,6 @@ class Filesystem
 
     /**
      * Create a symlink to the given target.
-     *
-     * @param  string  $target
-     * @param  string  $link
-     * @return void
      */
     public function symlink(string $target, string $link): void
     {
@@ -218,10 +158,6 @@ class Filesystem
      * Create a symlink to the given target for the non-root user.
      *
      * This uses the command line as PHP can't change symlink permissions.
-     *
-     * @param  string  $target
-     * @param  string  $link
-     * @return void
      */
     public function symlinkAsUser(string $target, string $link): void
     {
@@ -234,9 +170,6 @@ class Filesystem
 
     /**
      * Delete the file at the given path.
-     *
-     * @param  string  $path
-     * @return void
      */
     public function unlink(string $path): void
     {
@@ -247,9 +180,6 @@ class Filesystem
 
     /**
      * Recursively delete a directory and its contents.
-     *
-     * @param  string  $path
-     * @return void
      */
     public function rmDirAndContents(string $path): void
     {
@@ -269,10 +199,6 @@ class Filesystem
 
     /**
      * Change the owner of the given path.
-     *
-     * @param  string  $path
-     * @param  string  $user
-     * @return void
      */
     public function chown(string $path, string $user): void
     {
@@ -281,10 +207,6 @@ class Filesystem
 
     /**
      * Change the group of the given path.
-     *
-     * @param  string  $path
-     * @param  string  $group
-     * @return void
      */
     public function chgrp(string $path, string $group): void
     {
@@ -293,9 +215,6 @@ class Filesystem
 
     /**
      * Resolve the given path.
-     *
-     * @param  string  $path
-     * @return string
      */
     public function realpath(string $path): string
     {
@@ -304,9 +223,6 @@ class Filesystem
 
     /**
      * Determine if the given path is a symbolic link.
-     *
-     * @param  string  $path
-     * @return bool
      */
     public function isLink(string $path): bool
     {
@@ -315,9 +231,6 @@ class Filesystem
 
     /**
      * Resolve the given symbolic link.
-     *
-     * @param  string  $path
-     * @return string
      */
     public function readLink(string $path): string
     {
@@ -326,9 +239,6 @@ class Filesystem
 
     /**
      * Remove all of the broken symbolic links at the given path.
-     *
-     * @param  string  $path
-     * @return void
      */
     public function removeBrokenLinksAt(string $path): void
     {
@@ -343,9 +253,6 @@ class Filesystem
 
     /**
      * Determine if the given path is a broken symbolic link.
-     *
-     * @param  string  $path
-     * @return bool
      */
     public function isBrokenLink(string $path): bool
     {
@@ -354,9 +261,6 @@ class Filesystem
 
     /**
      * Scan the given directory path.
-     *
-     * @param  string  $path
-     * @return array
      */
     public function scandir(string $path): array
     {
@@ -368,9 +272,6 @@ class Filesystem
 
     /**
      * Get custom stub file if exists.
-     *
-     * @param  string  $filename
-     * @return string
      */
     public function getStub(string $filename): string
     {

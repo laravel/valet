@@ -8,11 +8,6 @@ class JoomlaValetDriver extends BasicValetDriver
 {
     /**
      * Determine if the driver serves the request.
-     *
-     * @param  string  $sitePath
-     * @param  string  $siteName
-     * @param  string  $uri
-     * @return bool
      */
     public function serves(string $sitePath, string $siteName, string $uri): bool
     {
@@ -21,11 +16,6 @@ class JoomlaValetDriver extends BasicValetDriver
 
     /**
      * Take any steps necessary before loading the front controller for this driver.
-     *
-     * @param  string  $sitePath
-     * @param  string  $siteName
-     * @param  string  $uri
-     * @return void
      */
     public function beforeLoading(string $sitePath, string $siteName, string $uri): void
     {
