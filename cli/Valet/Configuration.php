@@ -16,7 +16,6 @@ class Configuration
         $this->createConfigurationDirectory();
         $this->createDriversDirectory();
         $this->createSitesDirectory();
-        $this->createExtensionsDirectory();
         $this->createLogDirectory();
         $this->createCertificatesDirectory();
         $this->writeBaseConfiguration();
@@ -64,14 +63,6 @@ class Configuration
     public function createSitesDirectory(): void
     {
         $this->files->ensureDirExists(VALET_HOME_PATH.'/Sites', user());
-    }
-
-    /**
-     * Create the directory for the Valet extensions.
-     */
-    public function createExtensionsDirectory(): void
-    {
-        $this->files->ensureDirExists(VALET_HOME_PATH.'/Extensions', user());
     }
 
     /**
