@@ -31,9 +31,6 @@ define('ISOLATED_PHP_VERSION', 'ISOLATED_PHP_VERSION');
 
 /**
  * Set or get a global console writer.
- *
- * @param  null|OutputInterface  $writer
- * @return OutputInterface|\NullWriter|null
  */
 function writer(?OutputInterface $writer = null): OutputInterface|\NullWriter|null
 {
@@ -54,20 +51,14 @@ function writer(?OutputInterface $writer = null): OutputInterface|\NullWriter|nu
 
 /**
  * Output the given text to the console.
- *
- * @param  string  $output
- * @return void
  */
-function info($output)
+function info($output): void
 {
     output('<info>'.$output.'</info>');
 }
 
 /**
  * Output the given text to the console.
- *
- * @param  string  $output
- * @return void
  */
 function warning(string $output): void
 {
@@ -76,10 +67,6 @@ function warning(string $output): void
 
 /**
  * Output a table to the console.
- *
- * @param  array  $headers
- * @param  array  $rows
- * @return void
  */
 function table(array $headers = [], array $rows = []): void
 {
@@ -92,8 +79,6 @@ function table(array $headers = [], array $rows = []): void
 
 /**
  * Return whether the app is in the testing environment.
- *
- * @return bool
  */
 function testing(): bool
 {
@@ -102,9 +87,6 @@ function testing(): bool
 
 /**
  * Output the given text to the console.
- *
- * @param  string  $output
- * @return void
  */
 function output(string $output): void
 {
@@ -113,9 +95,6 @@ function output(string $output): void
 
 /**
  * Resolve the given class from the container.
- *
- * @param  string  $class
- * @return mixed
  */
 function resolve(string $class): mixed
 {
@@ -124,10 +103,6 @@ function resolve(string $class): mixed
 
 /**
  * Swap the given class implementation in the container.
- *
- * @param  string  $class
- * @param  mixed  $instance
- * @return void
  */
 function swap(string $class, mixed $instance): void
 {
@@ -136,11 +111,6 @@ function swap(string $class, mixed $instance): void
 
 /**
  * Retry the given function N times.
- *
- * @param  int  $retries
- * @param  callable  $retries
- * @param  int  $sleep
- * @return mixed
  */
 function retry(int $retries, callable $fn, int $sleep = 0): mixed
 {
@@ -164,8 +134,6 @@ function retry(int $retries, callable $fn, int $sleep = 0): mixed
 
 /**
  * Verify that the script is currently running as "sudo".
- *
- * @return void
  */
 function should_be_sudo(): void
 {
@@ -176,10 +144,6 @@ function should_be_sudo(): void
 
 /**
  * Tap the given value.
- *
- * @param  mixed  $value
- * @param  callable  $callback
- * @return mixed
  */
 function tap(mixed $value, callable $callback): mixed
 {
@@ -190,10 +154,6 @@ function tap(mixed $value, callable $callback): mixed
 
 /**
  * Determine if a given string ends with a given substring.
- *
- * @param  string  $haystack
- * @param  string|array  $needles
- * @return bool
  */
 function ends_with(string $haystack, array|string $needles): bool
 {
@@ -208,10 +168,6 @@ function ends_with(string $haystack, array|string $needles): bool
 
 /**
  * Determine if a given string starts with a given substring.
- *
- * @param  string  $haystack
- * @param  string|string[]  $needles
- * @return bool
  */
 function starts_with(string $haystack, array|string $needles): bool
 {

@@ -8,11 +8,6 @@ class Concrete5ValetDriver extends BasicValetDriver
 {
     /**
      * If a concrete directory exists, it's probably c5.
-     *
-     * @param  string  $sitePath
-     * @param  string  $siteName
-     * @param  string  $uri
-     * @return bool
      */
     public function serves(string $sitePath, string $siteName, string $uri): bool
     {
@@ -21,13 +16,8 @@ class Concrete5ValetDriver extends BasicValetDriver
 
     /**
      * Determine if the incoming request is for a static file.
-     *
-     * @param  string  $sitePath
-     * @param  string  $siteName
-     * @param  string  $uri
-     * @return string|false
      */
-    public function isStaticFile(string $sitePath, string $siteName, string $uri)
+    public function isStaticFile(string $sitePath, string $siteName, string $uri)/*: string|false */
     {
         if (stripos($uri, '/application/files') === 0) {
             return $sitePath.$uri;
@@ -37,10 +27,7 @@ class Concrete5ValetDriver extends BasicValetDriver
     }
 
     /**
-     * @param  string  $sitePath
-     * @param  string  $siteName
-     * @param  string  $uri
-     * @return string|null
+     * Get the fully resolved path to the application's front controller.
      */
     public function frontControllerPath(string $sitePath, string $siteName, string $uri): ?string
     {

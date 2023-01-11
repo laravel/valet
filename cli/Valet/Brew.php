@@ -18,21 +18,12 @@ class Brew
     const BREW_DISABLE_AUTO_CLEANUP = 'HOMEBREW_NO_INSTALL_CLEANUP=1';
     const LATEST_PHP_VERSION = 'php@8.2';
 
-    /**
-     * Create a new Brew instance.
-     *
-     * @param  CommandLine  $cli
-     * @param  Filesystem  $files
-     */
     public function __construct(public CommandLine $cli, public Filesystem $files)
     {
     }
 
     /**
      * Ensure the formula exists in the current Homebrew configuration.
-     *
-     * @param  string  $formula
-     * @return bool
      */
     public function installed(string $formula): bool
     {
@@ -50,8 +41,6 @@ class Brew
 
     /**
      * Determine if a compatible PHP version is Homebrewed.
-     *
-     * @return bool
      */
     public function hasInstalledPhp(): bool
     {
@@ -64,8 +53,6 @@ class Brew
 
     /**
      * Get a list of supported PHP versions.
-     *
-     * @return Collection
      */
     public function supportedPhpVersions(): Collection
     {
@@ -74,8 +61,6 @@ class Brew
 
     /**
      * Get a list of installed PHP formulae.
-     *
-     * @return Collection
      */
     public function installedPhpFormulae(): Collection
     {
@@ -86,8 +71,6 @@ class Brew
 
     /**
      * Get the aliased formula version from Homebrew.
-     *
-     * @return string
      */
     public function determineAliasedVersion($formula): string
     {
@@ -102,8 +85,6 @@ class Brew
 
     /**
      * Determine if a compatible nginx version is Homebrewed.
-     *
-     * @return bool
      */
     public function hasInstalledNginx(): bool
     {
@@ -113,8 +94,6 @@ class Brew
 
     /**
      * Return name of the nginx service installed via Homebrew.
-     *
-     * @return string
      */
     public function nginxServiceName(): string
     {
@@ -123,11 +102,6 @@ class Brew
 
     /**
      * Ensure that the given formula is installed.
-     *
-     * @param  string  $formula
-     * @param  array  $options
-     * @param  array  $taps
-     * @return void
      */
     public function ensureInstalled(string $formula, array $options = [], array $taps = []): void
     {
@@ -138,11 +112,6 @@ class Brew
 
     /**
      * Install the given formula and throw an exception on failure.
-     *
-     * @param  string  $formula
-     * @param  array  $options
-     * @param  array  $taps
-     * @return void
      */
     public function installOrFail(string $formula, array $options = [], array $taps = []): void
     {
@@ -166,9 +135,6 @@ class Brew
 
     /**
      * Tap the given formulas.
-     *
-     * @param  dynamic[string]  $formula
-     * @return void
      */
     public function tap($formulas): void
     {
@@ -181,9 +147,6 @@ class Brew
 
     /**
      * Restart the given Homebrew services.
-     *
-     * @param  dynamic[string]  $services
-     * @return void
      */
     public function restartService($services): void
     {
@@ -205,9 +168,6 @@ class Brew
 
     /**
      * Stop the given Homebrew services.
-     *
-     * @param  dynamic[string]  $services
-     * @return
      */
     public function stopService($services): void
     {
@@ -241,8 +201,6 @@ class Brew
 
     /**
      * Determine if php is currently linked.
-     *
-     * @return bool
      */
     public function hasLinkedPhp(): bool
     {
@@ -251,8 +209,6 @@ class Brew
 
     /**
      * Get the linked php parsed.
-     *
-     * @return array
      */
     public function getParsedLinkedPhp(): array
     {
@@ -269,8 +225,6 @@ class Brew
      * Gets the currently linked formula by identifying the symlink in the hombrew bin directory.
      * Different to ->linkedPhp() in that this will just get the linked directory name,
      * whether that is php, php74 or php@7.4.
-     *
-     * @return string
      */
     public function getLinkedPhpFormula(): string
     {
@@ -281,8 +235,6 @@ class Brew
 
     /**
      * Determine which version of PHP is linked in Homebrew.
-     *
-     * @return string
      */
     public function linkedPhp(): string
     {
@@ -338,8 +290,6 @@ class Brew
 
     /**
      * Restart the linked PHP-FPM Homebrew service.
-     *
-     * @return void
      */
     public function restartLinkedPhp(): void
     {
@@ -348,8 +298,6 @@ class Brew
 
     /**
      * Create the "sudoers.d" entry for running Brew.
-     *
-     * @return void
      */
     public function createSudoersEntry(): void
     {
@@ -361,8 +309,6 @@ class Brew
 
     /**
      * Remove the "sudoers.d" entry for running Brew.
-     *
-     * @return void
      */
     public function removeSudoersEntry(): void
     {
@@ -371,10 +317,6 @@ class Brew
 
     /**
      * Link passed formula.
-     *
-     * @param  string  $formula
-     * @param  bool  $force
-     * @return string
      */
     public function link(string $formula, bool $force = false): string
     {
@@ -390,9 +332,6 @@ class Brew
 
     /**
      * Unlink passed formula.
-     *
-     * @param  string  $formula
-     * @return string
      */
     public function unlink(string $formula): string
     {
@@ -408,8 +347,6 @@ class Brew
 
     /**
      * Get all the currently running brew services.
-     *
-     * @return Collection
      */
     public function getAllRunningServices(): Collection
     {
@@ -421,8 +358,6 @@ class Brew
     /**
      * Get the currently running brew services as root.
      * i.e. /Library/LaunchDaemons (started at boot).
-     *
-     * @return Collection
      */
     public function getRunningServicesAsRoot(): Collection
     {
@@ -432,8 +367,6 @@ class Brew
     /**
      * Get the currently running brew services.
      * i.e. ~/Library/LaunchAgents (started at login).
-     *
-     * @return \Illuminate\Support\Collection
      */
     public function getRunningServicesAsUser(): Collection
     {
@@ -442,9 +375,6 @@ class Brew
 
     /**
      * Get the currently running brew services.
-     *
-     * @param  bool  $asUser
-     * @return Collection
      */
     public function getRunningServices(bool $asUser = false): Collection
     {
@@ -463,8 +393,6 @@ class Brew
 
     /**
      * Tell Homebrew to forcefully remove all PHP versions that Valet supports.
-     *
-     * @return string
      */
     public function uninstallAllPhpVersions(): string
     {
@@ -477,9 +405,6 @@ class Brew
 
     /**
      * Uninstall a Homebrew app by formula name.
-     *
-     * @param  string  $formula
-     * @return void
      */
     public function uninstallFormula(string $formula): void
     {
@@ -489,8 +414,6 @@ class Brew
 
     /**
      * Run Homebrew's cleanup commands.
-     *
-     * @return string
      */
     public function cleanupBrew(): string
     {
@@ -504,9 +427,6 @@ class Brew
 
     /**
      * Parse homebrew PHP Path.
-     *
-     * @param  string  $resolvedPath
-     * @return array
      */
     public function parsePhpPath(string $resolvedPath): array
     {
@@ -524,10 +444,6 @@ class Brew
 
     /**
      * Check if two PHP versions are equal.
-     *
-     * @param  string  $versionA
-     * @param  string  $versionB
-     * @return bool
      */
     public function arePhpVersionsEqual(string $versionA, string $versionB): bool
     {

@@ -25,7 +25,7 @@ class BasicWithPublicValetDriver extends ValetDriver
      * @param  string  $uri
      * @return string|false
      */
-    public function isStaticFile(string $sitePath, string $siteName, string $uri)
+    public function isStaticFile(string $sitePath, string $siteName, string $uri)/*: string|false */
     {
         $publicPath = $sitePath.'/public/'.trim($uri, '/');
 

@@ -8,20 +8,12 @@ class Valet
 {
     public $valetBin = BREW_PREFIX.'/bin/valet';
 
-    /**
-     * Create a new Valet instance.
-     *
-     * @param  CommandLine  $cli
-     * @param  Filesystem  $files
-     */
     public function __construct(public CommandLine $cli, public Filesystem $files)
     {
     }
 
     /**
      * Symlink the Valet Bash script into the user's local bin.
-     *
-     * @return void
      */
     public function symlinkToUsersBin(): void
     {
@@ -32,8 +24,6 @@ class Valet
 
     /**
      * Remove the symlink from the user's local bin.
-     *
-     * @return void
      */
     public function unlinkFromUsersBin(): void
     {
@@ -42,9 +32,6 @@ class Valet
 
     /**
      * Determine if this is the latest version of Valet.
-     *
-     * @param  string  $currentVersion
-     * @return bool
      *
      * @throws \GuzzleHttp\Exception\GuzzleException
      */
@@ -58,8 +45,6 @@ class Valet
 
     /**
      * Create the "sudoers.d" entry for running Valet.
-     *
-     * @return void
      */
     public function createSudoersEntry(): void
     {
@@ -71,8 +56,6 @@ class Valet
 
     /**
      * Remove the "sudoers.d" entry for running Valet.
-     *
-     * @return void
      */
     public function removeSudoersEntry(): void
     {
@@ -81,8 +64,6 @@ class Valet
 
     /**
      * Run composer global diagnose.
-     *
-     * @return void
      */
     public function composerGlobalDiagnose(): void
     {
@@ -91,8 +72,6 @@ class Valet
 
     /**
      * Run composer global update.
-     *
-     * @return void
      */
     public function composerGlobalUpdate(): void
     {

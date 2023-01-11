@@ -21,9 +21,6 @@ class Ngrok
 
     /**
      * Get the current tunnel URL from the Ngrok API.
-     *
-     * @param  string|null  $domain
-     * @return string
      */
     public function currentTunnelUrl(?string $domain = null): string
     {
@@ -57,10 +54,6 @@ class Ngrok
 
     /**
      * Find the HTTP tunnel URL from the list of tunnels.
-     *
-     * @param  array  $tunnels
-     * @param  string  $domain
-     * @return string|null
      */
     public function findHttpTunnelUrl(array $tunnels, string $domain): ?string
     {
@@ -78,9 +71,6 @@ class Ngrok
 
     /**
      * Set the Ngrok auth token.
-     *
-     * @param  string  $token
-     * @return string
      */
     public function setToken($token)
     {

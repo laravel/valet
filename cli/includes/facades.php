@@ -9,19 +9,15 @@ class Facade
      *
      * @return string
      */
-    public static function containerKey()
+    public static function containerKey(): string
     {
         return 'Valet\\'.basename(str_replace('\\', '/', get_called_class()));
     }
 
     /**
      * Call a non-static method on the facade.
-     *
-     * @param  string  $method
-     * @param  array  $parameters
-     * @return mixed
      */
-    public static function __callStatic($method, $parameters)
+    public static function __callStatic(string $method, array $parameters): mixed
     {
         $resolvedInstance = Container::getInstance()->make(static::containerKey());
 

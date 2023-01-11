@@ -54,23 +54,12 @@ class Diagnose
     public $print;
     public $progressBar;
 
-    /**
-     * Create a new Diagnose instance.
-     *
-     * @param  CommandLine  $cli
-     * @param  Filesystem  $files
-     * @return void
-     */
     public function __construct(public CommandLine $cli, public Filesystem $files)
     {
     }
 
     /**
      * Run diagnostics.
-     *
-     * @param  bool  $print
-     * @param  bool  $plainText
-     * @return void
      */
     public function run(bool $print, bool $plainText): void
     {
