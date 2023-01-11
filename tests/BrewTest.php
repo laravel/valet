@@ -469,10 +469,8 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
     /**
      * Provider of php links and their expected split matches.
-     *
-     * @return array
      */
-    public function supportedPhpLinkPathProvider()
+    public function supportedPhpLinkPathProvider(): array
     {
         return [
             [

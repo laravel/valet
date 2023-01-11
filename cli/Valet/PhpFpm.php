@@ -258,9 +258,6 @@ class PhpFpm
 
     /**
      * Symlink (Capistrano-style) a given Valet.sock file to be the primary valet.sock.
-     *
-     * @param  string  $phpVersion
-     * @return void
      */
     public function symlinkPrimaryValetSock(string $phpVersion): void
     {

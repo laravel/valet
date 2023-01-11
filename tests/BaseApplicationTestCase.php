@@ -21,10 +21,8 @@ class BaseApplicationTestCase extends TestCase
 
     /**
      * Prepare a test to run using the full application.
-     *
-     * @return void
      */
-    public function prepTestConfig()
+    public function prepTestConfig(): void
     {
         require_once __DIR__.'/../cli/includes/helpers.php';
         Container::setInstance(new Container); // Reset app container from previous tests
@@ -42,8 +40,6 @@ class BaseApplicationTestCase extends TestCase
 
     /**
      * Return an array with two items: the application instance and the ApplicationTester.
-     *
-     * @return array
      */
     public function appAndTester(): array
     {
