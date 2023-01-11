@@ -538,7 +538,88 @@ class CliTest extends BaseApplicationTestCase
 
     public function test_use_command()
     {
-        $this->markTestIncomplete();
+        [$app, $tester] = $this->appAndTester();
+
+        $phpfpm = Mockery::mock(PhpFpm::class);
+        $phpfpm->shouldReceive('useVersion')->with('8.2', false);
+
+        swap(PhpFpm::class, $phpfpm);
+
+        $tester->run(['command' => 'use', 'phpVersion' => '8.2']);
+        $tester->assertCommandIsSuccessful();
+    }
+
+    public function test_use_command_without_specified_version_reads_phprc()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $phpfpm = Mockery::mock(PhpFpm::class);
+        $phpfpm->shouldReceive('useVersion')->with('php@8.1', false);
+
+        swap(PhpFpm::class, $phpfpm);
+
+        $brew = Mockery::mock(Brew::class);
+        $brew->shouldReceive('linkedPhp')->andReturn('php@8.2');
+
+        swap(Brew::class, $brew);
+
+        $site = Mockery::mock(RealSite::class);
+        $site->shouldReceive('phpRcVersion')->andReturn('php@8.1');
+
+        swap(RealSite::class, $site);
+
+        $tester->run(['command' => 'use']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString(".valetphprc' specifying version: php@8.1", $tester->getDisplay());
+    }
+
+    public function test_use_command_without_specified_version_reads_isolation_list()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $phpfpm = Mockery::mock(PhpFpm::class);
+        $phpfpm->shouldReceive('useVersion')->with('php@8.0', false);
+        $phpfpm->shouldReceive('normalizePhpVersion')->with('php@8.0')->andReturn('php@8.0');
+
+        swap(PhpFpm::class, $phpfpm);
+
+        $brew = Mockery::mock(Brew::class);
+        $brew->shouldReceive('linkedPhp')->andReturn('php@8.2');
+
+        swap(Brew::class, $brew);
+
+        $site = Mockery::mock(RealSite::class);
+        $site->shouldReceive('phpRcVersion')->andReturn(null);
+        $site->shouldReceive('customPhpVersion')->andReturn('php@8.0');
+
+        swap(RealSite::class, $site);
+
+        $tester->run(['command' => 'use']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('isolated site', $tester->getDisplay());
+    }
+
+    public function test_use_command_with_no_specifications()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $brew = Mockery::mock(Brew::class);
+        $brew->shouldReceive('linkedPhp')->andReturn('php@8.2');
+
+        swap(Brew::class, $brew);
+
+        $site = Mockery::mock(RealSite::class);
+        $site->shouldReceive('phpRcVersion')->andReturn(null);
+        $site->shouldReceive('customPhpVersion')->andReturn(null);
+
+        swap(RealSite::class, $site);
+
+        $tester->run(['command' => 'use']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('Valet is using php@8.2', $tester->getDisplay());
     }
 
     public function test_isolate_command()
