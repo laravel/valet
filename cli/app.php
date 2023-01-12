@@ -339,6 +339,7 @@ if (is_dir(VALET_HOME_PATH)) {
      * Echo the currently tunneled URL.
      */
     $app->command('fetch-share-url [domain]', function (OutputInterface $output, $domain = null) {
+        // Conditional: Fetch from either ngrok or Expose
         try {
             output(Ngrok::currentTunnelUrl(Site::domain($domain)));
         } catch (\Throwable $e) {

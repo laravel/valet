@@ -72,10 +72,63 @@ then
     # Lowercase the host to match how the rest of our domains are looked up
     HOST=$(echo "$HOST" | tr '[:upper:]' '[:lower:]')
 
-	# Fetch Ngrok URL In Background...
-	bash "$DIR/cli/scripts/fetch-share-url.sh" "$HOST" &
-
 	sudo -u "$USER" "$DIR/bin/ngrok" http "$HOST.$TLD:$PORT" --host-header=rewrite $PARAMS
+
+    exit
+
+# Temporarily write out what it looks like to proxy commands to Expose, before
+# later merging the Expose and ngrok proxies into one "share" command with a big
+# conditional
+elif [[ "$1" = "expose" ]]
+then
+    # Check for parameters to pass through to Expose (these will start with '-' or '--')
+    PARAMS=(${@:2})
+    for PARAM in ${PARAMS[@]}
+    do
+        if [[ ${PARAM:0:1} != '-' ]]; then
+            PARAMS=("${PARAMS[@]/$PARAM}") #Quotes when working with strings
+        fi
+    done
+
+    PARAMS=${PARAMS[@]}
+
+    HOST="${PWD##*/}"
+
+    # Check for custom domain passed through to the share command ($2 w/o '-' prefix)
+    if [[ ${2:0:1} != '-' ]]; then
+        # If not blank and is a link, or is the cwd, use it
+        if [[ ! -z $2 && (-L ~/.config/valet/Sites/$2 || $2 == $HOST) ]]; then
+            HOST=$2
+            CLIHOST=$2
+        fi
+    fi
+
+    # If no custom domain passed, then check if there's a linked site for cwd
+    if [[ -z $CLIHOST ]]; then
+        # Find the first linked site for the current dir, if one exists
+        for linkname in ~/.config/valet/Sites/*; do
+            if [[ "$(readlink $linkname)" = "$PWD" ]]
+            then
+                HOST="${linkname##*/}"
+                break
+            fi
+        done
+    fi
+
+    TLD=$(php "$DIR/cli/valet.php" tld)
+
+	# Decide the correct PORT: uses 443 for secure, else 80
+	if grep --quiet --no-messages 443 ~/.config/valet/Nginx/$HOST*
+	then
+		PORT=443
+	else
+		PORT=80
+	fi
+
+    # Lowercase the host to match how the rest of our domains are looked up
+    HOST=$(echo "$HOST" | tr '[:upper:]' '[:lower:]')
+
+    sudo -u "$USER" expose share "$HOST.$TLD:$PORT" $PARAMS
 
     exit
 
