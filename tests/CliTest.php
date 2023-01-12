@@ -47,7 +47,7 @@ class CliTest extends BaseApplicationTestCase
         $tester->assertCommandIsSuccessful();
 
         $this->assertStringContainsString(
-            "/usr/local/opt/php@8.2/bin/pecl",
+            '/usr/local/opt/php@8.2/bin/pecl',
             $tester->getDisplay()
         );
     }
@@ -73,7 +73,7 @@ class CliTest extends BaseApplicationTestCase
         $tester->assertCommandIsSuccessful();
 
         $this->assertStringContainsString(
-            "/usr/local/opt/php@8.1/bin/pecl",
+            '/usr/local/opt/php@8.1/bin/pecl',
             $tester->getDisplay()
         );
     }

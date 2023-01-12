@@ -526,36 +526,36 @@ class Brew
 
     private function findInBin($phpVersion, string $executable): string
     {
-        if (!$phpVersion) {
-            return BREW_PREFIX . "/bin/$executable";
+        if (! $phpVersion) {
+            return BREW_PREFIX."/bin/$executable";
         }
 
         $phpVersion = PhpFpm::normalizePhpVersion($phpVersion);
 
         // Check the default `/opt/homebrew/opt/php@8.1/bin/` location first
-        $path = BREW_PREFIX . "/opt/$phpVersion/bin/$executable";
+        $path = BREW_PREFIX."/opt/$phpVersion/bin/$executable";
         if ($this->files->exists($path)) {
             return $path;
         }
 
         // Check the `/opt/homebrew/opt/php71/bin/` location for older installations
         $phpVersion = str_replace(['@', '.'], '', $phpVersion); // php@8.1 to php81
-        $path = BREW_PREFIX . "/opt/$phpVersion/bin/$executable";
+        $path = BREW_PREFIX."/opt/$phpVersion/bin/$executable";
         if ($this->files->exists($path)) {
             return $path;
         }
 
         // Check if the default PHP is the version we are looking for
-        if ($this->files->isLink(BREW_PREFIX . "/opt/$executable")) {
-            $resolvedPath = $this->files->readLink(BREW_PREFIX . "/opt/$executable");
+        if ($this->files->isLink(BREW_PREFIX."/opt/$executable")) {
+            $resolvedPath = $this->files->readLink(BREW_PREFIX."/opt/$executable");
             $matches = $this->parsePhpPath($resolvedPath);
             $resolvedPhpVersion = $matches[3] ?: $matches[2];
 
             if ($this->arePhpVersionsEqual($resolvedPhpVersion, $phpVersion)) {
-                return BREW_PREFIX . "/opt/php/bin/$executable";
+                return BREW_PREFIX."/opt/php/bin/$executable";
             }
         }
 
-        return BREW_PREFIX . "/bin/$executable";
+        return BREW_PREFIX."/bin/$executable";
     }
 }
