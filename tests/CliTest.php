@@ -994,7 +994,28 @@ class CliTest extends BaseApplicationTestCase
 
     public function test_log_command()
     {
-        $this->markTestIncomplete();
+        [$app, $tester] = $this->appAndTester();
+
+        $tester->run(['command' => 'log']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('In order to tail a log', $tester->getDisplay());
+    }
+
+    public function test_log_command_with_key()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $tester->run(['command' => 'log', 'key' => 'nginx']);
+        $tester->assertCommandIsSuccessful();
+
+        // Can't test this because log's output is run via the tail command
+        // $this->assertStringContainsString('nginx-error-log-contents', $tester->getDisplay());
+
+        // So instead, we'll test *against* the negative states
+        $this->assertStringNotContainsString('does not (yet) exit', $tester->getDisplay());
+        $this->assertStringNotContainsString('No logs found', $tester->getDisplay());
+        $this->assertStringNotContainsString('In order to tail a log', $tester->getDisplay());
     }
 
     public function test_directory_listing_command_reads()

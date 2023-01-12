@@ -663,7 +663,7 @@ if (is_dir(VALET_HOME_PATH)) {
                 'to your "'.Configuration::path().'" file.',
             ]));
 
-            exit;
+            return;
         }
 
         if (! isset($logs[$key])) {

@@ -36,6 +36,9 @@ class BaseApplicationTestCase extends TestCase
         Configuration::createLogDirectory();
         Configuration::createCertificatesDirectory();
         Configuration::writeBaseConfiguration();
+
+        // Keep this file empty, as it's tailed in a test
+        Filesystem::touch(VALET_HOME_PATH.'/Log/nginx-error.log');
     }
 
     /**
