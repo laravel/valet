@@ -646,6 +646,50 @@ class CliTest extends BaseApplicationTestCase
         $this->assertStringContainsString('Invalid valet service', $tester->getDisplay());
     }
 
+    public function test_force_uninstall_command()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $tester->setInputs(['Y']);
+
+        $site = Mockery::mock(RealSite::class);
+        $site->shouldReceive('unsecureAll')->once();
+        $site->shouldReceive('uninstallLoopback')->once();
+
+        $nginx = Mockery::mock(Nginx::class);
+        $nginx->shouldReceive('uninstall')->once();
+
+        $dnsmasq = Mockery::mock(DnsMasq::class);
+        $dnsmasq->shouldReceive('uninstall')->once();
+
+        $config = Mockery::mock(RealConfiguration::class);
+        $config->shouldReceive('uninstall')->once();
+
+        $phpfpm = Mockery::mock(PhpFpm::class);
+        $phpfpm->shouldReceive('uninstall')->once();
+
+        $valet = Mockery::mock(Valet::class);
+        $valet->shouldReceive('unlinkFromUsersBin')->once();
+        $valet->shouldReceive('removeSudoersEntry')->once();
+        $valet->shouldReceive('forceUninstallText')->once()->andReturn('uninstall-text');
+
+        $brew = Mockery::mock(Brew::class);
+        $brew->shouldReceive('removeSudoersEntry')->once();
+
+        swap(RealSite::class, $site);
+        swap(Nginx::class, $nginx);
+        swap(DnsMasq::class, $dnsmasq);
+        swap(RealConfiguration::class, $config);
+        swap(PhpFpm::class, $phpfpm);
+        swap(Valet::class, $valet);
+        swap(Brew::class, $brew);
+
+        $tester->run(['command' => 'uninstall', '--force' => true]);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('YOU ARE ABOUT TO UNINSTALL', $tester->getDisplay());
+    }
+
     public function test_non_force_uninstall_command()
     {
         [$app, $tester] = $this->appAndTester();
@@ -664,11 +708,6 @@ class CliTest extends BaseApplicationTestCase
         $tester->assertCommandIsSuccessful();
 
         $this->assertStringContainsString('IF YOU WANT TO UNINSTALL VALET MANUALLY', $tester->getDisplay());
-    }
-
-    public function test_force_uninstall_command()
-    {
-        $this->markTestIncomplete();
     }
 
     public function test_on_latest_version_command_succeeding()
