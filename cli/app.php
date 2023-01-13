@@ -357,12 +357,13 @@ if (is_dir(VALET_HOME_PATH)) {
             break;
             default:
                 info('Please set your share tool with `valet share-tool expose` or `valet share-tool ngrok`.');
+
                 return Command::FAILURE;
         }
     })->descriptions('Get the URL to the current share tunnel (for Expose or ngrok)');
 
     /**
-     * Echo or set the name of the currently-selected share tool (either "ngrok" or "expose")
+     * Echo or set the name of the currently-selected share tool (either "ngrok" or "expose").
      */
     $app->command('share-tool [tool]', function (InputInterface $input, OutputInterface $output, $tool = null) {
         if ($tool === null) {
@@ -371,6 +372,7 @@ if (is_dir(VALET_HOME_PATH)) {
 
         if ($tool !== 'expose' && $tool !== 'ngrok') {
             warning($tool.' is not a valid share tool. Please use `ngrok` or `expose`.');
+
             return Command::FAILURE;
         }
 
