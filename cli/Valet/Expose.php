@@ -26,7 +26,7 @@ class Expose
      */
     public function ensureInstalled(): void
     {
-        if (!$this->installed()) {
+        if (! $this->installed()) {
             $this->composer->installOrFail('beyondcode/expose');
         }
     }
