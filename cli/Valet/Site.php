@@ -620,7 +620,7 @@ class Site
         ));
 
         // If cert could not be created using runAsUser(), use run().
-        if (strpos($result, 'Permission denied')) {
+        if (strpos($result, 'Permission denied') !== false) {
             $this->cli->run(sprintf(
                 'openssl x509 -req -sha256 -days %s -CA "%s" -CAkey "%s" %s -in "%s" -out "%s" -extensions v3_req -extfile "%s"',
                 $caExpireInDays, $caPemPath, $caKeyPath, $caSrlParam, $csrPath, $crtPath, $confPath
