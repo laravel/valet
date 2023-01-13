@@ -72,8 +72,26 @@ class Ngrok
     /**
      * Set the Ngrok auth token.
      */
-    public function setToken($token)
+    public function setToken($token): string
     {
         return $this->cli->runAsUser('./bin/ngrok authtoken '.$token);
+    }
+
+    /**
+     * Return whether ngrok is installed.
+     */
+    public function installed(): bool
+    {
+        // @todo
+        return false;
+    }
+
+    /**
+     * Make sure ngrok is installed
+     */
+    public function ensureInstalled(): void
+    {
+        // @todo: Check if which ngrok works; if not, prompt:
+        // brew install ngrok/ngrok/ngrok
     }
 }

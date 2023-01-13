@@ -43,6 +43,9 @@ class Diagnose extends Facade
 class DnsMasq extends Facade
 {
 }
+class Expose extends Facade
+{
+}
 class Filesystem extends Facade
 {
 }

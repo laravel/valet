@@ -343,8 +343,7 @@ if (is_dir(VALET_HOME_PATH)) {
 
         switch ($tool) {
             case 'expose':
-                // @todo do the Expose thing
-                info('Todo');
+                output(Expose::currentTunnelUrl(Site::domain($domain)));
             break;
             case 'ngrok':
                 try {
@@ -360,26 +359,51 @@ if (is_dir(VALET_HOME_PATH)) {
                 info('Please set your share tool with `valet share-tool expose` or `valet share-tool ngrok`.');
                 return Command::FAILURE;
         }
-    })->descriptions('Get the URL to the current Ngrok tunnel');
+    })->descriptions('Get the URL to the current share tunnel (for Expose or ngrok)');
 
     /**
      * Echo or set the name of the currently-selected share tool (either "ngrok" or "expose")
      */
-    $app->command('share-tool [tool]', function (OutputInterface $output, $tool = null) {
-        if ($tool) {
-            if ($tool !== 'expose' && $tool !== 'ngrok') {
-                warning($tool.' is not a valid share tool. Please use `ngrok` or `expose`.');
-                return Command::FAILURE;
+    $app->command('share-tool [tool]', function (InputInterface $input, OutputInterface $output, $tool = null) {
+        if ($tool === null) {
+            return output(Configuration::read()['share-tool'] ?? '(not set)');
+        }
+
+        if ($tool !== 'expose' && $tool !== 'ngrok') {
+            warning($tool.' is not a valid share tool. Please use `ngrok` or `expose`.');
+            return Command::FAILURE;
+        }
+
+        Configuration::updateKey('share-tool', $tool);
+        info('Share tool set to '.$tool.'.');
+
+        if ($tool === 'expose') {
+            if (Expose::installed()) {
+                return;
             }
 
-            Configuration::updateKey('share-tool', $tool);
-            info('Share tool set to '.$tool.'.');
+            $helper = $this->getHelperSet()->get('question');
+            $question = new ConfirmationQuestion('Would you like to install Expose now? ', false);
+
+            if (false === $helper->ask($input, $output, $question)) {
+                return;
+            }
+
+            Expose::ensureInstalled();
             return;
         }
 
-        $tool = Configuration::read()['share-tool'] ?? '(not set)';
-        info($tool);
-    })->descriptions('Get the URL to the current Ngrok tunnel');
+        if (!Ngrok::installed()) {
+            $helper = $this->getHelperSet()->get('question');
+            $question = new ConfirmationQuestion('Would you like to install ngrok now? ', false);
+
+            if (false === $helper->ask($input, $output, $question)) {
+                return;
+            }
+
+            Ngrok::ensureInstalled();
+        }
+    })->descriptions('Get the name of the current share tool (Expose or ngrok).');
 
     /**
      * Set the ngrok auth token.

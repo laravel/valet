@@ -5,6 +5,7 @@ use Valet\CommandLine;
 use Valet\Configuration as RealConfiguration;
 use Valet\Diagnose;
 use Valet\DnsMasq;
+use Valet\Expose;
 use Valet\Filesystem;
 use Valet\Nginx;
 use Valet\Ngrok;
@@ -455,15 +456,62 @@ class CliTest extends BaseApplicationTestCase
     {
         [$app, $tester] = $this->appAndTester();
 
+        $expose = Mockery::mock(Expose::class);
+        $expose->shouldReceive('installed')->andReturn(true);
+
+        swap(Expose::class, $expose);
+
         $tester->run(['command' => 'share-tool', 'tool' => 'expose']);
         $tester->assertCommandIsSuccessful();
 
         $this->assertStringContainsString('expose', Configuration::read()['share-tool']);
 
+        $ngrok = Mockery::mock(Ngrok::class);
+        $ngrok->shouldReceive('installed')->andReturn(true);
+
+        swap(Ngrok::class, $ngrok);
+
+        $tester->run(['command' => 'share-tool', 'tool' => 'ngrok']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('ngrok', Configuration::read()['share-tool']);
+
         $tester->run(['command' => 'share-tool', 'tool' => 'asdfoijasdofijqoiwejrqwer']);
         $this->assertEquals(1, $tester->getStatusCode()); // Assert comand failure
 
-        $this->assertStringContainsString('expose', Configuration::read()['share-tool']);
+        $this->assertStringContainsString('ngrok', Configuration::read()['share-tool']);
+    }
+
+    public function test_share_tool_prompts_expose_install()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $tester->setInputs(['Y']);
+
+        $expose = Mockery::mock(Expose::class);
+        $expose->shouldReceive('installed')->once()->andReturn(false);
+        $expose->shouldReceive('ensureInstalled')->once();
+
+        swap(Expose::class, $expose);
+
+        $tester->run(['command' => 'share-tool', 'tool' => 'expose']);
+        $tester->assertCommandIsSuccessful();
+    }
+
+    public function test_share_tool_prompts_ngrok_install()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $tester->setInputs(['Y']);
+
+        $ngrok = Mockery::mock(Ngrok::class);
+        $ngrok->shouldReceive('installed')->once()->andReturn(false);
+        $ngrok->shouldReceive('ensureInstalled')->once();
+
+        swap(Ngrok::class, $ngrok);
+
+        $tester->run(['command' => 'share-tool', 'tool' => 'ngrok']);
+        $tester->assertCommandIsSuccessful();
     }
 
     public function test_set_ngrok_token_command()
@@ -480,15 +528,13 @@ class CliTest extends BaseApplicationTestCase
 
     public function test_fetch_share_url_command_with_expose()
     {
-        $this->markTestIncomplete();
-
         [$app, $tester] = $this->appAndTester();
 
         Configuration::updateKey('share-tool', 'expose');
 
-        // $ngrok = Mockery::mock(Ngrok::class);
-        // $ngrok->shouldReceive('currentTunnelUrl')->once()->andReturn('command-output');
-        // swap(Ngrok::class, $ngrok);
+        $expose = Mockery::mock(Expose::class);
+        $expose->shouldReceive('currentTunnelUrl')->once()->andReturn('command-output');
+        swap(Expose::class, $expose);
 
         $tester->run(['command' => 'fetch-share-url']);
         $tester->assertCommandIsSuccessful();
