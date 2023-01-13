@@ -339,15 +339,46 @@ if (is_dir(VALET_HOME_PATH)) {
      * Echo the currently tunneled URL.
      */
     $app->command('fetch-share-url [domain]', function (OutputInterface $output, $domain = null) {
-        // Conditional: Fetch from either ngrok or Expose
-        try {
-            output(Ngrok::currentTunnelUrl(Site::domain($domain)));
-        } catch (\Throwable $e) {
-            warning($e->getMessage());
-            if ($domain) {
-                warning('Make sure to leave out the TLD; `valet fetch-share-url project-name`');
-            }
+        $tool = Configuration::read()['share-tool'] ?? null;
+
+        switch ($tool) {
+            case 'expose':
+                // @todo do the Expose thing
+                info('Todo');
+            break;
+            case 'ngrok':
+                try {
+                    output(Ngrok::currentTunnelUrl(Site::domain($domain)));
+                } catch (\Throwable $e) {
+                    warning($e->getMessage());
+                    if ($domain) {
+                        warning('Make sure to leave out the TLD; `valet fetch-share-url project-name`');
+                    }
+                }
+            break;
+            default:
+                info('Please set your share tool with `valet share-tool expose` or `valet share-tool ngrok`.');
+                return Command::FAILURE;
         }
+    })->descriptions('Get the URL to the current Ngrok tunnel');
+
+    /**
+     * Echo or set the name of the currently-selected share tool (either "ngrok" or "expose")
+     */
+    $app->command('share-tool [tool]', function (OutputInterface $output, $tool = null) {
+        if ($tool) {
+            if ($tool !== 'expose' && $tool !== 'ngrok') {
+                warning($tool.' is not a valid share tool. Please use `ngrok` or `expose`.');
+                return Command::FAILURE;
+            }
+
+            Configuration::updateKey('share-tool', $tool);
+            info('Share tool set to '.$tool.'.');
+            return;
+        }
+
+        $tool = Configuration::read()['share-tool'] ?? '(not set)';
+        info($tool);
     })->descriptions('Get the URL to the current Ngrok tunnel');
 
     /**

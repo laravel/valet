@@ -434,6 +434,38 @@ class CliTest extends BaseApplicationTestCase
         $tester->assertCommandIsSuccessful();
     }
 
+    public function test_get_share_tool_command()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $tester->run(['command' => 'share-tool']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('(not set)', $tester->getDisplay());
+
+        Configuration::updateKey('share-tool', 'expose');
+
+        $tester->run(['command' => 'share-tool']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('expose', $tester->getDisplay());
+    }
+
+    public function test_set_share_tool_command()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $tester->run(['command' => 'share-tool', 'tool' => 'expose']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('expose', Configuration::read()['share-tool']);
+
+        $tester->run(['command' => 'share-tool', 'tool' => 'asdfoijasdofijqoiwejrqwer']);
+        $this->assertEquals(1, $tester->getStatusCode()); // Assert comand failure
+
+        $this->assertStringContainsString('expose', Configuration::read()['share-tool']);
+    }
+
     public function test_set_ngrok_token_command()
     {
         [$app, $tester] = $this->appAndTester();
@@ -444,6 +476,50 @@ class CliTest extends BaseApplicationTestCase
 
         $tester->run(['command' => 'set-ngrok-token', 'token' => 'your-token-here']);
         $tester->assertCommandIsSuccessful();
+    }
+
+    public function test_fetch_share_url_command_with_expose()
+    {
+        $this->markTestIncomplete();
+
+        [$app, $tester] = $this->appAndTester();
+
+        Configuration::updateKey('share-tool', 'expose');
+
+        // $ngrok = Mockery::mock(Ngrok::class);
+        // $ngrok->shouldReceive('currentTunnelUrl')->once()->andReturn('command-output');
+        // swap(Ngrok::class, $ngrok);
+
+        $tester->run(['command' => 'fetch-share-url']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('command-output', $tester->getDisplay());
+    }
+
+    public function test_fetch_share_url_command_with_ngrok()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        Configuration::updateKey('share-tool', 'ngrok');
+
+        $ngrok = Mockery::mock(Ngrok::class);
+        $ngrok->shouldReceive('currentTunnelUrl')->once()->andReturn('command-output');
+        swap(Ngrok::class, $ngrok);
+
+        $tester->run(['command' => 'fetch-share-url']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('command-output', $tester->getDisplay());
+    }
+
+    public function test_fetch_share_url_command_with_unset_share_tool()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $tester->run(['command' => 'fetch-share-url']);
+        $this->assertEquals(1, $tester->getStatusCode());
+
+        $this->assertStringContainsString('Please set your share tool', $tester->getDisplay());
     }
 
     public function test_restart_command()
