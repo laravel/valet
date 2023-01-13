@@ -34,6 +34,9 @@ class Nginx extends Facade
 class CommandLine extends Facade
 {
 }
+class Composer extends Facade
+{
+}
 class Configuration extends Facade
 {
 }

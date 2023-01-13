@@ -4,6 +4,10 @@ namespace Valet;
 
 class Expose
 {
+    public function __construct(public Composer $composer)
+    {
+    }
+
     public function currentTunnelUrl(?string $domain = null): string
     {
         return '@todo';
@@ -14,8 +18,7 @@ class Expose
      */
     public function installed(): bool
     {
-        // @todo
-        return false;
+        return $this->composer->installed('beyondcode/expose');
     }
 
     /**

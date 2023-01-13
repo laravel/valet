@@ -43,6 +43,8 @@ class Brew
         if (!empty($details['casks'])) {
             return !is_null($details['casks'][0]['installed']);
         }
+
+        return false;
     }
 
     /**

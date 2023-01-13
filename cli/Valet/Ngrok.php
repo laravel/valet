@@ -72,8 +72,7 @@ class Ngrok
      */
     public function setToken($token): string
     {
-        // @todo update this to use the Brew-installed ngrok
-        return $this->cli->runAsUser('./bin/ngrok authtoken '.$token);
+        return $this->cli->runAsUser(BREW_PREFIX.'/bin/ngrok authtoken '.$token);
     }
 
     /**
