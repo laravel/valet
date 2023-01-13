@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Container\Container;
-use Valet\Brew;
 use Valet\CommandLine;
 use Valet\Composer;
 use function Valet\resolve;

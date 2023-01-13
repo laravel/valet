@@ -25,7 +25,7 @@ class Composer
 
         $details = json_decode($result, true);
 
-        return !empty($details);
+        return ! empty($details);
     }
 
     public function installOrFail(string $namespacedPackage): void
