@@ -8,15 +8,13 @@ use GuzzleHttp\Client;
 
 class Ngrok
 {
-    public $cli;
     public $tunnelsEndpoints = [
         'http://127.0.0.1:4040/api/tunnels',
         'http://127.0.0.1:4041/api/tunnels',
     ];
 
-    public function __construct(CommandLine $cli)
+    public function __construct(public CommandLine $cli, public Brew $brew)
     {
-        $this->cli = $cli;
     }
 
     /**
@@ -74,6 +72,7 @@ class Ngrok
      */
     public function setToken($token): string
     {
+        // @todo update this to use the Brew-installed ngrok
         return $this->cli->runAsUser('./bin/ngrok authtoken '.$token);
     }
 
@@ -82,8 +81,7 @@ class Ngrok
      */
     public function installed(): bool
     {
-        // @todo
-        return false;
+        return $this->brew->installed('ngrok');
     }
 
     /**
@@ -91,7 +89,6 @@ class Ngrok
      */
     public function ensureInstalled(): void
     {
-        // @todo: Check if which ngrok works; if not, prompt:
-        // brew install ngrok/ngrok/ngrok
+        $this->brew->ensureInstalled('ngrok');
     }
 }

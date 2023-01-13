@@ -338,9 +338,11 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Echo the currently tunneled URL.
      */
-    $app->command('fetch-share-url [domain]', function (OutputInterface $output, $domain = null) {
+    $app->command('fetch-share-url [domain]', function ($domain = null) {
         $tool = Configuration::read()['share-tool'] ?? null;
 
+
+        // TODO: Either here or inline make sure expose/ngrok is installed
         switch ($tool) {
             case 'expose':
                 output(Expose::currentTunnelUrl(Site::domain($domain)));
@@ -350,6 +352,7 @@ if (is_dir(VALET_HOME_PATH)) {
                     output(Ngrok::currentTunnelUrl(Site::domain($domain)));
                 } catch (\Throwable $e) {
                     warning($e->getMessage());
+
                     if ($domain) {
                         warning('Make sure to leave out the TLD; `valet fetch-share-url project-name`');
                     }
