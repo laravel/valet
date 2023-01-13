@@ -2,6 +2,8 @@
 
 namespace Valet;
 
+use DomainException;
+
 class Composer
 {
     public function __construct(public CommandLine $cli)
@@ -24,5 +26,16 @@ class Composer
         $details = json_decode($result, true);
 
         return !empty($details);
+    }
+
+    public function installOrFail(string $namespacedPackage): void
+    {
+        info('['.$namespacedPackage.'] is not installed, installing it now via Composer...</info> 🎼');
+
+        $this->cli->runAsUser(('composer global require '.$namespacedPackage), function ($exitCode, $errorOutput) use ($namespacedPackage) {
+            output($errorOutput);
+
+            throw new DomainException('Composer was unable to install ['.$namespacedPackage.'].');
+        });
     }
 }

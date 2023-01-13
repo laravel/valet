@@ -26,7 +26,8 @@ class Expose
      */
     public function ensureInstalled(): void
     {
-        // @todo: Check if which expose works; if not, prompt:
-        // composer global require beyondcode/expose
+        if (!$this->installed()) {
+            $this->composer->installOrFail('beyondcode/expose');
+        }
     }
 }

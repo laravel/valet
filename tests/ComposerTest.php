@@ -49,4 +49,13 @@ class ComposerTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $this->assertFalse(resolve(Composer::class)->installed('beyondcode/expose'));
     }
+
+    public function test_install_or_fail_will_install_composer_package()
+    {
+        $cli = Mockery::mock(CommandLine::class);
+        $cli->shouldReceive('runAsUser')->once()->with('composer global require beyondcode/expose', Mockery::type('Closure'));
+        swap(CommandLine::class, $cli);
+
+        resolve(Composer::class)->installOrFail('beyondcode/expose');
+    }
 }
