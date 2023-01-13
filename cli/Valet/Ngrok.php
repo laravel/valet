@@ -85,7 +85,7 @@ class Ngrok
     }
 
     /**
-     * Make sure ngrok is installed
+     * Make sure ngrok is installed.
      */
     public function ensureInstalled(): void
     {
