@@ -392,10 +392,11 @@ if (is_dir(VALET_HOME_PATH)) {
             }
 
             Expose::ensureInstalled();
+
             return;
         }
 
-        if (!Ngrok::installed()) {
+        if (! Ngrok::installed()) {
             $helper = $this->getHelperSet()->get('question');
             $question = new ConfirmationQuestion('Would you like to install ngrok now? ', false);
 

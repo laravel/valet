@@ -19,7 +19,7 @@ class Expose
     }
 
     /**
-     * Make sure Expose is installed
+     * Make sure Expose is installed.
      */
     public function ensureInstalled(): void
     {
