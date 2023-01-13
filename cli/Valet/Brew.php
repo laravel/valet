@@ -36,12 +36,12 @@ class Brew
 
         $details = json_decode($result, true);
 
-        if (!empty($details['formulae'])) {
-            return !empty($details['formulae'][0]['installed']);
+        if (! empty($details['formulae'])) {
+            return ! empty($details['formulae'][0]['installed']);
         }
 
-        if (!empty($details['casks'])) {
-            return !is_null($details['casks'][0]['installed']);
+        if (! empty($details['casks'])) {
+            return ! is_null($details['casks'][0]['installed']);
         }
     }
 

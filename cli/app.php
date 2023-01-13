@@ -341,7 +341,6 @@ if (is_dir(VALET_HOME_PATH)) {
     $app->command('fetch-share-url [domain]', function ($domain = null) {
         $tool = Configuration::read()['share-tool'] ?? null;
 
-
         // TODO: Either here or inline make sure expose/ngrok is installed
         switch ($tool) {
             case 'expose':
