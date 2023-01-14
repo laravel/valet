@@ -49,6 +49,9 @@ then
             if [[ ! -z $2 && (-L ~/.config/valet/Sites/$2 || $2 == $HOST) ]]; then
                 HOST=$2
                 CLIHOST=$2
+            else
+                echo "Sorry, $2 is not a valid domain."
+                exit
             fi
         fi
 
@@ -105,6 +108,9 @@ then
             if [[ ! -z $2 && (-L ~/.config/valet/Sites/$2 || $2 == $HOST) ]]; then
                 HOST=$2
                 CLIHOST=$2
+            else
+                echo "Sorry, $2 is not a valid domain."
+                exit
             fi
         fi
 
