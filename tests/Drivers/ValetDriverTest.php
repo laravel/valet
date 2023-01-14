@@ -1,5 +1,6 @@
 <?php
 
+use Valet\Drivers\BasicValetDriver;
 use Valet\Drivers\Specific\BedrockValetDriver;
 use Valet\Drivers\ValetDriver;
 
@@ -27,5 +28,12 @@ class ValetDriverTest extends BaseDriverTestCase
 
         $this->assertNotEquals('Valet\Drivers\BasicWithPublicValetDriver', get_class($assignedDriver));
         $this->assertNotEquals('Valet\Drivers\BasicValetDriver', get_class($assignedDriver));
+    }
+
+    public function test_it_checks_composer_dependencies()
+    {
+        $driver = new BasicValetDriver;
+        $this->assertTrue($driver->composerRequires(__DIR__.'/../files/sites/has-composer', 'tightenco/collect'));
+        $this->assertFalse($driver->composerRequires(__DIR__.'/../files/sites/has-composer', 'tightenco/ziggy'));
     }
 }

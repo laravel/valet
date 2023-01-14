@@ -196,4 +196,20 @@ abstract class ValetDriver
             putenv($key.'='.$value);
         }
     }
+
+    public function composerRequires(string $sitePath, string $namespacedPackage): bool
+    {
+        if (! file_exists($sitePath.'/composer.json')) {
+            return false;
+        }
+
+        $composer_json_source = file_get_contents($sitePath.'/composer.json');
+        $composer_json = json_decode($composer_json_source, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return false;
+        }
+
+        return isset($composer_json['require'][$namespacedPackage]);
+    }
 }

@@ -15,32 +15,16 @@ class SculpinValetDriver extends BasicValetDriver
             $this->isLegacySculpinProject($sitePath);
     }
 
-    private function isModernSculpinProject($sitePath): bool
+    private function isModernSculpinProject(string $sitePath): bool
     {
         return is_dir($sitePath.'/source') &&
             is_dir($sitePath.'/output_dev') &&
-            $this->composerRequiresSculpin($sitePath);
+            $this->composerRequires($sitePath, 'sculpin/sculpin');
     }
 
-    private function isLegacySculpinProject($sitePath): bool
+    private function isLegacySculpinProject(string $sitePath): bool
     {
         return is_dir($sitePath.'/.sculpin');
-    }
-
-    private function composerRequiresSculpin($sitePath): bool
-    {
-        if (! file_exists($sitePath.'/composer.json')) {
-            return false;
-        }
-
-        $composer_json_source = file_get_contents($sitePath.'/composer.json');
-        $composer_json = json_decode($composer_json_source, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            return false;
-        }
-
-        return isset($composer_json['require']['sculpin/sculpin']);
     }
 
     /**
