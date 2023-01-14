@@ -28,7 +28,7 @@ class Diagnose
         'nginx -v',
         'curl --version',
         'php --ri curl',
-        '~/.composer/vendor/laravel/valet/bin/ngrok version',
+        BREW_PREFIX.'/bin/ngrok version',
         'ls -al ~/.ngrok2',
         'brew info nginx',
         'brew info php',

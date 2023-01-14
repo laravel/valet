@@ -27,16 +27,24 @@ class Brew
      */
     public function installed(string $formula): bool
     {
-        $result = $this->cli->runAsUser("brew info $formula --json");
+        $result = $this->cli->runAsUser("brew info $formula --json=v2");
 
         // should be a json response, but if not installed then "Error: No available formula ..."
         if (starts_with($result, 'Error: No')) {
             return false;
         }
 
-        $details = json_decode($result);
+        $details = json_decode($result, true);
 
-        return ! empty($details[0]->installed);
+        if (! empty($details['formulae'])) {
+            return ! empty($details['formulae'][0]['installed']);
+        }
+
+        if (! empty($details['casks'])) {
+            return ! is_null($details['casks'][0]['installed']);
+        }
+
+        return false;
     }
 
     /**

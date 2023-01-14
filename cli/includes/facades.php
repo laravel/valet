@@ -34,6 +34,9 @@ class Nginx extends Facade
 class CommandLine extends Facade
 {
 }
+class Composer extends Facade
+{
+}
 class Configuration extends Facade
 {
 }
@@ -41,6 +44,9 @@ class Diagnose extends Facade
 {
 }
 class DnsMasq extends Facade
+{
+}
+class Expose extends Facade
 {
 }
 class Filesystem extends Facade
