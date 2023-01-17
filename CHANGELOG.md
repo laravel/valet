@@ -1,6 +1,17 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v3.2.2...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v3.3.0...master)
+
+## [v3.3.0](https://github.com/laravel/valet/compare/v3.2.2...v3.3.0) - 2023-01-17
+
+### Added
+
+- Add `set-ngrok-token` command by @mattstauffer in https://github.com/laravel/valet/pull/1325
+- Laravel v10 Support by @driesvints in https://github.com/laravel/valet/pull/1341
+
+### Fixed
+
+- Fixes permission denied check when result starts with 'Permission denied' by @matthewjohns0n in https://github.com/laravel/valet/pull/1343
 
 ## [v3.2.2](https://github.com/laravel/valet/compare/v3.2.1...v3.2.2) - 2022-12-08
 
