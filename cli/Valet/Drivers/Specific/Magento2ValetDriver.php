@@ -13,7 +13,7 @@ class Magento2ValetDriver extends ValetDriver
      *
      * @param string|null
      */
-    private /*?string*/ $mageMode = null;
+    /*?string*/ private $mageMode = null;
 
     /**
      * Determine if the driver serves the request.
