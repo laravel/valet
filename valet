@@ -20,12 +20,32 @@ then
     DIR=$(php -r "echo realpath('$DIR/../laravel/valet');")
 fi
 
+# Get a command-line executable we can use for php that's 8+; if this
+# is the inside loop (Valet runs itself 2x in some settings), skip
+# checking and pulling again by reading the exported env var
+if [[ $PHP_EXECUTABLE = "" ]]
+then
+    PHP=$(php $DIR/find-usable-php.php)
+
+    # Validate output before running it on the CLI
+    if [[ ! -f $PHP ]]; then
+        echo "Error finding executable PHP. Quitting for safety."
+        echo "Provided output from find-usable-php.php:"
+        echo $PHP
+        exit
+    fi
+
+    export PHP_EXECUTABLE=$PHP
+else
+    PHP=$PHP_EXECUTABLE
+fi
+
 # If the command is the "share" command we will need to resolve out any
 # symbolic links for the site. Before starting Ngrok, we will fire a
 # process to retrieve the live Ngrok tunnel URL in the background.
 if [[ "$1" = "share" ]]
 then
-    SHARETOOL="$(php "$DIR/cli/valet.php" share-tool)"
+    SHARETOOL="$($PHP "$DIR/cli/valet.php" share-tool)"
 
     if [[ $SHARETOOL = "ngrok" ]]
     then
@@ -35,7 +55,7 @@ then
         for PARAM in ${PARAMS[@]}
         do
             if [[ ${PARAM:0:1} != '-' ]]; then
-                PARAMS=("${PARAMS[@]/$PARAM}") #Quotes when working with strings
+                PARAMS=("${PARAMS[@]/$PARAM}") # Quotes when working with strings
             fi
         done
 
@@ -52,7 +72,7 @@ then
             fi
         done
 
-        TLD=$(php "$DIR/cli/valet.php" tld)
+        TLD=$($PHP "$DIR/cli/valet.php" tld)
 
         # Decide the correct PORT: uses 60 for secure, else 80
         if grep --quiet --no-messages 443 ~/.config/valet/Nginx/$HOST*
@@ -96,7 +116,7 @@ then
             fi
         done
 
-        TLD=$(php "$DIR/cli/valet.php" tld)
+        TLD=$($PHP "$DIR/cli/valet.php" tld)
 
         # Decide the correct PORT: uses 443 for secure, else 80
         if grep --quiet --no-messages 443 ~/.config/valet/Nginx/$HOST*
@@ -123,14 +143,14 @@ then
 # Proxy PHP commands to the "php" executable on the isolated site
 elif [[ "$1" = "php" ]]
 then
-    $(php "$DIR/cli/valet.php" which-php) "${@:2}"
+    $($PHP "$DIR/cli/valet.php" which-php) "${@:2}"
 
     exit
 
 # Proxy Composer commands with the "php" executable on the isolated site
 elif [[ "$1" = "composer" ]]
 then
-    $(php "$DIR/cli/valet.php" which-php) $(which composer) "${@:2}"
+    $($PHP "$DIR/cli/valet.php" which-php) $(which composer) "${@:2}"
 
     exit
 
@@ -144,5 +164,5 @@ else
         exit
     fi
 
-    php "$DIR/cli/valet.php" "$@"
+    $PHP "$DIR/cli/valet.php" "$@"
 fi
