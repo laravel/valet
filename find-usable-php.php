@@ -7,7 +7,8 @@ $minimumPhpVersion = '8.0';
 $linkedPhpVersion = shell_exec('php -r "echo phpversion();"');
 
 if (version_compare($linkedPhpVersion, $minimumPhpVersion) >= 0) {
-    return 'php';
+    echo exec('which php');
+    return;
 }
 
 // If not, let's find it whether we have a version of PHP installed that's 8+;
