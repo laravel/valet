@@ -17,6 +17,7 @@ $phps = explode(PHP_EOL, trim(shell_exec('brew list --formula | grep php')));
 // Normalize version numbers
 $phps = array_reduce($phps, function ($carry, $php) {
     $carry[$php] = presumePhpVersionFromBrewFormulaName($php);
+
     return $carry;
 }, []);
 
@@ -39,7 +40,7 @@ $foundVersion = reset($modernPhps);
 echo getPhpExecutablePath(array_search($foundVersion, $phps));
 
 /**
- * Function definitions
+ * Function definitions.
  */
 
 /**
@@ -73,7 +74,7 @@ function presumePhpVersionFromBrewFormulaName(string $formulaName): ?string
         // Figure out its link
         $details = json_decode(shell_exec("brew info $formulaName --json"));
 
-        if (!empty($details[0]->aliases[0])) {
+        if (! empty($details[0]->aliases[0])) {
             $formulaName = $details[0]->aliases[0];
         } else {
             return null;
@@ -84,5 +85,5 @@ function presumePhpVersionFromBrewFormulaName(string $formulaName): ?string
         return null;
     }
 
-    return substr($formulaName, strpos($formulaName, "@") + 1);
+    return substr($formulaName, strpos($formulaName, '@') + 1);
 }
