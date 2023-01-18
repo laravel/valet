@@ -8,8 +8,12 @@ class Magento2ValetDriver extends ValetDriver
 {
     /**
      * Holds the MAGE_MODE from app/etc/config.php or $ENV.
+     *
+     * Can't be correctly typed yet because PHP 7.3.
+     *
+     * @param string|null
      */
-    private ?string $mageMode = null;
+    private /*?string*/ $mageMode = null;
 
     /**
      * Determine if the driver serves the request.
