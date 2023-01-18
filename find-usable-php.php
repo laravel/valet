@@ -52,7 +52,7 @@ echo getPhpExecutablePath(array_search($foundVersion, $phps));
  * @param  string|null  $phpFormulaName  For example, "php@8.1"
  * @return string
  */
-function getPhpExecutablePath(string $phpFormulaName = null): string
+function getPhpExecutablePath(string $phpFormulaName = null)
 {
     $brewPrefix = exec('printf $(brew --prefix)');
 
@@ -70,7 +70,7 @@ function getPhpExecutablePath(string $phpFormulaName = null): string
     throw new Exception('Cannot find an executable path for provided PHP version: '.$phpFormulaName);
 }
 
-function presumePhpVersionFromBrewFormulaName(string $formulaName): ?string
+function presumePhpVersionFromBrewFormulaName(string $formulaName)
 {
     if ($formulaName === 'php') {
         // Figure out its link
