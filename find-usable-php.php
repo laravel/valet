@@ -8,6 +8,7 @@ $linkedPhpVersion = shell_exec('php -r "echo phpversion();"');
 
 if (version_compare($linkedPhpVersion, $minimumPhpVersion) >= 0) {
     echo exec('which php');
+
     return;
 }
 
