@@ -1021,16 +1021,42 @@ class Site
     }
 
     /**
-     * Get PHP version from .valetphprc for a site.
+     * Get configuration items defined in .valetrc for a site.
      */
-    public function phpRcVersion(string $site): ?string
+    public function valetRc(string $siteName): array
     {
-        if ($site = $this->parked()->merge($this->links())->where('site', $site)->first()) {
-            $path = data_get($site, 'path').'/.valetphprc';
+        if ($site = $this->parked()->merge($this->links())->where('site', $siteName)->first()) {
+            $path = data_get($site, 'path').'/.valetrc';
 
             if ($this->files->exists($path)) {
-                return PhpFpm::normalizePhpVersion(trim($this->files->get($path)));
+                return collect(explode(PHP_EOL, trim($this->files->get($path))))->filter(function ($line) {
+                    return str_contains($line, '=');
+                })->mapWithKeys(function ($item, $index) {
+                    [$key, $value] = explode('=', $item);
+
+                    return [strtolower($key) => $value];
+                })->all();
             }
+        }
+
+        return [];
+    }
+
+    /**
+     * Get PHP version from .valetrc or .valetphprc for a site.
+     */
+    public function phpRcVersion(string $siteName): ?string
+    {
+        if ($site = $this->parked()->merge($this->links())->where('site', $siteName)->first()) {
+            $oldPath = data_get($site, 'path').'/.valetphprc';
+
+            if ($this->files->exists($oldPath)) {
+                return PhpFpm::normalizePhpVersion(trim($this->files->get($oldPath)));
+            }
+
+            $valetRc = $this->valetRc($siteName);
+
+            return PhpFpm::normalizePhpVersion(data_get($valetRc, 'php'));
         }
 
         return null;

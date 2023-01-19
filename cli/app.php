@@ -572,7 +572,7 @@ if (is_dir(VALET_HOME_PATH)) {
             $linkedVersion = Brew::linkedPhp();
 
             if ($phpVersion = Site::phpRcVersion($site)) {
-                info("Found '{$site}/.valetphprc' specifying version: {$phpVersion}");
+                info("Found '{$site}/.valetrc' or '{$site}/.valetphprc' specifying version: {$phpVersion}");
             } else {
                 $domain = $site.'.'.data_get(Configuration::read(), 'tld');
                 if ($phpVersion = PhpFpm::normalizePhpVersion(Site::customPhpVersion($domain))) {
@@ -604,7 +604,7 @@ if (is_dir(VALET_HOME_PATH)) {
 
         if (is_null($phpVersion)) {
             if ($phpVersion = Site::phpRcVersion($site)) {
-                info("Found '{$site}/.valetphprc' specifying version: {$phpVersion}");
+                info("Found '{$site}/.valetrc' or '{$site}/.valetphprc' specifying version: {$phpVersion}");
             } else {
                 info(PHP_EOL.'Please provide a version number. E.g.:');
                 info('valet isolate php@8.2');

@@ -1,0 +1,4 @@
+ITEM=value
+PHP=php@8.0
+# comment line
+OTHER_ITEM=othervalue
