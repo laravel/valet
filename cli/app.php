@@ -34,6 +34,8 @@ if (file_exists(__DIR__.'/../vendor/autoload.php')) {
  */
 Container::setInstance(new Container);
 
+$version = '4.0.0';
+
 $app = new Application('Laravel Valet', $version);
 
 $app->setDispatcher($dispatcher = new EventDispatcher());
