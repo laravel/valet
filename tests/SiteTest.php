@@ -902,7 +902,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
     public function test_it_can_read_valet_rc_files()
     {
-        resolve(Configuration::class)->addPath(__DIR__ . '/fixtures/Parked/Sites');
+        resolve(Configuration::class)->addPath(__DIR__.'/fixtures/Parked/Sites');
         $site = resolve(Site::class);
 
         $this->assertEquals([

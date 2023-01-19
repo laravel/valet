@@ -1033,6 +1033,7 @@ class Site
                     return str_contains($line, '=');
                 })->mapWithKeys(function ($item, $index) {
                     [$key, $value] = explode('=', $item);
+
                     return [strtolower($key) => $value];
                 })->all();
             }
@@ -1054,6 +1055,7 @@ class Site
             }
 
             $valetRc = $this->valetRc($siteName);
+
             return PhpFpm::normalizePhpVersion(data_get($valetRc, 'php'));
         }
 
