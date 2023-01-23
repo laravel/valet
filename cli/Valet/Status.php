@@ -5,7 +5,7 @@ namespace Valet;
 class Status
 {
     public $brewServicesUserOutput;
-    public $brewServicesSudoOutput;
+    public $brewServicesRootOutput;
     public $debugInstructions = [];
 
     public function __construct(public Configuration $config, public Brew $brew, public CommandLine $cli, public Filesystem $files)
@@ -41,6 +41,8 @@ class Status
      */
     public function checks(): array
     {
+        $linkedPhp = $this->brew->getLinkedPhpFormula();
+
         return [
             [
                 'description' => 'Is Valet fully installed?',
@@ -92,9 +94,16 @@ class Status
                 'debug' => 'Run `valet restart`.',
             ],
             [
+                'description' => 'Is Dnsmasq running as root?',
+                'check' => function () {
+                    return $this->isBrewServiceRunningAsRoot('dnsmasq');
+                },
+                'debug' => 'Uninstall Dnsmasq with Brew and run `valet install`.',
+            ],
+            [
                 'description' => 'Is Nginx installed?',
                 'check' => function () {
-                    return $this->brew->installed('nginx');
+                    return $this->brew->installed('nginx') || $this->brew->installed('nginx-full');
                 },
                 'debug' => 'Run `valet install`.',
             ],
@@ -106,6 +115,13 @@ class Status
                 'debug' => 'Run `valet restart`.',
             ],
             [
+                'description' => 'Is Nginx running as root?',
+                'check' => function () {
+                    return $this->isBrewServiceRunningAsRoot('nginx');
+                },
+                'debug' => 'Uninstall nginx with Brew and run `valet install`.',
+            ],
+            [
                 'description' => 'Is PHP installed?',
                 'check' => function () {
                     return $this->brew->hasInstalledPhp();
@@ -113,11 +129,18 @@ class Status
                 'debug' => 'Run `valet install`.',
             ],
             [
-                'description' => 'Is PHP running?',
-                'check' => function () {
-                    return $this->isBrewServiceRunning('php', exactMatch: false);
+                'description' => 'Is linked PHP ('.$linkedPhp.') running?',
+                'check' => function () use ($linkedPhp) {
+                    return $this->isBrewServiceRunning($linkedPhp);
                 },
                 'debug' => 'Run `valet restart`.',
+            ],
+            [
+                'description' => 'Is linked PHP ('.$linkedPhp.') running as root?',
+                'check' => function () use ($linkedPhp) {
+                    return $this->isBrewServiceRunningAsRoot($linkedPhp);
+                },
+                'debug' => 'Uninstall PHP with Brew and run `valet use php@8.2`',
             ],
             [
                 'description' => 'Is valet.sock present?',
@@ -131,22 +154,36 @@ class Status
 
     public function isBrewServiceRunning(string $name, bool $exactMatch = true): bool
     {
+        return $this->isBrewServiceRunningAsUser($name, $exactMatch)
+            || $this->isBrewServiceRunningAsRoot($name, $exactMatch);
+    }
+
+    public function isBrewServiceRunningAsRoot(string $name, bool $exactMatch = true): bool
+    {
+        if (! $this->brewServicesRootOutput) {
+            $this->brewServicesRootOutput = json_decode($this->cli->run('brew services info --all --json'), false);
+        }
+
+        return $this->isBrewServiceRunningGivenServiceList($this->brewServicesRootOutput, $name, $exactMatch);
+    }
+
+    public function isBrewServiceRunningAsUser(string $name, bool $exactMatch = true): bool
+    {
         if (! $this->brewServicesUserOutput) {
             $this->brewServicesUserOutput = json_decode($this->cli->runAsUser('brew services info --all --json'), false);
         }
 
-        if (! $this->brewServicesSudoOutput) {
-            $this->brewServicesSudoOutput = json_decode($this->cli->run('brew services info --all --json'), false);
-        }
+        return $this->isBrewServiceRunningGivenServiceList($this->brewServicesUserOutput, $name, $exactMatch);
+    }
 
-        foreach ([$this->brewServicesUserOutput, $this->brewServicesSudoOutput] as $output) {
-            foreach ($output as $service) {
-                if ($service->running === true) {
-                    if ($exactMatch && $service->name == $name) {
-                        return true;
-                    } elseif (! $exactMatch && str_contains($service->name, $name)) {
-                        return true;
-                    }
+    protected function isBrewServiceRunningGivenServiceList(array $serviceList, string $name, bool $exactMatch = true): bool
+    {
+        foreach ($serviceList as $service) {
+            if ($service->running === true) {
+                if ($exactMatch && $service->name == $name) {
+                    return true;
+                } elseif (! $exactMatch && str_contains($service->name, $name)) {
+                    return true;
                 }
             }
         }
