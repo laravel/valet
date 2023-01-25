@@ -59,6 +59,14 @@ class Expose
     }
 
     /**
+     * Return which version of Expose is installed.
+     */
+    public function installedVersion(): ?string
+    {
+        return $this->composer->installedVersion('beyondcode/expose');
+    }
+
+    /**
      * Make sure Expose is installed.
      */
     public function ensureInstalled(): void
