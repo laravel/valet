@@ -14,13 +14,12 @@ class Composer
     {
         $result = $this->cli->runAsUser("composer global show --format json -- $namespacedPackage");
 
-        if (starts_with($result, 'Changed current')) {
-            $result = strstr($result, '{');
-        }
-
-        // should be a json response, but if not installed then "not found"
         if (str_contains($result, 'InvalidArgumentException') && str_contains($result, 'not found')) {
             return false;
+        }
+
+        if (starts_with($result, 'Changed current')) {
+            $result = strstr($result, '{');
         }
 
         $details = json_decode($result, true);
@@ -41,19 +40,14 @@ class Composer
 
     public function installedVersion(string $namespacedPackage): ?string
     {
-        if (! $this->installed($namespacedPackage)) {
+        $result = $this->cli->runAsUser("composer global show --format json -- $namespacedPackage");
+
+        if (str_contains($result, 'InvalidArgumentException') && str_contains($result, 'not found')) {
             return null;
         }
-
-        $result = $this->cli->runAsUser("composer global show --format json -- $namespacedPackage");
 
         if (starts_with($result, 'Changed current')) {
             $result = strstr($result, '{');
-        }
-
-        // should be a json response, but if not installed then "not found"
-        if (str_contains($result, 'InvalidArgumentException') && str_contains($result, 'not found')) {
-            return null;
         }
 
         $details = json_decode($result, true);
