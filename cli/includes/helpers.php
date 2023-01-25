@@ -88,7 +88,7 @@ function testing(): bool
 /**
  * Output the given text to the console.
  */
-function output(string $output = ''): void
+function output(?string $output = ''): void
 {
     writer()->writeln($output);
 }

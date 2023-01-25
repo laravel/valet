@@ -57,4 +57,24 @@ class ComposerTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         resolve(Composer::class)->installOrFail('beyondcode/expose');
     }
+
+    public function test_installed_version_returns_null_when_given_package_is_not_installed()
+    {
+        $cli = Mockery::mock(CommandLine::class);
+        $cli->shouldReceive('runAsUser')->once()->with('composer global show --format json -- beyondcode/expose')
+            ->andReturn("Changed current directory to /Users/mattstauffer/.composer\n\n[InvalidArgumentException]\nPackage beyondcode/expose not found");
+        swap(CommandLine::class, $cli);
+
+        $this->assertNull(resolve(Composer::class)->installedVersion('beyondcode/expose'));
+    }
+
+    public function test_installed_version_returns_version_when_package_is_installed()
+    {
+        $cli = Mockery::mock(CommandLine::class);
+        $cli->shouldReceive('runAsUser')->once()->with('composer global show --format json -- beyondcode/expose')
+            ->andReturn('{"versions":["1.4.2"]}');
+        swap(CommandLine::class, $cli);
+
+        $this->assertEquals('1.4.2', resolve(Composer::class)->installedVersion('beyondcode/expose'));
+    }
 }

@@ -345,7 +345,7 @@ if (is_dir(VALET_HOME_PATH)) {
 
         switch ($tool) {
             case 'expose':
-                output(Expose::currentTunnelUrl(Site::domain($domain)));
+                output(Expose::currentTunnelUrl($domain ?: Site::host(getcwd())));
             break;
             case 'ngrok':
                 try {
@@ -380,6 +380,10 @@ if (is_dir(VALET_HOME_PATH)) {
 
         if ($tool === 'expose') {
             if (Expose::installed()) {
+                // @todo: Check it's the right version (has /api/tunnels/)
+                // E.g. if (Expose::installedVersion)
+                // if (version_compare(Expose::installedVersion(), $minimumExposeVersion) < 0) {
+                // prompt them to upgrade
                 return;
             }
 
