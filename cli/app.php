@@ -645,6 +645,15 @@ You might also want to investigate your global Composer configs. Helpful command
     ]);
 
     /**
+     * Proxy commands through to an isolated site's version of Artisan.
+     */
+    $app->command('artisan [command]', function (OutputInterface $output, $command) {
+        warning('It looks like you are running `cli/valet.php` directly; please use the `valet` script in the project root instead.');
+    })->descriptions("Proxy Artisan commands with isolated site's PHP executable", [
+        'command' => "Artisan command to run with isolated site's PHP executable",
+    ]);
+
+    /**
      * Tail log file.
      */
     $app->command('log [-f|--follow] [-l|--lines=] [key]', function (OutputInterface $output, $follow, $lines, $key = null) {

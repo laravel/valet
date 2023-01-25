@@ -93,6 +93,13 @@ then
 
     exit
 
+# Proxy Artisan commands with the "php" executable on the isolated site
+elif [[ "$1" = "artisan" ]]
+then
+    $(php "$DIR/cli/valet.php" which-php) artisan "${@:2}"
+
+    exit
+
 # Finally, for every other command we will just proxy into the PHP tool
 # and let it handle the request. These are commands which can be run
 # without sudo and don't require taking over terminals like Ngrok.
