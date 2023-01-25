@@ -2,7 +2,6 @@
 
 namespace Valet;
 
-use DomainException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 
@@ -27,7 +26,7 @@ class Expose
                 }
             }, 250);
 
-            if (!empty($response)) {
+            if (! empty($response)) {
                 return $response;
             }
 
