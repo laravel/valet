@@ -2,15 +2,53 @@
 
 namespace Valet;
 
+use DomainException;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ConnectException;
+
 class Expose
 {
-    public function __construct(public Composer $composer)
+    public function __construct(public Composer $composer, public CommandLine $cli)
     {
     }
 
-    public function currentTunnelUrl(?string $domain = null): string
+    public function currentTunnelUrl(?string $domain = null): ?string
     {
-        return '@todo';
+        $endpoint = 'http://127.0.0.1:4040/api/tunnels';
+
+        try {
+            $response = retry(20, function () use ($endpoint, $domain) {
+                $body = json_decode((new Client())->get($endpoint)->getBody());
+
+                if (isset($body->tunnels) && count($body->tunnels) > 0) {
+                    if ($tunnelUrl = $this->findHttpTunnelUrl($body->tunnels, $domain)) {
+                        return $tunnelUrl;
+                    }
+                }
+            }, 250);
+
+            if (!empty($response)) {
+                return $response;
+            }
+
+            return warning('The project '.$domain.' cannot be found as an Expose share.');
+        } catch (ConnectException $e) {
+            return warning('There is no Expose instance running.');
+        }
+    }
+
+    /**
+     * Find the HTTP tunnel URL from the list of tunnels.
+     */
+    public function findHttpTunnelUrl(array $tunnels, string $domain): ?string
+    {
+        foreach ($tunnels as $tunnel) {
+            if (strpos($tunnel, strtolower($domain))) {
+                return $tunnel;
+            }
+        }
+
+        return null;
     }
 
     /**
