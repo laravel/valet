@@ -88,7 +88,7 @@ class Valet
     {
         return posix_getpwuid(fileowner($file))['dir'].'/.config/valet';
     }
-    
+
     public function forceUninstallText(): string
     {
         return '<fg=red>NOTE:</>
