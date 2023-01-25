@@ -8,22 +8,17 @@ use GuzzleHttp\Client;
 
 class Ngrok
 {
-    public $cli;
     public $tunnelsEndpoints = [
         'http://127.0.0.1:4040/api/tunnels',
         'http://127.0.0.1:4041/api/tunnels',
     ];
 
-    public function __construct(CommandLine $cli)
+    public function __construct(public CommandLine $cli, public Brew $brew)
     {
-        $this->cli = $cli;
     }
 
     /**
      * Get the current tunnel URL from the Ngrok API.
-     *
-     * @param  string|null  $domain
-     * @return string
      */
     public function currentTunnelUrl(?string $domain = null): string
     {
@@ -52,15 +47,11 @@ class Ngrok
             }
         }
 
-        throw new DomainException('Tunnel not established.');
+        throw new DomainException('There is no Ngrok tunnel established for '.$domain.'.');
     }
 
     /**
      * Find the HTTP tunnel URL from the list of tunnels.
-     *
-     * @param  array  $tunnels
-     * @param  string  $domain
-     * @return string|null
      */
     public function findHttpTunnelUrl(array $tunnels, string $domain): ?string
     {
@@ -72,16 +63,31 @@ class Ngrok
                 return $tunnel->public_url;
             }
         }
+
+        return null;
     }
 
     /**
      * Set the Ngrok auth token.
-     *
-     * @param  string  $token
-     * @return string
      */
-    public function setToken($token)
+    public function setToken($token): string
     {
-        return $this->cli->runAsUser('./bin/ngrok authtoken '.$token);
+        return $this->cli->runAsUser(BREW_PREFIX.'/bin/ngrok authtoken '.$token);
+    }
+
+    /**
+     * Return whether ngrok is installed.
+     */
+    public function installed(): bool
+    {
+        return $this->brew->installed('ngrok');
+    }
+
+    /**
+     * Make sure ngrok is installed.
+     */
+    public function ensureInstalled(): void
+    {
+        $this->brew->ensureInstalled('ngrok');
     }
 }

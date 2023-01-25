@@ -8,11 +8,6 @@ class DrupalValetDriver extends ValetDriver
 {
     /**
      * Determine if the driver serves the request.
-     *
-     * @param  string  $sitePath
-     * @param  string  $siteName
-     * @param  string  $uri
-     * @return void
      */
     public function serves(string $sitePath, string $siteName, string $uri): bool
     {
@@ -32,13 +27,8 @@ class DrupalValetDriver extends ValetDriver
 
     /**
      * Determine if the incoming request is for a static file.
-     *
-     * @param  string  $sitePath
-     * @param  string  $siteName
-     * @param  string  $uri
-     * @return string|false
      */
-    public function isStaticFile(string $sitePath, string $siteName, string $uri): string|false
+    public function isStaticFile(string $sitePath, string $siteName, string $uri)/*: string|false */
     {
         $sitePath = $this->addSubdirectory($sitePath);
 
@@ -53,11 +43,6 @@ class DrupalValetDriver extends ValetDriver
 
     /**
      * Get the fully resolved path to the application's front controller.
-     *
-     * @param  string  $sitePath
-     * @param  string  $siteName
-     * @param  string  $uri
-     * @return string|null
      */
     public function frontControllerPath(string $sitePath, string $siteName, string $uri): ?string
     {
@@ -88,7 +73,7 @@ class DrupalValetDriver extends ValetDriver
     /**
      * Add any matching subdirectory to the site path.
      */
-    public function addSubdirectory($sitePath)
+    public function addSubdirectory($sitePath): string
     {
         $paths = array_map(function ($subDir) use ($sitePath) {
             return "$sitePath/$subDir";
@@ -109,10 +94,8 @@ class DrupalValetDriver extends ValetDriver
 
     /**
      * Return an array of possible subdirectories.
-     *
-     * @return array
      */
-    private function possibleSubdirectories()
+    private function possibleSubdirectories(): array
     {
         return ['docroot', 'public', 'web'];
     }

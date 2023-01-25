@@ -43,11 +43,6 @@ class Typo3ValetDriver extends ValetDriver
 
     /**
      * Take any steps necessary before loading the front controller for this driver.
-     *
-     * @param  string  $sitePath
-     * @param  string  $siteName
-     * @param  string  $uri
-     * @return void
      */
     public function beforeLoading(string $sitePath, string $siteName, string $uri): void
     {
@@ -63,11 +58,6 @@ class Typo3ValetDriver extends ValetDriver
     /**
      * Determine if the driver serves the request. For TYPO3, this is the
      * case, if a folder called "typo3" is present in the document root.
-     *
-     * @param  string  $sitePath
-     * @param  string  $siteName
-     * @param  string  $uri
-     * @return bool
      */
     public function serves(string $sitePath, string $siteName, string $uri): bool
     {
@@ -80,13 +70,8 @@ class Typo3ValetDriver extends ValetDriver
      * Determine if the incoming request is for a static file. That is, it is
      * no PHP script file and the URI points to a valid file (no folder) on
      * the disk. Access to those static files will be authorized.
-     *
-     * @param  string  $sitePath
-     * @param  string  $siteName
-     * @param  string  $uri
-     * @return string|false
      */
-    public function isStaticFile(string $sitePath, string $siteName, string $uri): string|false
+    public function isStaticFile(string $sitePath, string $siteName, string $uri)/*: string|false */
     {
         // May the file contains a cache busting version string like filename.12345678.css
         // If that is the case, the file cannot be found on disk, so remove the version
@@ -108,11 +93,8 @@ class Typo3ValetDriver extends ValetDriver
 
     /**
      * Determines if the given URI is blacklisted so that access is prevented.
-     *
-     * @param  string  $uri
-     * @return bool
      */
-    private function isAccessAuthorized($uri)
+    private function isAccessAuthorized(string $uri): bool
     {
         foreach ($this->forbiddenUriPatterns as $forbiddenUriPattern) {
             if (preg_match("@$forbiddenUriPattern@", $uri)) {
@@ -127,11 +109,6 @@ class Typo3ValetDriver extends ValetDriver
      * Get the fully resolved path to the application's front controller.
      * This can be the currently requested PHP script, a folder that
      * contains an index.php or the global index.php otherwise.
-     *
-     * @param  string  $sitePath
-     * @param  string  $siteName
-     * @param  string  $uri
-     * @return string|null
      */
     public function frontControllerPath(string $sitePath, string $siteName, string $uri): ?string
     {
@@ -164,10 +141,8 @@ class Typo3ValetDriver extends ValetDriver
      * Direct access to installtool via domain.dev/typo3/install/ will be redirected to
      * sysext install script. domain.dev/typo3 will be redirected to /typo3/, because
      * the generated JavaScript URIs on the login screen would be broken on /typo3.
-     *
-     * @param  string  $uri
      */
-    private function handleRedirectBackendShorthandUris($uri)
+    private function handleRedirectBackendShorthandUris(string $uri): void
     {
         if (rtrim($uri, '/') === '/typo3/install') {
             header('Location: /typo3/sysext/install/Start/Install.php');
@@ -183,13 +158,8 @@ class Typo3ValetDriver extends ValetDriver
     /**
      * Configures the $_SERVER globals for serving the script at
      * the specified URI and returns it absolute file path.
-     *
-     * @param  string  $sitePath
-     * @param  string  $uri
-     * @param  string  $script
-     * @return string
      */
-    private function serveScript($sitePath, $uri)
+    private function serveScript(string $sitePath, string $uri): string
     {
         $docroot = $sitePath.$this->documentRoot;
         $abspath = $docroot.$uri;

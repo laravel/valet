@@ -13,24 +13,12 @@ class PhpFpm
         'shivammathur/php',
     ];
 
-    /**
-     * Create a new PHP FPM class instance.
-     *
-     * @param  Brew  $brew
-     * @param  CommandLine  $cli
-     * @param  Filesystem  $files
-     * @param  Configuration  $config
-     * @param  Site  $site
-     * @param  Nginx  $nginx
-     */
     public function __construct(public Brew $brew, public CommandLine $cli, public Filesystem $files, public Configuration $config, public Site $site, public Nginx $nginx)
     {
     }
 
     /**
      * Install and configure PhpFpm.
-     *
-     * @return void
      */
     public function install(): void
     {
@@ -56,8 +44,6 @@ class PhpFpm
 
     /**
      * Forcefully uninstall all of Valet's supported PHP versions and configurations.
-     *
-     * @return void
      */
     public function uninstall(): void
     {
@@ -70,9 +56,6 @@ class PhpFpm
      * Create (or re-create) the PHP FPM configuration files.
      *
      * Writes FPM config file, pointing to the correct .sock file, and log and ini files.
-     *
-     * @param  string  $phpVersion
-     * @return void
      */
     public function createConfigurationFiles(string $phpVersion): void
     {
@@ -119,9 +102,6 @@ class PhpFpm
 
     /**
      * Restart the PHP FPM process (if one specified) or processes (if none specified).
-     *
-     * @param  string|null  $phpVersion
-     * @return void
      */
     public function restart(?string $phpVersion = null): void
     {
@@ -130,8 +110,6 @@ class PhpFpm
 
     /**
      * Stop the PHP FPM process.
-     *
-     * @return void
      */
     public function stop(): void
     {
@@ -143,9 +121,6 @@ class PhpFpm
 
     /**
      * Get the path to the FPM configuration file for the current PHP version.
-     *
-     * @param  string|null  $phpVersion
-     * @return string
      */
     public function fpmConfigPath(?string $phpVersion = null): string
     {
@@ -175,9 +150,6 @@ class PhpFpm
 
     /**
      * Stop a given PHP version, if that specific version isn't being used globally or by any sites.
-     *
-     * @param  string|null  $phpVersion
-     * @return void
      */
     public function stopIfUnused(?string $phpVersion = null): void
     {
@@ -194,10 +166,6 @@ class PhpFpm
 
     /**
      * Isolate a given directory to use a specific version of PHP.
-     *
-     * @param  string  $directory
-     * @param  string  $version
-     * @return void
      */
     public function isolateDirectory(string $directory, string $version): void
     {
@@ -221,9 +189,6 @@ class PhpFpm
 
     /**
      * Remove PHP version isolation for a given directory.
-     *
-     * @param  string  $directory
-     * @return void
      */
     public function unIsolateDirectory(string $directory): void
     {
@@ -240,8 +205,6 @@ class PhpFpm
 
     /**
      * List all directories with PHP isolation configured.
-     *
-     * @return Collection
      */
     public function isolatedDirectories(): Collection
     {
@@ -254,10 +217,6 @@ class PhpFpm
 
     /**
      * Use a specific version of PHP globally.
-     *
-     * @param  string  $version
-     * @param  bool  $force
-     * @return string|void
      */
     public function useVersion(string $version, bool $force = false): ?string
     {
@@ -300,9 +259,6 @@ class PhpFpm
 
     /**
      * Symlink (Capistrano-style) a given Valet.sock file to be the primary valet.sock.
-     *
-     * @param  string  $phpVersion
-     * @return void
      */
     public function symlinkPrimaryValetSock(string $phpVersion): void
     {
@@ -311,9 +267,6 @@ class PhpFpm
 
     /**
      * If passed php7.4, or php74, 7.4, or 74 formats, normalize to php@7.4 format.
-     *
-     * @param  string|null
-     * @return string
      */
     public function normalizePhpVersion(?string $version): string
     {
@@ -322,9 +275,6 @@ class PhpFpm
 
     /**
      * Validate the requested version to be sure we can support it.
-     *
-     * @param  string  $version
-     * @return string
      */
     public function validateRequestedVersion(string $version): string
     {
@@ -353,9 +303,6 @@ class PhpFpm
 
     /**
      * Get FPM sock file name for a given PHP version.
-     *
-     * @param  string|null  $phpVersion
-     * @return string
      */
     public static function fpmSockName(?string $phpVersion = null): string
     {
@@ -367,8 +314,6 @@ class PhpFpm
     /**
      * Get a list including the global PHP version and allPHP versions currently serving "isolated sites" (sites with
      * custom Nginx configs pointing them to a specific PHP version).
-     *
-     * @return array
      */
     public function utilizedPhpVersions(): array
     {

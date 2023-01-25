@@ -4,20 +4,16 @@ namespace Valet;
 
 class Server
 {
-    /**
-     * Create a new Server instance.
-     *
-     * @param  array  $config
-     */
-    public function __construct(public array $config)
+    // Skip constructor promotion until we stop supporting PHP@7.4 isolation
+    public $config;
+
+    public function __construct(array $config)
     {
+        $this->config = $config;
     }
 
     /**
      * Extract $uri from $SERVER['REQUEST_URI'] variable.
-     *
-     * @param  string  $requestUri  $_SERVER['REQUEST_URI']
-     * @return string
      */
     public static function uriFromRequestUri(string $requestUri): string
     {
@@ -28,9 +24,6 @@ class Server
 
     /**
      * Extract the domain from the site name.
-     *
-     * @param  string  $siteName
-     * @return string
      */
     public static function domainFromSiteName(string $siteName): string
     {
@@ -49,9 +42,6 @@ class Server
 
     /**
      * Show directory listing or 404 if directory doesn't exist.
-     *
-     * @param  string  $valetSitePath
-     * @param  string  $uri
      */
     public static function showDirectoryListing(string $valetSitePath, string $uri)
     {
@@ -82,9 +72,6 @@ class Server
 
     /**
      * Extract site name from HTTP host, stripping www. and supporting wildcard DNS.
-     *
-     * @param  string  $httpHost
-     * @return string
      */
     public function siteNameFromHttpHost(string $httpHost): string
     {
@@ -105,9 +92,6 @@ class Server
      * You may use wildcard DNS provider nip.io as a tool for testing your site via an IP address.
      * First, determine the IP address of your local computer (like 192.168.0.10).
      * Then, visit http://project.your-ip.nip.io - e.g.: http://laravel.192.168.0.10.nip.io.
-     *
-     * @param  string  $domain
-     * @return string
      */
     public function allowWildcardDnsDomains(string $domain): string
     {
@@ -143,9 +127,6 @@ class Server
     /**
      * Determine the fully qualified path to the site.
      * Inspects registered path directories, case-sensitive.
-     *
-     * @param  string  $siteName
-     * @return string|null
      */
     public function sitePath(string $siteName): ?string
     {
@@ -192,8 +173,6 @@ class Server
 
     /**
      * Return the default site path for uncaught URLs, if it's set.
-     *
-     * @return string|null
      **/
     public function defaultSitePath(): ?string
     {

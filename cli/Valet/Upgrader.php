@@ -13,8 +13,6 @@ class Upgrader
 
     /**
      * Run all the upgrades that should be run every time Valet commands are run.
-     *
-     * @return void
      */
     public function onEveryRun(): void
     {
@@ -26,18 +24,19 @@ class Upgrader
 
     /**
      * Prune all non-existent paths from the configuration.
-     *
-     * @return void
      */
     public function pruneMissingDirectories(): void
     {
-        Configuration::prune();
+        try {
+            Configuration::prune();
+        } catch (\JsonException $e) {
+            warning('Invalid confiuration file at '.Configuration::path().'.');
+            exit;
+        }
     }
 
     /**
      * Remove all broken symbolic links in the Valet config Sites diretory.
-     *
-     * @return void
      */
     public function pruneSymbolicLinks(): void
     {
@@ -47,8 +46,6 @@ class Upgrader
     /**
      * If the user has the old `SampleValetDriver` without the Valet namespace,
      * replace it with the new `SampleValetDriver` that uses the namespace.
-     *
-     * @return void
      */
     public function fixOldSampleValetDriver(): void
     {
@@ -66,8 +63,6 @@ class Upgrader
 
     /**
      * Throw an exception if the user has old (non-namespaced) custom drivers.
-     *
-     * @return void
      */
     public function errorIfOldCustomDrivers(): void
     {

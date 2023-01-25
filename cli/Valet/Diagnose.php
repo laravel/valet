@@ -28,7 +28,7 @@ class Diagnose
         'nginx -v',
         'curl --version',
         'php --ri curl',
-        '~/.composer/vendor/laravel/valet/bin/ngrok version',
+        BREW_PREFIX.'/bin/ngrok version',
         'ls -al ~/.ngrok2',
         'brew info nginx',
         'brew info php',
@@ -54,23 +54,12 @@ class Diagnose
     public $print;
     public $progressBar;
 
-    /**
-     * Create a new Diagnose instance.
-     *
-     * @param  CommandLine  $cli
-     * @param  Filesystem  $files
-     * @return void
-     */
     public function __construct(public CommandLine $cli, public Filesystem $files)
     {
     }
 
     /**
      * Run diagnostics.
-     *
-     * @param  bool  $print
-     * @param  bool  $plainText
-     * @return void
      */
     public function run(bool $print, bool $plainText): void
     {

@@ -8,11 +8,6 @@ class StatamicValetDriver extends ValetDriver
 {
     /**
      * Determine if the driver serves the request.
-     *
-     * @param  string  $sitePath
-     * @param  string  $siteName
-     * @param  string  $uri
-     * @return bool
      */
     public function serves(string $sitePath, string $siteName, string $uri): bool
     {
@@ -21,13 +16,8 @@ class StatamicValetDriver extends ValetDriver
 
     /**
      * Determine if the incoming request is for a static file.
-     *
-     * @param  string  $sitePath
-     * @param  string  $siteName
-     * @param  string  $uri
-     * @return string|false
      */
-    public function isStaticFile(string $sitePath, string $siteName, string $uri): string|false
+    public function isStaticFile(string $sitePath, string $siteName, string $uri)/*: string|false */
     {
         if (strpos($uri, '/site') === 0 && strpos($uri, '/site/themes') !== 0) {
             return false;
@@ -44,11 +34,6 @@ class StatamicValetDriver extends ValetDriver
 
     /**
      * Get the fully resolved path to the application's front controller.
-     *
-     * @param  string  $sitePath
-     * @param  string  $siteName
-     * @param  string  $uri
-     * @return string|null
      */
     public function frontControllerPath(string $sitePath, string $siteName, string $uri): ?string
     {
@@ -93,17 +78,14 @@ class StatamicValetDriver extends ValetDriver
 
     /**
      * Get the locale from this URI.
-     *
-     * @param  string  $uri
-     * @return string|null
      */
-    public function getUriLocale($uri)
+    public function getUriLocale(string $uri): ?string
     {
         $parts = explode('/', $uri);
         $locale = $parts[1];
 
         if (count($parts) < 2 || ! in_array($locale, $this->getLocales())) {
-            return;
+            return null;
         }
 
         return $locale;
@@ -111,10 +93,8 @@ class StatamicValetDriver extends ValetDriver
 
     /**
      * Get the list of possible locales used in the first segment of a URI.
-     *
-     * @return array
      */
-    public function getLocales()
+    public function getLocales(): array
     {
         return [
             'af', 'ax', 'al', 'dz', 'as', 'ad', 'ao', 'ai', 'aq', 'ag', 'ar', 'am', 'aw', 'au', 'at', 'az', 'bs', 'bh',
@@ -136,11 +116,8 @@ class StatamicValetDriver extends ValetDriver
 
     /**
      * Get the path to a statically cached page.
-     *
-     * @param  string  $sitePath
-     * @return string
      */
-    protected function getStaticPath($sitePath)
+    protected function getStaticPath(string $sitePath): string
     {
         $parts = parse_url($_SERVER['REQUEST_URI']);
         $query = isset($parts['query']) ? $parts['query'] : '';

@@ -2,6 +2,7 @@
 
 use Illuminate\Container\Container;
 use Silly\Application;
+use Silly\Command\Command;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Symfony\Component\Console\Input\InputInterface;
@@ -39,6 +40,8 @@ Container::setInstance($container = new Container);
 $container->instance('os', $os = Os::assign());
 $container->instance(Installer::class, $os->installer());
 
+$version = '4.0.0';
+
 $app = new Application('Laravel Valet', $version);
 
 $app->setDispatcher($dispatcher = new EventDispatcher());
@@ -58,21 +61,52 @@ $app->command('install', function (OutputInterface $output) {
     Nginx::stop();
 
     Configuration::install();
+    output();
     Nginx::install();
+    output();
     PhpFpm::install();
+    output();
     DnsMasq::install(Configuration::read()['tld']);
+    output();
     Nginx::restart();
+    output();
     Valet::symlinkToUsersBin();
 
     output(PHP_EOL.'<info>Valet installed successfully!</info>');
 })->descriptions('Install the Valet services');
 
 /**
+ * Output the status of Valet and its installed services and config.
+ */
+$app->command('status', function (OutputInterface $output) {
+    info('Checking status...');
+
+    $status = Status::check();
+
+    if ($status['success']) {
+        info("\nValet status: Healthy\n");
+    } else {
+        warning("\nValet status: Error\n");
+    }
+
+    table(['Check', 'Success?'], $status['output']);
+
+    if ($status['success']) {
+        return Command::SUCCESS;
+    }
+
+    info(PHP_EOL.'Debug suggestions:');
+    info($status['debug']);
+
+    return Command::FAILURE;
+})->descriptions('Output the status of Valet and its installed services and config.');
+
+/**
  * Most commands are available only if valet is installed.
  */
 if (is_dir(VALET_HOME_PATH)) {
     /**
-     * Upgrade helper: ensure the tld config exists or the loopback config exists.
+     * Upgrade helper: ensure the tld config exists and the loopback config exists.
      */
     if (empty(Configuration::read()['tld']) || empty(Configuration::read()['loopback'])) {
         Configuration::writeBaseConfiguration();
@@ -133,7 +167,7 @@ if (is_dir(VALET_HOME_PATH)) {
         Nginx::installServer();
         Nginx::restart();
 
-        info('Your valet loopback address has been updated to ['.$loopback.']');
+        info('Your Valet loopback address has been updated to ['.$loopback.']');
     })->descriptions('Get or set the loopback address used for Valet sites');
 
     /**
@@ -214,6 +248,10 @@ if (is_dir(VALET_HOME_PATH)) {
         if ($all) {
             Site::unsecureAll();
 
+            Nginx::restart();
+
+            info('All Valet sites will now serve traffic over HTTP.');
+
             return;
         }
 
@@ -265,7 +303,7 @@ if (is_dir(VALET_HOME_PATH)) {
     })->descriptions('Display all of the proxy sites');
 
     /**
-     * Determine which Valet driver the current directory is using.
+     * Display which Valet driver the current directory is using.
      */
     $app->command('which', function (OutputInterface $output) {
         $driver = ValetDriver::assign(getcwd(), basename(getcwd()), '/');
@@ -275,7 +313,7 @@ if (is_dir(VALET_HOME_PATH)) {
         } else {
             warning('Valet could not determine which driver to use for this site.');
         }
-    })->descriptions('Determine which Valet driver serves the current working directory');
+    })->descriptions('Display which Valet driver serves the current working directory');
 
     /**
      * Display all of the registered paths.
@@ -308,9 +346,76 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Echo the currently tunneled URL.
      */
-    $app->command('fetch-share-url [domain]', function (OutputInterface $output, $domain = null) {
-        output(Ngrok::currentTunnelUrl(Site::domain($domain)));
-    })->descriptions('Get the URL to the current Ngrok tunnel');
+    $app->command('fetch-share-url [domain]', function ($domain = null) {
+        $tool = Configuration::read()['share-tool'] ?? null;
+
+        switch ($tool) {
+            case 'expose':
+                output(Expose::currentTunnelUrl($domain ?: Site::host(getcwd())));
+            break;
+            case 'ngrok':
+                try {
+                    output(Ngrok::currentTunnelUrl(Site::domain($domain)));
+                } catch (\Throwable $e) {
+                    warning($e->getMessage());
+                }
+            break;
+            default:
+                info('Please set your share tool with `valet share-tool expose` or `valet share-tool ngrok`.');
+
+                return Command::FAILURE;
+        }
+    })->descriptions('Get the URL to the current share tunnel (for Expose or ngrok)');
+
+    /**
+     * Echo or set the name of the currently-selected share tool (either "ngrok" or "expose").
+     */
+    $app->command('share-tool [tool]', function (InputInterface $input, OutputInterface $output, $tool = null) {
+        if ($tool === null) {
+            return output(Configuration::read()['share-tool'] ?? '(not set)');
+        }
+
+        if ($tool !== 'expose' && $tool !== 'ngrok') {
+            warning($tool.' is not a valid share tool. Please use `ngrok` or `expose`.');
+
+            return Command::FAILURE;
+        }
+
+        Configuration::updateKey('share-tool', $tool);
+        info('Share tool set to '.$tool.'.');
+
+        if ($tool === 'expose') {
+            if (Expose::installed()) {
+                // @todo: Check it's the right version (has /api/tunnels/)
+                // E.g. if (Expose::installedVersion)
+                // if (version_compare(Expose::installedVersion(), $minimumExposeVersion) < 0) {
+                // prompt them to upgrade
+                return;
+            }
+
+            $helper = $this->getHelperSet()->get('question');
+            $question = new ConfirmationQuestion('Would you like to install Expose now? ', false);
+
+            if (false === $helper->ask($input, $output, $question)) {
+                return;
+            }
+
+            Expose::ensureInstalled();
+
+            return;
+        }
+
+        if (! Ngrok::installed()) {
+            $helper = $this->getHelperSet()->get('question');
+            $question = new ConfirmationQuestion('Would you like to install ngrok now? ', false);
+
+            if (false === $helper->ask($input, $output, $question)) {
+                return;
+            }
+
+            Ngrok::ensureInstalled();
+        }
+    })->descriptions('Get the name of the current share tool (Expose or ngrok).');
 
     /**
      * Set the ngrok auth token.
@@ -430,66 +535,11 @@ if (is_dir(VALET_HOME_PATH)) {
             // Brew::removeSudoersEntry();
             Valet::removeSudoersEntry();
 
-            return output('<fg=red>NOTE:</>
-<comment>Valet has attempted to uninstall itself, but there are some steps you need to do manually:</comment>
-Run <info>php -v</info> to see what PHP version you are now really using.
-Run <info>composer global update</info> to update your globally-installed Composer packages to work with your default PHP.
-NOTE: Composer may have other dependencies for other global apps you have installed, and those may not be compatible with your default PHP.
-Thus, you may need to delete things from your <info>~/.composer/composer.json</info> file before running <info>composer global update</info> successfully.
-Then to finish removing any Composer fragments of Valet:
-Run <info>composer global remove laravel/valet</info>
-and then <info>rm '.BREW_PREFIX.'/bin/valet</info> to remove the Valet bin link if it still exists.
-Optional:
-- <info>brew list --formula</info> will show any other Homebrew services installed, in case you want to make changes to those as well.
-- <info>brew doctor</info> can indicate if there might be any broken things left behind.
-- <info>brew cleanup</info> can purge old cached Homebrew downloads.
-<fg=red>If you had customized your machine\'s DNS settings in System Preferences->Network, you will need to remove 127.0.0.1 from that list.</>
-Additionally you might also want to open Keychain Access and search for <comment>valet</comment> to remove any leftover trust certificates.
-');
+            return output(Valet::forceUninstallText());
         }
 
-        output('WAIT! Before you uninstall things, consider cleaning things up in the following order. (Or skip to the bottom for troubleshooting suggestions.):
-<info>You did not pass the <fg=red>--force</> parameter so we are NOT ACTUALLY uninstalling anything.</info>
-A --force removal WILL delete your custom configuration information, so you will want to make backups first.
+        output(Valet::uninstallText());
 
-IF YOU WANT TO UNINSTALL VALET MANUALLY, DO THE FOLLOWING...
-
-<info>1. Valet Keychain Certificates</info>
-Before removing Valet configuration files, we recommend that you run <comment>valet unsecure --all</comment> to clean up the certificates that Valet inserted into your Keychain.
-Alternatively you can do a search for <comment>@laravel.valet</comment> in Keychain Access and delete those certificates there manually.
-You may also run <comment>valet parked</comment> to see a list of all sites Valet could serve.
-
-<info>2. Valet Configuration Files</info>
-<fg=red>You may remove your user-specific Valet config files by running:</>  <comment>rm -rf ~/.config/valet</comment>
-
-<info>3. Remove Valet package</info>
-You can run <comment>composer global remove laravel/valet</comment> to uninstall the Valet package.
-
-<info>4. Homebrew Services</info>
-<fg=red>You may remove the core services (php, nginx, dnsmasq) by running:</> <comment>brew uninstall --force php nginx dnsmasq</comment>
-<fg=red>You can then remove selected leftover configurations for these services manually</> in both <comment>'.BREW_PREFIX.'/etc/</comment> and <comment>'.BREW_PREFIX.'/logs/</comment>.
-(If you have other PHP versions installed, run <info>brew list --formula | grep php</info> to see which versions you should also uninstall manually.)
-
-<error>BEWARE:</error> Uninstalling PHP via Homebrew will leave your machine with its original PHP version, which may not be compatible with other Composer dependencies you have installed. Thus you may get unexpected errors.
-
-Some additional services which you may have installed (but which Valet does not directly configure or manage) include: <comment>mariadb mysql mailhog</comment>.
-If you wish to also remove them, you may manually run <comment>brew uninstall SERVICENAME</comment> and clean up their configurations in '.BREW_PREFIX.'/etc if necessary.
-
-You can discover more Homebrew services by running: <comment>brew services list</comment> and <comment>brew list --formula</comment>
-
-<fg=red>If you have customized your machine\'s DNS settings in System Preferences->Network, you may need to add or remove 127.0.0.1 from the top of that list.</>
-
-<info>5. GENERAL TROUBLESHOOTING</info>
-If your reasons for considering an uninstall are more for troubleshooting purposes, consider running <comment>brew doctor</comment> and/or <comment>brew cleanup</comment> to see if any problems exist there.
-Also consider running <comment>sudo nginx -t</comment> to test your nginx configs in case there are failures/errors there preventing nginx from running.
-Most of the nginx configs used by Valet are in your ~/.config/valet/Nginx directory.
-
-You might also want to investigate your global Composer configs. Helpful commands include:
-<comment>composer global update</comment> to apply updates to packages
-<comment>composer global outdated</comment> to identify outdated packages
-<comment>composer global diagnose</comment> to run diagnostics
-');
-        // Stopping PHP so the ~/.config/valet/valet.sock file is released so the directory can be deleted if desired
         PhpFpm::stopRunning();
         Nginx::stop();
     })->descriptions('Uninstall the Valet services', ['--force' => 'Do a forceful uninstall of Valet and related Homebrew pkgs']);
@@ -535,7 +585,7 @@ You might also want to investigate your global Composer configs. Helpful command
             // $linkedVersion = Brew::linkedPhp();
 
             if ($phpVersion = Site::phpRcVersion($site)) {
-                info("Found '{$site}/.valetphprc' specifying version: {$phpVersion}");
+                info("Found '{$site}/.valetrc' or '{$site}/.valetphprc' specifying version: {$phpVersion}");
             } else {
                 $domain = $site.'.'.data_get(Configuration::read(), 'tld');
                 if ($phpVersion = PhpFpm::normalizePhpVersion(Site::customPhpVersion($domain))) {
@@ -554,7 +604,7 @@ You might also want to investigate your global Composer configs. Helpful command
 
         PhpFpm::useVersion($phpVersion, $force);
     })->descriptions('Change the version of PHP used by Valet', [
-        'phpVersion' => 'The PHP version you want to use, e.g php@7.3',
+        'phpVersion' => 'The PHP version you want to use; e.g php@8.2',
     ]);
 
     /**
@@ -567,11 +617,12 @@ You might also want to investigate your global Composer configs. Helpful command
 
         if (is_null($phpVersion)) {
             if ($phpVersion = Site::phpRcVersion($site)) {
-                info("Found '{$site}/.valetphprc' specifying version: {$phpVersion}");
+                info("Found '{$site}/.valetrc' or '{$site}/.valetphprc' specifying version: {$phpVersion}");
             } else {
                 info(PHP_EOL.'Please provide a version number. E.g.:');
                 info('valet isolate php@8.2');
-                exit;
+
+                return;
             }
         }
 
@@ -683,7 +734,7 @@ You might also want to investigate your global Composer configs. Helpful command
                 'to your "'.Configuration::path().'" file.',
             ]));
 
-            exit;
+            return;
         }
 
         if (! isset($logs[$key])) {
@@ -741,13 +792,6 @@ You might also want to investigate your global Composer configs. Helpful command
         '--print' => 'print diagnostics output while running',
         '--plain' => 'format clipboard output as plain text',
     ]);
-}
-
-/**
- * Load all of the Valet extensions.
- */
-foreach (Valet::extensions() as $extension) {
-    include $extension;
 }
 
 return $app;

@@ -12,6 +12,10 @@ abstract class Installer
         'php@8.2',
         'php@8.1',
         'php@8.0',
+        'php@7.4',
+        'php@7.3',
+        'php@7.2',
+        'php@7.1',
     ];
     const LATEST_PHP_VERSION = 'php@8.2';
 

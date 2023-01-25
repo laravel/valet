@@ -11,41 +11,23 @@ abstract class ValetDriver
 {
     /**
      * Determine if the driver serves the request.
-     *
-     * @param  string  $sitePath
-     * @param  string  $siteName
-     * @param  string  $uri
-     * @return bool
      */
     abstract public function serves(string $sitePath, string $siteName, string $uri): bool;
 
     /**
      * Determine if the incoming request is for a static file.
-     *
-     * @param  string  $sitePath
-     * @param  string  $siteName
-     * @param  string  $uri
-     * @return string|false
      */
-    abstract public function isStaticFile(string $sitePath, string $siteName, string $uri): string|false;
+    // While we support PHP 7.4 for individual site isolation...
+    abstract public function isStaticFile(string $sitePath, string $siteName, string $uri);
+    //abstract public function isStaticFile(string $sitePath, string $siteName, string $uri): string|false;
 
     /**
      * Get the fully resolved path to the application's front controller.
-     *
-     * @param  string  $sitePath
-     * @param  string  $siteName
-     * @param  string  $uri
-     * @return string|null
      */
     abstract public function frontControllerPath(string $sitePath, string $siteName, string $uri): ?string;
 
     /**
      * Find a driver that can serve the incoming request.
-     *
-     * @param  string  $sitePath
-     * @param  string  $siteName
-     * @param  string  $uri
-     * @return ValetDriver|null
      */
     public static function assign(string $sitePath, string $siteName, string $uri): ?ValetDriver
     {
@@ -77,9 +59,6 @@ abstract class ValetDriver
 
     /**
      * Get the custom driver class from the site path, if one exists.
-     *
-     * @param  string  $sitePath
-     * @return string|null
      */
     public static function customSiteDriver(string $sitePath): ?string
     {
@@ -94,9 +73,6 @@ abstract class ValetDriver
 
     /**
      * Get all of the driver classes in a given path.
-     *
-     * @param  string  $path
-     * @return array
      */
     public static function driversIn(string $path): array
     {
@@ -121,8 +97,6 @@ abstract class ValetDriver
 
     /**
      * Get all of the specific drivers shipped with Valet.
-     *
-     * @return array
      */
     public static function specificDrivers(): array
     {
@@ -133,8 +107,6 @@ abstract class ValetDriver
 
     /**
      * Get all of the custom drivers defined by the user locally.
-     *
-     * @return array
      */
     public static function customDrivers(): array
     {
@@ -145,11 +117,6 @@ abstract class ValetDriver
 
     /**
      * Take any steps necessary before loading the front controller for this driver.
-     *
-     * @param  string  $sitePath
-     * @param  string  $siteName
-     * @param  string  $uri
-     * @return void
      */
     public function beforeLoading(string $sitePath, string $siteName, string $uri): void
     {
@@ -158,9 +125,6 @@ abstract class ValetDriver
 
     /**
      * Mutate the incoming URI.
-     *
-     * @param  string  $uri
-     * @return string
      */
     public function mutateUri(string $uri): string
     {
@@ -169,12 +133,6 @@ abstract class ValetDriver
 
     /**
      * Serve the static file at the given path.
-     *
-     * @param  string  $staticFilePath
-     * @param  string  $sitePath
-     * @param  string  $siteName
-     * @param  string  $uri
-     * @return void
      */
     public function serveStaticFile(string $staticFilePath, string $sitePath, string $siteName, string $uri): void
     {
@@ -201,9 +159,6 @@ abstract class ValetDriver
 
     /**
      * Determine if the path is a file and not a directory.
-     *
-     * @param  string  $path
-     * @return bool
      */
     protected function isActualFile(string $path): bool
     {
@@ -213,10 +168,6 @@ abstract class ValetDriver
     /**
      * Load server environment variables if available.
      * Processes any '*' entries first, and then adds site-specific entries.
-     *
-     * @param  string  $sitePath
-     * @param  string  $siteName
-     * @return void
      */
     public function loadServerEnvironmentVariables(string $sitePath, string $siteName): void
     {
@@ -244,5 +195,21 @@ abstract class ValetDriver
             $_ENV[$key] = $value;
             putenv($key.'='.$value);
         }
+    }
+
+    public function composerRequires(string $sitePath, string $namespacedPackage): bool
+    {
+        if (! file_exists($sitePath.'/composer.json')) {
+            return false;
+        }
+
+        $composer_json_source = file_get_contents($sitePath.'/composer.json');
+        $composer_json = json_decode($composer_json_source, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return false;
+        }
+
+        return isset($composer_json['require'][$namespacedPackage]);
     }
 }

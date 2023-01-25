@@ -7,10 +7,7 @@ use Symfony\Component\Process\Process;
 class CommandLine
 {
     /**
-     * Simple global function to run commands.
-     *
-     * @param  string  $command
-     * @return void
+     * Simple global function to run commands quietly.
      */
     public function quietly(string $command): void
     {
@@ -19,9 +16,6 @@ class CommandLine
 
     /**
      * Simple global function to run commands.
-     *
-     * @param  string  $command
-     * @return void
      */
     public function quietlyAsUser(string $command): void
     {
@@ -30,9 +24,6 @@ class CommandLine
 
     /**
      * Pass the command to the command line and display the output.
-     *
-     * @param  string  $command
-     * @return void
      */
     public function passthru(string $command): void
     {
@@ -41,10 +32,6 @@ class CommandLine
 
     /**
      * Run the given command as the non-root user.
-     *
-     * @param  string  $command
-     * @param  callable  $onError
-     * @return string
      */
     public function run(string $command, callable $onError = null): string
     {
@@ -53,10 +40,6 @@ class CommandLine
 
     /**
      * Run the given command.
-     *
-     * @param  string  $command
-     * @param  callable  $onError
-     * @return string
      */
     public function runAsUser(string $command, callable $onError = null): string
     {
@@ -65,10 +48,6 @@ class CommandLine
 
     /**
      * Run the given command.
-     *
-     * @param  string  $command
-     * @param  callable  $onError
-     * @return string
      */
     public function runCommand(string $command, callable $onError = null): string
     {

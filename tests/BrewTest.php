@@ -34,27 +34,36 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
     public function test_installed_returns_true_when_given_formula_is_installed()
     {
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('runAsUser')->once()->with('brew info php@8.2 --json')
-        ->andReturn('[{"name":"php@8.2","full_name":"php@8.2","aliases":[],"versioned_formulae":[],"versions":{"stable":"8.2.5"},"installed":[{"version":"8.2.5"}]}]');
+        $cli->shouldReceive('runAsUser')->once()->with('brew info php@8.2 --json=v2')
+        ->andReturn('{"formulae":[{"name":"php@8.2","full_name":"php@8.2","aliases":[],"versioned_formulae":[],"versions":{"stable":"8.2.5"},"installed":[{"version":"8.2.5"}]}]}');
         swap(CommandLine::class, $cli);
         $this->assertTrue(resolve(Brew::class)->installed('php@8.2'));
 
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('runAsUser')->once()->with('brew info php --json')
-        ->andReturn('[{"name":"php","full_name":"php","aliases":["php@8.0"],"versioned_formulae":[],"versions":{"stable":"8.0.0"},"installed":[{"version":"8.0.0"}]}]');
+        $cli->shouldReceive('runAsUser')->once()->with('brew info php --json=v2')
+        ->andReturn('{"formulae":[{"name":"php","full_name":"php","aliases":["php@8.0"],"versioned_formulae":[],"versions":{"stable":"8.0.0"},"installed":[{"version":"8.0.0"}]}]}');
         swap(CommandLine::class, $cli);
         $this->assertTrue(resolve(Brew::class)->installed('php'));
+    }
+
+    public function test_installed_returns_true_when_given_cask_formula_is_installed()
+    {
+        $cli = Mockery::mock(CommandLine::class);
+        $cli->shouldReceive('runAsUser')->once()->with('brew info ngrok --json=v2')
+            ->andReturn('{"casks":[{"name":"ngrok","full_name":"ngrok","aliases":[],"versioned_formulae":[],"versions":{"stable":"8.2.5"},"installed":[{"version":"8.2.5"}]}]}');
+        swap(CommandLine::class, $cli);
+        $this->assertTrue(resolve(Brew::class)->installed('ngrok'));
     }
 
     public function test_installed_returns_false_when_given_formula_is_not_installed()
     {
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('runAsUser')->once()->with('brew info php@8.2 --json')->andReturn('');
+        $cli->shouldReceive('runAsUser')->once()->with('brew info php@8.2 --json=v2')->andReturn('');
         swap(CommandLine::class, $cli);
         $this->assertFalse(resolve(Brew::class)->installed('php@8.2'));
 
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('runAsUser')->once()->with('brew info php@8.2 --json')->andReturn('Error: No formula found');
+        $cli->shouldReceive('runAsUser')->once()->with('brew info php@8.2 --json=v2')->andReturn('Error: No formula found');
         swap(CommandLine::class, $cli);
         $this->assertFalse(resolve(Brew::class)->installed('php@8.2'));
     }
@@ -112,7 +121,7 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
     public function test_restart_restarts_the_service_using_homebrew_services()
     {
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('runAsUser')->once()->with('brew info dnsmasq --json')->andReturn('[{"name":"dnsmasq","full_name":"dnsmasq","aliases":[],"versioned_formulae":[],"versions":{"stable":"1"},"installed":[{"version":"1"}]}]');
+        $cli->shouldReceive('runAsUser')->once()->with('brew info dnsmasq --json=v2')->andReturn('{"formulae":[{"name":"dnsmasq","full_name":"dnsmasq","aliases":[],"versioned_formulae":[],"versions":{"stable":"1"},"installed":[{"version":"1"}]}]}');
         $cli->shouldReceive('quietly')->once()->with('brew services stop dnsmasq');
         $cli->shouldReceive('quietly')->once()->with('sudo brew services stop dnsmasq');
         $cli->shouldReceive('quietly')->once()->with('sudo brew services start dnsmasq');
@@ -123,7 +132,7 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
     public function test_stop_stops_the_service_using_homebrew_services()
     {
         $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('runAsUser')->once()->with('brew info dnsmasq --json')->andReturn('[{"name":"dnsmasq","full_name":"dnsmasq","aliases":[],"versioned_formulae":[],"versions":{"stable":"1"},"installed":[{"version":"1"}]}]');
+        $cli->shouldReceive('runAsUser')->once()->with('brew info dnsmasq --json=v2')->andReturn('{"formulae":[{"name":"dnsmasq","full_name":"dnsmasq","aliases":[],"versioned_formulae":[],"versions":{"stable":"1"},"installed":[{"version":"1"}]}]}');
         $cli->shouldReceive('quietly')->once()->with('brew services stop dnsmasq');
         $cli->shouldReceive('quietly')->once()->with('sudo brew services stop dnsmasq');
         $cli->shouldReceive('quietly')->once()->with('sudo chown -R '.user().":admin '".BREW_PREFIX."/Cellar/dnsmasq'");
@@ -469,10 +478,8 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
     /**
      * Provider of php links and their expected split matches.
-     *
-     * @return array
      */
-    public function supportedPhpLinkPathProvider()
+    public function supportedPhpLinkPathProvider(): array
     {
         return [
             [

@@ -8,11 +8,6 @@ class SculpinValetDriver extends BasicValetDriver
 {
     /**
      * Determine if the driver serves the request.
-     *
-     * @param  string  $sitePath
-     * @param  string  $siteName
-     * @param  string  $uri
-     * @return bool
      */
     public function serves(string $sitePath, string $siteName, string $uri): bool
     {
@@ -20,39 +15,20 @@ class SculpinValetDriver extends BasicValetDriver
             $this->isLegacySculpinProject($sitePath);
     }
 
-    private function isModernSculpinProject($sitePath)
+    private function isModernSculpinProject(string $sitePath): bool
     {
         return is_dir($sitePath.'/source') &&
             is_dir($sitePath.'/output_dev') &&
-            $this->composerRequiresSculpin($sitePath);
+            $this->composerRequires($sitePath, 'sculpin/sculpin');
     }
 
-    private function isLegacySculpinProject($sitePath)
+    private function isLegacySculpinProject(string $sitePath): bool
     {
         return is_dir($sitePath.'/.sculpin');
     }
 
-    private function composerRequiresSculpin($sitePath)
-    {
-        if (! file_exists($sitePath.'/composer.json')) {
-            return false;
-        }
-
-        $composer_json_source = file_get_contents($sitePath.'/composer.json');
-        $composer_json = json_decode($composer_json_source, true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            return false;
-        }
-
-        return isset($composer_json['require']['sculpin/sculpin']);
-    }
-
     /**
      * Mutate the incoming URI.
-     *
-     * @param  string  $uri
-     * @return string
      */
     public function mutateUri(string $uri): string
     {

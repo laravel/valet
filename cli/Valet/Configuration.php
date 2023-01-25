@@ -4,26 +4,18 @@ namespace Valet;
 
 class Configuration
 {
-    /**
-     * Create a new Valet configuration class instance.
-     *
-     * @param  Filesystem  $files
-     */
     public function __construct(public Filesystem $files)
     {
     }
 
     /**
      * Install the Valet configuration file.
-     *
-     * @return void
      */
     public function install(): void
     {
         $this->createConfigurationDirectory();
         $this->createDriversDirectory();
         $this->createSitesDirectory();
-        $this->createExtensionsDirectory();
         $this->createLogDirectory();
         $this->createCertificatesDirectory();
         $this->writeBaseConfiguration();
@@ -33,8 +25,6 @@ class Configuration
 
     /**
      * Forcefully delete the Valet home configuration directory and contents.
-     *
-     * @return void
      */
     public function uninstall(): void
     {
@@ -43,8 +33,6 @@ class Configuration
 
     /**
      * Create the Valet configuration directory.
-     *
-     * @return void
      */
     public function createConfigurationDirectory(): void
     {
@@ -54,8 +42,6 @@ class Configuration
 
     /**
      * Create the Valet drivers directory.
-     *
-     * @return void
      */
     public function createDriversDirectory(): void
     {
@@ -73,8 +59,6 @@ class Configuration
 
     /**
      * Create the Valet sites directory.
-     *
-     * @return void
      */
     public function createSitesDirectory(): void
     {
@@ -82,19 +66,7 @@ class Configuration
     }
 
     /**
-     * Create the directory for the Valet extensions.
-     *
-     * @return void
-     */
-    public function createExtensionsDirectory(): void
-    {
-        $this->files->ensureDirExists(VALET_HOME_PATH.'/Extensions', user());
-    }
-
-    /**
      * Create the directory for Nginx logs.
-     *
-     * @return void
      */
     public function createLogDirectory(): void
     {
@@ -105,8 +77,6 @@ class Configuration
 
     /**
      * Create the directory for SSL certificates.
-     *
-     * @return void
      */
     public function createCertificatesDirectory(): void
     {
@@ -115,35 +85,16 @@ class Configuration
 
     /**
      * Write the base, initial configuration for Valet.
-     *
-     * @return void
      */
     public function writeBaseConfiguration(): void
     {
         if (! $this->files->exists($this->path())) {
             $this->write(['tld' => 'test', 'loopback' => VALET_LOOPBACK, 'paths' => []]);
         }
-
-        /**
-         * Migrate old configurations from 'domain' to 'tld'.
-         */
-        $config = $this->read();
-
-        if (! isset($config['tld'])) {
-            $this->updateKey('tld', ! empty($config['domain']) ? $config['domain'] : 'test');
-        }
-
-        if (! isset($config['loopback'])) {
-            $this->updateKey('loopback', VALET_LOOPBACK);
-        }
     }
 
     /**
      * Add the given path to the configuration.
-     *
-     * @param  string  $path
-     * @param  bool  $prepend
-     * @return void
      */
     public function addPath(string $path, bool $prepend = false): void
     {
@@ -156,9 +107,6 @@ class Configuration
 
     /**
      * Prepend the given path to the configuration.
-     *
-     * @param  string  $path
-     * @return void
      */
     public function prependPath(string $path): void
     {
@@ -167,9 +115,6 @@ class Configuration
 
     /**
      * Remove the given path from the configuration.
-     *
-     * @param  string  $path
-     * @return void
      */
     public function removePath(string $path): void
     {
@@ -188,8 +133,6 @@ class Configuration
 
     /**
      * Prune all non-existent paths from the configuration.
-     *
-     * @return void
      */
     public function prune(): void
     {
@@ -206,22 +149,16 @@ class Configuration
 
     /**
      * Read the configuration file as JSON.
-     *
-     * @return array
      */
     public function read(): array
     {
-        return json_decode($this->files->get($this->path()), true);
+        return json_decode($this->files->get($this->path()), true, 512, JSON_THROW_ON_ERROR);
     }
 
     /**
      * Update a specific key in the configuration file.
-     *
-     * @param  string  $key
-     * @param  mixed  $value
-     * @return array
      */
-    public function updateKey(string $key, $value): array
+    public function updateKey(string $key, mixed $value): array
     {
         return tap($this->read(), function (&$config) use ($key, $value) {
             $config[$key] = $value;
@@ -232,9 +169,6 @@ class Configuration
 
     /**
      * Write the given configuration to disk.
-     *
-     * @param  array  $config
-     * @return void
      */
     public function write(array $config): void
     {
@@ -245,8 +179,6 @@ class Configuration
 
     /**
      * Get the configuration file path.
-     *
-     * @return string
      */
     public function path(): string
     {
