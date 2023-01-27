@@ -566,13 +566,13 @@ if (is_dir(VALET_HOME_PATH)) {
      */
     $app->command('trust [--off]', function (OutputInterface $output, $off) {
         if ($off) {
-            // Brew::removeSudoersEntry();
+            resolve(Installer::class)->removeSudoersEntry();
             Valet::removeSudoersEntry();
 
             return info('Sudoers entries have been removed for Brew and Valet.');
         }
 
-        // Brew::createSudoersEntry();
+        resolve(Installer::class)->createSudoersEntry();
         Valet::createSudoersEntry();
 
         info('Sudoers entries have been added for Brew and Valet.');
@@ -586,8 +586,7 @@ if (is_dir(VALET_HOME_PATH)) {
     $app->command('use [phpVersion] [--force]', function (OutputInterface $output, $phpVersion, $force) {
         if (! $phpVersion) {
             $site = basename(getcwd());
-            exit('todo');
-            // $linkedVersion = Brew::linkedPhp();
+            $linkedVersion = resolve(Installer::class)->linkedPhp();
 
             if ($phpVersion = Site::phpRcVersion($site)) {
                 info("Found '{$site}/.valetrc' or '{$site}/.valetphprc' specifying version: {$phpVersion}");

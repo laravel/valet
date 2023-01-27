@@ -872,7 +872,7 @@ class CliTest extends BaseApplicationTestCase
         $brew = Mockery::mock(Brew::class);
         $brew->shouldReceive('createSudoersEntry')->once();
 
-        swap(Brew::class, $brew);
+        swap(Installer::class, $brew);
 
         $valet = Mockery::mock(Valet::class);
         $valet->shouldReceive('createSudoersEntry')->once();
@@ -892,7 +892,7 @@ class CliTest extends BaseApplicationTestCase
         $brew = Mockery::mock(Brew::class);
         $brew->shouldReceive('removeSudoersEntry')->once();
 
-        swap(Brew::class, $brew);
+        swap(Installer::class, $brew);
 
         $valet = Mockery::mock(Valet::class);
         $valet->shouldReceive('removeSudoersEntry')->once();
@@ -974,10 +974,10 @@ class CliTest extends BaseApplicationTestCase
     {
         [$app, $tester] = $this->appAndTester();
 
-        $brew = Mockery::mock(Brew::class);
+        $brew = Mockery::mock(Installer::class);
         $brew->shouldReceive('linkedPhp')->andReturn('php@8.2');
 
-        swap(Brew::class, $brew);
+        swap(Installer::class, $brew);
 
         $site = Mockery::mock(RealSite::class);
         $site->shouldReceive('phpRcVersion')->andReturn(null);
@@ -1087,7 +1087,7 @@ class CliTest extends BaseApplicationTestCase
         $brew = Mockery::mock(Brew::class);
         $brew->shouldReceive('getPhpExecutablePath')->with('8.2')->once()->andReturn('testOutput');
 
-        swap(Brew::class, $brew);
+        swap(Installer::class, $brew);
 
         $tester->run(['command' => 'which-php']);
         $tester->assertCommandIsSuccessful();
@@ -1109,7 +1109,7 @@ class CliTest extends BaseApplicationTestCase
         $brew = Mockery::mock(Brew::class);
         $brew->shouldReceive('getPhpExecutablePath')->with('8.1')->once()->andReturn('testOutput');
 
-        swap(Brew::class, $brew);
+        swap(Installer::class, $brew);
 
         $tester->run(['command' => 'which-php']);
         $tester->assertCommandIsSuccessful();
