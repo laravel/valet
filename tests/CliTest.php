@@ -9,6 +9,7 @@ use Valet\Expose;
 use Valet\Filesystem;
 use Valet\Nginx;
 use Valet\Ngrok;
+use Valet\Os\Installer;
 use Valet\PhpFpm;
 use Valet\Site as RealSite;
 use function Valet\swap;
@@ -806,7 +807,7 @@ class CliTest extends BaseApplicationTestCase
         swap(RealConfiguration::class, $config);
         swap(PhpFpm::class, $phpfpm);
         swap(Valet::class, $valet);
-        swap(Brew::class, $brew);
+        swap(Installer::class, $brew);
 
         $tester->run(['command' => 'uninstall', '--force' => true]);
         $tester->assertCommandIsSuccessful();

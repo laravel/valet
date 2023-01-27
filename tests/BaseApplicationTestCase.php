@@ -3,6 +3,9 @@
 use Illuminate\Container\Container;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Tester\ApplicationTester;
+use Valet\Os\Mac\Brew;
+use Valet\Os\Os;
+use function Valet\resolve;
 
 class BaseApplicationTestCase extends TestCase
 {
@@ -25,7 +28,11 @@ class BaseApplicationTestCase extends TestCase
     public function prepTestConfig(): void
     {
         require_once __DIR__.'/../cli/includes/helpers.php';
-        Container::setInstance(new Container); // Reset app container from previous tests
+        Container::setInstance($container = new Container); // Reset app container from previous tests
+        $container->instance('os', $os = Os::assign());
+        // $container->instance(Installer::class, $os->installer());
+        $container->instance(Installer::class, resolve(Brew::class));
+
 
         if (Filesystem::isDir(VALET_HOME_PATH)) {
             Filesystem::rmDirAndContents(VALET_HOME_PATH);

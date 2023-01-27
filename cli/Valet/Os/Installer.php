@@ -60,8 +60,6 @@ abstract class Installer
 
     /**
      * Get a list of supported PHP versions.
-     *
-     * @return Collection
      */
     public function supportedPhpVersions(): Collection
     {
@@ -70,10 +68,6 @@ abstract class Installer
 
     /**
      * Check if two PHP versions are equal.
-     *
-     * @param  string  $versionA
-     * @param  string  $versionB
-     * @return bool
      */
     public function arePhpVersionsEqual(string $versionA, string $versionB): bool
     {

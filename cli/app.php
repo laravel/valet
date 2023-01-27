@@ -14,7 +14,9 @@ use function Valet\info;
 use Valet\Os\Installer;
 use Valet\Os\Os;
 use function Valet\output;
+use function Valet\resolve;
 use function Valet\table;
+use function Valet\testing;
 use function Valet\warning;
 use function Valet\writer;
 
@@ -37,8 +39,11 @@ if (file_exists(__DIR__.'/../vendor/autoload.php')) {
  * Create the application.
  */
 Container::setInstance($container = new Container);
-$container->instance('os', $os = Os::assign());
-$container->instance(Installer::class, $os->installer());
+
+if (!testing()) {
+    $container->instance('os', $os = Os::assign());
+    $container->instance(Installer::class, $os->installer());
+}
 
 $version = '4.0.0';
 
@@ -532,7 +537,7 @@ if (is_dir(VALET_HOME_PATH)) {
             info('Attempting to unlink Valet from bin path...');
             Valet::unlinkFromUsersBin();
             info('Removing sudoers entries...');
-            // Brew::removeSudoersEntry();
+            resolve(Installer::class)->removeSudoersEntry();
             Valet::removeSudoersEntry();
 
             return output(Valet::forceUninstallText());
@@ -665,9 +670,8 @@ if (is_dir(VALET_HOME_PATH)) {
         if (! $phpVersion) {
             $phpVersion = Site::phpRcVersion($site ?: basename(getcwd()));
         }
-        exit('todo');
 
-        return output(Brew::getPhpExecutablePath($phpVersion));
+        return output(resolve(Installer::class)->getPhpExecutablePath($phpVersion));
     })->descriptions('Get the PHP executable path for a given site', [
         'site' => 'The site to get the PHP executable path for',
     ]);
