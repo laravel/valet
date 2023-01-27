@@ -6,7 +6,6 @@ use Symfony\Component\Console\Tester\ApplicationTester;
 use Valet\Os\Installer;
 use Valet\Os\Mac;
 use Valet\Os\Mac\Brew;
-use Valet\Os\Os;
 use function Valet\resolve;
 
 class BaseApplicationTestCase extends TestCase

@@ -40,7 +40,7 @@ if (file_exists(__DIR__.'/../vendor/autoload.php')) {
  */
 Container::setInstance($container = new Container);
 
-if (!testing()) {
+if (! testing()) {
     $container->instance('os', $os = Os::assign());
     $container->instance(Installer::class, $os->installer());
 }
