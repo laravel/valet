@@ -5,7 +5,6 @@ use Valet\Configuration as RealConfiguration;
 use Valet\Diagnose;
 use Valet\DnsMasq;
 use Valet\Expose;
-use Valet\Filesystem;
 use Valet\Nginx;
 use Valet\Ngrok;
 use Valet\Os\Brew;
