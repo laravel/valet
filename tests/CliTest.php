@@ -1,6 +1,5 @@
 <?php
 
-use Valet\Brew;
 use Valet\CommandLine;
 use Valet\Configuration as RealConfiguration;
 use Valet\Diagnose;
@@ -9,9 +8,11 @@ use Valet\Expose;
 use Valet\Filesystem;
 use Valet\Nginx;
 use Valet\Ngrok;
+use Valet\Os\Brew;
 use Valet\Os\Installer;
 use Valet\PhpFpm;
 use Valet\Site as RealSite;
+use Valet\Status;
 use function Valet\swap;
 use Valet\Valet;
 
@@ -130,27 +131,17 @@ class CliTest extends BaseApplicationTestCase
     {
         [$app, $tester] = $this->appAndTester();
 
-        $brew = Mockery::mock(Brew::class);
-        $brew->shouldReceive('getLinkedPhpFormula')->andReturn('php@8.2');
-        $brew->shouldReceive('hasInstalledPhp')->andReturn(true);
-        $brew->shouldReceive('installed')->twice()->andReturn(true);
-
-        $cli = Mockery::mock(CommandLine::class);
-
-        $cli->shouldReceive('run')->once()->andReturn(true);
-        $cli->shouldReceive('runAsUser')->once()->with('brew services info --all --json')->andReturn('[{"name":"nginx","running":true}]');
-        $cli->shouldReceive('run')->once()->with('brew services info --all --json')->andReturn('[{"name":"nginx","running":true},{"name":"dnsmasq","running":true},{"name":"php@8.2","running":true}]');
-
-        $files = Mockery::mock(Filesystem::class.'[exists]');
-        $files->shouldReceive('exists')->once()->andReturn(true);
-
-        swap(Brew::class, $brew);
-        swap(CommandLine::class, $cli);
-        swap(Filesystem::class, $files);
+        $status = Mockery::mock(Status::class);
+        $status->shouldReceive('check')->once()->andReturn([
+            'success' => true,
+            'output' => [
+                ['description' => 'does stuff', 'success' => 'Yes'],
+            ],
+        ]);
+        swap(Status::class, $status);
 
         $tester->run(['command' => 'status']);
-
-        // $tester->assertCommandIsSuccessful();
+        $tester->assertCommandIsSuccessful();
         $this->assertStringNotContainsString('No', $tester->getDisplay());
     }
 
@@ -158,22 +149,14 @@ class CliTest extends BaseApplicationTestCase
     {
         [$app, $tester] = $this->appAndTester();
 
-        $brew = Mockery::mock(Brew::class);
-        $brew->shouldReceive('getLinkedPhpFormula')->andReturn('php@8.2');
-        $brew->shouldReceive('hasInstalledPhp')->andReturn(true);
-        $brew->shouldReceive('installed')->twice()->andReturn(true);
-
-        $cli = Mockery::mock(CommandLine::class);
-        $cli->shouldReceive('run')->once()->andReturn(true);
-        $cli->shouldReceive('runAsUser')->once()->with('brew services info --all --json')->andReturn('[{"name":"nginx","running":true}]');
-        $cli->shouldReceive('run')->once()->with('brew services info --all --json')->andReturn('[{"name":"nginx","running":true}]');
-
-        $files = Mockery::mock(Filesystem::class.'[exists]');
-        $files->shouldReceive('exists')->once()->andReturn(false);
-
-        swap(Brew::class, $brew);
-        swap(CommandLine::class, $cli);
-        swap(Filesystem::class, $files);
+        $status = Mockery::mock(Status::class);
+        $status->shouldReceive('check')->once()->andReturn([
+            'success' => false,
+            'output' => [
+                ['description' => 'does stuff', 'success' => 'No'],
+            ],
+        ]);
+        swap(Status::class, $status);
 
         $tester->run(['command' => 'status']);
 
@@ -871,6 +854,7 @@ class CliTest extends BaseApplicationTestCase
 
         $brew = Mockery::mock(Brew::class);
         $brew->shouldReceive('createSudoersEntry')->once();
+        $brew->shouldReceive('name')->andReturn('Homebrew');
 
         swap(Installer::class, $brew);
 
@@ -891,6 +875,7 @@ class CliTest extends BaseApplicationTestCase
 
         $brew = Mockery::mock(Brew::class);
         $brew->shouldReceive('removeSudoersEntry')->once();
+        $brew->shouldReceive('name')->andReturn('Homebrew');
 
         swap(Installer::class, $brew);
 

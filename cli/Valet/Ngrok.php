@@ -5,6 +5,7 @@ namespace Valet;
 use DomainException;
 use Exception;
 use GuzzleHttp\Client;
+use Valet\Os\Mac\Brew;
 
 class Ngrok
 {

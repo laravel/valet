@@ -19,6 +19,8 @@ abstract class Installer
     ];
     const LATEST_PHP_VERSION = 'php@8.2';
 
+    abstract public function name(): string;
+
     // @todo: Figure out which of these don't make sense outside of Brew (e.g. tap?)
     abstract public function hasInstalledPhp(): bool;
 

@@ -2,6 +2,8 @@
 
 namespace Valet;
 
+use Valet\Os\Mac\Brew;
+
 class Status
 {
     public $brewServicesUserOutput;

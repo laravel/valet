@@ -547,7 +547,7 @@ if (is_dir(VALET_HOME_PATH)) {
 
         PhpFpm::stopRunning();
         Nginx::stop();
-    })->descriptions('Uninstall the Valet services', ['--force' => 'Do a forceful uninstall of Valet and related Homebrew pkgs']);
+    })->descriptions('Uninstall the Valet services', ['--force' => 'Do a forceful uninstall of Valet and related Brew/Apt pkgs']);
 
     /**
      * Determine if this is the latest release of Valet.
@@ -569,14 +569,14 @@ if (is_dir(VALET_HOME_PATH)) {
             resolve(Installer::class)->removeSudoersEntry();
             Valet::removeSudoersEntry();
 
-            return info('Sudoers entries have been removed for Brew and Valet.');
+            return info('Sudoers entries have been removed for Valet and '.resolve(Installer::class)->name());
         }
 
         resolve(Installer::class)->createSudoersEntry();
         Valet::createSudoersEntry();
 
-        info('Sudoers entries have been added for Brew and Valet.');
-    })->descriptions('Add sudoers files for Brew and Valet to make Valet commands run without passwords', [
+        info('Sudoers entries have been added for Valet and '.resolve(Installer::class)->name().'.');
+    })->descriptions('Add sudoers files for Valet and Brew/Apt to make Valet commands run without passwords', [
         '--off' => 'Remove the sudoers files so normal sudo password prompts are required.',
     ]);
 

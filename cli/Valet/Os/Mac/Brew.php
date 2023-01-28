@@ -21,6 +21,11 @@ class Brew extends Installer
     {
     }
 
+    public function name(): string
+    {
+        return 'Homebrew';
+    }
+
     /**
      * Ensure the formula exists in the current Homebrew configuration.
      */
