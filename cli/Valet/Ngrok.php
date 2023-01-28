@@ -73,7 +73,7 @@ class Ngrok
      */
     public function setToken($token): string
     {
-        return $this->cli->runAsUser(BREW_PREFIX.'/bin/ngrok authtoken '.$token);
+        return $this->cli->runAsUser(BREWAPT_PREFIX.'/bin/ngrok authtoken '.$token);
     }
 
     /**

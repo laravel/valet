@@ -135,9 +135,9 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $cli->shouldReceive('runAsUser')->once()->with('brew info dnsmasq --json=v2')->andReturn('{"formulae":[{"name":"dnsmasq","full_name":"dnsmasq","aliases":[],"versioned_formulae":[],"versions":{"stable":"1"},"installed":[{"version":"1"}]}]}');
         $cli->shouldReceive('quietly')->once()->with('brew services stop dnsmasq');
         $cli->shouldReceive('quietly')->once()->with('sudo brew services stop dnsmasq');
-        $cli->shouldReceive('quietly')->once()->with('sudo chown -R '.user().":admin '".BREW_PREFIX."/Cellar/dnsmasq'");
-        $cli->shouldReceive('quietly')->once()->with('sudo chown -R '.user().":admin '".BREW_PREFIX."/opt/dnsmasq'");
-        $cli->shouldReceive('quietly')->once()->with('sudo chown -R '.user().":admin '".BREW_PREFIX."/var/homebrew/linked/dnsmasq'");
+        $cli->shouldReceive('quietly')->once()->with('sudo chown -R '.user().":admin '".BREWAPT_PREFIX."/Cellar/dnsmasq'");
+        $cli->shouldReceive('quietly')->once()->with('sudo chown -R '.user().":admin '".BREWAPT_PREFIX."/opt/dnsmasq'");
+        $cli->shouldReceive('quietly')->once()->with('sudo chown -R '.user().":admin '".BREWAPT_PREFIX."/var/homebrew/linked/dnsmasq'");
         swap(CommandLine::class, $cli);
         resolve(Brew::class)->stopService('dnsmasq');
     }
@@ -152,23 +152,23 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         };
 
         $files = Mockery::mock(Filesystem::class);
-        $files->shouldReceive('readLink')->once()->with(BREW_PREFIX.'/bin/php')->andReturn('/test/path/php/8.0.0/test');
+        $files->shouldReceive('readLink')->once()->with(BREWAPT_PREFIX.'/bin/php')->andReturn('/test/path/php/8.0.0/test');
         $this->assertSame('php@8.0', $getBrewMock($files)->linkedPhp());
 
         $files = Mockery::mock(Filesystem::class);
-        $files->shouldReceive('readLink')->once()->with(BREW_PREFIX.'/bin/php')->andReturn('/test/path/php/8.1.0/test');
+        $files->shouldReceive('readLink')->once()->with(BREWAPT_PREFIX.'/bin/php')->andReturn('/test/path/php/8.1.0/test');
         $this->assertSame('php@8.1', $getBrewMock($files)->linkedPhp());
 
         $files = Mockery::mock(Filesystem::class);
-        $files->shouldReceive('readLink')->once()->with(BREW_PREFIX.'/bin/php')->andReturn('/test/path/php@8.2/8.2.13/test');
+        $files->shouldReceive('readLink')->once()->with(BREWAPT_PREFIX.'/bin/php')->andReturn('/test/path/php@8.2/8.2.13/test');
         $this->assertSame('php@8.2', $getBrewMock($files)->linkedPhp());
 
         $files = Mockery::mock(Filesystem::class);
-        $files->shouldReceive('readLink')->once()->with(BREW_PREFIX.'/bin/php')->andReturn('/test/path/php/8.2.9_2/test');
+        $files->shouldReceive('readLink')->once()->with(BREWAPT_PREFIX.'/bin/php')->andReturn('/test/path/php/8.2.9_2/test');
         $this->assertSame('php@8.2', $getBrewMock($files)->linkedPhp());
 
         $files = Mockery::mock(Filesystem::class);
-        $files->shouldReceive('readLink')->once()->with(BREW_PREFIX.'/bin/php')->andReturn('/test/path/php81/8.1.9_2/test');
+        $files->shouldReceive('readLink')->once()->with(BREWAPT_PREFIX.'/bin/php')->andReturn('/test/path/php81/8.1.9_2/test');
         $this->assertSame('php@8.1', $getBrewMock($files)->linkedPhp());
     }
 
@@ -184,7 +184,7 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
     public function test_has_linked_php_returns_true_if_php_link_exists()
     {
         $files = Mockery::mock(Filesystem::class);
-        $files->shouldReceive('isLink')->twice()->with(BREW_PREFIX.'/bin/php')->andReturn(false, true);
+        $files->shouldReceive('isLink')->twice()->with(BREWAPT_PREFIX.'/bin/php')->andReturn(false, true);
         swap(Filesystem::class, $files);
         $brew = resolve(Brew::class);
 
@@ -197,8 +197,8 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $this->expectException(DomainException::class);
 
         $files = Mockery::mock(Filesystem::class);
-        $files->shouldReceive('isLink')->once()->with(BREW_PREFIX.'/bin/php')->andReturn(true);
-        $files->shouldReceive('readLink')->once()->with(BREW_PREFIX.'/bin/php')->andReturn('/test/path/php/5.4.14/test');
+        $files->shouldReceive('isLink')->once()->with(BREWAPT_PREFIX.'/bin/php')->andReturn(true);
+        $files->shouldReceive('readLink')->once()->with(BREWAPT_PREFIX.'/bin/php')->andReturn('/test/path/php/5.4.14/test');
         swap(Filesystem::class, $files);
         resolve(Brew::class)->linkedPhp();
     }
@@ -384,7 +384,7 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         };
 
         $files = Mockery::mock(Filesystem::class);
-        $files->shouldReceive('readLink')->once()->with(BREW_PREFIX.'/bin/php')->andReturn($path);
+        $files->shouldReceive('readLink')->once()->with(BREWAPT_PREFIX.'/bin/php')->andReturn($path);
         $this->assertSame($matches, $getBrewMock($files)->getParsedLinkedPhp());
     }
 
@@ -419,9 +419,9 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
             $files = Mockery::mock(Filesystem::class),
         ])->makePartial();
 
-        $files->shouldReceive('exists')->once()->with(BREW_PREFIX.'/opt/php@8.2/bin/php')->andReturn(true);
-        $files->shouldNotReceive('exists')->with(BREW_PREFIX.'/opt/php@82/bin/php');
-        $this->assertEquals(BREW_PREFIX.'/opt/php@8.2/bin/php', $brewMock->getPhpExecutablePath('php@8.2'));
+        $files->shouldReceive('exists')->once()->with(BREWAPT_PREFIX.'/opt/php@8.2/bin/php')->andReturn(true);
+        $files->shouldNotReceive('exists')->with(BREWAPT_PREFIX.'/opt/php@82/bin/php');
+        $this->assertEquals(BREWAPT_PREFIX.'/opt/php@8.2/bin/php', $brewMock->getPhpExecutablePath('php@8.2'));
 
         // Check the `/opt/homebrew/opt/php71/bin/php` location for older installations
         $brewMock = Mockery::mock(Brew::class, [
@@ -429,9 +429,9 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
             $files = Mockery::mock(Filesystem::class),
         ])->makePartial();
 
-        $files->shouldReceive('exists')->once()->with(BREW_PREFIX.'/opt/php@8.2/bin/php')->andReturn(false);
-        $files->shouldReceive('exists')->with(BREW_PREFIX.'/opt/php82/bin/php')->andReturn(true);
-        $this->assertEquals(BREW_PREFIX.'/opt/php82/bin/php', $brewMock->getPhpExecutablePath('php@8.2'));
+        $files->shouldReceive('exists')->once()->with(BREWAPT_PREFIX.'/opt/php@8.2/bin/php')->andReturn(false);
+        $files->shouldReceive('exists')->with(BREWAPT_PREFIX.'/opt/php82/bin/php')->andReturn(true);
+        $this->assertEquals(BREWAPT_PREFIX.'/opt/php82/bin/php', $brewMock->getPhpExecutablePath('php@8.2'));
 
         // When the default PHP is the version we are looking for
         $brewMock = Mockery::mock(Brew::class, [
@@ -439,11 +439,11 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
             $files = Mockery::mock(Filesystem::class),
         ])->makePartial();
 
-        $files->shouldReceive('exists')->once()->with(BREW_PREFIX.'/opt/php@8.2/bin/php')->andReturn(false);
-        $files->shouldReceive('exists')->with(BREW_PREFIX.'/opt/php82/bin/php')->andReturn(false);
-        $files->shouldReceive('isLink')->with(BREW_PREFIX.'/opt/php')->andReturn(true);
-        $files->shouldReceive('readLink')->with(BREW_PREFIX.'/opt/php')->andReturn('../Cellar/php@8.2/8.2.13/bin/php');
-        $this->assertEquals(BREW_PREFIX.'/opt/php/bin/php', $brewMock->getPhpExecutablePath('php@8.2'));
+        $files->shouldReceive('exists')->once()->with(BREWAPT_PREFIX.'/opt/php@8.2/bin/php')->andReturn(false);
+        $files->shouldReceive('exists')->with(BREWAPT_PREFIX.'/opt/php82/bin/php')->andReturn(false);
+        $files->shouldReceive('isLink')->with(BREWAPT_PREFIX.'/opt/php')->andReturn(true);
+        $files->shouldReceive('readLink')->with(BREWAPT_PREFIX.'/opt/php')->andReturn('../Cellar/php@8.2/8.2.13/bin/php');
+        $this->assertEquals(BREWAPT_PREFIX.'/opt/php/bin/php', $brewMock->getPhpExecutablePath('php@8.2'));
 
         // When the default PHP is not the version we are looking for
         $brewMock = Mockery::mock(Brew::class, [
@@ -451,11 +451,11 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
             $files = Mockery::mock(Filesystem::class),
         ])->makePartial();
 
-        $files->shouldReceive('exists')->once()->with(BREW_PREFIX.'/opt/php@8.2/bin/php')->andReturn(false);
-        $files->shouldReceive('exists')->with(BREW_PREFIX.'/opt/php82/bin/php')->andReturn(false);
-        $files->shouldReceive('isLink')->with(BREW_PREFIX.'/opt/php')->andReturn(true);
-        $files->shouldReceive('readLink')->with(BREW_PREFIX.'/opt/php')->andReturn('../Cellar/php@8.1/8.1.13/bin/php');
-        $this->assertEquals(BREW_PREFIX.'/bin/php', $brewMock->getPhpExecutablePath('php@8.2')); // Could not find a version, so retuned the default binary
+        $files->shouldReceive('exists')->once()->with(BREWAPT_PREFIX.'/opt/php@8.2/bin/php')->andReturn(false);
+        $files->shouldReceive('exists')->with(BREWAPT_PREFIX.'/opt/php82/bin/php')->andReturn(false);
+        $files->shouldReceive('isLink')->with(BREWAPT_PREFIX.'/opt/php')->andReturn(true);
+        $files->shouldReceive('readLink')->with(BREWAPT_PREFIX.'/opt/php')->andReturn('../Cellar/php@8.1/8.1.13/bin/php');
+        $this->assertEquals(BREWAPT_PREFIX.'/bin/php', $brewMock->getPhpExecutablePath('php@8.2')); // Could not find a version, so retuned the default binary
 
         // When no PHP Version is provided
         $brewMock = Mockery::mock(Brew::class, [
@@ -463,7 +463,7 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
             Mockery::mock(Filesystem::class),
         ])->makePartial();
 
-        $this->assertEquals(BREW_PREFIX.'/bin/php', $brewMock->getPhpExecutablePath(null));
+        $this->assertEquals(BREWAPT_PREFIX.'/bin/php', $brewMock->getPhpExecutablePath(null));
     }
 
     public function test_it_can_compare_two_php_versions()

@@ -31,7 +31,7 @@ class NginxTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $files = Mockery::mock(Filesystem::class.'[putAsUser]');
 
         $files->shouldReceive('putAsUser')->andReturnUsing(function ($path, $contents) {
-            $this->assertSame(BREW_PREFIX.'/etc/nginx/nginx.conf', $path);
+            $this->assertSame(BREWAPT_PREFIX.'/etc/nginx/nginx.conf', $path);
             $this->assertStringContainsString('include "'.VALET_HOME_PATH.'/Nginx/*"', $contents);
         })->once();
 

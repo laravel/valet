@@ -189,9 +189,9 @@ class Brew extends Installer
 
                 // restore folder permissions: for each brew formula, these directories are owned by root:admin
                 $directories = [
-                    BREW_PREFIX."/Cellar/$service",
-                    BREW_PREFIX."/opt/$service",
-                    BREW_PREFIX."/var/homebrew/linked/$service",
+                    BREWAPT_PREFIX."/Cellar/$service",
+                    BREWAPT_PREFIX."/opt/$service",
+                    BREWAPT_PREFIX."/var/homebrew/linked/$service",
                 ];
 
                 $whoami = get_current_user();
@@ -208,7 +208,7 @@ class Brew extends Installer
      */
     public function hasLinkedPhp(): bool
     {
-        return $this->files->isLink(BREW_PREFIX.'/bin/php');
+        return $this->files->isLink(BREWAPT_PREFIX.'/bin/php');
     }
 
     /**
@@ -220,7 +220,7 @@ class Brew extends Installer
             throw new DomainException('Homebrew PHP appears not to be linked. Please run [valet use php@X.Y]');
         }
 
-        $resolvedPath = $this->files->readLink(BREW_PREFIX.'/bin/php');
+        $resolvedPath = $this->files->readLink(BREWAPT_PREFIX.'/bin/php');
 
         return $this->parsePhpPath($resolvedPath);
     }
@@ -262,34 +262,34 @@ class Brew extends Installer
     public function getPhpExecutablePath(?string $phpVersion = null): string
     {
         if (! $phpVersion) {
-            return BREW_PREFIX.'/bin/php';
+            return BREWAPT_PREFIX.'/bin/php';
         }
 
         $phpVersion = PhpFpm::normalizePhpVersion($phpVersion);
 
         // Check the default `/opt/homebrew/opt/php@8.1/bin/php` location first
-        if ($this->files->exists(BREW_PREFIX."/opt/{$phpVersion}/bin/php")) {
-            return BREW_PREFIX."/opt/{$phpVersion}/bin/php";
+        if ($this->files->exists(BREWAPT_PREFIX."/opt/{$phpVersion}/bin/php")) {
+            return BREWAPT_PREFIX."/opt/{$phpVersion}/bin/php";
         }
 
         // Check the `/opt/homebrew/opt/php71/bin/php` location for older installations
         $phpVersion = str_replace(['@', '.'], '', $phpVersion); // php@8.1 to php81
-        if ($this->files->exists(BREW_PREFIX."/opt/{$phpVersion}/bin/php")) {
-            return BREW_PREFIX."/opt/{$phpVersion}/bin/php";
+        if ($this->files->exists(BREWAPT_PREFIX."/opt/{$phpVersion}/bin/php")) {
+            return BREWAPT_PREFIX."/opt/{$phpVersion}/bin/php";
         }
 
         // Check if the default PHP is the version we are looking for
-        if ($this->files->isLink(BREW_PREFIX.'/opt/php')) {
-            $resolvedPath = $this->files->readLink(BREW_PREFIX.'/opt/php');
+        if ($this->files->isLink(BREWAPT_PREFIX.'/opt/php')) {
+            $resolvedPath = $this->files->readLink(BREWAPT_PREFIX.'/opt/php');
             $matches = $this->parsePhpPath($resolvedPath);
             $resolvedPhpVersion = $matches[3] ?: $matches[2];
 
             if ($this->arePhpVersionsEqual($resolvedPhpVersion, $phpVersion)) {
-                return BREW_PREFIX.'/opt/php/bin/php';
+                return BREWAPT_PREFIX.'/opt/php/bin/php';
             }
         }
 
-        return BREW_PREFIX.'/bin/php';
+        return BREWAPT_PREFIX.'/bin/php';
     }
 
     /**
@@ -307,7 +307,7 @@ class Brew extends Installer
     {
         $this->files->ensureDirExists('/etc/sudoers.d');
 
-        $this->files->put('/etc/sudoers.d/brew', 'Cmnd_Alias BREW = '.BREW_PREFIX.'/bin/brew *
+        $this->files->put('/etc/sudoers.d/brew', 'Cmnd_Alias BREW = '.BREWAPT_PREFIX.'/bin/brew *
 %admin ALL=(root) NOPASSWD:SETENV: BREW'.PHP_EOL);
     }
 
@@ -411,7 +411,7 @@ class Brew extends Installer
     public function uninstallFormula(string $formula): void
     {
         $this->cli->runAsUser(static::BREW_DISABLE_AUTO_CLEANUP.' brew uninstall --force '.$formula);
-        $this->cli->run('rm -rf '.BREW_PREFIX.'/Cellar/'.$formula);
+        $this->cli->run('rm -rf '.BREWAPT_PREFIX.'/Cellar/'.$formula);
     }
 
     /**

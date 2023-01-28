@@ -8,6 +8,7 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 class Diagnose
 {
+    // @todo: Differentiate these for Mac/Linux
     public $commands = [
         'sw_vers',
         'valet --version',
@@ -28,7 +29,7 @@ class Diagnose
         'nginx -v',
         'curl --version',
         'php --ri curl',
-        BREW_PREFIX.'/bin/ngrok version',
+        BREWAPT_PREFIX.'/bin/ngrok version',
         'ls -al ~/.ngrok2',
         'brew info nginx',
         'brew info php',
@@ -37,8 +38,8 @@ class Diagnose
         'openssl ciphers',
         'sudo nginx -t',
         'which -a php-fpm',
-        BREW_PREFIX.'/opt/php/sbin/php-fpm -v',
-        'sudo '.BREW_PREFIX.'/opt/php/sbin/php-fpm -y '.PHP_SYSCONFDIR.'/php-fpm.conf --test',
+        BREWAPT_PREFIX.'/opt/php/sbin/php-fpm -v',
+        'sudo '.BREWAPT_PREFIX.'/opt/php/sbin/php-fpm -y '.PHP_SYSCONFDIR.'/php-fpm.conf --test',
         'ls -al ~/Library/LaunchAgents | grep homebrew',
         'ls -al /Library/LaunchAgents | grep homebrew',
         'ls -al /Library/LaunchDaemons | grep homebrew',
@@ -46,7 +47,7 @@ class Diagnose
         'ls -aln /etc/resolv.conf',
         'cat /etc/resolv.conf',
         'ifconfig lo0',
-        'sh -c \'echo "------\n'.BREW_PREFIX.'/etc/nginx/valet/valet.conf\n---\n"; cat '.BREW_PREFIX.'/etc/nginx/valet/valet.conf | grep -n "# valet loopback"; echo "\n------\n"\'',
+        'sh -c \'echo "------\n'.BREWAPT_PREFIX.'/etc/nginx/valet/valet.conf\n---\n"; cat '.BREWAPT_PREFIX.'/etc/nginx/valet/valet.conf | grep -n "# valet loopback"; echo "\n------\n"\'',
         'sh -c \'for file in ~/.config/valet/dnsmasq.d/*; do echo "------\n~/.config/valet/dnsmasq.d/$(basename $file)\n---\n"; cat $file; echo "\n------\n"; done\'',
         'sh -c \'for file in ~/.config/valet/nginx/*; do echo "------\n~/.config/valet/nginx/$(basename $file)\n---\n"; cat $file | grep -n "# valet loopback"; echo "\n------\n"; done\'',
     ];

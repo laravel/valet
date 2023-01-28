@@ -11,7 +11,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Define constants.
  */
-// @todo fix for linux--including finding a way to have a BREW_PREFIX alternative
 if (! defined('VALET_HOME_PATH')) {
     if (testing()) {
         define('VALET_HOME_PATH', __DIR__.'/../../tests/config/valet');
@@ -26,7 +25,11 @@ if (! defined('VALET_STATIC_PREFIX')) {
 define('VALET_LOOPBACK', '127.0.0.1');
 define('VALET_SERVER_PATH', realpath(__DIR__.'/../../server.php'));
 
-define('BREW_PREFIX', (new CommandLine())->runAsUser('printf $(brew --prefix)'));
+if (true/* on a mac. @todo */) {
+    define('BREWAPT_PREFIX', (new CommandLine())->runAsUser('printf $(brew --prefix)'));
+} else {
+    // @todo
+}
 
 define('ISOLATED_PHP_VERSION', 'ISOLATED_PHP_VERSION');
 

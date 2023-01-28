@@ -8,7 +8,7 @@ use Valet\Os\Installer;
 
 class Nginx
 {
-    const NGINX_CONF = BREW_PREFIX.'/etc/nginx/nginx.conf';
+    const NGINX_CONF = BREWAPT_PREFIX.'/etc/nginx/nginx.conf';
 
     public function __construct(public CommandLine $cli, public Filesystem $files, public Configuration $configuration, public Site $site, public Installer $installer)
     {
@@ -48,10 +48,10 @@ class Nginx
      */
     public function installServer(): void
     {
-        $this->files->ensureDirExists(BREW_PREFIX.'/etc/nginx/valet');
+        $this->files->ensureDirExists(BREWAPT_PREFIX.'/etc/nginx/valet');
 
         $this->files->putAsUser(
-            BREW_PREFIX.'/etc/nginx/valet/valet.conf',
+            BREWAPT_PREFIX.'/etc/nginx/valet/valet.conf',
             str_replace(
                 ['VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_STATIC_PREFIX'],
                 [VALET_HOME_PATH, VALET_SERVER_PATH, VALET_STATIC_PREFIX],
@@ -60,7 +60,7 @@ class Nginx
         );
 
         $this->files->putAsUser(
-            BREW_PREFIX.'/etc/nginx/fastcgi_params',
+            BREWAPT_PREFIX.'/etc/nginx/fastcgi_params',
             $this->files->getStub('fastcgi_params')
         );
     }
@@ -138,7 +138,7 @@ class Nginx
     {
         $this->installer->stopService(['nginx', 'nginx-full']);
         $this->installer->uninstallFormula('nginx nginx-full');
-        $this->cli->quietly('rm -rf '.BREW_PREFIX.'/etc/nginx '.BREW_PREFIX.'/var/log/nginx');
+        $this->cli->quietly('rm -rf '.BREWAPT_PREFIX.'/etc/nginx '.BREWAPT_PREFIX.'/var/log/nginx');
     }
 
     /**

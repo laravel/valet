@@ -699,10 +699,10 @@ if (is_dir(VALET_HOME_PATH)) {
     $app->command('log [-f|--follow] [-l|--lines=] [key]', function (OutputInterface $output, $follow, $lines, $key = null) {
         // @todo update for Linux
         $defaultLogs = [
-            'php-fpm' => BREW_PREFIX.'/var/log/php-fpm.log',
+            'php-fpm' => BREWAPT_PREFIX.'/var/log/php-fpm.log',
             'nginx' => VALET_HOME_PATH.'/Log/nginx-error.log',
-            'mailhog' => BREW_PREFIX.'/var/log/mailhog.log',
-            'redis' => BREW_PREFIX.'/var/log/redis.log',
+            'mailhog' => BREWAPT_PREFIX.'/var/log/mailhog.log',
+            'redis' => BREWAPT_PREFIX.'/var/log/redis.log',
         ];
 
         $configLogs = data_get(Configuration::read(), 'logs');

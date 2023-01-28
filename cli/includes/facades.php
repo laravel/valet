@@ -25,13 +25,6 @@ class Facade
     }
 }
 
-class Brew extends Facade
-{
-    public static function containerKey(): string
-    {
-        return 'Valet\Os\Mac\Brew';
-    }
-}
 class Nginx extends Facade
 {
 }

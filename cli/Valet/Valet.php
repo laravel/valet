@@ -6,7 +6,7 @@ use GuzzleHttp\Client;
 
 class Valet
 {
-    public $valetBin = BREW_PREFIX.'/bin/valet';
+    public $valetBin = BREWAPT_PREFIX.'/bin/valet';
 
     public function __construct(public CommandLine $cli, public Filesystem $files)
     {
@@ -50,7 +50,7 @@ class Valet
     {
         $this->files->ensureDirExists('/etc/sudoers.d');
 
-        $this->files->put('/etc/sudoers.d/valet', 'Cmnd_Alias VALET = '.BREW_PREFIX.'/bin/valet *
+        $this->files->put('/etc/sudoers.d/valet', 'Cmnd_Alias VALET = '.BREWAPT_PREFIX.'/bin/valet *
 %admin ALL=(root) NOPASSWD:SETENV: VALET'.PHP_EOL);
     }
 
@@ -99,7 +99,7 @@ class Valet
     NOTE: Composer may have other dependencies for other global apps you have installed, and those may not be compatible with your default PHP.
 3. Finish removing any Composer fragments of Valet:
     Run <info>composer global remove laravel/valet</info>
-    and then <info>rm '.BREW_PREFIX.'/bin/valet</info> to remove the Valet bin link if it still exists.
+    and then <info>rm '.BREWAPT_PREFIX.'/bin/valet</info> to remove the Valet bin link if it still exists.
 
 Optional:
 - <info>brew list --formula</info> will show any other Homebrew services installed, in case you want to make changes to those as well.
@@ -131,7 +131,7 @@ You can run <comment>composer global remove laravel/valet</comment> to uninstall
 
 <info>4. Homebrew Services</info>
 You may remove the core services (php, nginx, dnsmasq) by running: <comment>brew uninstall --force php nginx dnsmasq</comment>
-You can then remove selected leftover configurations for these services manually in both <comment>'.BREW_PREFIX.'/etc/</comment> and <comment>'.BREW_PREFIX.'/logs/</comment>.
+You can then remove selected leftover configurations for these services manually in both <comment>'.BREWAPT_PREFIX.'/etc/</comment> and <comment>'.BREWAPT_PREFIX.'/logs/</comment>.
 (If you have other PHP versions installed, run <info>brew list --formula | grep php</info> to see which versions you should also uninstall manually.)
 
 <error>BEWARE:</error> Uninstalling PHP via Homebrew will leave your Mac with its original PHP version, which may not be compatible with other Composer dependencies you have installed. As a result, you may get unexpected errors.

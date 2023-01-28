@@ -4,6 +4,7 @@ use Valet\CommandLine;
 use Valet\Configuration;
 use Valet\Filesystem;
 use Valet\Nginx;
+use Valet\Os\Installer;
 use Valet\Os\Mac\Brew;
 use Valet\PhpFpm;
 use function Valet\resolve;
@@ -74,10 +75,10 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
     {
         $brewMock = Mockery::mock(Brew::class);
 
-        $brewMock->shouldReceive('supportedPhpVersions')->andReturn(collect(['php@7.4']));
-        $brewMock->shouldReceive('determineAliasedVersion')->andReturn('7.4');
+        $brewMock->shouldReceive('supportedPhpVersions')->once()->andReturn(collect(['php@7.4']));
+        $brewMock->shouldReceive('determineAliasedVersion')->once()->andReturn('7.4');
 
-        swap(Brew::class, $brewMock);
+        swap(Installer::class, $brewMock);
 
         $this->assertEquals('php@7.4', resolve(PhpFpm::class)->validateRequestedVersion('7.4'));
     }
@@ -89,7 +90,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $brewMock->shouldReceive('supportedPhpVersions')->andReturn(collect(['php@7.4']));
         $brewMock->shouldReceive('determineAliasedVersion')->andReturn('ERROR - NO BREW ALIAS FOUND');
 
-        swap(Brew::class, $brewMock);
+        swap(Installer::class, $brewMock);
 
         $this->assertEquals('php@7.4', resolve(PhpFpm::class)->validateRequestedVersion('7.4'));
     }
@@ -103,7 +104,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $brewMock->shouldReceive('supportedPhpVersions')->andReturn(collect(['php@7.4']));
         $brewMock->shouldReceive('determineAliasedVersion')->andReturn('ERROR - NO BREW ALIAS FOUND');
 
-        swap(Brew::class, $brewMock);
+        swap(Installer::class, $brewMock);
 
         $this->assertEquals('php@7.4', resolve(PhpFpm::class)->validateRequestedVersion('9.1'));
     }
@@ -147,7 +148,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         }
 
         swap(Filesystem::class, $fileSystemMock);
-        swap(Brew::class, $brewMock);
+        swap(Installer::class, $brewMock);
         swap(Nginx::class, $nginxMock);
 
         $this->assertEquals(['php@7.1', 'php@7.2', 'php@7.3'], resolve(PhpFpm::class)->utilizedPhpVersions());
@@ -258,7 +259,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
             'php',
         ]);
 
-        swap(Brew::class, $brewMock);
+        swap(Installer::class, $brewMock);
         resolve(PhpFpm::class)->stopRunning();
     }
 
@@ -310,7 +311,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $this->expectException(DomainException::class);
 
         $brewMock = Mockery::mock(Brew::class);
-        swap(Brew::class, $brewMock);
+        swap(Installer::class, $brewMock);
 
         $brewMock->shouldReceive('supportedPhpVersions')->andReturn(collect([
             'php@7.3',
@@ -435,7 +436,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $configMock = Mockery::mock(Configuration::class);
         $configMock->shouldReceive('read')->andReturn(['tld' => 'jamble', 'paths' => []]);
 
-        swap(Brew::class, $brewMock);
+        swap(Installer::class, $brewMock);
         swap(Nginx::class, Mockery::mock(Nginx::class));
         swap(Configuration::class, $configMock);
 

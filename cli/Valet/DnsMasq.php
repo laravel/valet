@@ -6,8 +6,8 @@ use Valet\Os\Mac\Brew;
 
 class DnsMasq
 {
-    public $dnsmasqMasterConfigFile = BREW_PREFIX.'/etc/dnsmasq.conf';
-    public $dnsmasqSystemConfDir = BREW_PREFIX.'/etc/dnsmasq.d';
+    public $dnsmasqMasterConfigFile = BREWAPT_PREFIX.'/etc/dnsmasq.conf';
+    public $dnsmasqSystemConfDir = BREWAPT_PREFIX.'/etc/dnsmasq.d';
     public $resolverPath = '/etc/resolver';
 
     public function __construct(public Brew $brew, public CommandLine $cli, public Filesystem $files, public Configuration $configuration)
@@ -42,7 +42,7 @@ class DnsMasq
     {
         $this->brew->stopService('dnsmasq');
         $this->brew->uninstallFormula('dnsmasq');
-        $this->cli->run('rm -rf '.BREW_PREFIX.'/etc/dnsmasq.d/dnsmasq-valet.conf');
+        $this->cli->run('rm -rf '.BREWAPT_PREFIX.'/etc/dnsmasq.d/dnsmasq-valet.conf');
         $tld = $this->configuration->read()['tld'];
         $this->files->unlink($this->resolverPath.'/'.$tld);
     }
@@ -67,10 +67,10 @@ class DnsMasq
         // set primary config to look for configs in /usr/local/etc/dnsmasq.d/*.conf
         $contents = $this->files->get($this->dnsmasqMasterConfigFile);
         // ensure the line we need to use is present, and uncomment it if needed
-        if (false === strpos($contents, 'conf-dir='.BREW_PREFIX.'/etc/dnsmasq.d/,*.conf')) {
-            $contents .= PHP_EOL.'conf-dir='.BREW_PREFIX.'/etc/dnsmasq.d/,*.conf'.PHP_EOL;
+        if (false === strpos($contents, 'conf-dir='.BREWAPT_PREFIX.'/etc/dnsmasq.d/,*.conf')) {
+            $contents .= PHP_EOL.'conf-dir='.BREWAPT_PREFIX.'/etc/dnsmasq.d/,*.conf'.PHP_EOL;
         }
-        $contents = str_replace('#conf-dir='.BREW_PREFIX.'/etc/dnsmasq.d/,*.conf', 'conf-dir='.BREW_PREFIX.'/etc/dnsmasq.d/,*.conf', $contents);
+        $contents = str_replace('#conf-dir='.BREWAPT_PREFIX.'/etc/dnsmasq.d/,*.conf', 'conf-dir='.BREWAPT_PREFIX.'/etc/dnsmasq.d/,*.conf', $contents);
 
         // remove entries used by older Valet versions:
         $contents = preg_replace('/^conf-file.*valet.*$/m', '', $contents);
