@@ -5,6 +5,7 @@ use Valet\CommandLine;
 use Valet\Configuration;
 use Valet\DnsMasq;
 use Valet\Filesystem;
+use Valet\Os\Installer;
 use Valet\Os\Mac\Brew;
 use function Valet\resolve;
 use function Valet\swap;
@@ -36,7 +37,7 @@ class DnsMasqTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $brew = Mockery::mock(Brew::class);
         $brew->shouldReceive('ensureInstalled')->once()->with('dnsmasq');
         $brew->shouldReceive('restartService')->once()->with('dnsmasq');
-        swap(Brew::class, $brew);
+        swap(Installer::class, $brew);
         swap(Configuration::class, $config = Mockery::spy(Configuration::class, ['read' => ['tld' => 'test', 'loopback' => VALET_LOOPBACK]]));
 
         $dnsMasq = resolve(StubForCreatingCustomDnsMasqConfigFiles::class);

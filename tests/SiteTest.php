@@ -89,7 +89,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         /** @var Site $site */
         $site = resolve(Site::class);
 
-        $phpVersion = $site->brew->linkedPhp();
+        $phpVersion = $site->installer->linkedPhp();
 
         $certs = Mockery::mock(\Illuminate\Support\Collection::class);
         $certs->shouldReceive('has')
@@ -155,7 +155,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         /** @var Site $site */
         $site = resolve(Site::class);
 
-        $phpVersion = $site->brew->linkedPhp();
+        $phpVersion = $site->installer->linkedPhp();
 
         $sites = $site->getSites($dirPath, collect());
         $this->assertCount(1, $sites);
@@ -200,7 +200,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         /** @var Site $site */
         $site = resolve(Site::class);
 
-        $phpVersion = $site->brew->linkedPhp();
+        $phpVersion = $site->installer->linkedPhp();
 
         $sites = $site->getSites($dirPath, collect());
         $this->assertCount(1, $sites);
@@ -250,7 +250,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         /** @var Site $site */
         $site = resolve(Site::class);
 
-        $phpVersion = $site->brew->linkedPhp();
+        $phpVersion = $site->installer->linkedPhp();
 
         $sites = $site->getSites($dirPath, collect());
         $this->assertCount(1, $sites);
@@ -733,7 +733,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         swap(Site::class, $site);
 
-        $phpVersion = $site->brew->linkedPhp();
+        $phpVersion = $site->installer->linkedPhp();
 
         $this->assertEquals('php@7.3', $site->getPhpVersion('site1.test'));
         $this->assertEquals($phpVersion, $site->getPhpVersion('site2.test'));

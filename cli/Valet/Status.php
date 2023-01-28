@@ -2,7 +2,7 @@
 
 namespace Valet;
 
-use Valet\Os\Mac\Brew;
+use Valet\Os\Installer;
 
 class Status
 {
@@ -10,7 +10,7 @@ class Status
     public $brewServicesRootOutput;
     public $debugInstructions = [];
 
-    public function __construct(public Configuration $config, public Brew $brew, public CommandLine $cli, public Filesystem $files)
+    public function __construct(public Configuration $config, public Installer $installer, public CommandLine $cli, public Filesystem $files)
     {
     }
 
@@ -43,7 +43,7 @@ class Status
      */
     public function checks(): array
     {
-        $linkedPhp = $this->brew->getLinkedPhpFormula();
+        $linkedPhp = $this->installer->getLinkedPhpFormula();
 
         return [
             [
@@ -84,7 +84,7 @@ class Status
             [
                 'description' => 'Is DnsMasq installed?',
                 'check' => function () {
-                    return $this->brew->installed('dnsmasq');
+                    return $this->installer->installed('dnsmasq');
                 },
                 'debug' => 'Run `valet install`.',
             ],
@@ -105,7 +105,7 @@ class Status
             [
                 'description' => 'Is Nginx installed?',
                 'check' => function () {
-                    return $this->brew->installed('nginx') || $this->brew->installed('nginx-full');
+                    return $this->installer->installed('nginx') || $this->installer->installed('nginx-full');
                 },
                 'debug' => 'Run `valet install`.',
             ],
@@ -126,7 +126,7 @@ class Status
             [
                 'description' => 'Is PHP installed?',
                 'check' => function () {
-                    return $this->brew->hasInstalledPhp();
+                    return $this->installer->hasInstalledPhp();
                 },
                 'debug' => 'Run `valet install`.',
             ],

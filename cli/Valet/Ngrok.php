@@ -5,7 +5,7 @@ namespace Valet;
 use DomainException;
 use Exception;
 use GuzzleHttp\Client;
-use Valet\Os\Mac\Brew;
+use Valet\Os\Installer;
 
 class Ngrok
 {
@@ -14,7 +14,7 @@ class Ngrok
         'http://127.0.0.1:4041/api/tunnels',
     ];
 
-    public function __construct(public CommandLine $cli, public Brew $brew)
+    public function __construct(public CommandLine $cli, public Installer $installer)
     {
     }
 
@@ -81,7 +81,7 @@ class Ngrok
      */
     public function installed(): bool
     {
-        return $this->brew->installed('ngrok');
+        return $this->installer->installed('ngrok');
     }
 
     /**
@@ -89,6 +89,6 @@ class Ngrok
      */
     public function ensureInstalled(): void
     {
-        $this->brew->ensureInstalled('ngrok');
+        $this->installer->ensureInstalled('ngrok');
     }
 }

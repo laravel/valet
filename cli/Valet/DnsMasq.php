@@ -2,7 +2,7 @@
 
 namespace Valet;
 
-use Valet\Os\Mac\Brew;
+use Valet\Os\Installer;
 
 class DnsMasq
 {
@@ -10,7 +10,7 @@ class DnsMasq
     public $dnsmasqSystemConfDir = BREWAPT_PREFIX.'/etc/dnsmasq.d';
     public $resolverPath = '/etc/resolver';
 
-    public function __construct(public Brew $brew, public CommandLine $cli, public Filesystem $files, public Configuration $configuration)
+    public function __construct(public Installer $installer, public CommandLine $cli, public Filesystem $files, public Configuration $configuration)
     {
     }
 
@@ -19,7 +19,7 @@ class DnsMasq
      */
     public function install(string $tld = 'test'): void
     {
-        $this->brew->ensureInstalled('dnsmasq');
+        $this->installer->ensureInstalled('dnsmasq');
 
         // For DnsMasq, we enable its feature of loading *.conf from /usr/local/etc/dnsmasq.d/
         // and then we put a valet config file in there to point to the user's home .config/valet/dnsmasq.d
@@ -30,7 +30,7 @@ class DnsMasq
 
         $this->createTldResolver($tld);
 
-        $this->brew->restartService('dnsmasq');
+        $this->installer->restartService('dnsmasq');
 
         info('Valet is configured to serve for TLD [.'.$tld.']');
     }
@@ -40,8 +40,8 @@ class DnsMasq
      */
     public function uninstall(): void
     {
-        $this->brew->stopService('dnsmasq');
-        $this->brew->uninstallFormula('dnsmasq');
+        $this->installer->stopService('dnsmasq');
+        $this->installer->uninstallFormula('dnsmasq');
         $this->cli->run('rm -rf '.BREWAPT_PREFIX.'/etc/dnsmasq.d/dnsmasq-valet.conf');
         $tld = $this->configuration->read()['tld'];
         $this->files->unlink($this->resolverPath.'/'.$tld);
@@ -54,7 +54,7 @@ class DnsMasq
      */
     public function restart(): void
     {
-        $this->brew->restartService('dnsmasq');
+        $this->installer->restartService('dnsmasq');
     }
 
     /**

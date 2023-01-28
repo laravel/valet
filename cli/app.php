@@ -57,7 +57,9 @@ $dispatcher->addListener(
         writer($event->getOutput());
     });
 
-Upgrader::onEveryRun();
+if (!testing()) {
+    Upgrader::onEveryRun();
+}
 
 /**
  * Install Valet and any required services.

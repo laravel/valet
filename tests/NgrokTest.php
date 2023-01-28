@@ -13,7 +13,6 @@ class NgrokTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
     {
         $_SERVER['SUDO_USER'] = user();
 
-        Container::setInstance(new Container);
         $this->setNullWriter();
     }
 

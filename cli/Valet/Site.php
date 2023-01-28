@@ -5,11 +5,11 @@ namespace Valet;
 use DomainException;
 use Illuminate\Support\Collection;
 use PhpFpm;
-use Valet\Os\Mac\Brew;
+use Valet\Os\Installer;
 
 class Site
 {
-    public function __construct(public Brew $brew, public Configuration $config, public CommandLine $cli, public Filesystem $files)
+    public function __construct(public Installer $installer, public Configuration $config, public CommandLine $cli, public Filesystem $files)
     {
     }
 
@@ -312,7 +312,7 @@ class Site
      */
     public function getPhpVersion(string $url): string
     {
-        $defaultPhpVersion = $this->brew->linkedPhp();
+        $defaultPhpVersion = $this->installer->linkedPhp();
         $phpVersion = PhpFpm::normalizePhpVersion($this->customPhpVersion($url));
         if (empty($phpVersion)) {
             $phpVersion = PhpFpm::normalizePhpVersion($defaultPhpVersion);

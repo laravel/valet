@@ -39,6 +39,7 @@ class BaseApplicationTestCase extends TestCase
         Configuration::createDriversDirectory();
         Configuration::createLogDirectory();
         Configuration::createCertificatesDirectory();
+        Configuration::createSitesDirectory();
         Configuration::writeBaseConfiguration();
 
         // Keep this file empty, as it's tailed in a test
@@ -54,6 +55,7 @@ class BaseApplicationTestCase extends TestCase
         $app->setAutoExit(false);
         $tester = new ApplicationTester($app);
 
+        // Needs to happen after reading app.php to override it
         $container = Container::getInstance();
         $container->instance('os', resolve(Mac::class));
         $container->instance(Installer::class, resolve(Brew::class));
