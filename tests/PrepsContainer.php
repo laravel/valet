@@ -2,8 +2,8 @@
 
 use Illuminate\Container\Container;
 use Valet\Os\Installer;
-use Valet\Os\Mac\Brew;
 use Valet\Os\Mac;
+use Valet\Os\Mac\Brew;
 use function Valet\resolve;
 
 trait PrepsContainer

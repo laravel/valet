@@ -57,7 +57,7 @@ $dispatcher->addListener(
         writer($event->getOutput());
     });
 
-if (!testing()) {
+if (! testing()) {
     Upgrader::onEveryRun();
 }
 

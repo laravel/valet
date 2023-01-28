@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Container\Container;
 use Valet\CommandLine;
 use function Valet\resolve;
 use Valet\Status;
