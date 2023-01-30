@@ -27,12 +27,10 @@ class WordPressValetDriver extends BasicValetDriver
      */
     public function frontControllerPath($sitePath, $siteName, $uri)
     {
-        $_SERVER['PHP_SELF'] = $uri;
-        $_SERVER['SERVER_ADDR'] = '127.0.0.1';
-        $_SERVER['SERVER_NAME'] = $_SERVER['HTTP_HOST'];
-
         return parent::frontControllerPath(
-            $sitePath, $siteName, $this->forceTrailingSlash($uri)
+            $sitePath,
+            $siteName,
+            $this->forceTrailingSlash($uri)
         );
     }
 
