@@ -24,6 +24,8 @@ abstract class Installer
     // @todo: Figure out which of these don't make sense outside of Brew (e.g. tap?)
     abstract public function hasInstalledPhp(): bool;
 
+    abstract public function installed(string $formula): bool;
+
     abstract public function determineAliasedVersion(string $formula): string;
 
     abstract public function hasInstalledNginx(): bool;

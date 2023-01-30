@@ -24,6 +24,11 @@ class Apt extends Installer
         return 'Apt';
     }
 
+    public function installed(string $formula): bool
+    {
+        return true; // @todo
+    }
+
     public function hasInstalledPhp(): bool
     {
         return true; // @todo
