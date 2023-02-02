@@ -182,4 +182,17 @@ class Server
 
         return null;
     }
+
+    /**
+     * Get the Valet configuration directory path.
+     *
+     * Really belongs on Valet/Valet, but here instead to avoid requiring dependencies.
+     *
+     * @param  string  $file  __FILE__ of server.php
+     * @return string
+     */
+    public static function homePath(string $file): string
+    {
+        return posix_getpwuid(fileowner($file))['dir'].'/.config/valet';
+    }
 }

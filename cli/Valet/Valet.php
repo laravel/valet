@@ -78,17 +78,6 @@ class Valet
         $this->cli->runAsUser('composer global update');
     }
 
-    /**
-     * Get the Valet configuration directory path.
-     *
-     * @param  string  $file  __FILE__ of server.php
-     * @return string
-     */
-    public function homePath(string $file): string
-    {
-        return posix_getpwuid(fileowner($file))['dir'].'/.config/valet';
-    }
-
     public function forceUninstallText(): string
     {
         return '<fg=red>NOTE:</>

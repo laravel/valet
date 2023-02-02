@@ -2,6 +2,7 @@
 
 require_once './cli/includes/require-drivers.php';
 require_once './cli/Valet/Server.php';
+require_once './cli/Valet/Valet.php';
 
 use Valet\Drivers\ValetDriver;
 use Valet\Server;
@@ -9,7 +10,7 @@ use Valet\Server;
 /**
  * Define the user's "~/.config/valet" path.
  */
-define('VALET_HOME_PATH', Valet::homePath(__FILE__));
+define('VALET_HOME_PATH', Server::homePath(__FILE__));
 define('VALET_STATIC_PREFIX', '41c270e4-5535-4daa-b23e-c269744c2f45');
 
 /**
