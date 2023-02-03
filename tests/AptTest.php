@@ -37,6 +37,7 @@ class AptTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
             Mockery::type('callable'),
         ])->andReturnUsing(function ($command, $onError) {
             $onError(1, 'test error output');
+
             return 'this is not actually returning here because error';
         });
 
