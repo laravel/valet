@@ -28,6 +28,10 @@ if (PHP_OS === 'Darwin') {
 
         exit(1);
     }
-}
+} elseif (PHP_OS === 'Linux') {
+    // @todo: Check for Linux dependencies
+} else {
+    echo 'Valet can only be run on macOS or Linux. Your system is reporting as '.PHP_OS;
 
-// @todo: If Linux, check for its dependencies
+    exit(1);
+}

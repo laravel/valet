@@ -231,6 +231,7 @@ class PhpFpm
         } catch (DomainException $e) { /* ignore thrown exception when no linked php is found */
         }
 
+        // @todo: Potentially install useful extensions? like php-xml, mbstring, etc.? format: php8.2-xml, php8.2-mbstring
         $this->installer->ensureInstalled($version, [], $this->taps);
 
         // Unlink the current global PHP if there is one installed

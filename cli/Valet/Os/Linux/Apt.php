@@ -9,6 +9,14 @@ use Valet\Os\Installer;
 
 class Apt extends Installer
 {
+    public $nginxServiceNames = [
+        'nginx',
+        'nginx-full',
+        'nginx-core',
+        'nginx-light',
+        'nginx-extras',
+    ];
+
     /**
      * Create a new Apt instance.
      *
@@ -26,7 +34,13 @@ class Apt extends Installer
 
     public function installed(string $formula): bool
     {
-        return true; // @todo
+        $isInstalled = true;
+
+        $this->cli->runAsUser("dpkg -s $formula &> /dev/null", function () use (&$isInstalled) {
+            $isInstalled = false;
+        });
+
+        return $isInstalled;
     }
 
     public function hasInstalledPhp(): bool
@@ -34,19 +48,37 @@ class Apt extends Installer
         return true; // @todo
     }
 
+    /**
+     * Determine if a compatible nginx version is installed via Apt.
+     */
+    public function hasInstalledNginx(): bool
+    {
+        foreach ($this->nginxServiceNames as $name) {
+            if ($this->installed($name)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Return name of the nginx service installed via Apt.
+     */
+    public function nginxServiceName(): string
+    {
+        foreach ($this->nginxServiceNames as $name) {
+            if ($this->installed($name)) {
+                return $name;
+            }
+        }
+
+        return 'nginx';
+    }
+
     public function determineAliasedVersion(string $formula): string
     {
         return '@todo real thing here';
-    }
-
-    public function hasInstalledNginx(): bool
-    {
-        return true; // @todo
-    }
-
-    public function nginxServiceName(): string
-    {
-        return 'the best service name @todo';
     }
 
     public function ensureInstalled(string $formula, array $options = [], array $taps = []): void
@@ -111,6 +143,7 @@ class Apt extends Installer
 
     public function getAllRunningServices(): Collection
     {
+        // @todo
         return collect([]);
     }
 
@@ -121,6 +154,6 @@ class Apt extends Installer
 
     public function uninstallFormula(string $formula): void
     {
-        // @todo
+        // @todo sudo apt remove $formula
     }
 }
