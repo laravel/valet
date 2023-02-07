@@ -175,25 +175,25 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Register a symbolic link with Valet.
      */
-    $app->command('link [name] [--secure] [--phpVersion=]', function (OutputInterface $output, $name, $secure, $phpVersion = null) {
+    $app->command('link [name] [--secure] [--isolate]', function (OutputInterface $output, $name, $secure, $isolate) {
         $linkPath = Site::link(getcwd(), $name = $name ?: basename(getcwd()));
 
         info('A ['.$name.'] symbolic link has been created in ['.$linkPath.'].');
 
         if ($secure) {
-            $this->runCommand('secure '.$name);
+            $this->runCommand('secure');
         }
 
-        if ($phpVersion) {
-            $this->runCommand(sprintf(
-                'isolate php@%s --site=%s',
-                $phpVersion,
-                $name
-            ));
+        if ($isolate) {
+            if (Site::phpRcVersion($name)) {
+                $this->runCommand('isolate');
+            } else {
+                warning('Valet could not determine which PHP version to use for this site.');
+            }
         }
     })->descriptions('Link the current working directory to Valet', [
-        '--secure' => 'Link the site with a trusted TLS certificate',
-        '--phpVersion' => 'The PHP version you want to use to serve the site; e.g 8.1',
+        '--secure' => 'Link the site with a trusted TLS certificate.',
+        '--isolate' => 'Isolate the site to the PHP version specified in the current working directory\'s .valetphprc file.',
     ]);
 
     /**
