@@ -1178,9 +1178,9 @@ class Site
      * Get PHP version from .valetphprc for a site.
      *
      * @param  string  $site
-     * @param  string  $cwd In contexts in which a current working directory has been passed,
-     *                      the cwd, which is prioritized over looking for the site's information
-     *                      from the config.
+     * @param  string  $cwd  In contexts in which a current working directory has been passed,
+     *                       the cwd, which is prioritized over looking for the site's information
+     *                       from the config.
      * @return string|null
      */
     public function phpRcVersion($site, $cwd = null)
