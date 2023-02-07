@@ -1,6 +1,12 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v3.3.1...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v3.3.2...master)
+
+## [v3.3.2](https://github.com/laravel/valet/compare/v3.3.1...v3.3.2) - 2023-02-07
+
+### Fixed
+
+- Enable local network sharing by @thinkverse in https://github.com/laravel/valet/pull/1284
 
 ## [v3.3.1](https://github.com/laravel/valet/compare/v3.3.0...v3.3.1) - 2023-01-31
 
