@@ -1187,14 +1187,12 @@ class Site
     {
         if ($cwd) {
             $path = $cwd.'/.valetphprc';
-        }
-
-        if ($site = $this->parked()->merge($this->links())->where('site', $site)->first()) {
+        } elseif ($site = $this->parked()->merge($this->links())->where('site', $site)->first()) {
             $path = data_get($site, 'path').'/.valetphprc';
         }
 
         if (! isset($path)) {
-            return;
+            return null;
         }
 
         if ($this->files->exists($path)) {
