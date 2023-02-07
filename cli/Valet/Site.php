@@ -597,10 +597,10 @@ class Site
     {
         foreach (['pem', 'key', 'srl'] as $ending) {
             $path = $this->caPath('LaravelValetCASelfSigned.'.$ending);
-            
+
             if ($this->files->exists($path)) {
                 $this->files->unlink($path);
-            }            
+            }
         }
 
         $cName = 'Laravel Valet CA Self Signed CN';
