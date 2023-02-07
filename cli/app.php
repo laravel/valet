@@ -175,7 +175,7 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Register a symbolic link with Valet.
      */
-    $app->command('link [name] [--secure]', function (OutputInterface $output, $name, $secure) {
+    $app->command('link [name] [--secure] [--phpVersion=]', function (OutputInterface $output, $name, $secure, $phpVersion = null) {
         $linkPath = Site::link(getcwd(), $name = $name ?: basename(getcwd()));
 
         info('A ['.$name.'] symbolic link has been created in ['.$linkPath.'].');
@@ -183,7 +183,18 @@ if (is_dir(VALET_HOME_PATH)) {
         if ($secure) {
             $this->runCommand('secure '.$name);
         }
-    })->descriptions('Link the current working directory to Valet');
+
+        if ($phpVersion) {
+            $this->runCommand(sprintf(
+                'isolate php@%s --site=%s',
+                $phpVersion,
+                $name
+            ));
+        }
+    })->descriptions('Link the current working directory to Valet', [
+        '--secure' => 'Link the site with a trusted TLS certificate',
+        '--phpVersion' => 'The PHP version you want to use to serve the site; e.g 8.1',
+    ]);
 
     /**
      * Display all of the registered symbolic links.
@@ -559,7 +570,7 @@ You might also want to investigate your global Composer configs. Helpful command
 
         PhpFpm::useVersion($phpVersion, $force);
     })->descriptions('Change the version of PHP used by Valet', [
-        'phpVersion' => 'The PHP version you want to use, e.g php@7.3',
+        'phpVersion' => 'The PHP version you want to use, e.g php@8.1',
     ]);
 
     /**
