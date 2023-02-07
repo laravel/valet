@@ -595,21 +595,15 @@ class Site
      */
     public function removeCa()
     {
-        $caPemPath = $this->caPath('LaravelValetCASelfSigned.pem');
-        $caKeyPath = $this->caPath('LaravelValetCASelfSigned.key');
-        $caSrlPath = $this->caPath('LaravelValetCASelfSigned.srl');
+        foreach (['pem', 'key', 'srl'] as $ending) {
+            $path = $this->caPath('LaravelValetCASelfSigned.'.$ending);
+            
+            if ($this->files->exists($path)) {
+                $this->files->unlink($path);
+            }            
+        }
 
         $cName = 'Laravel Valet CA Self Signed CN';
-
-        if ($this->files->exists($caKeyPath)) {
-            $this->files->unlink($caKeyPath);
-        }
-        if ($this->files->exists($caPemPath)) {
-            $this->files->unlink($caPemPath);
-        }
-        if ($this->files->exists($caSrlPath)) {
-            $this->files->unlink($caSrlPath);
-        }
 
         $this->cli->run(sprintf(
             'sudo security delete-certificate -c "%s" /Library/Keychains/System.keychain',
