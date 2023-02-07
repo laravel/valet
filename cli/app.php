@@ -420,6 +420,8 @@ if (is_dir(VALET_HOME_PATH)) {
             }
             info('Removing certificates for all Secured sites...');
             Site::unsecureAll();
+            info('Removing certificate authority...');
+            Site::removeCa();
             info('Removing Nginx and configs...');
             Nginx::uninstall();
             info('Removing Dnsmasq and configs...');
