@@ -84,7 +84,7 @@ abstract class Installer
      */
     public function ensureInstalled(string $formula, array $options = [], array $taps = []): void
     {
-        if (!$this->installed($formula)) {
+        if (! $this->installed($formula)) {
             $this->installOrFail($formula, $options, $taps);
         }
     }

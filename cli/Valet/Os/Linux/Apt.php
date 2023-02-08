@@ -7,8 +7,8 @@ use Illuminate\Support\Collection;
 use Valet\CommandLine;
 use Valet\Filesystem;
 use function Valet\info;
-use function Valet\output;
 use Valet\Os\Installer;
+use function Valet\output;
 
 class Apt extends Installer
 {
@@ -104,7 +104,7 @@ class Apt extends Installer
             if ($this->installed($service)) {
                 info("Stopping {$service}...");
 
-                $this->cli->quietly('sudo systemctl restart ' . $service);
+                $this->cli->quietly('sudo systemctl restart '.$service);
             }
         }
     }
