@@ -60,7 +60,7 @@ class Upgrader
                     warning('Backing up at '.$samplePath.'.bak');
 
                     $this->files->putAsUser(
-                        VALET_HOME_PATH . '/Drivers/SampleValetDriver.php.bak',
+                        VALET_HOME_PATH.'/Drivers/SampleValetDriver.php.bak',
                         $contents
                     );
                 }
