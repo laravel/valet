@@ -52,7 +52,19 @@ class Upgrader
         $samplePath = VALET_HOME_PATH.'/Drivers/SampleValetDriver.php';
 
         if ($this->files->exists($samplePath)) {
-            if (! str_contains($this->files->get($samplePath), 'namespace')) {
+            $contents = $this->files->get($samplePath);
+
+            if (! str_contains($contents, 'namespace')) {
+                if ($contents !== $this->files->get(__DIR__.'/../stubs/Valet3SampleValetDriver.php')) {
+                    warning('Existing SampleValetDriver.php has been customized.');
+                    warning('Backing up at '.$samplePath.'.bak');
+
+                    $this->files->putAsUser(
+                        VALET_HOME_PATH . '/Drivers/SampleValetDriver.php.bak',
+                        $contents
+                    );
+                }
+
                 $this->files->putAsUser(
                     VALET_HOME_PATH.'/Drivers/SampleValetDriver.php',
                     $this->files->getStub('SampleValetDriver.php')
@@ -73,6 +85,10 @@ class Upgrader
         }
 
         foreach ($this->files->scanDir($driversPath) as $driver) {
+            if (! ends_with($driver, 'ValetDriver.php')) {
+                continue;
+            }
+
             if (! str_contains($this->files->get($driversPath.'/'.$driver), 'namespace')) {
                 warning('Please make sure all custom drivers have been upgraded for Valet 4.');
                 exit;

@@ -88,4 +88,18 @@ class ServerTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $this->assertNull($server->defaultSitePath());
     }
+
+    public function test_it_tests_whether_host_is_ip_address()
+    {
+        $this->assertTrue(Server::hostIsIpAddress('192.168.1.1'));
+        $this->assertFalse(Server::hostIsIpAddress('google.com'));
+        $this->assertFalse(Server::hostIsIpAddress('19.google.com'));
+        $this->assertFalse(Server::hostIsIpAddress('19.19.19.19.google.com'));
+    }
+
+    public function test_it_extracts_host_from_ip_address_uri()
+    {
+        $this->assertEquals('onramp.test', Server::valetSiteFromIpAddressUri('onramp.test/auth/login', 'test'));
+        $this->assertNull(Server::valetSiteFromIpAddressUri('onramp.dev/auth/login', 'test'));
+    }
 }

@@ -761,6 +761,7 @@ class CliTest extends BaseApplicationTestCase
 
         $site = Mockery::mock(RealSite::class);
         $site->shouldReceive('unsecureAll')->once();
+        $site->shouldReceive('removeCa')->once();
         $site->shouldReceive('uninstallLoopback')->once();
 
         $nginx = Mockery::mock(Nginx::class);
