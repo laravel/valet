@@ -37,7 +37,7 @@ class Apt extends Installer
 
     public function installed(string $formula): bool
     {
-        $output = $this->cli->run("dpkg -s $formula &> /dev/null");
+        $output = $this->cli->runAsUser("dpkg -s $formula &> /dev/null");
 
         return ! str_contains($output, 'is not installed');
     }

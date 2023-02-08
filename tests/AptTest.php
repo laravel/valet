@@ -33,13 +33,8 @@ class AptTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
     {
         $cli = Mockery::mock(CommandLine::class);
         $cli->shouldReceive('runAsUser')->once()->withArgs([
-            'dpkg -s nginx &> /dev/null',
-            Mockery::type('callable'),
-        ])->andReturnUsing(function ($command, $onError) {
-            $onError(1, 'test error output');
-
-            return 'this is not actually returning here because error';
-        });
+            "dpkg -s nginx &> /dev/null"
+        ])->andReturn('This package is not installed.');
 
         swap(CommandLine::class, $cli);
 
