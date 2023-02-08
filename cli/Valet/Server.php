@@ -71,7 +71,7 @@ class Server
     }
 
     /**
-     * Return whether a given host (from $_SERVER['HTTP_HOST']) is an IP address
+     * Return whether a given host (from $_SERVER['HTTP_HOST']) is an IP address.
      */
     public static function hostIsIpAddress(string $host): bool
     {
