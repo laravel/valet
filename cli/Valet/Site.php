@@ -517,7 +517,7 @@ class Site
     public function removeCa(): void
     {
         foreach (['pem', 'key', 'srl'] as $ending) {
-            $path = $this->caPath('LaravelValetCASelfSigned.' . $ending);
+            $path = $this->caPath('LaravelValetCASelfSigned.'.$ending);
 
             if ($this->files->exists($path)) {
                 $this->files->unlink($path);
