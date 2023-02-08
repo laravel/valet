@@ -27,7 +27,7 @@ $valetConfig = json_decode(
 if (preg_match('/^([0-9]+\.){3}[0-9]+$/', $_SERVER['HTTP_HOST'])) {
     $uriForIpAddressExtraction = ltrim($_SERVER['REQUEST_URI'], '/');
 
-    if (preg_match('/^[-.0-9a-zA-Z]+\.' . $valetConfig['tld'] . '/', $uriForIpAddressExtraction, $matches)) {
+    if (preg_match('/^[-.0-9a-zA-Z]+\.'.$valetConfig['tld'].'/', $uriForIpAddressExtraction, $matches)) {
         $host = $matches[0];
         $_SERVER['HTTP_HOST'] = $host;
         $_SERVER['REQUEST_URI'] = str_replace($host, '', $uriForIpAddressExtraction);
