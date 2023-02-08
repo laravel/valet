@@ -32,8 +32,6 @@ abstract class Installer
 
     abstract public function nginxServiceName(): string;
 
-    abstract public function ensureInstalled(string $formula, array $options = [], array $taps = []): void;
-
     abstract public function installOrFail(string $formula, array $options = [], array $taps = []): void;
 
     abstract public function restartService(array|string $services): void;
@@ -79,5 +77,15 @@ abstract class Installer
         $versionBNormalized = preg_replace('/[^\d]/', '', $versionB);
 
         return $versionANormalized === $versionBNormalized;
+    }
+
+    /**
+     * Ensure that the given formula is installed.
+     */
+    public function ensureInstalled(string $formula, array $options = [], array $taps = []): void
+    {
+        if (!$this->installed($formula)) {
+            $this->installOrFail($formula, $options, $taps);
+        }
     }
 }

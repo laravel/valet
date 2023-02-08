@@ -20,7 +20,7 @@ class Nginx
     public function install(): void
     {
         if (! $this->installer->hasInstalledNginx()) {
-            $this->installer->installOrFail('nginx', []);
+            $this->installer->installOrFail('nginx');
         }
 
         $this->installConfiguration();
@@ -128,7 +128,7 @@ class Nginx
      */
     public function stop(): void
     {
-        $this->installer->stopService(['nginx']);
+        $this->installer->stopService('nginx');
     }
 
     /**

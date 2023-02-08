@@ -105,16 +105,6 @@ class Brew extends Installer
     }
 
     /**
-     * Ensure that the given formula is installed.
-     */
-    public function ensureInstalled(string $formula, array $options = [], array $taps = []): void
-    {
-        if (! $this->installed($formula)) {
-            $this->installOrFail($formula, $options, $taps);
-        }
-    }
-
-    /**
      * Install the given formula and throw an exception on failure.
      */
     public function installOrFail(string $formula, array $options = [], array $taps = []): void

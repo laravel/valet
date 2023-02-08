@@ -2,9 +2,12 @@
 
 namespace Valet\Os\Linux;
 
+use DomainException;
 use Illuminate\Support\Collection;
 use Valet\CommandLine;
 use Valet\Filesystem;
+use function Valet\info;
+use function Valet\output;
 use Valet\Os\Installer;
 
 class Apt extends Installer
@@ -81,24 +84,42 @@ class Apt extends Installer
         return '@todo real thing here';
     }
 
-    public function ensureInstalled(string $formula, array $options = [], array $taps = []): void
-    {
-        // @todo
-    }
-
     public function installOrFail(string $formula, array $options = [], array $taps = []): void
     {
-        // @todo
+        info("Installing {$formula}...");
+        output('<info>['.$formula.'] is not installed, installing it now via Apt...</info>');
+
+        $this->cli->run('apt install '.$formula.' '.implode(' ', $options), function ($exitCode, $errorOutput) use ($formula) {
+            output($errorOutput);
+
+            throw new DomainException('Apt was unable to install ['.$formula.'].');
+        });
     }
 
     public function restartService(array|string $services): void
     {
-        // @todo
+        $services = is_array($services) ? $services : func_get_args();
+
+        foreach ($services as $service) {
+            if ($this->installed($service)) {
+                info("Stopping {$service}...");
+
+                $this->cli->quietly('sudo systemctl restart ' . $service);
+            }
+        }
     }
 
     public function stopService(array|string $services): void
     {
-        // @todo
+        $services = is_array($services) ? $services : func_get_args();
+
+        foreach ($services as $service) {
+            if ($this->installed($service)) {
+                info("Stopping {$service}...");
+
+                $this->cli->quietly('sudo systemctl stop '.$service);
+            }
+        }
     }
 
     public function hasLinkedPhp(): bool
