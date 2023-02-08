@@ -512,6 +512,27 @@ class Site
     }
 
     /**
+     * If CA and root certificates exist, remove them.
+     */
+    public function removeCa(): void
+    {
+        foreach (['pem', 'key', 'srl'] as $ending) {
+            $path = $this->caPath('LaravelValetCASelfSigned.' . $ending);
+
+            if ($this->files->exists($path)) {
+                $this->files->unlink($path);
+            }
+        }
+
+        $cName = 'Laravel Valet CA Self Signed CN';
+
+        $this->cli->run(sprintf(
+            'sudo security delete-certificate -c "%s" /Library/Keychains/System.keychain',
+            $cName
+        ));
+    }
+
+    /**
      * Create and trust a certificate for the given URL.
      *
      * @param  string  $url
