@@ -71,6 +71,32 @@ class Server
     }
 
     /**
+     * Return whether a given host (from $_SERVER['HTTP_HOST']) is an IP address
+     */
+    public static function hostIsIpAddress(string $host): bool
+    {
+        return preg_match('/^([0-9]+\.){3}[0-9]+$/', $host);
+    }
+
+    /**
+     * Return the root level Valet site if given the request URI ($_SERVER['REQUEST_URI'])
+     * of an address using IP address local access.
+     *
+     * E.g. URL is 192.168.1.100/onramp.tes/auth/login, passes $uri as onramp.test/auth/login and
+     * $tld as 'test', and this method returns onramp.test
+     *
+     * For use when accessing Valet sites across a local network.
+     */
+    public static function valetSiteFromIpAddressUri(string $uri, string $tld): ?string
+    {
+        if (preg_match('/^[-.0-9a-zA-Z]+\.'.$tld.'/', $uri, $matches)) {
+            return $matches[0];
+        }
+
+        return null;
+    }
+
+    /**
      * Extract site name from HTTP host, stripping www. and supporting wildcard DNS.
      */
     public function siteNameFromHttpHost(string $httpHost): string
