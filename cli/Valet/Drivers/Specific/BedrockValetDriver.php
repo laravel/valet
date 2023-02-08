@@ -18,16 +18,6 @@ class BedrockValetDriver extends BasicValetDriver
     }
 
     /**
-     * Take any steps necessary before loading the front controller for this driver.
-     */
-    public function beforeLoading(string $sitePath, string $siteName, string $uri): void
-    {
-        $_SERVER['PHP_SELF'] = $uri;
-        $_SERVER['SERVER_ADDR'] = '127.0.0.1';
-        $_SERVER['SERVER_NAME'] = $_SERVER['HTTP_HOST'];
-    }
-
-    /**
      * Determine if the incoming request is for a static file.
      */
     public function isStaticFile(string $sitePath, string $siteName, string $uri)

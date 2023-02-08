@@ -15,16 +15,6 @@ class WordPressValetDriver extends BasicValetDriver
     }
 
     /**
-     * Take any steps necessary before loading the front controller for this driver.
-     */
-    public function beforeLoading(string $sitePath, string $siteName, string $uri): void
-    {
-        $_SERVER['PHP_SELF'] = $uri;
-        $_SERVER['SERVER_ADDR'] = '127.0.0.1';
-        $_SERVER['SERVER_NAME'] = $_SERVER['HTTP_HOST'];
-    }
-
-    /**
      * Get the fully resolved path to the application's front controller.
      */
     public function frontControllerPath(string $sitePath, string $siteName, string $uri): ?string
