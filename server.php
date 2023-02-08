@@ -19,6 +19,21 @@ $valetConfig = json_decode(
     file_get_contents(VALET_HOME_PATH.'/config.json'), true
 );
 
+/**
+ * If the HTTP_HOST is an IP address, check the start of the REQUEST_URI for a
+ * valid hostname, extract and use it as the effective HTTP_HOST in place
+ * of the IP. It enables the use of Valet in a local network.
+ */
+if (preg_match('/^([0-9]+\.){3}[0-9]+$/', $_SERVER['HTTP_HOST'])) {
+    $uriForIpAddressExtraction = ltrim($_SERVER['REQUEST_URI'], '/');
+
+    if (preg_match('/^[-.0-9a-zA-Z]+\.' . $valetConfig['tld'] . '/', $uriForIpAddressExtraction, $matches)) {
+        $host = $matches[0];
+        $_SERVER['HTTP_HOST'] = $host;
+        $_SERVER['REQUEST_URI'] = str_replace($host, '', $uriForIpAddressExtraction);
+    }
+}
+
 $server = new Server($valetConfig);
 
 /**
