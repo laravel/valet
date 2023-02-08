@@ -20,7 +20,9 @@ class WordPressValetDriver extends BasicValetDriver
     public function frontControllerPath(string $sitePath, string $siteName, string $uri): ?string
     {
         return parent::frontControllerPath(
-            $sitePath, $siteName, $this->forceTrailingSlash($uri)
+            $sitePath,
+            $siteName,
+            $this->forceTrailingSlash($uri)
         );
     }
 
