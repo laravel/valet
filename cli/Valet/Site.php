@@ -15,7 +15,7 @@ class Site
     /**
      * Get the name of the site.
      */
-    private function getRealSiteName(?string $name): string
+    private function getSiteLinkName(?string $name): string
     {
         if (! is_null($name)) {
             return $name;
@@ -25,7 +25,7 @@ class Site
             return $link;
         }
 
-        return basename(getcwd());
+        throw new DomainException(basename(getcwd()).' is not linked.');
     }
 
     /**
@@ -42,6 +42,8 @@ class Site
         if ($count > 1) {
             throw new DomainException("There are {$count} links related to the current directory, please specify the name: valet unlink <name>.");
         }
+
+        return null;
     }
 
     /**
@@ -283,7 +285,7 @@ class Site
      */
     public function unlink(?string $name = null): string
     {
-        $name = $this->getRealSiteName($name);
+        $name = $this->getSiteLinkName($name);
 
         if ($this->files->exists($path = $this->sitesPath($name))) {
             $this->files->unlink($path);
@@ -431,6 +433,13 @@ class Site
                     })->map(function ($file) {
                         return str_replace(['.key', '.csr', '.crt', '.conf'], '', $file);
                     })->unique()->values()->all();
+    }
+
+    public function isSecured(string $site): bool
+    {
+        $tld = $this->config->read()['tld'];
+
+        return in_array($site.'.'.$tld, $this->secured());
     }
 
     /**

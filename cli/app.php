@@ -217,7 +217,16 @@ if (is_dir(VALET_HOME_PATH)) {
      * Unlink a link from the Valet links directory.
      */
     $app->command('unlink [name]', function (OutputInterface $output, $name) {
-        info('The ['.Site::unlink($name).'] symbolic link has been removed.');
+        $name = Site::unlink($name);
+        info('The ['.$name.'] symbolic link has been removed.');
+
+        if (Site::isSecured($name)) {
+            info('Unsecuring '.$name.'...');
+
+            Site::unsecure(Site::domain($name));
+
+            Nginx::restart();
+        }
     })->descriptions('Remove the specified Valet link');
 
     /**
