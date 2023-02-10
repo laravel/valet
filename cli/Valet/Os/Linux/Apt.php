@@ -85,7 +85,7 @@ class Apt extends Installer
         info("Installing {$formula}...");
         output('<info>['.$formula.'] is not installed, installing it now via Apt...</info>');
 
-        $this->cli->run('apt install '.$formula.' '.implode(' ', $options), function ($exitCode, $errorOutput) use ($formula) {
+        $this->cli->run('apt install -y '.$formula.' '.implode(' ', $options), function ($exitCode, $errorOutput) use ($formula) {
             output($errorOutput);
 
             throw new DomainException('Apt was unable to install ['.$formula.'].');
