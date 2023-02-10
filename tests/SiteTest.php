@@ -945,9 +945,13 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $files->shouldReceive('exists')->with('/Users/name/some-other-directory/site2/.valetphprc')->andReturn(true);
         $files->shouldReceive('get')->with('/Users/name/some-other-directory/site2/.valetphprc')->andReturn('php@8.0');
 
+        $files->shouldReceive('exists')->with('/tmp/cwd-site/.valetphprc')->andReturn(true);
+        $files->shouldReceive('get')->with('/tmp/cwd-site/.valetphprc')->andReturn('php@8.2');
+
         $this->assertEquals('php@8.1', $siteMock->phpRcVersion('site1'));
         $this->assertEquals('php@8.0', $siteMock->phpRcVersion('site2'));
-        $this->assertEquals(null, $siteMock->phpRcVersion('site3')); // Site doesn't exists
+        $this->assertEquals('php@8.2', $siteMock->phpRcVersion('blabla', '/tmp/cwd-site'));
+        $this->assertEquals(null, $siteMock->phpRcVersion('site3')); // Site doesn't exist
     }
 }
 

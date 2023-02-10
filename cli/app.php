@@ -541,7 +541,7 @@ You might also want to investigate your global Composer configs. Helpful command
             $site = basename(getcwd());
             $linkedVersion = Brew::linkedPhp();
 
-            if ($phpVersion = Site::phpRcVersion($site)) {
+            if ($phpVersion = Site::phpRcVersion($site, getcwd())) {
                 info("Found '{$site}/.valetphprc' specifying version: {$phpVersion}");
             } else {
                 $domain = $site.'.'.data_get(Configuration::read(), 'tld');

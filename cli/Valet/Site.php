@@ -1178,16 +1178,25 @@ class Site
      * Get PHP version from .valetphprc for a site.
      *
      * @param  string  $site
+     * @param  string  $cwd  In contexts in which a current working directory has been passed,
+     *                       the cwd, which is prioritized over looking for the site's information
+     *                       from the config.
      * @return string|null
      */
-    public function phpRcVersion($site)
+    public function phpRcVersion($site, $cwd = null)
     {
-        if ($site = $this->parked()->merge($this->links())->where('site', $site)->first()) {
+        if ($cwd) {
+            $path = $cwd.'/.valetphprc';
+        } elseif ($site = $this->parked()->merge($this->links())->where('site', $site)->first()) {
             $path = data_get($site, 'path').'/.valetphprc';
+        }
 
-            if ($this->files->exists($path)) {
-                return PhpFpm::normalizePhpVersion(trim($this->files->get($path)));
-            }
+        if (! isset($path)) {
+            return null;
+        }
+
+        if ($this->files->exists($path)) {
+            return PhpFpm::normalizePhpVersion(trim($this->files->get($path)));
         }
     }
 }
