@@ -194,14 +194,6 @@ class Brew extends Installer
     }
 
     /**
-     * Determine if php is currently linked.
-     */
-    public function hasLinkedPhp(): bool
-    {
-        return $this->files->isLink(BREWAPT_PREFIX.'/bin/php');
-    }
-
-    /**
      * Get the linked php parsed.
      */
     public function getParsedLinkedPhp(): array

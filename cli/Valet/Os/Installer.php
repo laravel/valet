@@ -38,8 +38,6 @@ abstract class Installer
 
     abstract public function stopService(array|string $services): void;
 
-    abstract public function hasLinkedPhp(): bool;
-
     abstract public function getLinkedPhpFormula(): string;
 
     abstract public function linkedPhp(): string;
@@ -59,6 +57,14 @@ abstract class Installer
     abstract public function uninstallAllPhpVersions(): void;
 
     abstract public function uninstallFormula(string $formula): void;
+
+    /**
+     * Determine if php is currently linked.
+     */
+    public function hasLinkedPhp(): bool
+    {
+        return $this->files->isLink(BREWAPT_PREFIX . '/bin/php');
+    }
 
     /**
      * Get a list of supported PHP versions.

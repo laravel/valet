@@ -118,24 +118,41 @@ class Apt extends Installer
         }
     }
 
-    public function hasLinkedPhp(): bool
-    {
-        return true; // @todo
-    }
-
     public function getLinkedPhpFormula(): string
     {
-        return 'php @todo';
+        if (! $this->hasLinkedPhp()) {
+            throw new DomainException('Apt PHP appears not to be linked. Please run [valet use php@X.Y]');
+        }
+
+        $resolvedPath = $this->files->deepReadLink('/usr/bin/php');
+
+        // @todo: Probably make this a regex
+        $split = explode('/', $resolvedPath);
+        return $split[3];
     }
 
     public function linkedPhp(): string
     {
-        return 'php @todo';
+        $resolvedPhpVersion = $this->getLinkedPhpFormula();
+
+        return $this->supportedPhpVersions()->first(
+            function ($version) use ($resolvedPhpVersion) {
+                return $this->arePhpVersionsEqual($resolvedPhpVersion, $version);
+            },
+            function () use ($resolvedPhpVersion) {
+                throw new DomainException("Unable to determine linked PHP when parsing '$resolvedPhpVersion'");
+            }
+        );
     }
 
     public function getPhpExecutablePath(?string $phpVersion = null): string
     {
-        return '/usr/bin/php'; // @todo
+        if (! $phpVersion) {
+            return '/usr/bin/php';
+        }
+
+        // @todo: Make this actually work
+        return '/usr/bin/php';
     }
 
     public function createSudoersEntry(): void
@@ -150,6 +167,7 @@ class Apt extends Installer
 
     public function link(string $formula, bool $force = false): string
     {
+        // sudo update-alternatives --set php /usr/bin/php5.6
         return 'yay it worked @todo';
     }
 
@@ -172,5 +190,15 @@ class Apt extends Installer
     public function uninstallFormula(string $formula): void
     {
         // @todo sudo apt remove $formula
+    }
+
+    /**
+     * Get a list of supported PHP versions.
+     */
+    public function supportedPhpVersions(): Collection
+    {
+        return collect(static::SUPPORTED_PHP_VERSIONS)->map(function ($version) {
+            return str_replace('@', '', $version);
+        });
     }
 }

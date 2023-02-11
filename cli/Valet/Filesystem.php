@@ -238,6 +238,19 @@ class Filesystem
     }
 
     /**
+     * Resolve the given symbolic link, following it to eventual
+     * real file.
+     */
+    public function deepReadLink(string $path): string
+    {
+        do {
+            $path = readlink($path);
+        } while (is_link($path));
+
+        return $path;
+    }
+
+    /**
      * Remove all of the broken symbolic links at the given path.
      */
     public function removeBrokenLinksAt(string $path): void
