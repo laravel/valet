@@ -953,6 +953,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $this->assertEquals('php@8.0', $site->phpRcVersion('site-w-valetrc-1'));
         $this->assertEquals('php@8.1', $site->phpRcVersion('site-w-valetrc-2'));
         $this->assertEquals('php@8.2', $site->phpRcVersion('site-w-valetrc-3'));
+        $this->assertEquals('php@8.2', $site->phpRcVersion('blabla', __DIR__.'/fixtures/Parked/Sites/site-w-valetrc-3'));
     }
 }
 

@@ -588,7 +588,7 @@ if (is_dir(VALET_HOME_PATH)) {
             $site = basename(getcwd());
             $linkedVersion = Brew::linkedPhp();
 
-            if ($phpVersion = Site::phpRcVersion($site)) {
+            if ($phpVersion = Site::phpRcVersion($site, getcwd())) {
                 info("Found '{$site}/.valetrc' or '{$site}/.valetphprc' specifying version: {$phpVersion}");
             } else {
                 $domain = $site.'.'.data_get(Configuration::read(), 'tld');
@@ -620,7 +620,7 @@ if (is_dir(VALET_HOME_PATH)) {
         }
 
         if (is_null($phpVersion)) {
-            if ($phpVersion = Site::phpRcVersion($site)) {
+            if ($phpVersion = Site::phpRcVersion($site, getcwd())) {
                 info("Found '{$site}/.valetrc' or '{$site}/.valetphprc' specifying version: {$phpVersion}");
             } else {
                 info(PHP_EOL.'Please provide a version number. E.g.:');
