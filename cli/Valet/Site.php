@@ -1053,20 +1053,24 @@ class Site
     /**
      * Get configuration items defined in .valetrc for a site.
      */
-    public function valetRc(string $siteName): array
+    public function valetRc(string $siteName, ?string $cwd = null): array
     {
-        if ($site = $this->parked()->merge($this->links())->where('site', $siteName)->first()) {
+        if ($cwd) {
+            $path = $cwd.'/.valetrc';
+        } elseif ($site = $this->parked()->merge($this->links())->where('site', $siteName)->first()) {
             $path = data_get($site, 'path').'/.valetrc';
+        } else {
+            return [];
+        }
 
-            if ($this->files->exists($path)) {
-                return collect(explode(PHP_EOL, trim($this->files->get($path))))->filter(function ($line) {
-                    return str_contains($line, '=');
-                })->mapWithKeys(function ($item, $index) {
-                    [$key, $value] = explode('=', $item);
+        if ($this->files->exists($path)) {
+            return collect(explode(PHP_EOL, trim($this->files->get($path))))->filter(function ($line) {
+                return str_contains($line, '=');
+            })->mapWithKeys(function ($item, $index) {
+                [$key, $value] = explode('=', $item);
 
-                    return [strtolower($key) => $value];
-                })->all();
-            }
+                return [strtolower($key) => $value];
+            })->all();
         }
 
         return [];
@@ -1075,20 +1079,22 @@ class Site
     /**
      * Get PHP version from .valetrc or .valetphprc for a site.
      */
-    public function phpRcVersion(string $siteName): ?string
+    public function phpRcVersion(string $siteName, ?string $cwd = null): ?string
     {
-        if ($site = $this->parked()->merge($this->links())->where('site', $siteName)->first()) {
+        if ($cwd) {
+            $oldPath = $cwd.'/.valetphprc';
+        } elseif ($site = $this->parked()->merge($this->links())->where('site', $siteName)->first()) {
             $oldPath = data_get($site, 'path').'/.valetphprc';
-
-            if ($this->files->exists($oldPath)) {
-                return PhpFpm::normalizePhpVersion(trim($this->files->get($oldPath)));
-            }
-
-            $valetRc = $this->valetRc($siteName);
-
-            return PhpFpm::normalizePhpVersion(data_get($valetRc, 'php'));
+        } else {
+            return null;
         }
 
-        return null;
+        if ($this->files->exists($oldPath)) {
+            return PhpFpm::normalizePhpVersion(trim($this->files->get($oldPath)));
+        }
+
+        $valetRc = $this->valetRc($siteName, $cwd);
+
+        return PhpFpm::normalizePhpVersion(data_get($valetRc, 'php'));
     }
 }
