@@ -8,10 +8,20 @@ abstract class Os
 
     public static function assign()
     {
-        if (PHP_OS === 'Darwin') {
+        if (static::isMac()) {
             return new Mac();
         }
 
         return new Linux();
+    }
+
+    public static function isMac(): bool
+    {
+        return (PHP_OS === 'Darwin');
+    }
+
+    public static function isLinux(): bool
+    {
+        return ! static::isMac();
     }
 }

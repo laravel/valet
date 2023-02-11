@@ -83,7 +83,7 @@ class Apt extends Installer
     public function installOrFail(string $formula, array $options = [], array $taps = []): void
     {
         info("Installing {$formula}...");
-        output('<info>['.$formula.'] is not installed, installing it now via Apt...</info>');
+        output('<info>['.$formula.'] is not installed; installing it now via Apt...</info>');
 
         $this->cli->run('apt install -y '.$formula.' '.implode(' ', $options), function ($exitCode, $errorOutput) use ($formula) {
             output($errorOutput);

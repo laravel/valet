@@ -29,7 +29,7 @@ class Composer
 
     public function installOrFail(string $namespacedPackage): void
     {
-        info('['.$namespacedPackage.'] is not installed, installing it now via Composer...</info> 🎼');
+        info('['.$namespacedPackage.'] is not installed; installing it now via Composer...</info> 🎼');
 
         $this->cli->runAsUser(('composer global require '.$namespacedPackage), function ($exitCode, $errorOutput) use ($namespacedPackage) {
             output($errorOutput);

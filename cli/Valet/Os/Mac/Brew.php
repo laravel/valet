@@ -115,7 +115,7 @@ class Brew extends Installer
             $this->tap($taps);
         }
 
-        output('<info>['.$formula.'] is not installed, installing it now via Brew...</info> 🍻');
+        output('<info>['.$formula.'] is not installed; installing it now via Brew...</info> 🍻');
         if ($formula !== 'php' && starts_with($formula, 'php') && preg_replace('/[^\d]/', '', $formula) < '73') {
             warning('Note: older PHP versions may take 10+ minutes to compile from source. Please wait ...');
         }

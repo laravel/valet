@@ -7,6 +7,7 @@ use Illuminate\Container\Container;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use Valet\Os\Os;
 
 /**
  * Define constants.
@@ -25,10 +26,11 @@ if (! defined('VALET_STATIC_PREFIX')) {
 define('VALET_LOOPBACK', '127.0.0.1');
 define('VALET_SERVER_PATH', realpath(__DIR__.'/../../server.php'));
 
-if (true/* on a mac. @todo */) {
+if (Os::isMac()) {
     define('BREWAPT_PREFIX', (new CommandLine())->runAsUser('printf $(brew --prefix)'));
 } else {
-    // @todo
+    // ... well, crap, some are in sbin instead of bin in linux. FUN.
+    define('BREWAPT_PREFIX', '/usr/sbin');
 }
 
 define('ISOLATED_PHP_VERSION', 'ISOLATED_PHP_VERSION');
