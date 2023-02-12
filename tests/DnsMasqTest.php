@@ -55,7 +55,7 @@ class DnsMasqTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $this->assertSame('nameserver '.VALET_LOOPBACK.PHP_EOL, file_get_contents(__DIR__.'/output/resolver/test'));
         $this->assertSame('address=/.test/'.VALET_LOOPBACK.PHP_EOL.'listen-address='.VALET_LOOPBACK.PHP_EOL, file_get_contents(__DIR__.'/output/tld-test.conf'));
         $this->assertSame('test-contents
-'.PHP_EOL.'conf-dir='.BREWAPT_PREFIX.'/etc/dnsmasq.d/,*.conf'.PHP_EOL,
+'.PHP_EOL.'conf-dir='.__DIR__.'/output/dnsmasq.d/,*.conf'.PHP_EOL,
             file_get_contents($dnsMasq->dnsmasqMasterConfigFile)
         );
     }

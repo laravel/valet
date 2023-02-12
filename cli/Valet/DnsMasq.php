@@ -13,7 +13,7 @@ class DnsMasq
     public function __construct(public Installer $installer, public CommandLine $cli, public Filesystem $files, public Configuration $configuration)
     {
         $this->dnsmasqMasterConfigFile = $this->installer->os()->etcDir().'/dnsmasq.conf';
-        $this->dnsmasqSystemConfDir = $this->installer->os()->etcDir() . '/dnsmasq.d';
+        $this->dnsmasqSystemConfDir = $this->installer->os()->etcDir().'/dnsmasq.d';
     }
 
     /**
@@ -44,7 +44,7 @@ class DnsMasq
     {
         $this->installer->stopService('dnsmasq');
         $this->installer->uninstallFormula('dnsmasq');
-        $this->cli->run('rm -rf '.BREWAPT_PREFIX.'/etc/dnsmasq.d/dnsmasq-valet.conf');
+        $this->cli->run('rm -rf '.$this->dnsmasqSystemConfDir.'/dnsmasq-valet.conf');
         $tld = $this->configuration->read()['tld'];
         $this->files->unlink($this->resolverPath.'/'.$tld);
     }
@@ -66,13 +66,13 @@ class DnsMasq
     {
         info('Updating Dnsmasq configuration...');
 
-        // set primary config to look for configs in /usr/local/etc/dnsmasq.d/*.conf
+        // set primary config to look for configs in (/usr/local)/etc/dnsmasq.d/*.conf
         $contents = $this->files->get($this->dnsmasqMasterConfigFile);
         // ensure the line we need to use is present, and uncomment it if needed
-        if (false === strpos($contents, 'conf-dir='.BREWAPT_PREFIX.'/etc/dnsmasq.d/,*.conf')) {
-            $contents .= PHP_EOL.'conf-dir='.BREWAPT_PREFIX.'/etc/dnsmasq.d/,*.conf'.PHP_EOL;
+        if (false === strpos($contents, 'conf-dir='.$this->dnsmasqSystemConfDir.'/,*.conf')) {
+            $contents .= PHP_EOL.'conf-dir='.$this->dnsmasqSystemConfDir.'/,*.conf'.PHP_EOL;
         }
-        $contents = str_replace('#conf-dir='.BREWAPT_PREFIX.'/etc/dnsmasq.d/,*.conf', 'conf-dir='.BREWAPT_PREFIX.'/etc/dnsmasq.d/,*.conf', $contents);
+        $contents = str_replace('#conf-dir='.$this->dnsmasqSystemConfDir.'/,*.conf', 'conf-dir='.$this->dnsmasqSystemConfDir.'/,*.conf', $contents);
 
         // remove entries used by older Valet versions:
         $contents = preg_replace('/^conf-file.*valet.*$/m', '', $contents);
