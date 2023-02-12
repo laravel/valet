@@ -9,6 +9,11 @@ class Mac extends Os
 {
     public function installer(): Installer
     {
-        return resolve(Brew::class); // Constructor inject??
+        return resolve(Brew::class);
+    }
+
+    public function etcDir(): string
+    {
+        return BREWAPT_PREFIX.'/etc';
     }
 }

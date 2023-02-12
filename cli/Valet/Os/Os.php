@@ -5,6 +5,7 @@ namespace Valet\Os;
 abstract class Os
 {
     abstract public function installer(): Installer;
+    abstract public function etcDir(): string;
 
     public static function assign()
     {
@@ -17,7 +18,7 @@ abstract class Os
 
     public static function isMac(): bool
     {
-        return (PHP_OS === 'Darwin');
+        return PHP_OS === 'Darwin';
     }
 
     public static function isLinux(): bool

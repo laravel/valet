@@ -5,13 +5,17 @@ namespace Valet;
 use DomainException;
 use Illuminate\Support\Collection;
 use Valet\Os\Installer;
+use Valet\Os\Os;
 
 class Nginx
 {
-    const NGINX_CONF = BREWAPT_PREFIX.'/etc/nginx/nginx.conf';
+    public string $nginxDir;
+    public string $nginxConf;
 
     public function __construct(public CommandLine $cli, public Filesystem $files, public Configuration $configuration, public Site $site, public Installer $installer)
     {
+        $this->nginxDir = $this->installer->os()->etcDir().'/nginx';
+        $this->nginxConf = $this->nginxDir.'/nginx.conf';
     }
 
     /**
@@ -38,7 +42,7 @@ class Nginx
         $contents = $this->files->getStub('nginx.conf');
 
         $this->files->putAsUser(
-            static::NGINX_CONF,
+            $this->nginxConf,
             str_replace(['VALET_USER', 'VALET_HOME_PATH'], [user(), VALET_HOME_PATH], $contents)
         );
     }
@@ -48,6 +52,7 @@ class Nginx
      */
     public function installServer(): void
     {
+        // @todo: use $this->nginxDir
         $this->files->ensureDirExists(BREWAPT_PREFIX.'/etc/nginx/valet');
 
         $this->files->putAsUser(
@@ -89,7 +94,7 @@ class Nginx
     private function lint(): void
     {
         $this->cli->run(
-            'sudo nginx -c '.static::NGINX_CONF.' -t',
+            'sudo nginx -c '.$this->nginxConf.' -t',
             function ($exitCode, $outputMessage) {
                 throw new DomainException("Nginx cannot start; please check your nginx.conf [$exitCode: $outputMessage].");
             }

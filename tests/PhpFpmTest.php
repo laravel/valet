@@ -5,6 +5,7 @@ use Valet\Configuration;
 use Valet\Filesystem;
 use Valet\Nginx;
 use Valet\Os\Installer;
+use Valet\Os\Mac;
 use Valet\Os\Mac\Brew;
 use Valet\PhpFpm;
 use function Valet\resolve;
@@ -77,6 +78,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $brewMock->shouldReceive('supportedPhpVersions')->once()->andReturn(collect(['php@7.4']));
         $brewMock->shouldReceive('determineAliasedVersion')->once()->andReturn('7.4');
+        $brewMock->shouldReceive('os')->andReturn(new Mac());
 
         swap(Installer::class, $brewMock);
 
@@ -89,6 +91,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $brewMock->shouldReceive('supportedPhpVersions')->andReturn(collect(['php@7.4']));
         $brewMock->shouldReceive('determineAliasedVersion')->andReturn('ERROR - NO BREW ALIAS FOUND');
+        $brewMock->shouldReceive('os')->andReturn(new Mac());
 
         swap(Installer::class, $brewMock);
 
@@ -103,6 +106,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $brewMock->shouldReceive('supportedPhpVersions')->andReturn(collect(['php@7.4']));
         $brewMock->shouldReceive('determineAliasedVersion')->andReturn('ERROR - NO BREW ALIAS FOUND');
+        $brewMock->shouldReceive('os')->andReturn(new Mac());
 
         swap(Installer::class, $brewMock);
 
@@ -258,6 +262,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
             'php71',
             'php',
         ]);
+        $brewMock->shouldReceive('os')->andReturn(new Mac());
 
         swap(Installer::class, $brewMock);
         resolve(PhpFpm::class)->stopRunning();
@@ -317,6 +322,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
             'php@7.3',
             'php@7.1',
         ]));
+        $brewMock->shouldReceive('os')->andReturn(new Mac());
 
         resolve(PhpFpm::class)->useVersion('php@7.2');
     }

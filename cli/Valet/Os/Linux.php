@@ -9,6 +9,11 @@ class Linux extends Os
 {
     public function installer(): Installer
     {
-        return resolve(Apt::class); // Constructor inject??
+        return resolve(Apt::class);
+    }
+
+    public function etcDir(): string
+    {
+        return '/etc';
     }
 }

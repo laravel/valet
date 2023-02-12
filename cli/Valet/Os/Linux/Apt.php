@@ -8,6 +8,9 @@ use Valet\CommandLine;
 use Valet\Filesystem;
 use function Valet\info;
 use Valet\Os\Installer;
+use Valet\Os\Linux;
+use Valet\Os\Os;
+
 use function Valet\output;
 
 class Apt extends Installer
@@ -20,12 +23,6 @@ class Apt extends Installer
         'nginx-extras',
     ];
 
-    /**
-     * Create a new Apt instance.
-     *
-     * @param  CommandLine  $cli
-     * @param  Filesystem  $files
-     */
     public function __construct(public CommandLine $cli, public Filesystem $files)
     {
     }
@@ -33,6 +30,11 @@ class Apt extends Installer
     public function name(): string
     {
         return 'Apt';
+    }
+
+    public function os(): Os
+    {
+        return new Linux();
     }
 
     public function installed(string $formula): bool
@@ -128,6 +130,7 @@ class Apt extends Installer
 
         // @todo: Probably make this a regex
         $split = explode('/', $resolvedPath);
+
         return $split[3];
     }
 

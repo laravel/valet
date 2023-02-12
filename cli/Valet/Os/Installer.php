@@ -21,6 +21,8 @@ abstract class Installer
 
     abstract public function name(): string;
 
+    abstract public function os(): Os;
+
     // @todo: Figure out which of these don't make sense outside of Brew (e.g. tap?)
     abstract public function hasInstalledPhp(): bool;
 
@@ -63,7 +65,7 @@ abstract class Installer
      */
     public function hasLinkedPhp(): bool
     {
-        return $this->files->isLink(BREWAPT_PREFIX . '/bin/php');
+        return $this->files->isLink(BREWAPT_PREFIX.'/bin/php');
     }
 
     /**

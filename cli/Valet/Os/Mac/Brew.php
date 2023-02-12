@@ -9,6 +9,9 @@ use Valet\CommandLine;
 use Valet\Filesystem;
 use function Valet\info;
 use Valet\Os\Installer;
+use Valet\Os\Mac;
+use Valet\Os\Os;
+
 use function Valet\output;
 use function Valet\starts_with;
 use function Valet\user;
@@ -24,6 +27,11 @@ class Brew extends Installer
     public function name(): string
     {
         return 'Homebrew';
+    }
+
+    public function os(): Os
+    {
+        return new Mac();
     }
 
     /**

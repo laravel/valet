@@ -9,6 +9,7 @@ use Valet\Nginx;
 use Valet\Ngrok;
 use Valet\Os\Brew;
 use Valet\Os\Installer;
+use Valet\Os\Mac;
 use Valet\PhpFpm;
 use Valet\Site as RealSite;
 use Valet\Status;
@@ -961,6 +962,7 @@ class CliTest extends BaseApplicationTestCase
 
         $brew = Mockery::mock(Installer::class);
         $brew->shouldReceive('linkedPhp')->andReturn('php@8.2');
+        $brew->shouldReceive('os')->andReturn(new Mac());
 
         swap(Installer::class, $brew);
 

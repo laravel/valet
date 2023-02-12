@@ -29,8 +29,7 @@ define('VALET_SERVER_PATH', realpath(__DIR__.'/../../server.php'));
 if (Os::isMac()) {
     define('BREWAPT_PREFIX', (new CommandLine())->runAsUser('printf $(brew --prefix)'));
 } else {
-    // ... well, crap, some are in sbin instead of bin in linux. FUN.
-    define('BREWAPT_PREFIX', '/usr/sbin');
+    define('BREWAPT_PREFIX', '/usr');
 }
 
 define('ISOLATED_PHP_VERSION', 'ISOLATED_PHP_VERSION');

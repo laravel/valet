@@ -6,12 +6,14 @@ use Valet\Os\Installer;
 
 class DnsMasq
 {
-    public $dnsmasqMasterConfigFile = BREWAPT_PREFIX.'/etc/dnsmasq.conf';
-    public $dnsmasqSystemConfDir = BREWAPT_PREFIX.'/etc/dnsmasq.d';
-    public $resolverPath = '/etc/resolver';
+    public string $dnsmasqMasterConfigFile;
+    public string $dnsmasqSystemConfDir;
+    public string $resolverPath = '/etc/resolver';
 
     public function __construct(public Installer $installer, public CommandLine $cli, public Filesystem $files, public Configuration $configuration)
     {
+        $this->dnsmasqMasterConfigFile = $this->installer->os()->etcDir().'/dnsmasq.conf';
+        $this->dnsmasqSystemConfDir = $this->installer->os()->etcDir() . '/dnsmasq.d';
     }
 
     /**
@@ -21,7 +23,7 @@ class DnsMasq
     {
         $this->installer->ensureInstalled('dnsmasq');
 
-        // For DnsMasq, we enable its feature of loading *.conf from /usr/local/etc/dnsmasq.d/
+        // For DnsMasq, we enable its feature of loading *.conf from (/usr/local)/etc/dnsmasq.d/
         // and then we put a valet config file in there to point to the user's home .config/valet/dnsmasq.d
         // This allows Valet to make changes to our own files without needing to modify the core dnsmasq configs
         $this->ensureUsingDnsmasqDForConfigs();
