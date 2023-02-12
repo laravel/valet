@@ -16,4 +16,9 @@ class Linux extends Os
     {
         return '/etc';
     }
+
+    public function logDir(): string
+    {
+        return '/log';
+    }
 }

@@ -6,6 +6,7 @@ abstract class Os
 {
     abstract public function installer(): Installer;
     abstract public function etcDir(): string;
+    abstract public function logDir(): string;
 
     public static function assign()
     {

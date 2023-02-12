@@ -10,6 +10,7 @@ use Valet\Ngrok;
 use Valet\Os\Brew;
 use Valet\Os\Installer;
 use Valet\Os\Mac;
+use Valet\Os\Os;
 use Valet\PhpFpm;
 use Valet\Site as RealSite;
 use Valet\Status;
@@ -1107,6 +1108,7 @@ class CliTest extends BaseApplicationTestCase
     public function test_log_command()
     {
         [$app, $tester] = $this->appAndTester();
+        swap(Os::class, new Mac());
 
         $tester->run(['command' => 'log']);
         $tester->assertCommandIsSuccessful();
@@ -1117,6 +1119,7 @@ class CliTest extends BaseApplicationTestCase
     public function test_log_command_with_key()
     {
         [$app, $tester] = $this->appAndTester();
+        swap(Os::class, new Mac());
 
         $tester->run(['command' => 'log', 'key' => 'nginx']);
         $tester->assertCommandIsSuccessful();

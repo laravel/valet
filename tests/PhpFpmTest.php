@@ -127,6 +127,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         ]));
 
         $brewMock->shouldReceive('getLinkedPhpFormula')->andReturn('php@7.3');
+        $brewMock->shouldReceive('os')->andReturn(new Mac());
 
         $nginxMock->shouldReceive('configuredSites')
             ->once()
@@ -211,6 +212,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
     public function test_stop_unused_php_versions()
     {
         $brewMock = Mockery::mock(Brew::class);
+        $brewMock->shouldReceive('os')->andReturn(new Mac());
 
         $phpFpmMock = Mockery::mock(PhpFpm::class, [
             $brewMock,
@@ -271,6 +273,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
     public function test_use_version_will_convert_passed_php_version()
     {
         $brewMock = Mockery::mock(Brew::class);
+        $brewMock->shouldReceive('os')->andReturn(new Mac());
         $nginxMock = Mockery::mock(Nginx::class);
         $siteMock = Mockery::mock(Site::class);
         $filesystem = Mockery::mock(Filesystem::class);
@@ -330,6 +333,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
     public function test_use_version_if_already_linked_php_will_unlink_before_installing()
     {
         $brewMock = Mockery::mock(Brew::class);
+        $brewMock->shouldReceive('os')->andReturn(new Mac());
         $nginxMock = Mockery::mock(Nginx::class);
         $siteMock = Mockery::mock(Site::class);
 
@@ -369,6 +373,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
     public function test_isolate_will_isolate_a_site()
     {
         $brewMock = Mockery::mock(Brew::class);
+        $brewMock->shouldReceive('os')->andReturn(new Mac());
         $nginxMock = Mockery::mock(Nginx::class);
         $siteMock = Mockery::mock(Site::class);
 
@@ -415,9 +420,11 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
     {
         $nginxMock = Mockery::mock(Nginx::class);
         $siteMock = Mockery::mock(Site::class);
+        $brewMock = Mockery::mock(Brew::class);
+        $brewMock->shouldReceive('os')->andReturn(new Mac());
 
         $phpFpmMock = Mockery::mock(PhpFpm::class, [
-            Mockery::mock(Brew::class),
+            $brewMock,
             resolve(CommandLine::class),
             resolve(Filesystem::class),
             resolve(Configuration::class),
@@ -438,6 +445,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
     {
         $brewMock = Mockery::mock(Brew::class);
         $brewMock->shouldReceive('linkedPhp')->andReturn('php@7.4');
+        $brewMock->shouldReceive('os')->andReturn(new Mac());
 
         $configMock = Mockery::mock(Configuration::class);
         $configMock->shouldReceive('read')->andReturn(['tld' => 'jamble', 'paths' => []]);

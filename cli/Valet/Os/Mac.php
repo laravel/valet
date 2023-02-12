@@ -16,4 +16,9 @@ class Mac extends Os
     {
         return BREWAPT_PREFIX.'/etc';
     }
+
+    public function logDir(): string
+    {
+        return BREWAPT_PREFIX.'/var/log';
+    }
 }

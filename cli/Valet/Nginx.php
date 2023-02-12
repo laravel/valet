@@ -5,16 +5,17 @@ namespace Valet;
 use DomainException;
 use Illuminate\Support\Collection;
 use Valet\Os\Installer;
-use Valet\Os\Os;
 
 class Nginx
 {
     public string $nginxDir;
+    public string $nginxLogDir;
     public string $nginxConf;
 
     public function __construct(public CommandLine $cli, public Filesystem $files, public Configuration $configuration, public Site $site, public Installer $installer)
     {
         $this->nginxDir = $this->installer->os()->etcDir().'/nginx';
+        $this->nginxLogDir = $this->installer->os()->logDir().'/nginx';
         $this->nginxConf = $this->nginxDir.'/nginx.conf';
     }
 
@@ -52,11 +53,10 @@ class Nginx
      */
     public function installServer(): void
     {
-        // @todo: use $this->nginxDir
-        $this->files->ensureDirExists(BREWAPT_PREFIX.'/etc/nginx/valet');
+        $this->files->ensureDirExists($this->nginxDir.'/valet');
 
         $this->files->putAsUser(
-            BREWAPT_PREFIX.'/etc/nginx/valet/valet.conf',
+            $this->nginxDir.'/valet/valet.conf',
             str_replace(
                 ['VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_STATIC_PREFIX'],
                 [VALET_HOME_PATH, VALET_SERVER_PATH, VALET_STATIC_PREFIX],
@@ -65,7 +65,7 @@ class Nginx
         );
 
         $this->files->putAsUser(
-            BREWAPT_PREFIX.'/etc/nginx/fastcgi_params',
+            $this->nginxDir.'/fastcgi_params',
             $this->files->getStub('fastcgi_params')
         );
     }
@@ -143,7 +143,7 @@ class Nginx
     {
         $this->installer->stopService(['nginx', 'nginx-full']);
         $this->installer->uninstallFormula('nginx nginx-full');
-        $this->cli->quietly('rm -rf '.BREWAPT_PREFIX.'/etc/nginx '.BREWAPT_PREFIX.'/var/log/nginx');
+        $this->cli->quietly('rm -rf '.$this->nginxDir.' '.$this->nginxLogDir);
     }
 
     /**

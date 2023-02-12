@@ -12,9 +12,13 @@ class PhpFpm
         'homebrew/homebrew-core',
         'shivammathur/php',
     ];
+    public $logDir;
+    public $etcDir;
 
     public function __construct(public Installer $installer, public CommandLine $cli, public Filesystem $files, public Configuration $config, public Site $site, public Nginx $nginx)
     {
+        $this->logDir = $this->installer->os()->logDir();
+        $this->etcDir = $this->installer->os()->etcDir();
     }
 
     /**
@@ -48,8 +52,8 @@ class PhpFpm
     public function uninstall(): void
     {
         $this->installer->uninstallAllPhpVersions();
-        rename(BREWAPT_PREFIX.'/etc/php', BREWAPT_PREFIX.'/etc/php-valet-bak'.time());
-        $this->cli->run('rm -rf '.BREWAPT_PREFIX.'/var/log/php-fpm.log');
+        rename($this->etcDir.'/php', $this->etcDir.'/php-valet-bak'.time());
+        $this->cli->run('rm -rf '.$this->logDir.'/php-fpm.log');
     }
 
     /**
@@ -131,7 +135,7 @@ class PhpFpm
         $versionNormalized = $this->normalizePhpVersion($phpVersion === 'php' ? Installer::LATEST_PHP_VERSION : $phpVersion);
         $versionNormalized = preg_replace('~[^\d\.]~', '', $versionNormalized);
 
-        return BREWAPT_PREFIX."/etc/php/{$versionNormalized}/php-fpm.d/valet-fpm.conf";
+        return $this->etcDir."/php/{$versionNormalized}/php-fpm.d/valet-fpm.conf";
     }
 
     /**

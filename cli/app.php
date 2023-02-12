@@ -701,12 +701,14 @@ if (is_dir(VALET_HOME_PATH)) {
      * Tail log file.
      */
     $app->command('log [-f|--follow] [-l|--lines=] [key]', function (OutputInterface $output, $follow, $lines, $key = null) {
+        $logDir = resolve(Os::class)->logDir();
+
         // @todo update for Linux
         $defaultLogs = [
-            'php-fpm' => BREWAPT_PREFIX.'/var/log/php-fpm.log',
+            'php-fpm' => $logDir.'/php-fpm.log',
             'nginx' => VALET_HOME_PATH.'/Log/nginx-error.log',
-            'mailhog' => BREWAPT_PREFIX.'/var/log/mailhog.log',
-            'redis' => BREWAPT_PREFIX.'/var/log/redis.log',
+            'mailhog' => $logDir.'/mailhog.log',
+            'redis' => $logDir.'/redis.log',
         ];
 
         $configLogs = data_get(Configuration::read(), 'logs');
