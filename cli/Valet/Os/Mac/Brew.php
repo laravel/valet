@@ -11,7 +11,6 @@ use function Valet\info;
 use Valet\Os\Installer;
 use Valet\Os\Mac;
 use Valet\Os\Os;
-
 use function Valet\output;
 use function Valet\starts_with;
 use function Valet\user;

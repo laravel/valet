@@ -10,7 +10,6 @@ use function Valet\info;
 use Valet\Os\Installer;
 use Valet\Os\Linux;
 use Valet\Os\Os;
-
 use function Valet\output;
 
 class Apt extends Installer
