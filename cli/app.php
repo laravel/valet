@@ -590,6 +590,7 @@ if (is_dir(VALET_HOME_PATH)) {
 
             if ($phpVersion = Site::phpRcVersion($site, getcwd())) {
                 info("Found '{$site}/.valetrc' or '{$site}/.valetphprc' specifying version: {$phpVersion}");
+                info("Found '{$site}/.valetphprc' specifying version: {$phpVersion}");
             } else {
                 $domain = $site.'.'.data_get(Configuration::read(), 'tld');
                 if ($phpVersion = PhpFpm::normalizePhpVersion(Site::customPhpVersion($domain))) {
