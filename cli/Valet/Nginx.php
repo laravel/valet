@@ -10,7 +10,9 @@ use Valet\Os\Os;
 class Nginx
 {
     public string $nginxDir;
+
     public string $nginxLogDir;
+
     public string $nginxConf;
 
     public function __construct(public CommandLine $cli, public Filesystem $files, public Configuration $configuration, public Site $site, public Installer $installer)

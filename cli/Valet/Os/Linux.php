@@ -4,9 +4,8 @@ namespace Valet\Os;
 
 use Valet\Os\Linux\Apt;
 use Valet\Os\Linux\LinuxStatus;
-use Valet\Status;
-
 use function Valet\resolve;
+use Valet\Status;
 
 class Linux extends Os
 {

@@ -17,6 +17,7 @@ abstract class Installer
         'php@7.2',
         'php@7.1',
     ];
+
     const LATEST_PHP_VERSION = 'php@8.2';
 
     abstract public function name(): string;

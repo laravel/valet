@@ -4,9 +4,8 @@ namespace Valet\Os;
 
 use Valet\Os\Mac\Brew;
 use Valet\Os\Mac\MacStatus;
-use Valet\Status;
-
 use function Valet\resolve;
+use Valet\Status;
 
 class Mac extends Os
 {

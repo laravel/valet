@@ -7,6 +7,7 @@ use Valet\Status;
 class MacStatus extends Status
 {
     public $brewServicesUserOutput;
+
     public $brewServicesRootOutput;
 
     /**
@@ -31,8 +32,8 @@ class MacStatus extends Status
                         $config = $this->config->read();
 
                         foreach (['tld', 'loopback', 'paths'] as $key) {
-                            if (!array_key_exists($key, $config)) {
-                                $this->debugInstructions[] = 'Your Valet config is missing the "' . $key . '" key. Re-add this manually, or delete your config file and re-install.';
+                            if (! array_key_exists($key, $config)) {
+                                $this->debugInstructions[] = 'Your Valet config is missing the "'.$key.'" key. Re-add this manually, or delete your config file and re-install.';
 
                                 return false;
                             }
@@ -102,14 +103,14 @@ class MacStatus extends Status
                 'debug' => 'Run `valet install`.',
             ],
             [
-                'description' => 'Is linked PHP (' . $linkedPhp . ') running?',
+                'description' => 'Is linked PHP ('.$linkedPhp.') running?',
                 'check' => function () use ($linkedPhp) {
                     return $this->isBrewServiceRunning($linkedPhp);
                 },
                 'debug' => 'Run `valet restart`.',
             ],
             [
-                'description' => 'Is linked PHP (' . $linkedPhp . ') running as root?',
+                'description' => 'Is linked PHP ('.$linkedPhp.') running as root?',
                 'check' => function () use ($linkedPhp) {
                     return $this->isBrewServiceRunningAsRoot($linkedPhp);
                 },
@@ -118,7 +119,7 @@ class MacStatus extends Status
             [
                 'description' => 'Is valet.sock present?',
                 'check' => function () {
-                    return $this->files->exists(VALET_HOME_PATH . '/valet.sock');
+                    return $this->files->exists(VALET_HOME_PATH.'/valet.sock');
                 },
                 'debug' => 'Run `valet install`.',
             ],

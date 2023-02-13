@@ -2,7 +2,6 @@
 
 use Valet\CommandLine;
 use Valet\Os\Installer;
-use Valet\Os\Linux\LinuxStatus;
 use Valet\Os\Mac\Brew;
 use Valet\Os\Mac\MacStatus;
 use function Valet\resolve;

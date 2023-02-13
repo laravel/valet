@@ -12,7 +12,9 @@ class PhpFpm
         'homebrew/homebrew-core',
         'shivammathur/php',
     ];
+
     public $logDir;
+
     public $etcDir;
 
     public function __construct(public Installer $installer, public CommandLine $cli, public Filesystem $files, public Configuration $config, public Site $site, public Nginx $nginx)
