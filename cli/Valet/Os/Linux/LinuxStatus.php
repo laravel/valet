@@ -43,13 +43,6 @@ class LinuxStatus extends Status
                 'debug' => 'Run `valet install` to update your configuration.',
             ],
             [
-                'description' => 'Is Homebrew installed?',
-                'check' => function () {
-                    return $this->cli->run('which brew') !== '';
-                },
-                'debug' => 'Visit https://brew.sh/ for instructions on installing Homebrew.',
-            ],
-            [
                 'description' => 'Is DnsMasq installed?',
                 'check' => function () {
                     return $this->installer->installed('dnsmasq');
@@ -59,16 +52,9 @@ class LinuxStatus extends Status
             [
                 'description' => 'Is Dnsmasq running?',
                 'check' => function () {
-                    return $this->isBrewServiceRunning('dnsmasq');
+                    return $this->isServiceRunning('dnsmasq');
                 },
                 'debug' => 'Run `valet restart`.',
-            ],
-            [
-                'description' => 'Is Dnsmasq running as root?',
-                'check' => function () {
-                    return $this->isBrewServiceRunningAsRoot('dnsmasq');
-                },
-                'debug' => 'Uninstall Dnsmasq with Brew and run `valet install`.',
             ],
             [
                 'description' => 'Is Nginx installed?',
@@ -80,16 +66,9 @@ class LinuxStatus extends Status
             [
                 'description' => 'Is Nginx running?',
                 'check' => function () {
-                    return $this->isBrewServiceRunning('nginx');
+                    return $this->isServiceRunning('nginx');
                 },
                 'debug' => 'Run `valet restart`.',
-            ],
-            [
-                'description' => 'Is Nginx running as root?',
-                'check' => function () {
-                    return $this->isBrewServiceRunningAsRoot('nginx');
-                },
-                'debug' => 'Uninstall nginx with Brew and run `valet install`.',
             ],
             [
                 'description' => 'Is PHP installed?',
@@ -99,18 +78,11 @@ class LinuxStatus extends Status
                 'debug' => 'Run `valet install`.',
             ],
             [
-                'description' => 'Is linked PHP (' . $linkedPhp . ') running?',
+                'description' => 'Is linked PHP ('.$linkedPhp.') running?',
                 'check' => function () use ($linkedPhp) {
-                    return $this->isBrewServiceRunning($linkedPhp);
+                    return $this->isServiceRunning($linkedPhp);
                 },
                 'debug' => 'Run `valet restart`.',
-            ],
-            [
-                'description' => 'Is linked PHP (' . $linkedPhp . ') running as root?',
-                'check' => function () use ($linkedPhp) {
-                    return $this->isBrewServiceRunningAsRoot($linkedPhp);
-                },
-                'debug' => 'Uninstall PHP with Brew and run `valet use php@8.2`',
             ],
             [
                 'description' => 'Is valet.sock present?',
@@ -120,5 +92,12 @@ class LinuxStatus extends Status
                 'debug' => 'Run `valet install`.',
             ],
         ];
+    }
+
+    public function isServiceRunning(string $service): bool
+    {
+        // @todo
+        // Has something to do with `sudo service $service status`
+        return true;
     }
 }
