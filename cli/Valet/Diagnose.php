@@ -53,6 +53,7 @@ class Diagnose
     ];
 
     public $print;
+
     public $progressBar;
 
     public function __construct(public CommandLine $cli, public Filesystem $files)

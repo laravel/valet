@@ -47,7 +47,8 @@
     },
     "require-dev": {
         "mockery/mockery": "^1.2.3",
-        "yoast/phpunit-polyfills": "^0.2.0"
+        "yoast/phpunit-polyfills": "^0.2.0",
+        "laravel/pint": "^1.4"
     },
     "bin": [
         "valet"

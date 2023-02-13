@@ -255,12 +255,45 @@ class CliTest extends BaseApplicationTestCase
     {
         [$app, $tester] = $this->appAndTester();
 
+        Site::link(getcwd(), basename(getcwd()));
+
+        $tester->run(['command' => 'unlink']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertEquals(0, Site::links()->count());
+    }
+
+    public function test_unlink_command_with_parameter()
+    {
+        [$app, $tester] = $this->appAndTester();
+
         Site::link(__DIR__.'/fixtures/Parked/Sites/my-best-site', 'tighten');
 
         $tester->run(['command' => 'unlink', 'name' => 'tighten']);
         $tester->assertCommandIsSuccessful();
 
         $this->assertEquals(0, Site::links()->count());
+    }
+
+    public function test_unlink_command_unsecures_as_well()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        Site::link(__DIR__.'/fixtures/Parked/Sites/my-best-site', 'tighten');
+
+        $site = Mockery::mock(RealSite::class);
+        $site->shouldReceive('domain')->with('tighten')->once()->andReturn('tighten.test');
+        $site->shouldReceive('unlink')->with('tighten')->once()->andReturn('tighten');
+        $site->shouldReceive('unsecure')->with('tighten.test')->once();
+        $site->shouldReceive('isSecured')->with('tighten')->once()->andReturn(true);
+        swap(RealSite::class, $site);
+
+        $nginx = Mockery::mock(Nginx::class);
+        $nginx->shouldReceive('restart')->once();
+        swap(Nginx::class, $nginx);
+
+        $tester->run(['command' => 'unlink', 'name' => 'tighten']);
+        $tester->assertCommandIsSuccessful();
     }
 
     public function test_secure_command()

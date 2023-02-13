@@ -7,7 +7,9 @@ use Valet\Os\Installer;
 class DnsMasq
 {
     public string $dnsmasqMasterConfigFile;
+
     public string $dnsmasqSystemConfDir;
+
     public string $resolverPath = '/etc/resolver';
 
     public function __construct(public Installer $installer, public CommandLine $cli, public Filesystem $files, public Configuration $configuration)

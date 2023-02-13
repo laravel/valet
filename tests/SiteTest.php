@@ -900,6 +900,26 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $this->assertSame(['helloworld.tld'], $sites);
     }
 
+    public function test_it_returns_true_if_a_site_is_secured()
+    {
+        $files = Mockery::mock(Filesystem::class);
+        $files->shouldReceive('scandir')
+            ->once()
+            ->andReturn(['helloworld.tld.crt', '.DS_Store']);
+
+        $config = Mockery::mock(Configuration::class);
+        $config->shouldReceive('read')
+            ->once()
+            ->andReturn(['tld' => 'tld']);
+
+        swap(Filesystem::class, $files);
+        swap(Configuration::class, $config);
+
+        $site = resolve(Site::class);
+
+        $this->assertTrue($site->isSecured('helloworld'));
+    }
+
     public function test_it_can_read_valet_rc_files()
     {
         resolve(Configuration::class)->addPath(__DIR__.'/fixtures/Parked/Sites');
@@ -933,6 +953,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $this->assertEquals('php@8.0', $site->phpRcVersion('site-w-valetrc-1'));
         $this->assertEquals('php@8.1', $site->phpRcVersion('site-w-valetrc-2'));
         $this->assertEquals('php@8.2', $site->phpRcVersion('site-w-valetrc-3'));
+        $this->assertEquals('php@8.2', $site->phpRcVersion('blabla', __DIR__.'/fixtures/Parked/Sites/site-w-valetrc-3'));
     }
 }
 
@@ -955,6 +976,7 @@ class CommandLineFake extends CommandLine
 class FixturesSiteFake extends Site
 {
     private $valetHomePath;
+
     private $crtCounter = 0;
 
     public function valetHomePath(): string

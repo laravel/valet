@@ -209,15 +209,26 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Register a symbolic link with Valet.
      */
-    $app->command('link [name] [--secure]', function (OutputInterface $output, $name, $secure) {
+    $app->command('link [name] [--secure] [--isolate]', function ($name, $secure, $isolate) {
         $linkPath = Site::link(getcwd(), $name = $name ?: basename(getcwd()));
 
         info('A ['.$name.'] symbolic link has been created in ['.$linkPath.'].');
 
         if ($secure) {
-            $this->runCommand('secure '.$name);
+            $this->runCommand('secure');
         }
-    })->descriptions('Link the current working directory to Valet');
+
+        if ($isolate) {
+            if (Site::phpRcVersion($name)) {
+                $this->runCommand('isolate');
+            } else {
+                warning('Valet could not determine which PHP version to use for this site.');
+            }
+        }
+    })->descriptions('Link the current working directory to Valet', [
+        '--secure' => 'Link the site with a trusted TLS certificate.',
+        '--isolate' => 'Isolate the site to the PHP version specified in the current working directory\'s .valetrc file.',
+    ]);
 
     /**
      * Display all of the registered symbolic links.
@@ -232,7 +243,16 @@ if (is_dir(VALET_HOME_PATH)) {
      * Unlink a link from the Valet links directory.
      */
     $app->command('unlink [name]', function (OutputInterface $output, $name) {
-        info('The ['.Site::unlink($name).'] symbolic link has been removed.');
+        $name = Site::unlink($name);
+        info('The ['.$name.'] symbolic link has been removed.');
+
+        if (Site::isSecured($name)) {
+            info('Unsecuring '.$name.'...');
+
+            Site::unsecure(Site::domain($name));
+
+            Nginx::restart();
+        }
     })->descriptions('Remove the specified Valet link');
 
     /**
@@ -361,7 +381,7 @@ if (is_dir(VALET_HOME_PATH)) {
         switch ($tool) {
             case 'expose':
                 output(Expose::currentTunnelUrl($domain ?: Site::host(getcwd())));
-            break;
+                break;
             case 'ngrok':
                 try {
                     output(Ngrok::currentTunnelUrl(Site::domain($domain)));
@@ -594,8 +614,9 @@ if (is_dir(VALET_HOME_PATH)) {
             $site = basename(getcwd());
             $linkedVersion = resolve(Installer::class)->linkedPhp();
 
-            if ($phpVersion = Site::phpRcVersion($site)) {
+            if ($phpVersion = Site::phpRcVersion($site, getcwd())) {
                 info("Found '{$site}/.valetrc' or '{$site}/.valetphprc' specifying version: {$phpVersion}");
+                info("Found '{$site}/.valetphprc' specifying version: {$phpVersion}");
             } else {
                 $domain = $site.'.'.data_get(Configuration::read(), 'tld');
                 if ($phpVersion = PhpFpm::normalizePhpVersion(Site::customPhpVersion($domain))) {
@@ -614,7 +635,7 @@ if (is_dir(VALET_HOME_PATH)) {
 
         PhpFpm::useVersion($phpVersion, $force);
     })->descriptions('Change the version of PHP used by Valet', [
-        'phpVersion' => 'The PHP version you want to use; e.g php@8.2',
+        'phpVersion' => 'The PHP version you want to use; e.g. php@8.2',
     ]);
 
     /**
@@ -626,7 +647,7 @@ if (is_dir(VALET_HOME_PATH)) {
         }
 
         if (is_null($phpVersion)) {
-            if ($phpVersion = Site::phpRcVersion($site)) {
+            if ($phpVersion = Site::phpRcVersion($site, getcwd())) {
                 info("Found '{$site}/.valetrc' or '{$site}/.valetphprc' specifying version: {$phpVersion}");
             } else {
                 info(PHP_EOL.'Please provide a version number. E.g.:');
