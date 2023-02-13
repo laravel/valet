@@ -6,4 +6,4 @@ jobs:
   lint:
     uses: laravel/.github/.github/workflows/coding-standards.yml@main
     with:
-      fix: github.ref_name == 'master'
+      fix: ${{ github.ref_name == 'master' }}
