@@ -5,7 +5,9 @@ namespace Valet;
 class Status
 {
     public $brewServicesUserOutput;
+
     public $brewServicesRootOutput;
+
     public $debugInstructions = [];
 
     public function __construct(public Configuration $config, public Brew $brew, public CommandLine $cli, public Filesystem $files)
