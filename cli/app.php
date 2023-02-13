@@ -573,7 +573,6 @@ You might also want to investigate your global Composer configs. Helpful command
         }
 
         if (is_null($phpVersion)) {
-            info("Found '{$site}/.valetphprc' specifying version: {$phpVersion}");
             if ($phpVersion = Site::phpRcVersion($site)) {
                 info("Found '{$site}/.valetphprc' specifying version: {$phpVersion}");
             } else {
