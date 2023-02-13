@@ -7,10 +7,15 @@ use DomainException;
 class PhpFpm
 {
     public $brew;
+
     public $cli;
+
     public $files;
+
     public $config;
+
     public $site;
+
     public $nginx;
 
     public $taps = [

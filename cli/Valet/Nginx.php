@@ -7,10 +7,15 @@ use DomainException;
 class Nginx
 {
     public $brew;
+
     public $cli;
+
     public $files;
+
     public $configuration;
+
     public $site;
+
     const NGINX_CONF = BREW_PREFIX.'/etc/nginx/nginx.conf';
 
     /**

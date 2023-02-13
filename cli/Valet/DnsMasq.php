@@ -5,12 +5,17 @@ namespace Valet;
 class DnsMasq
 {
     public $brew;
+
     public $cli;
+
     public $files;
+
     public $configuration;
 
     public $dnsmasqMasterConfigFile = BREW_PREFIX.'/etc/dnsmasq.conf';
+
     public $dnsmasqSystemConfDir = BREW_PREFIX.'/etc/dnsmasq.d';
+
     public $resolverPath = '/etc/resolver';
 
     /**

@@ -22,10 +22,13 @@ class Brew
         'php71',
         'php70',
     ];
+
     const BREW_DISABLE_AUTO_CLEANUP = 'HOMEBREW_NO_INSTALL_CLEANUP=1';
+
     const LATEST_PHP_VERSION = 'php@8.1';
 
     public $cli;
+
     public $files;
 
     /**

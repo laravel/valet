@@ -7,6 +7,7 @@ use GuzzleHttp\Client;
 class Valet
 {
     public $cli;
+
     public $files;
 
     public $valetBin = BREW_PREFIX.'/bin/valet';

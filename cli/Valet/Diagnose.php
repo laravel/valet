@@ -51,8 +51,11 @@ class Diagnose
     ];
 
     public $cli;
+
     public $files;
+
     public $print;
+
     public $progressBar;
 
     /**

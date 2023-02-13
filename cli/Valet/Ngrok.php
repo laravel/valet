@@ -9,6 +9,7 @@ use GuzzleHttp\Client;
 class Ngrok
 {
     public $cli;
+
     public $tunnelsEndpoints = [
         'http://127.0.0.1:4040/api/tunnels',
         'http://127.0.0.1:4041/api/tunnels',
