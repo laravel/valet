@@ -5,6 +5,7 @@ namespace Valet;
 use DomainException;
 use Illuminate\Support\Collection;
 use Valet\Os\Installer;
+use Valet\Os\Os;
 
 class Nginx
 {
@@ -26,6 +27,10 @@ class Nginx
     {
         if (! $this->installer->hasInstalledNginx()) {
             $this->installer->installOrFail('nginx');
+        }
+
+        if (Os::isLinux()) {
+            $this->installer->disableApache();
         }
 
         $this->installConfiguration();

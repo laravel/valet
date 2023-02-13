@@ -203,4 +203,10 @@ class Apt extends Installer
             return str_replace('@', '', $version);
         });
     }
+
+    public function disableApache(): void
+    {
+        $this->cli->run('systemctl disable apache2');
+        $this->cli->run('systemctl stop apache2');
+    }
 }
