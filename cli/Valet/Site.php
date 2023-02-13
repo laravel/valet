@@ -8,8 +8,11 @@ use PhpFpm;
 class Site
 {
     public $brew;
+
     public $config;
+
     public $cli;
+
     public $files;
 
     /**

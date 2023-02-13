@@ -972,6 +972,7 @@ class CommandLineFake extends CommandLine
 class FixturesSiteFake extends Site
 {
     private $valetHomePath;
+
     private $crtCounter = 0;
 
     public function valetHomePath()

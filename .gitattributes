@@ -12,7 +12,6 @@
 .editorconfig export-ignore
 .gitattributes export-ignore
 .gitignore export-ignore
-.styleci.yml export-ignore
 phpunit.xml export-ignore
 CHANGELOG.md export-ignore
 phpunit.xml.dist export-ignore
