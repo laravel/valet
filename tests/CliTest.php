@@ -10,6 +10,7 @@ use Valet\Ngrok;
 use Valet\Os\Brew;
 use Valet\Os\Installer;
 use Valet\Os\Mac;
+use Valet\Os\Mac\MacStatus;
 use Valet\Os\Os;
 use Valet\PhpFpm;
 use Valet\Site as RealSite;
@@ -132,7 +133,7 @@ class CliTest extends BaseApplicationTestCase
     {
         [$app, $tester] = $this->appAndTester();
 
-        $status = Mockery::mock(Status::class);
+        $status = Mockery::mock(MacStatus::class);
         $status->shouldReceive('check')->once()->andReturn([
             'success' => true,
             'output' => [

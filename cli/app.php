@@ -15,6 +15,7 @@ use Valet\Os\Installer;
 use Valet\Os\Os;
 use function Valet\output;
 use function Valet\resolve;
+use Valet\Status;
 use function Valet\table;
 use function Valet\testing;
 use function Valet\warning;
@@ -43,6 +44,7 @@ Container::setInstance($container = new Container);
 if (! testing()) {
     $container->instance('os', $os = Os::assign());
     $container->instance(Installer::class, $os->installer());
+    $container->instance(Status::class, $os->status());
 }
 
 $version = '4.0.0';
@@ -88,7 +90,7 @@ $app->command('install', function (OutputInterface $output) {
 $app->command('status', function (OutputInterface $output) {
     info('Checking status...');
 
-    $status = Status::check();
+    $status = resolve(Status::class)->check();
 
     if ($status['success']) {
         info("\nValet status: Healthy\n");

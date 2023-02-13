@@ -3,6 +3,9 @@
 namespace Valet\Os;
 
 use Valet\Os\Mac\Brew;
+use Valet\Os\Mac\MacStatus;
+use Valet\Status;
+
 use function Valet\resolve;
 
 class Mac extends Os
@@ -20,5 +23,10 @@ class Mac extends Os
     public function logDir(): string
     {
         return BREWAPT_PREFIX.'/var/log';
+    }
+
+    public function status(): Status
+    {
+        return resolve(MacStatus::class);
     }
 }

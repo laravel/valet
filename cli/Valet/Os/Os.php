@@ -2,9 +2,13 @@
 
 namespace Valet\Os;
 
+use Valet\Status;
+
 abstract class Os
 {
     abstract public function installer(): Installer;
+
+    abstract public function status(): Status;
 
     abstract public function etcDir(): string;
 

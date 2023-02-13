@@ -58,9 +58,6 @@ class PhpFpm extends Facade
 class Site extends Facade
 {
 }
-class Status extends Facade
-{
-}
 class Upgrader extends Facade
 {
 }
