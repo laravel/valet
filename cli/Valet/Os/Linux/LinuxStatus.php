@@ -96,8 +96,33 @@ class LinuxStatus extends Status
 
     public function isServiceRunning(string $service): bool
     {
-        // @todo
-        // Has something to do with `sudo service $service status`
-        return true;
+        $result = $this->cli->run("service $service status");
+
+        return $this->getServiceActiveLineValue($result) === 'active';
+    }
+
+    // @todo: There is most likely a much more elegant refactoring opportunity for this
+    //        ... probably using regex
+    public function getServiceActiveLineValue(string $output): ?string
+    {
+        if (! str_contains($output, 'Active: ')) {
+            return null;
+        }
+
+        foreach (preg_split("/\r\n|\n|\r/", $output) as $line) {
+            if (strpos($line, 'Active: ') !== false) {
+                $fullLine = $line;
+                break;
+            }
+        }
+
+        if (! isset($fullLine)) {
+            return null;
+        }
+
+        $value = substr($fullLine, strpos($fullLine, 'Active: ') + strlen('Active: '));
+        $value = substr($value, 0, strpos($value, ' '));
+
+        return $value;
     }
 }
