@@ -4,6 +4,5 @@ on: [push]
 
 jobs:
   lint:
+    if: ${{ github.ref_name == 'master' }}
     uses: laravel/.github/.github/workflows/coding-standards.yml@main
-    with:
-      fix: ${{ github.ref_name == 'master' }}
