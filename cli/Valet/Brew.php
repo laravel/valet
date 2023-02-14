@@ -34,8 +34,6 @@ class Brew
     /**
      * Create a new Brew instance.
      *
-     * @param  CommandLine  $cli
-     * @param  Filesystem  $files
      * @return void
      */
     public function __construct(CommandLine $cli, Filesystem $files)
@@ -190,8 +188,6 @@ class Brew
 
     /**
      * Restart the given Homebrew services.
-     *
-     * @param
      */
     public function restartService($services)
     {
@@ -213,8 +209,6 @@ class Brew
 
     /**
      * Stop the given Homebrew services.
-     *
-     * @param
      */
     public function stopService($services)
     {
@@ -379,7 +373,6 @@ class Brew
     /**
      * Link passed formula.
      *
-     * @param $formula
      * @param  bool  $force
      * @return string
      */
@@ -398,7 +391,6 @@ class Brew
     /**
      * Unlink passed formula.
      *
-     * @param $formula
      * @return string
      */
     public function unlink($formula)

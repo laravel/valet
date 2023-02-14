@@ -21,11 +21,6 @@ class Nginx
     /**
      * Create a new Nginx instance.
      *
-     * @param  Brew  $brew
-     * @param  CommandLine  $cli
-     * @param  Filesystem  $files
-     * @param  Configuration  $configuration
-     * @param  Site  $site
      * @return void
      */
     public function __construct(Brew $brew, CommandLine $cli, Filesystem $files,

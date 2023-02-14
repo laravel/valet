@@ -17,11 +17,6 @@ class Site
 
     /**
      * Create a new Site instance.
-     *
-     * @param  Brew  $brew
-     * @param  Configuration  $config
-     * @param  CommandLine  $cli
-     * @param  Filesystem  $files
      */
     public function __construct(Brew $brew, Configuration $config, CommandLine $cli, Filesystem $files)
     {
@@ -301,8 +296,6 @@ class Site
      * Get list of sites and return them formatted
      * Will work for symlink and normal site paths.
      *
-     * @param $path
-     * @param $certs
      * @return \Illuminate\Support\Collection
      */
     public function getSites($path, $certs)
@@ -391,8 +384,6 @@ class Site
      * And those must be submitted in pairs else unexpected results may occur.
      * eg: both $old and $new should contain the same indexes.
      *
-     * @param  array  $old
-     * @param  array  $new
      * @return void
      */
     public function resecureForNewConfiguration(array $old, array $new)

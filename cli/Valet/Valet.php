@@ -14,9 +14,6 @@ class Valet
 
     /**
      * Create a new Valet instance.
-     *
-     * @param  CommandLine  $cli
-     * @param  Filesystem  $files
      */
     public function __construct(CommandLine $cli, Filesystem $files)
     {

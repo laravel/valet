@@ -8,8 +8,6 @@ class Configuration
 
     /**
      * Create a new Valet configuration class instance.
-     *
-     * @param  Filesystem  $files
      */
     public function __construct(Filesystem $files)
     {

@@ -26,12 +26,6 @@ class PhpFpm
     /**
      * Create a new PHP FPM class instance.
      *
-     * @param  Brew  $brew
-     * @param  CommandLine  $cli
-     * @param  Filesystem  $files
-     * @param  Configuration  $config
-     * @param  Site  $site
-     * @param  Nginx  $nginx
      * @return void
      */
     public function __construct(Brew $brew, CommandLine $cli, Filesystem $files, Configuration $config, Site $site, Nginx $nginx)

@@ -77,8 +77,6 @@ function warning($output)
 /**
  * Output a table to the console.
  *
- * @param  array  $headers
- * @param  array  $rows
  * @return void
  */
 function table(array $headers = [], array $rows = [])
@@ -178,7 +176,6 @@ function should_be_sudo()
  * Tap the given value.
  *
  * @param  mixed  $value
- * @param  callable  $callback
  * @return mixed
  */
 function tap($value, callable $callback)
