@@ -3,6 +3,7 @@
 namespace Valet;
 
 use Valet\Os\Installer;
+use Valet\Os\Os;
 
 class DnsMasq
 {
@@ -24,6 +25,10 @@ class DnsMasq
     public function install(string $tld = 'test'): void
     {
         $this->installer->ensureInstalled('dnsmasq');
+
+        if (Os::isLinux()) {
+            $this->installer->disableSystemdResolve();
+        }
 
         // For DnsMasq, we enable its feature of loading *.conf from (/usr/local)/etc/dnsmasq.d/
         // and then we put a valet config file in there to point to the user's home .config/valet/dnsmasq.d
@@ -112,6 +117,8 @@ class DnsMasq
      */
     public function createTldResolver(string $tld): void
     {
+        // @todo: Can we keep this setup on Linux? Or will it require it to be in /etc/resolv.conf like all the simpler tutorials show? e.g.:
+        // echo nameserver 8.8.8.8 | sudo tee /etc/resolv.conf
         $this->files->ensureDirExists($this->resolverPath);
         $loopback = $this->configuration->read()['loopback'];
 

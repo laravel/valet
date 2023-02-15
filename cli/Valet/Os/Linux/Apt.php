@@ -209,4 +209,11 @@ class Apt extends Installer
         $this->cli->run('systemctl disable apache2');
         $this->cli->run('systemctl stop apache2');
     }
+
+    public function disableSystemdResolve(): void
+    {
+        $this->cli->run('systemctl disable systemd-resolved');
+        $this->cli->run('systemctl stop systemd-resolved');
+        $this->cli->run('unlink /etc/resolv.conf');
+    }
 }
