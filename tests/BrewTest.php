@@ -370,9 +370,6 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
     /**
      * @dataProvider supportedPhpLinkPathProvider
-     *
-     * @param $path
-     * @param $matches
      */
     public function test_get_parsed_linked_php_will_return_matches_for_linked_php($path, $matches)
     {
@@ -390,10 +387,6 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
     /**
      * @dataProvider supportedPhpLinkPathProvider
-     *
-     * @param $path
-     * @param $matches
-     * @param $expectedLinkFormula
      */
     public function test_get_linked_php_formula_will_return_linked_php_directory($path, $matches, $expectedLinkFormula)
     {
