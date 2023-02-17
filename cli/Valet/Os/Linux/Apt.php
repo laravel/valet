@@ -212,6 +212,11 @@ class Apt extends Installer
 
     public function disableSystemdResolve(): void
     {
+        // @todo: Maybe just add this line to /etc/systemd/resolved.conf:
+        // DNSStubListener=no
+        // https://unix.stackexchange.com/a/358485
+        // .. or this?
+        // https://unix.stackexchange.com/a/319501
         $this->cli->run('systemctl disable systemd-resolved');
         $this->cli->run('systemctl stop systemd-resolved');
         $this->cli->run('unlink /etc/resolv.conf');

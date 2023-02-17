@@ -117,6 +117,11 @@ class DnsMasq
      */
     public function createTldResolver(string $tld): void
     {
+        if (Os::isLinux() && !$this->files->exists('/etc/resolv.conf')) {
+            // @todo Is this right? Had to do this to get it even to *load* the internet after installing deleting systemd-resolve...
+            $this->files->put('/etc/resolv.conf', 'nameserver 1.1.1.1', user());
+        }
+
         // @todo: Can we keep this setup on Linux? Or will it require it to be in /etc/resolv.conf like all the simpler tutorials show? e.g.:
         // echo nameserver 8.8.8.8 | sudo tee /etc/resolv.conf
         $this->files->ensureDirExists($this->resolverPath);
