@@ -266,7 +266,6 @@ class Brew
      * Extract PHP executable path from PHP Version.
      *
      * @param  string|null  $phpVersion  For example, "php@8.1"
-     * @return string
      */
     public function getPhpExecutablePath(?string $phpVersion = null): string
     {

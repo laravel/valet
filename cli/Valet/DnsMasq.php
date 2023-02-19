@@ -49,8 +49,6 @@ class DnsMasq
 
     /**
      * Tell Homebrew to restart dnsmasq.
-     *
-     * @return void
      */
     public function restart(): void
     {

@@ -6,8 +6,6 @@ class Facade
 {
     /**
      * The key for the binding in the container.
-     *
-     * @return string
      */
     public static function containerKey(): string
     {

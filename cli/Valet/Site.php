@@ -445,15 +445,12 @@ class Site
     /**
      * Secure the given host with TLS.
      *
-     * @param  string  $url
      * @param  string|null  $siteConf  pregenerated Nginx config file contents
      * @param  int  $certificateExpireInDays  The number of days the self signed certificate is valid.
      *                                        Certificates SHOULD NOT have a validity period greater than 397 days.
      * @param  int  $caExpireInYears  The number of years the self signed certificate authority is valid.
      *
      * @see https://github.com/cabforum/servercert/blob/main/docs/BR.md
-     *
-     * @return void
      */
     public function secure(string $url, ?string $siteConf = null, int $certificateExpireInDays = 396, int $caExpireInYears = 20): void
     {
@@ -487,7 +484,6 @@ class Site
      * If CA and root certificates are nonexistent, create them and trust the root cert.
      *
      * @param  int  $caExpireInDays  The number of days the self signed certificate authority is valid.
-     * @return void
      */
     public function createCa(int $caExpireInDays): void
     {
@@ -544,9 +540,7 @@ class Site
     /**
      * Create and trust a certificate for the given URL.
      *
-     * @param  string  $url
      * @param  int  $caExpireInDays  The number of days the self signed certificate is valid.
-     * @return void
      */
     public function createCertificate(string $url, int $caExpireInDays): void
     {
@@ -766,8 +760,6 @@ class Site
      *
      * @param  string  $url  The domain name to serve
      * @param  string  $host  The URL to proxy to, eg: http://127.0.0.1:8080
-     * @param  bool  $secure
-     * @return void
      */
     public function proxyCreate(string $url, string $host, bool $secure = false): void
     {
