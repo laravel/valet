@@ -641,19 +641,21 @@ You might also want to investigate your global Composer configs. Helpful command
     /**
      * Proxy commands through to an isolated site's version of PHP.
      */
-    $app->command('php [command]', function (OutputInterface $output, $command) {
+    $app->command('php [--site=] [command]', function (OutputInterface $output, $command) {
         warning('It looks like you are running `cli/valet.php` directly; please use the `valet` script in the project root instead.');
     })->descriptions("Proxy PHP commands with isolated site's PHP executable", [
         'command' => "Command to run with isolated site's PHP executable",
+        '--site' => 'Specify the site to use to get the PHP version (e.g. if the site isn\'t linked as its directory name)',
     ]);
 
     /**
      * Proxy commands through to an isolated site's version of Composer.
      */
-    $app->command('composer [command]', function (OutputInterface $output, $command) {
+    $app->command('composer [--site=] [command]', function (OutputInterface $output, $command) {
         warning('It looks like you are running `cli/valet.php` directly; please use the `valet` script in the project root instead.');
     })->descriptions("Proxy Composer commands with isolated site's PHP executable", [
         'command' => "Composer command to run with isolated site's PHP executable",
+        '--site' => 'Specify the site to use to get the PHP version (e.g. if the site isn\'t linked as its directory name)',
     ]);
 
     /**
