@@ -143,14 +143,24 @@ then
 # Proxy PHP commands to the "php" executable on the isolated site
 elif [[ "$1" = "php" ]]
 then
-    $($PHP "$DIR/cli/valet.php" which-php) "${@:2}"
+    if [[ $2 == *"--site="* ]]; then
+        SITE=${2#*=}
+        $(php "$DIR/cli/valet.php" which-php $SITE) "${@:3}"
+    else
+        $(php "$DIR/cli/valet.php" which-php) "${@:2}"
+    fi
 
     exit
 
 # Proxy Composer commands with the "php" executable on the isolated site
 elif [[ "$1" = "composer" ]]
 then
-    $($PHP "$DIR/cli/valet.php" which-php) $(which composer) "${@:2}"
+    if [[ $2 == *"--site="* ]]; then
+        SITE=${2#*=}
+        $(php "$DIR/cli/valet.php" which-php $SITE) $(which composer) "${@:3}"
+    else
+        $(php "$DIR/cli/valet.php" which-php) $(which composer) "${@:2}"
+    fi
 
     exit
 
