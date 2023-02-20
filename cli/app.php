@@ -365,7 +365,9 @@ if (is_dir(VALET_HOME_PATH)) {
 
         switch ($tool) {
             case 'expose':
-                output(Expose::currentTunnelUrl($domain ?: Site::host(getcwd())));
+                if ($url = Expose::currentTunnelUrl($domain ?: Site::host(getcwd()))) {
+                    output($url);
+                }
                 break;
             case 'ngrok':
                 try {

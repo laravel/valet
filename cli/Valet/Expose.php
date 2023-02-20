@@ -30,7 +30,7 @@ class Expose
                 return $response;
             }
 
-            return warning('The project '.$domain.' cannot be found as an Expose share.');
+            return warning("The project $domain cannot be found as an Expose share.\nEither it is not currently shared, or you may be on a free plan.");
         } catch (ConnectException $e) {
             return warning('There is no Expose instance running.');
         }
