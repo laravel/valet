@@ -6,32 +6,28 @@ class BasicValetDriver extends ValetDriver
 {
     /**
      * Determine if the driver serves the request.
-     *
-     * @param  string  $sitePath
-     * @param  string  $siteName
-     * @param  string  $uri
-     * @return bool
      */
-    public function serves($sitePath, $siteName, $uri)
+    public function serves(string $sitePath, string $siteName, string $uri): bool
     {
         return true;
     }
 
     /**
-     * Determine if the incoming request is for a static file.
-     *
-     * @param  string  $sitePath
-     * @param  string  $siteName
-     * @param  string  $uri
-     * @return string|false
+     * Take any steps necessary before loading the front controller for this driver.
      */
-    public function isStaticFile($sitePath, $siteName, $uri)
+    public function beforeLoading(string $sitePath, string $siteName, string $uri): void
     {
-        if (file_exists($staticFilePath = $sitePath.'/public'.rtrim($uri, '/').'/index.html')) {
-            return $staticFilePath;
-        } elseif (file_exists($staticFilePath = $sitePath.'/public'.rtrim($uri, '/').'/index.php')) {
-            return $staticFilePath;
-        } elseif (file_exists($staticFilePath = $sitePath.'/public'.$uri)) {
+        $_SERVER['PHP_SELF'] = $uri;
+        $_SERVER['SERVER_ADDR'] = $_SERVER['SERVER_ADDR'] ?? '127.0.0.1';
+        $_SERVER['SERVER_NAME'] = $_SERVER['HTTP_HOST'];
+    }
+
+    /**
+     * Determine if the incoming request is for a static file.
+     */
+    public function isStaticFile(string $sitePath, string $siteName, string $uri)/*: string|false */
+    {
+        if (file_exists($staticFilePath = $sitePath.rtrim($uri, '/').'/index.html')) {
             return $staticFilePath;
         } elseif ($this->isActualFile($staticFilePath = $sitePath.$uri)) {
             return $staticFilePath;
@@ -42,25 +38,19 @@ class BasicValetDriver extends ValetDriver
 
     /**
      * Get the fully resolved path to the application's front controller.
-     *
-     * @param  string  $sitePath
-     * @param  string  $siteName
-     * @param  string  $uri
-     * @return string
      */
-    public function frontControllerPath($sitePath, $siteName, $uri)
+    public function frontControllerPath(string $sitePath, string $siteName, string $uri): ?string
     {
-        $_SERVER['PHP_SELF'] = $uri;
-        $_SERVER['SERVER_ADDR'] = $_SERVER['SERVER_ADDR'] ?? '127.0.0.1';
-        $_SERVER['SERVER_NAME'] = $_SERVER['HTTP_HOST'];
+        $uri = rtrim($uri, '/');
 
-        $dynamicCandidates = [
-            $this->asActualFile($sitePath, $uri),
-            $this->asPhpIndexFileInDirectory($sitePath, $uri),
-            $this->asHtmlIndexFileInDirectory($sitePath, $uri),
+        $candidates = [
+            $sitePath.$uri,
+            $sitePath.$uri.'/index.php',
+            $sitePath.'/index.php',
+            $sitePath.'/index.html',
         ];
 
-        foreach ($dynamicCandidates as $candidate) {
+        foreach ($candidates as $candidate) {
             if ($this->isActualFile($candidate)) {
                 $_SERVER['SCRIPT_FILENAME'] = $candidate;
                 $_SERVER['SCRIPT_NAME'] = str_replace($sitePath, '', $candidate);
@@ -70,89 +60,6 @@ class BasicValetDriver extends ValetDriver
             }
         }
 
-        $fixedCandidatesAndDocroots = [
-            $this->asRootPhpIndexFile($sitePath) => $sitePath,
-            $this->asPublicPhpIndexFile($sitePath) => $sitePath.'/public',
-            $this->asPublicHtmlIndexFile($sitePath) => $sitePath.'/public',
-        ];
-
-        foreach ($fixedCandidatesAndDocroots as $candidate => $docroot) {
-            if ($this->isActualFile($candidate)) {
-                $_SERVER['SCRIPT_FILENAME'] = $candidate;
-                $_SERVER['SCRIPT_NAME'] = '/index.php';
-                $_SERVER['DOCUMENT_ROOT'] = $docroot;
-
-                return $candidate;
-            }
-        }
-    }
-
-    /**
-     * Concatenate the site path and URI as a single file name.
-     *
-     * @param  string  $sitePath
-     * @param  string  $uri
-     * @return string
-     */
-    protected function asActualFile($sitePath, $uri)
-    {
-        return $sitePath.$uri;
-    }
-
-    /**
-     * Format the site path and URI with a trailing "index.php".
-     *
-     * @param  string  $sitePath
-     * @param  string  $uri
-     * @return string
-     */
-    protected function asPhpIndexFileInDirectory($sitePath, $uri)
-    {
-        return $sitePath.rtrim($uri, '/').'/index.php';
-    }
-
-    /**
-     * Format the site path and URI with a trailing "index.html".
-     *
-     * @param  string  $sitePath
-     * @param  string  $uri
-     * @return string
-     */
-    protected function asHtmlIndexFileInDirectory($sitePath, $uri)
-    {
-        return $sitePath.rtrim($uri, '/').'/index.html';
-    }
-
-    /**
-     * Format the incoming site path as root "index.php" file path.
-     *
-     * @param  string  $sitePath
-     * @return string
-     */
-    protected function asRootPhpIndexFile($sitePath)
-    {
-        return $sitePath.'/index.php';
-    }
-
-    /**
-     * Format the incoming site path as a "public/index.php" file path.
-     *
-     * @param  string  $sitePath
-     * @return string
-     */
-    protected function asPublicPhpIndexFile($sitePath)
-    {
-        return $sitePath.'/public/index.php';
-    }
-
-    /**
-     * Format the incoming site path as a "public/index.php" file path.
-     *
-     * @param  string  $sitePath
-     * @return string
-     */
-    protected function asPublicHtmlIndexFile($sitePath)
-    {
-        return $sitePath.'/public/index.html';
+        return null;
     }
 }

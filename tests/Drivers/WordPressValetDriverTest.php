@@ -1,6 +1,6 @@
 <?php
 
-use Valet\Drivers\WordPressValetDriver;
+use Valet\Drivers\Specific\WordPressValetDriver;
 
 class WordPressValetDriverTest extends BaseDriverTestCase
 {
@@ -21,8 +21,6 @@ class WordPressValetDriverTest extends BaseDriverTestCase
     public function test_it_gets_front_controller()
     {
         $driver = new WordPressValetDriver();
-
-        $_SERVER['HTTP_HOST'] = 'this is set in Valet requests but not phpunit';
 
         $projectPath = $this->projectDir('wordpress');
         $this->assertEquals($projectPath.'/index.php', $driver->frontControllerPath($projectPath, 'my-site', '/'));

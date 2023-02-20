@@ -1,6 +1,6 @@
 <?php
 
-use Valet\Drivers\JoomlaValetDriver;
+use Valet\Drivers\Specific\JoomlaValetDriver;
 
 class JoomlaValetDriverTest extends BaseDriverTestCase
 {
@@ -21,8 +21,6 @@ class JoomlaValetDriverTest extends BaseDriverTestCase
     public function test_it_gets_front_controller()
     {
         $driver = new JoomlaValetDriver();
-
-        $_SERVER['HTTP_HOST'] = 'this is set in Valet requests but not phpunit';
 
         $projectPath = $this->projectDir('joomla');
         $this->assertEquals($projectPath.'/index.php', $driver->frontControllerPath($projectPath, 'my-site', '/'));

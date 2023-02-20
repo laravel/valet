@@ -2,6 +2,7 @@
 
 namespace Valet;
 
+use Illuminate\Support\Collection;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
@@ -27,7 +28,7 @@ class Diagnose
         'nginx -v',
         'curl --version',
         'php --ri curl',
-        '~/.composer/vendor/laravel/valet/bin/ngrok version',
+        BREW_PREFIX.'/bin/ngrok version',
         'ls -al ~/.ngrok2',
         'brew info nginx',
         'brew info php',
@@ -50,29 +51,18 @@ class Diagnose
         'sh -c \'for file in ~/.config/valet/nginx/*; do echo "------\n~/.config/valet/nginx/$(basename $file)\n---\n"; cat $file | grep -n "# valet loopback"; echo "\n------\n"; done\'',
     ];
 
-    public $cli;
-
-    public $files;
-
     public $print;
 
     public $progressBar;
 
-    /**
-     * Create a new Diagnose instance.
-     *
-     * @return void
-     */
-    public function __construct(CommandLine $cli, Filesystem $files)
+    public function __construct(public CommandLine $cli, public Filesystem $files)
     {
-        $this->cli = $cli;
-        $this->files = $files;
     }
 
     /**
      * Run diagnostics.
      */
-    public function run($print, $plainText)
+    public function run(bool $print, bool $plainText): void
     {
         $this->print = $print;
 
@@ -103,7 +93,7 @@ class Diagnose
         $this->afterRun();
     }
 
-    public function beforeRun()
+    public function beforeRun(): void
     {
         if ($this->print) {
             return;
@@ -114,7 +104,7 @@ class Diagnose
         $this->progressBar->start();
     }
 
-    public function afterRun()
+    public function afterRun(): void
     {
         if ($this->progressBar) {
             $this->progressBar->finish();
@@ -123,21 +113,21 @@ class Diagnose
         output('');
     }
 
-    public function runCommand($command)
+    public function runCommand(string $command): string
     {
         return strpos($command, 'sudo ') === 0
             ? $this->cli->run($command)
             : $this->cli->runAsUser($command);
     }
 
-    public function beforeCommand($command)
+    public function beforeCommand(string $command): void
     {
         if ($this->print) {
             info(PHP_EOL."$ $command");
         }
     }
 
-    public function afterCommand($command, $output)
+    public function afterCommand(string $command, string $output): void
     {
         if ($this->print) {
             output(trim($output));
@@ -146,12 +136,12 @@ class Diagnose
         }
     }
 
-    public function ignoreOutput($command)
+    public function ignoreOutput(string $command): bool
     {
         return strpos($command, '> /dev/null 2>&1') !== false;
     }
 
-    public function format($results, $plainText)
+    public function format(Collection $results, bool $plainText): string
     {
         return $results->map(function ($result) use ($plainText) {
             $command = $result['command'];

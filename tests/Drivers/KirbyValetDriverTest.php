@@ -1,6 +1,6 @@
 <?php
 
-use Valet\Drivers\KirbyValetDriver;
+use Valet\Drivers\Specific\KirbyValetDriver;
 
 class KirbyValetDriverTest extends BaseDriverTestCase
 {
@@ -21,8 +21,6 @@ class KirbyValetDriverTest extends BaseDriverTestCase
     public function test_it_gets_front_controller()
     {
         $driver = new KirbyValetDriver();
-
-        $_SERVER['HTTP_HOST'] = 'this is set in Valet requests but not phpunit';
 
         $projectPath = $this->projectDir('kirby');
         $this->assertEquals($projectPath.'/index.php', $driver->frontControllerPath($projectPath, 'my-site', '/'));

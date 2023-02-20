@@ -3,42 +3,21 @@
 namespace Valet;
 
 use DomainException;
+use Illuminate\Support\Collection;
 
 class Nginx
 {
-    public $brew;
-
-    public $cli;
-
-    public $files;
-
-    public $configuration;
-
-    public $site;
-
     const NGINX_CONF = BREW_PREFIX.'/etc/nginx/nginx.conf';
 
-    /**
-     * Create a new Nginx instance.
-     *
-     * @return void
-     */
-    public function __construct(Brew $brew, CommandLine $cli, Filesystem $files,
-                         Configuration $configuration, Site $site)
+    public function __construct(public Brew $brew, public CommandLine $cli, public Filesystem $files,
+                         public Configuration $configuration, public Site $site)
     {
-        $this->cli = $cli;
-        $this->brew = $brew;
-        $this->site = $site;
-        $this->files = $files;
-        $this->configuration = $configuration;
     }
 
     /**
      * Install the configuration files for Nginx.
-     *
-     * @return void
      */
-    public function install()
+    public function install(): void
     {
         if (! $this->brew->hasInstalledNginx()) {
             $this->brew->installOrFail('nginx', []);
@@ -51,10 +30,8 @@ class Nginx
 
     /**
      * Install the Nginx configuration file.
-     *
-     * @return void
      */
-    public function installConfiguration()
+    public function installConfiguration(): void
     {
         info('Installing nginx configuration...');
 
@@ -68,10 +45,8 @@ class Nginx
 
     /**
      * Install the Valet Nginx server configuration file.
-     *
-     * @return void
      */
-    public function installServer()
+    public function installServer(): void
     {
         $this->files->ensureDirExists(BREW_PREFIX.'/etc/nginx/valet');
 
@@ -94,10 +69,8 @@ class Nginx
      * Install the Nginx configuration directory to the ~/.config/valet directory.
      *
      * This directory contains all site-specific Nginx servers.
-     *
-     * @return void
      */
-    public function installNginxDirectory()
+    public function installNginxDirectory(): void
     {
         info('Installing nginx directory...');
 
@@ -105,7 +78,7 @@ class Nginx
             $this->files->mkdirAsUser($nginxDirectory);
         }
 
-        $this->files->putAsUser($nginxDirectory.'/.keep', "\n");
+        $this->files->putAsUser($nginxDirectory.'/.keep', PHP_EOL);
 
         $this->rewriteSecureNginxFiles();
     }
@@ -113,7 +86,7 @@ class Nginx
     /**
      * Check nginx.conf for errors.
      */
-    private function lint()
+    private function lint(): void
     {
         $this->cli->run(
             'sudo nginx -c '.static::NGINX_CONF.' -t',
@@ -125,10 +98,8 @@ class Nginx
 
     /**
      * Generate fresh Nginx servers for existing secure sites.
-     *
-     * @return void
      */
-    public function rewriteSecureNginxFiles()
+    public function rewriteSecureNginxFiles(): void
     {
         $tld = $this->configuration->read()['tld'];
         $loopback = $this->configuration->read()['loopback'];
@@ -144,10 +115,8 @@ class Nginx
 
     /**
      * Restart the Nginx service.
-     *
-     * @return void
      */
-    public function restart()
+    public function restart(): void
     {
         $this->lint();
 
@@ -156,20 +125,16 @@ class Nginx
 
     /**
      * Stop the Nginx service.
-     *
-     * @return void
      */
-    public function stop()
+    public function stop(): void
     {
         $this->brew->stopService(['nginx']);
     }
 
     /**
      * Forcefully uninstall Nginx.
-     *
-     * @return void
      */
-    public function uninstall()
+    public function uninstall(): void
     {
         $this->brew->stopService(['nginx', 'nginx-full']);
         $this->brew->uninstallFormula('nginx nginx-full');
@@ -178,10 +143,8 @@ class Nginx
 
     /**
      * Return a list of all sites with explicit Nginx configurations.
-     *
-     * @return \Illuminate\Support\Collection
      */
-    public function configuredSites()
+    public function configuredSites(): Collection
     {
         return collect($this->files->scandir(VALET_HOME_PATH.'/Nginx'))
             ->reject(function ($file) {

@@ -1,6 +1,6 @@
 <?php
 
-use Valet\Drivers\DrupalValetDriver;
+use Valet\Drivers\Specific\DrupalValetDriver;
 
 class DrupalValetDriverTest extends BaseDriverTestCase
 {
@@ -21,8 +21,6 @@ class DrupalValetDriverTest extends BaseDriverTestCase
     public function test_it_gets_front_controller()
     {
         $driver = new DrupalValetDriver();
-
-        $_SERVER['HTTP_HOST'] = 'this is set in Valet requests but not phpunit';
 
         $projectPath = $this->projectDir('drupal');
         $this->assertEquals($projectPath.'/public/index.php', $driver->frontControllerPath($projectPath, 'my-site', '/'));

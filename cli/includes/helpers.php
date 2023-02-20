@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Container\Container;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Define constants.
@@ -23,7 +24,6 @@ if (! defined('VALET_STATIC_PREFIX')) {
 
 define('VALET_LOOPBACK', '127.0.0.1');
 define('VALET_SERVER_PATH', realpath(__DIR__.'/../../server.php'));
-define('VALET_LEGACY_HOME_PATH', $_SERVER['HOME'].'/.valet');
 
 define('BREW_PREFIX', (new CommandLine())->runAsUser('printf $(brew --prefix)'));
 
@@ -31,11 +31,8 @@ define('ISOLATED_PHP_VERSION', 'ISOLATED_PHP_VERSION');
 
 /**
  * Set or get a global console writer.
- *
- * @param  null|OutputInterface  $writer
- * @return OutputInterface|\NullWriter|null
  */
-function writer($writer = null)
+function writer(?OutputInterface $writer = null): OutputInterface|\NullWriter|null
 {
     $container = Container::getInstance();
 
@@ -54,32 +51,24 @@ function writer($writer = null)
 
 /**
  * Output the given text to the console.
- *
- * @param  string  $output
- * @return void
  */
-function info($output)
+function info($output): void
 {
     output('<info>'.$output.'</info>');
 }
 
 /**
  * Output the given text to the console.
- *
- * @param  string  $output
- * @return void
  */
-function warning($output)
+function warning(string $output): void
 {
     output('<fg=red>'.$output.'</>');
 }
 
 /**
  * Output a table to the console.
- *
- * @return void
  */
-function table(array $headers = [], array $rows = [])
+function table(array $headers = [], array $rows = []): void
 {
     $table = new Table(writer());
 
@@ -90,57 +79,40 @@ function table(array $headers = [], array $rows = [])
 
 /**
  * Return whether the app is in the testing environment.
- *
- * @return bool
  */
-function testing()
+function testing(): bool
 {
     return strpos($_SERVER['SCRIPT_NAME'], 'phpunit') !== false;
 }
 
 /**
  * Output the given text to the console.
- *
- * @param  string  $output
- * @return void
  */
-function output($output)
+function output(?string $output = ''): void
 {
     writer()->writeln($output);
 }
 
 /**
  * Resolve the given class from the container.
- *
- * @param  string  $class
- * @return mixed
  */
-function resolve($class)
+function resolve(string $class): mixed
 {
     return Container::getInstance()->make($class);
 }
 
 /**
  * Swap the given class implementation in the container.
- *
- * @param  string  $class
- * @param  mixed  $instance
- * @return void
  */
-function swap($class, $instance)
+function swap(string $class, mixed $instance): void
 {
     Container::getInstance()->instance($class, $instance);
 }
 
 /**
  * Retry the given function N times.
- *
- * @param  int  $retries
- * @param  callable  $retries
- * @param  int  $sleep
- * @return mixed
  */
-function retry($retries, $fn, $sleep = 0)
+function retry(int $retries, callable $fn, int $sleep = 0): mixed
 {
     beginning:
     try {
@@ -162,10 +134,8 @@ function retry($retries, $fn, $sleep = 0)
 
 /**
  * Verify that the script is currently running as "sudo".
- *
- * @return void
  */
-function should_be_sudo()
+function should_be_sudo(): void
 {
     if (! isset($_SERVER['SUDO_USER'])) {
         throw new Exception('This command must be run with sudo.');
@@ -174,11 +144,8 @@ function should_be_sudo()
 
 /**
  * Tap the given value.
- *
- * @param  mixed  $value
- * @return mixed
  */
-function tap($value, callable $callback)
+function tap(mixed $value, callable $callback): mixed
 {
     $callback($value);
 
@@ -187,12 +154,8 @@ function tap($value, callable $callback)
 
 /**
  * Determine if a given string ends with a given substring.
- *
- * @param  string  $haystack
- * @param  string|array  $needles
- * @return bool
  */
-function ends_with($haystack, $needles)
+function ends_with(string $haystack, array|string $needles): bool
 {
     foreach ((array) $needles as $needle) {
         if (substr($haystack, -strlen($needle)) === (string) $needle) {
@@ -205,12 +168,8 @@ function ends_with($haystack, $needles)
 
 /**
  * Determine if a given string starts with a given substring.
- *
- * @param  string  $haystack
- * @param  string|string[]  $needles
- * @return bool
  */
-function starts_with($haystack, $needles)
+function starts_with(string $haystack, array|string $needles): bool
 {
     foreach ((array) $needles as $needle) {
         if ((string) $needle !== '' && strncmp($haystack, $needle, strlen($needle)) === 0) {
@@ -224,7 +183,7 @@ function starts_with($haystack, $needles)
 /**
  * Get the user.
  */
-function user()
+function user(): string
 {
     if (! isset($_SERVER['SUDO_USER'])) {
         return $_SERVER['USER'];

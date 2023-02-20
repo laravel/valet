@@ -42,9 +42,9 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         resolve(StubForUpdatingFpmConfigFiles::class)->createConfigurationFiles('php@7.2');
         $contents = file_get_contents(__DIR__.'/output/fpm.conf');
-        $this->assertStringContainsString(sprintf("\nuser = %s", user()), $contents);
-        $this->assertStringContainsString("\ngroup = staff", $contents);
-        $this->assertStringContainsString("\nlisten = ".VALET_HOME_PATH.'/valet72.sock', $contents);
+        $this->assertStringContainsString(sprintf(PHP_EOL.'user = %s', user()), $contents);
+        $this->assertStringContainsString(PHP_EOL.'group = staff', $contents);
+        $this->assertStringContainsString(PHP_EOL.'listen = '.VALET_HOME_PATH.'/valet72.sock', $contents);
 
         // It should disable old or default FPM Pool configuration
         $this->assertFileDoesNotExist(__DIR__.'/output/www.conf');
@@ -448,7 +448,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
 class StubForUpdatingFpmConfigFiles extends PhpFpm
 {
-    public function fpmConfigPath($phpVersion = null)
+    public function fpmConfigPath(?string $phpVersion = null): string
     {
         return __DIR__.'/output/fpm.conf';
     }

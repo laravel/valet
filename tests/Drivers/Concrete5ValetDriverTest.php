@@ -1,6 +1,6 @@
 <?php
 
-use Valet\Drivers\Concrete5ValetDriver;
+use Valet\Drivers\Specific\Concrete5ValetDriver;
 
 class Concrete5ValetDriverTest extends BaseDriverTestCase
 {

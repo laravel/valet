@@ -1,6 +1,6 @@
 <?php
 
-use Valet\Drivers\NeosValetDriver;
+use Valet\Drivers\Specific\NeosValetDriver;
 
 class NeosValetDriverTest extends BaseDriverTestCase
 {

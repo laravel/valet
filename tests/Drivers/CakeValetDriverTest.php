@@ -1,6 +1,6 @@
 <?php
 
-use Valet\Drivers\CakeValetDriver;
+use Valet\Drivers\Specific\CakeValetDriver;
 
 class CakeValetDriverTest extends BaseDriverTestCase
 {

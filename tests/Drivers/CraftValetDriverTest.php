@@ -1,6 +1,6 @@
 <?php
 
-use Valet\Drivers\CraftValetDriver;
+use Valet\Drivers\Specific\CraftValetDriver;
 
 class CraftValetDriverTest extends BaseDriverTestCase
 {
@@ -21,8 +21,6 @@ class CraftValetDriverTest extends BaseDriverTestCase
     public function test_it_gets_front_controller()
     {
         $driver = new CraftValetDriver();
-
-        $_SERVER['HTTP_HOST'] = 'this is set in Valet requests but not phpunit';
 
         $projectPath = $this->projectDir('craft');
         $this->assertEquals($projectPath.'/public/index.php', $driver->frontControllerPath($projectPath, 'my-site', '/'));

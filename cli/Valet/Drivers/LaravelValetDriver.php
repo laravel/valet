@@ -6,27 +6,28 @@ class LaravelValetDriver extends ValetDriver
 {
     /**
      * Determine if the driver serves the request.
-     *
-     * @param  string  $sitePath
-     * @param  string  $siteName
-     * @param  string  $uri
-     * @return bool
      */
-    public function serves($sitePath, $siteName, $uri)
+    public function serves(string $sitePath, string $siteName, string $uri): bool
     {
         return file_exists($sitePath.'/public/index.php') &&
                file_exists($sitePath.'/artisan');
     }
 
     /**
-     * Determine if the incoming request is for a static file.
-     *
-     * @param  string  $sitePath
-     * @param  string  $siteName
-     * @param  string  $uri
-     * @return string|false
+     * Take any steps necessary before loading the front controller for this driver.
      */
-    public function isStaticFile($sitePath, $siteName, $uri)
+    public function beforeLoading(string $sitePath, string $siteName, string $uri): void
+    {
+        // Shortcut for getting the "local" hostname as the HTTP_HOST
+        if (isset($_SERVER['HTTP_X_ORIGINAL_HOST'], $_SERVER['HTTP_X_FORWARDED_HOST'])) {
+            $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_X_FORWARDED_HOST'];
+        }
+    }
+
+    /**
+     * Determine if the incoming request is for a static file.
+     */
+    public function isStaticFile(string $sitePath, string $siteName, string $uri)/*: string|false */
     {
         if (file_exists($staticFilePath = $sitePath.'/public'.$uri)
            && is_file($staticFilePath)) {
@@ -48,19 +49,9 @@ class LaravelValetDriver extends ValetDriver
 
     /**
      * Get the fully resolved path to the application's front controller.
-     *
-     * @param  string  $sitePath
-     * @param  string  $siteName
-     * @param  string  $uri
-     * @return string
      */
-    public function frontControllerPath($sitePath, $siteName, $uri)
+    public function frontControllerPath(string $sitePath, string $siteName, string $uri): ?string
     {
-        // Shortcut for getting the "local" hostname as the HTTP_HOST
-        if (isset($_SERVER['HTTP_X_ORIGINAL_HOST'], $_SERVER['HTTP_X_FORWARDED_HOST'])) {
-            $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_X_FORWARDED_HOST'];
-        }
-
         return $sitePath.'/public/index.php';
     }
 }

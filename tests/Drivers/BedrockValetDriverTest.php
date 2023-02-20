@@ -1,6 +1,6 @@
 <?php
 
-use Valet\Drivers\BedrockValetDriver;
+use Valet\Drivers\Specific\BedrockValetDriver;
 
 class BedrockValetDriverTest extends BaseDriverTestCase
 {
@@ -21,8 +21,6 @@ class BedrockValetDriverTest extends BaseDriverTestCase
     public function test_it_gets_front_controller()
     {
         $driver = new BedrockValetDriver();
-
-        $_SERVER['HTTP_HOST'] = 'this is set in Valet requests but not phpunit';
 
         $projectPath = $this->projectDir('bedrock');
         $this->assertEquals($projectPath.'/web/index.php', $driver->frontControllerPath($projectPath, 'my-site', '/'));
