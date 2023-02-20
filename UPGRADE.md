@@ -9,3 +9,4 @@
 - If you have any `.valetphprc` files in your projects, update them to use the new `.valetrc` syntax:
     - Rename `.valetphprc` to `.valetrc`
     - Add `php=` before the version number; e.g. `php=php@8.2`
+- If you're using Expose and want to connect it to Valet, make sure to upgrade to v2.6.0 or higher
