@@ -6,3 +6,6 @@
     - Match the new type hints of the base ValetDriver
     - Extend the new namespaced drivers instead of the old globally-namespaced drivers
     - Have their own namespace
+- If you have any `.valetphprc` files in your projects, update them to use the new `.valetrc` syntax:
+    - Rename `.valetphprc` to `.valetrc`
+    - Add `php=` before the version number; e.g. `php=php@8.2`
