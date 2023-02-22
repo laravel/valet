@@ -410,9 +410,10 @@ if (is_dir(VALET_HOME_PATH)) {
             }
 
             $helper = $this->getHelperSet()->get('question');
-            $question = new ConfirmationQuestion('Would you like to install Expose now? ', false);
+            $question = new ConfirmationQuestion('Would you like to install Expose now? [y/N] ', false);
 
             if (false === $helper->ask($input, $output, $question)) {
+                info('Proceeding without installing Expose.');
                 return;
             }
 
@@ -423,9 +424,10 @@ if (is_dir(VALET_HOME_PATH)) {
 
         if (! Ngrok::installed()) {
             $helper = $this->getHelperSet()->get('question');
-            $question = new ConfirmationQuestion('Would you like to install ngrok now? ', false);
+            $question = new ConfirmationQuestion('Would you like to install ngrok now? [y/N] ', false);
 
             if (false === $helper->ask($input, $output, $question)) {
+                info('Proceeding without installing ngrok.');
                 return;
             }
 
@@ -526,7 +528,7 @@ if (is_dir(VALET_HOME_PATH)) {
         if ($force) {
             warning('YOU ARE ABOUT TO UNINSTALL Nginx, PHP, Dnsmasq and all Valet configs and logs.');
             $helper = $this->getHelperSet()->get('question');
-            $question = new ConfirmationQuestion('Are you sure you want to proceed? ', false);
+            $question = new ConfirmationQuestion('Are you sure you want to proceed? [y/N]', false);
 
             if (false === $helper->ask($input, $output, $question)) {
                 return warning('Uninstall aborted.');
