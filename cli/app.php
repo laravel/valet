@@ -414,6 +414,7 @@ if (is_dir(VALET_HOME_PATH)) {
 
             if (false === $helper->ask($input, $output, $question)) {
                 info('Proceeding without installing Expose.');
+
                 return;
             }
 
@@ -428,6 +429,7 @@ if (is_dir(VALET_HOME_PATH)) {
 
             if (false === $helper->ask($input, $output, $question)) {
                 info('Proceeding without installing ngrok.');
+
                 return;
             }
 
