@@ -30,7 +30,7 @@ class Upgrader
         try {
             Configuration::prune();
         } catch (\JsonException $e) {
-            warning('Invalid confiuration file at '.Configuration::path().'.');
+            warning('Invalid configuration file at '.Configuration::path().'.');
             exit;
         }
     }
@@ -91,6 +91,8 @@ class Upgrader
 
             if (! str_contains($this->files->get($driversPath.'/'.$driver), 'namespace')) {
                 warning('Please make sure all custom drivers have been upgraded for Valet 4.');
+                warning('See the upgrade guide for more info:');
+                warning('https://github.com/laravel/valet/blob/master/UPGRADE.md');
                 exit;
             }
         }
