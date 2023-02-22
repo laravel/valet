@@ -50,6 +50,15 @@ then
     if [[ $SHARETOOL = "ngrok" ]]
     then
     # ngrok
+        # Check to make sure ngrok is configured correctly
+        BREW_PREFIX=$(brew --prefix)
+        $($BREW_PREFIX/bin/ngrok config check >/dev/null 2>&1)
+
+        if [[ $? -ne 0 ]]; then
+            echo "Please sign up for a free ngrok account and then run valet set-ngrok-token {yourTokenHere}."
+            exit
+        fi
+
         # Check for parameters to pass through to ngrok (these will start with '-' or '--')
         PARAMS=(${@:2})
         for PARAM in ${PARAMS[@]}
@@ -85,7 +94,6 @@ then
         # Lowercase the host to match how the rest of our domains are looked up
         HOST=$(echo "$HOST" | tr '[:upper:]' '[:lower:]')
 
-        BREW_PREFIX=$(brew --prefix)
         sudo -u "$USER" "$BREW_PREFIX/bin/ngrok" http "$HOST.$TLD:$PORT" --host-header=rewrite $PARAMS
 
         exit
