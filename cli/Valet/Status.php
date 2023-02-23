@@ -163,7 +163,7 @@ class Status
     public function isBrewServiceRunningAsRoot(string $name, bool $exactMatch = true): bool
     {
         if (! $this->brewServicesRootOutput) {
-            $this->brewServicesRootOutput = json_decode($this->cli->run('brew services info --all --json'), false);
+            $this->brewServicesRootOutput = $this->jsonFromCli('brew services info --all --json', true);
         }
 
         return $this->isBrewServiceRunningGivenServiceList($this->brewServicesRootOutput, $name, $exactMatch);
@@ -172,10 +172,24 @@ class Status
     public function isBrewServiceRunningAsUser(string $name, bool $exactMatch = true): bool
     {
         if (! $this->brewServicesUserOutput) {
-            $this->brewServicesUserOutput = json_decode($this->cli->runAsUser('brew services info --all --json'), false);
+            $this->brewServicesUserOutput = $this->jsonFromCli('brew services info --all --json', false);
         }
 
         return $this->isBrewServiceRunningGivenServiceList($this->brewServicesUserOutput, $name, $exactMatch);
+    }
+
+    public function jsonFromCli(string $input, bool $sudo = false): array
+    {
+        $contents = $sudo ? $this->cli->run($input) : $this->cli->runAsUser($input);
+        // Skip to the JSON, to avoid warnings; we're only getting arrays so start with [
+        $contents = substr($contents, strpos($contents, '['));
+
+        try {
+            return json_decode($contents, false, 512, JSON_THROW_ON_ERROR);
+        } catch (\Throwable $e) {
+            $command = $sudo ? 'sudo '.$input : $input;
+            throw new \Exception('Invalid JSON returned from command: '.$command);
+        }
     }
 
     protected function isBrewServiceRunningGivenServiceList(array $serviceList, string $name, bool $exactMatch = true): bool
