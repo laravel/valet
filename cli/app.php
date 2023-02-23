@@ -424,8 +424,9 @@ if (is_dir(VALET_HOME_PATH)) {
         }
 
         if (! Ngrok::installed()) {
+            info("\nIn order to share with ngrok, you'll need a version\nof ngrok installed and managed by Homebrew.");
             $helper = $this->getHelperSet()->get('question');
-            $question = new ConfirmationQuestion('Would you like to install ngrok now? [y/N] ', false);
+            $question = new ConfirmationQuestion('Would you like to install ngrok via Homebrew now? [y/N] ', false);
 
             if (false === $helper->ask($input, $output, $question)) {
                 info('Proceeding without installing ngrok.');
