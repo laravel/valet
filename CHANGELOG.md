@@ -1,6 +1,38 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v3.3.2...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v4.0.0...master)
+
+## [v4.0.0](https://github.com/laravel/valet/compare/v3.3.2...v4.0.0) - 2023-03-14
+
+Welcome to Valet v4! This release is mostly about re-writing the internals so they're easier to debug, fix, and modify. There are a few user-facing additions and improvements, including but not limited to: ngrok is now managed by Homebrew, `.valetphprc` is replaced with a more powerful `.valetrc`, you can use [Expose](https://expose.dev/) to share, there's a new `status` command to make sure all your services are running correctly, and a lot of the other existing commands work even better than ever before.
+
+### Added
+
+- Add Expose support by @mattstauffer in https://github.com/laravel/valet/pull/1344 and https://github.com/laravel/valet/pull/1349
+- Add status command by @mattstauffer in https://github.com/laravel/valet/pull/1329
+- Check whether services are running as the correct user in `valet status` by @mattstauffer in https://github.com/laravel/valet/pull/1348
+- Add the ability for drivers to check Composer dependencies by @mattstauffer in https://github.com/laravel/valet/pull/1345
+- Add php isolation from link command by @joelbutcher in https://github.com/laravel/valet/pull/1360
+
+### Changed
+
+- Replace `.valetphprc. with `.valetrc` by @mattstauffer in https://github.com/laravel/valet/pull/1347
+- Update php and composer commands to allow passing in specific site by @mattstauffer in https://github.com/laravel/valet/pull/1370
+- Require PHP 8.0 to be installed, but support PHP 7.1+ for isolated sites (https://github.com/laravel/valet/pull/1328 and https://github.com/laravel/valet/pull/1346)
+- Re-work how BasicValetDriver serves files in projects with and without `public/` directory by @mattstauffer in https://github.com/laravel/valet/pull/1311
+- Extract Server class and refactor loading of drivers by @mattstauffer in https://github.com/laravel/valet/pull/1319
+- Add type hints and return types by @mattstauffer in https://github.com/laravel/valet/pull/1321
+- Drop unnecessary doc blocks by @mattstauffer in https://github.com/laravel/valet/pull/1339
+- Add CLI command tests by @mattstauffer in https://github.com/laravel/valet/pull/1332 and https://github.com/laravel/valet/pull/1335
+- Implement `valet fetch-share-url` when working with Expose by @mattstauffer in
+- Use Pint for Code Styling by @driesvints in https://github.com/laravel/valet/pull/1366
+- Release Version 4 by @mattstauffer in https://github.com/laravel/valet/pull/1318, https://github.com/laravel/valet/pull/1365
+
+### Fixed
+
+- Unsecure when unlinking by @mattstauffer in https://github.com/laravel/valet/pull/1364
+- Update phpRc reader to check cwd before checking config, if cwd specified by @mattstauffer in https://github.com/laravel/valet/pull/1361
+- Remove Valet Certificate Authority on uninstall by @mattstauffer in https://github.com/laravel/valet/pull/1358
 
 ## [v3.3.2](https://github.com/laravel/valet/compare/v3.3.1...v3.3.2) - 2023-02-07
 
