@@ -8,7 +8,6 @@ use Illuminate\Support\Collection;
 class PhpFpm
 {
     public $taps = [
-        'homebrew/homebrew-core',
         'shivammathur/php',
     ];
 
