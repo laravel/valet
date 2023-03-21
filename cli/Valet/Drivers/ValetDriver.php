@@ -48,8 +48,12 @@ abstract class ValetDriver
         $drivers[] = 'BasicValetDriver';
 
         foreach ($drivers as $driver) {
-            $className = "Valet\Drivers\\{$driver}";
-            $driver = new $className;
+            if ($driver === 'LocalValetDriver') {
+                $driver = new $driver;
+            } else {
+                $className = "Valet\Drivers\\{$driver}";
+                $driver = new $className;
+            }
 
             if ($driver->serves($sitePath, $siteName, $driver->mutateUri($uri))) {
                 return $driver;
