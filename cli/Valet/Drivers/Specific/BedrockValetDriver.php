@@ -11,10 +11,11 @@ class BedrockValetDriver extends BasicValetDriver
      */
     public function serves(string $sitePath, string $siteName, string $uri): bool
     {
-        return file_exists($sitePath.'/web/app/mu-plugins/bedrock-autoloader.php') ||
-              (is_dir($sitePath.'/web/app/') &&
-               file_exists($sitePath.'/web/wp-config.php') &&
-               file_exists($sitePath.'/config/application.php'));
+        return $this->composerRequires($sitePath, 'roots/bedrock-autoloader') ||
+            file_exists($sitePath.'/web/app/mu-plugins/bedrock-autoloader.php') ||
+            (is_dir($sitePath.'/web/app/') &&
+                file_exists($sitePath.'/web/wp-config.php') &&
+                file_exists($sitePath.'/config/application.php'));
     }
 
     /**
