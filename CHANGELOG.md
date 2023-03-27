@@ -1,6 +1,15 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v4.0.0...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v4.0.1...master)
+
+## [v4.0.1](https://github.com/laravel/valet/compare/v4.0.0...v4.0.1) - 2023-03-27
+
+### What's Changed
+
+- Fixes Valet\Drivers\LocalValetDriver not found error by @fylzero in https://github.com/laravel/valet/pull/1388
+- More robust check for Bedrock environments by @ethanclevenger91 in https://github.com/laravel/valet/pull/1390
+
+**Full Changelog**: https://github.com/laravel/valet/compare/v4.0.0...v4.0.1
 
 ## [v4.0.0](https://github.com/laravel/valet/compare/v3.3.2...v4.0.0) - 2023-03-14
 
