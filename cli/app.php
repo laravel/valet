@@ -16,8 +16,6 @@ use function Valet\table;
 use function Valet\warning;
 use function Valet\writer;
 
-$version = '4.0.0';
-
 /**
  * Load correct autoloader depending on install location.
  */
@@ -34,7 +32,7 @@ if (file_exists(__DIR__.'/../vendor/autoload.php')) {
  */
 Container::setInstance(new Container);
 
-$version = '4.0.0';
+$version = '4.0.1';
 
 $app = new Application('Laravel Valet', $version);
 
