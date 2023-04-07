@@ -6,7 +6,7 @@ body:
       value: |
           Before submitting your report, [please ensure your Laravel version is still supported](https://laravel.com/docs/releases#support-policy).
           
-          Did you know? Most problems can be resolved by running 3 commands:
+          **Did you know? Most problems can be resolved by running 3 commands:**
           
           - `composer self-update`
           - `composer global update`
