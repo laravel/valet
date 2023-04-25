@@ -18,8 +18,8 @@ class LaravelValetDriver extends ValetDriver
      */
     public function beforeLoading(string $sitePath, string $siteName, string $uri): void
     {
-        // Shortcut for getting the "local" hostname as the HTTP_HOST
-        if (isset($_SERVER['HTTP_X_ORIGINAL_HOST'], $_SERVER['HTTP_X_FORWARDED_HOST'])) {
+        // Shortcut for getting the "local" hostname as the HTTP_HOST, especially when proxied or using 'share'
+        if (isset($_SERVER['HTTP_X_FORWARDED_HOST'])) {
             $_SERVER['HTTP_HOST'] = $_SERVER['HTTP_X_FORWARDED_HOST'];
         }
     }
