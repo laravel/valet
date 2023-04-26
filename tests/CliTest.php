@@ -135,13 +135,12 @@ class CliTest extends BaseApplicationTestCase
         $brew->shouldReceive('installed')->twice()->andReturn(true);
 
         $cli = Mockery::mock(CommandLine::class);
-
         $cli->shouldReceive('run')->once()->andReturn(true);
         $cli->shouldReceive('runAsUser')->once()->with('brew services info --all --json')->andReturn('[{"name":"nginx","running":true}]');
         $cli->shouldReceive('run')->once()->with('brew services info --all --json')->andReturn('[{"name":"nginx","running":true},{"name":"dnsmasq","running":true},{"name":"php@8.2","running":true}]');
 
         $files = Mockery::mock(Filesystem::class.'[exists]');
-        $files->shouldReceive('exists')->once()->andReturn(true);
+        $files->shouldReceive('exists')->andReturn(true);
 
         swap(Brew::class, $brew);
         swap(CommandLine::class, $cli);
@@ -168,7 +167,7 @@ class CliTest extends BaseApplicationTestCase
         $cli->shouldReceive('run')->once()->with('brew services info --all --json')->andReturn('[{"name":"nginx","running":true}]');
 
         $files = Mockery::mock(Filesystem::class.'[exists]');
-        $files->shouldReceive('exists')->once()->andReturn(false);
+        $files->shouldReceive('exists')->andReturn(false);
 
         swap(Brew::class, $brew);
         swap(CommandLine::class, $cli);
