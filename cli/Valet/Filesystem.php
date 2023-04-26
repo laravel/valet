@@ -243,12 +243,12 @@ class Filesystem
     public function removeBrokenLinksAt(string $path): void
     {
         collect($this->scandir($path))
-                ->filter(function ($file) use ($path) {
-                    return $this->isBrokenLink($path.'/'.$file);
-                })
-                ->each(function ($file) use ($path) {
-                    $this->unlink($path.'/'.$file);
-                });
+            ->filter(function ($file) use ($path) {
+                return $this->isBrokenLink($path.'/'.$file);
+            })
+            ->each(function ($file) use ($path) {
+                $this->unlink($path.'/'.$file);
+            });
     }
 
     /**
@@ -265,9 +265,9 @@ class Filesystem
     public function scandir(string $path): array
     {
         return collect(scandir($path))
-                    ->reject(function ($file) {
-                        return in_array($file, ['.', '..']);
-                    })->values()->all();
+            ->reject(function ($file) {
+                return in_array($file, ['.', '..']);
+            })->values()->all();
     }
 
     /**

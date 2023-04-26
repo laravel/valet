@@ -132,32 +132,32 @@ class Site
         }
 
         $proxies = collect($this->files->scandir($dir))
-        ->filter(function ($site, $key) use ($tld) {
-            // keep sites that match our TLD
-            return ends_with($site, '.'.$tld);
-        })->map(function ($site, $key) use ($tld) {
-            // remove the TLD suffix for consistency
-            return str_replace('.'.$tld, '', $site);
-        })->reject(function ($site, $key) use ($links) {
-            return $links->has($site);
-        })->mapWithKeys(function ($site) {
-            $host = $this->getProxyHostForSite($site) ?: '(other)';
+            ->filter(function ($site, $key) use ($tld) {
+                // keep sites that match our TLD
+                return ends_with($site, '.'.$tld);
+            })->map(function ($site, $key) use ($tld) {
+                // remove the TLD suffix for consistency
+                return str_replace('.'.$tld, '', $site);
+            })->reject(function ($site, $key) use ($links) {
+                return $links->has($site);
+            })->mapWithKeys(function ($site) {
+                $host = $this->getProxyHostForSite($site) ?: '(other)';
 
-            return [$site => $host];
-        })->reject(function ($host, $site) {
-            // If proxy host is null, it may be just a normal SSL stub, or something else; either way we exclude it from the list
-            return $host === '(other)';
-        })->map(function ($host, $site) use ($certs, $tld) {
-            $secured = $certs->has($site);
-            $url = ($secured ? 'https' : 'http').'://'.$site.'.'.$tld;
+                return [$site => $host];
+            })->reject(function ($host, $site) {
+                // If proxy host is null, it may be just a normal SSL stub, or something else; either way we exclude it from the list
+                return $host === '(other)';
+            })->map(function ($host, $site) use ($certs, $tld) {
+                $secured = $certs->has($site);
+                $url = ($secured ? 'https' : 'http').'://'.$site.'.'.$tld;
 
-            return [
-                'site' => $site,
-                'secured' => $secured ? ' X' : '',
-                'url' => $url,
-                'path' => $host,
-            ];
-        });
+                return [
+                    'site' => $site,
+                    'secured' => $secured ? ' X' : '',
+                    'url' => $url,
+                    'path' => $host,
+                ];
+            });
 
         return $proxies;
     }
@@ -428,11 +428,11 @@ class Site
     public function secured(): array
     {
         return collect($this->files->scandir($this->certificatesPath()))
-                    ->filter(function ($file) {
-                        return ends_with($file, ['.key', '.csr', '.crt', '.conf']);
-                    })->map(function ($file) {
-                        return str_replace(['.key', '.csr', '.crt', '.conf'], '', $file);
-                    })->unique()->values()->all();
+            ->filter(function ($file) {
+                return ends_with($file, ['.key', '.csr', '.crt', '.conf']);
+            })->map(function ($file) {
+                return str_replace(['.key', '.csr', '.crt', '.conf'], '', $file);
+            })->unique()->values()->all();
     }
 
     public function isSecured(string $site): bool

@@ -10,7 +10,7 @@ class Nginx
     const NGINX_CONF = BREW_PREFIX.'/etc/nginx/nginx.conf';
 
     public function __construct(public Brew $brew, public CommandLine $cli, public Filesystem $files,
-                         public Configuration $configuration, public Site $site)
+        public Configuration $configuration, public Site $site)
     {
     }
 
