@@ -1,6 +1,11 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v4.0.1...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v4.0.2...master)
+
+## [v4.0.2](https://github.com/laravel/valet/compare/v4.0.1...v4.0.2) - 2023-04-26
+
+- Fix ngrok.io proxy/forwarding detection by @drbyte in https://github.com/laravel/valet/pull/1404
+- Fix read non existing config file by @mischabraam in https://github.com/laravel/valet/pull/1398
 
 ## [v4.0.1](https://github.com/laravel/valet/compare/v4.0.0...v4.0.1) - 2023-03-27
 
