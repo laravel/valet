@@ -152,10 +152,11 @@ class Configuration
      */
     public function read(): array
     {
-        if ($this->files->exists($this->path())) {
-            return json_decode($this->files->get($this->path()), true, 512, JSON_THROW_ON_ERROR);
+        if (! $this->files->exists($this->path())) {
+            return [];
         }
-        return [];
+
+        return json_decode($this->files->get($this->path()), true, 512, JSON_THROW_ON_ERROR);
     }
 
     /**
