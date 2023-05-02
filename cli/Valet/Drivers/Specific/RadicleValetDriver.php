@@ -1,6 +1,8 @@
 <?php
 
-namespace Valet\Drivers;
+namespace Valet\Drivers\Specific;
+
+use Valet\Drivers\BasicValetDriver;
 
 class RadicleValetDriver extends BasicValetDriver
 {
@@ -10,11 +12,10 @@ class RadicleValetDriver extends BasicValetDriver
      * @param  string  $sitePath
      * @param  string  $siteName
      * @param  string  $uri
-     * @return bool
      */
     public function serves($sitePath, $siteName, $uri): bool
     {
-        return is_dir($sitePath . '/.radicle-setup');
+        return is_dir($sitePath.'/.radicle-setup');
     }
 
     /**
@@ -27,7 +28,7 @@ class RadicleValetDriver extends BasicValetDriver
      */
     public function isStaticFile($sitePath, $siteName, $uri)
     {
-        $staticFilePath = $sitePath . '/public' . $uri;
+        $staticFilePath = $sitePath.'/public'.$uri;
 
         if ($this->isActualFile($staticFilePath)) {
             return $staticFilePath;
@@ -47,7 +48,7 @@ class RadicleValetDriver extends BasicValetDriver
     public function frontControllerPath($sitePath, $siteName, $uri): ?string
     {
         return parent::frontControllerPath(
-            $sitePath . '/public',
+            $sitePath.'/public',
             $siteName,
             $this->forceTrailingSlash($uri)
         );
@@ -62,7 +63,7 @@ class RadicleValetDriver extends BasicValetDriver
     private function forceTrailingSlash($uri)
     {
         if (substr($uri, -1 * strlen('/wp/wp-admin')) == '/wp/wp-admin') {
-            header('Location: ' . $uri . '/');
+            header('Location: '.$uri.'/');
             exit;
         }
 
