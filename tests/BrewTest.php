@@ -203,6 +203,22 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         resolve(Brew::class)->linkedPhp();
     }
 
+    public function test_outdated_php_versions_use_the_alternate_tap()
+    {
+        $brewMock = Mockery::mock(Brew::class, [
+            $cli = Mockery::mock(CommandLine::class),
+            Mockery::mock(Filesystem::class),
+        ])->makePartial();
+
+        $brewMock->shouldReceive('limitedPhpVersions')->andReturn(collect([
+            'php@7.0',
+        ]));
+
+        $cli->shouldReceive('runAsUser')->once()->with(Brew::BREW_DISABLE_AUTO_CLEANUP.' brew install shivammathur/php/php@7.0', Mockery::type('Closure'));
+
+        $brewMock->installOrFail('php@7.0');
+    }
+
     public function test_install_or_fail_will_install_brew_formulae()
     {
         $cli = Mockery::mock(CommandLine::class);
