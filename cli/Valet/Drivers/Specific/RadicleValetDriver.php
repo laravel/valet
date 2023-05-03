@@ -1,9 +1,10 @@
 <?php
-namespace Valet\Drivers\Custom;
 
-use Valet\Drivers\ValetDriver;
+namespace Valet\Drivers\Specific;
 
-class RadicleValetDriver extends ValetDriver
+use Valet\Drivers\BasicValetDriver;
+
+class RadicleValetDriver extends BasicValetDriver
 {
     /**
      * Determine if the driver serves the request.
