@@ -1,6 +1,10 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v4.0.2...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v4.1.0...master)
+
+## [v4.1.0](https://github.com/laravel/valet/compare/v4.0.2...v4.1.0) - 2023-05-09
+
+- Add driver for Radicle by @csorrentino in https://github.com/laravel/valet/pull/1413
 
 ## [v4.0.2](https://github.com/laravel/valet/compare/v4.0.1...v4.0.2) - 2023-04-26
 
