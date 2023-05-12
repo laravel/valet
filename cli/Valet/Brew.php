@@ -159,7 +159,7 @@ class Brew
         output('<info>['.$formula.'] is not installed, installing it now via Brew...</info> 🍻');
 
         if ($this->limitedPhpVersions()->contains($formula)) {
-            $formula = 'shivammathur/php/' . $formula;
+            $formula = 'shivammathur/php/'.$formula;
             warning('Note: older PHP versions may take 10+ minutes to compile from source. Please wait ...');
         }
 
