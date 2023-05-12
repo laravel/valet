@@ -8,6 +8,7 @@ use PhpFpm;
 
 class Brew
 {
+    // This is the array of PHP versions that Valet will attempt to install/configure when requested
     const SUPPORTED_PHP_VERSIONS = [
         'php',
         'php@8.2',
@@ -19,9 +20,22 @@ class Brew
         'php@7.1',
     ];
 
-    const BREW_DISABLE_AUTO_CLEANUP = 'HOMEBREW_NO_INSTALL_CLEANUP=1';
+    // Update this LATEST and the following LIMITED array when PHP versions are released or retired
+    // We specify a numbered version here even though Homebrew links its generic 'php' alias to it
+    const LATEST_PHP_VERSION = 'php@8.2';
 
-    const LATEST_PHP_VERSION = 'php@8.1';
+    // These are the PHP versions that should be installed via the shivammathur/php tap because
+    // Homebrew officially no longer bottles them or they're marked disabled in their formula
+    // Cue: Homebrew reports "php@7.4 has been disabled because it is a versioned formula"
+    const LIMITED_PHP_VERSIONS = [
+        'php@8.0',
+        'php@7.4',
+        'php@7.3',
+        'php@7.2',
+        'php@7.1',
+    ];
+
+    const BREW_DISABLE_AUTO_CLEANUP = 'HOMEBREW_NO_INSTALL_CLEANUP=1';
 
     public function __construct(public CommandLine $cli, public Filesystem $files)
     {
@@ -70,6 +84,14 @@ class Brew
     public function supportedPhpVersions(): Collection
     {
         return collect(static::SUPPORTED_PHP_VERSIONS);
+    }
+
+    /**
+     * Get a list of disabled/limited PHP versions.
+     */
+    public function limitedPhpVersions(): Collection
+    {
+        return collect(static::LIMITED_PHP_VERSIONS);
     }
 
     /**
@@ -135,7 +157,9 @@ class Brew
         }
 
         output('<info>['.$formula.'] is not installed, installing it now via Brew...</info> 🍻');
-        if ($formula !== 'php' && starts_with($formula, 'php') && preg_replace('/[^\d]/', '', $formula) < '73') {
+
+        if ($this->limitedPhpVersions()->contains($formula)) {
+            $formula = 'shivammathur/php/' . $formula;
             warning('Note: older PHP versions may take 10+ minutes to compile from source. Please wait ...');
         }
 
