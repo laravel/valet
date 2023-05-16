@@ -100,9 +100,7 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Upgrade helper: ensure the tld config exists and the loopback config exists.
      */
-    if (empty(Configuration::read()['tld']) || empty(Configuration::read()['loopback'])) {
-        Configuration::writeBaseConfiguration();
-    }
+    Configuration::ensureBaseConfiguration();
 
     /**
      * Get or set the TLD currently being used by Valet.
