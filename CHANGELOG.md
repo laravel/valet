@@ -1,6 +1,10 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v4.1.0...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v4.1.1...master)
+
+## [v4.1.1](https://github.com/laravel/valet/compare/v4.1.0...v4.1.1) - 2023-05-16
+
+- Install older PHP versions via alternate tap by @drbyte in https://github.com/laravel/valet/pull/1411
 
 ## [v4.1.0](https://github.com/laravel/valet/compare/v4.0.2...v4.1.0) - 2023-05-09
 
