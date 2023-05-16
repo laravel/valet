@@ -2,8 +2,6 @@
 
 namespace Valet;
 
-use Exception;
-
 class Configuration
 {
     public function __construct(public Filesystem $files)
