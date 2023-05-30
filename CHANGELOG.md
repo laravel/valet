@@ -1,6 +1,11 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v4.1.1...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v4.1.2...master)
+
+## [v4.1.2](https://github.com/laravel/valet/compare/v4.1.1...v4.1.2) - 2023-05-30
+
+- Load specific drivers before custom drivers to allow for extension. by @mattstauffer in https://github.com/laravel/valet/pull/1414
+- Ensure base configuration is correct even if file already exists by @mattstauffer in https://github.com/laravel/valet/pull/1415
 
 ## [v4.1.1](https://github.com/laravel/valet/compare/v4.1.0...v4.1.1) - 2023-05-16
 
