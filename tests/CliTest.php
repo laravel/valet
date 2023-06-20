@@ -759,7 +759,7 @@ class CliTest extends BaseApplicationTestCase
         $tester->run(['command' => 'stop']);
         $tester->assertCommandIsSuccessful();
 
-        $this->assertStringContainsString('Valet services have been stopped.', $tester->getDisplay());
+        $this->assertStringContainsString('Valet core services have been stopped.', $tester->getDisplay());
     }
 
     public function test_stop_command_stops_nginx()
@@ -790,6 +790,21 @@ class CliTest extends BaseApplicationTestCase
         $tester->assertCommandIsSuccessful();
 
         $this->assertStringContainsString('PHP has been stopped', $tester->getDisplay());
+    }
+
+    public function test_stop_all_command_stops_dnsmasq()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $phpfpm = Mockery::mock(DnsMasq::class);
+        $phpfpm->shouldReceive('stop');
+
+        swap(DnsMasq::class, $phpfpm);
+
+        $tester->run(['command' => 'stop', 'service' => 'dnsmasq']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('dnsmasq has been stopped', $tester->getDisplay());
     }
 
     public function test_stop_command_handles_bad_services()
