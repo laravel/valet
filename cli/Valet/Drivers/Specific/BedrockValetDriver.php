@@ -13,9 +13,30 @@ class BedrockValetDriver extends BasicValetDriver
     {
         return $this->composerRequires($sitePath, 'roots/bedrock-autoloader') ||
             file_exists($sitePath.'/web/app/mu-plugins/bedrock-autoloader.php') ||
+            file_exists($sitePath.'/public/content/mu-plugins/bedrock-autoloader.php') ||
             (is_dir($sitePath.'/web/app/') &&
                 file_exists($sitePath.'/web/wp-config.php') &&
-                file_exists($sitePath.'/config/application.php'));
+                file_exists($sitePath.'/config/application.php')) ||
+            (is_dir($sitePath.'/public/content/') &&
+                file_exists($sitePath.'/public/wp-config.php') &&
+                file_exists($sitePath.'/bedrock/application.php'));
+    }
+
+    /**
+     * Determine the name of the directory where the front controller lives.
+     */
+    public function frontControllerDirectory($sitePath): string
+    {
+        $dirs = ['web', 'public'];
+
+        foreach ($dirs as $dir) {
+            if (is_dir($sitePath.'/'.$dir)) {
+                return $dir;
+            }
+        }
+
+        // Give up, and just return the default
+        return 'public';
     }
 
     /**
@@ -23,9 +44,9 @@ class BedrockValetDriver extends BasicValetDriver
      */
     public function isStaticFile(string $sitePath, string $siteName, string $uri)
     {
-        $staticFilePath = $sitePath.'/web'.$uri;
+        $frontControllerDirectory = $this->frontControllerDirectory($sitePath);
 
-        if ($this->isActualFile($staticFilePath)) {
+        if ($this->isActualFile($staticFilePath = $sitePath.'/'.$frontControllerDirectory.$uri)) {
             return $staticFilePath;
         }
 
@@ -37,8 +58,10 @@ class BedrockValetDriver extends BasicValetDriver
      */
     public function frontControllerPath(string $sitePath, string $siteName, string $uri): ?string
     {
+        $frontControllerDirectory = $this->frontControllerDirectory($sitePath);
+
         return parent::frontControllerPath(
-            $sitePath.'/web',
+            $sitePath.'/'.$frontControllerDirectory,
             $siteName,
             $this->forceTrailingSlash($uri)
         );
