@@ -201,7 +201,7 @@ if (is_dir(VALET_HOME_PATH)) {
         }
 
         if ($isolate) {
-            if (Site::phpRcVersion($name)) {
+            if (Site::phpRcVersion($name, getcwd())) {
                 $this->runCommand('isolate --site='.$name);
             } else {
                 warning('Valet could not determine which PHP version to use for this site.');
