@@ -1082,7 +1082,7 @@ class FixturesSiteFake extends Site
 
 class StubForRemovingLinks extends Site
 {
-    public function sitesPath(?string $additionalPath = null): string
+    public function sitesPath(string $additionalPath = null): string
     {
         return __DIR__.'/output'.($additionalPath ? '/'.$additionalPath : '');
     }
