@@ -1,6 +1,10 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v4.1.2...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v4.1.3...master)
+
+## [v4.1.3](https://github.com/laravel/valet/compare/v4.1.2...v4.1.3) - 2023-07-21
+
+- Add quotes around $PHP by [@datashaman](https://github.com/datashaman) in https://github.com/laravel/valet/pull/1431
 
 ## [v4.1.2](https://github.com/laravel/valet/compare/v4.1.1...v4.1.2) - 2023-05-30
 
