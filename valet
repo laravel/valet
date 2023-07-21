@@ -23,21 +23,21 @@ fi
 # Get a command-line executable we can use for php that's 8+; if this
 # is the inside loop (Valet runs itself 2x in some settings), skip
 # checking and pulling again by reading the exported env var
-if [[ $PHP_EXECUTABLE = "" ]]
+if [[ "$PHP_EXECUTABLE" = "" ]]
 then
-    PHP=$(php $DIR/find-usable-php.php)
+    PHP="$(php $DIR/find-usable-php.php)"
 
     # Validate output before running it on the CLI
-    if [[ ! -f $PHP ]]; then
+    if [[ ! -f "$PHP" ]]; then
         echo "Error finding executable PHP. Quitting for safety."
         echo "Provided output from find-usable-php.php:"
         echo $PHP
         exit
     fi
 
-    export PHP_EXECUTABLE=$PHP
+    export PHP_EXECUTABLE="$PHP"
 else
-    PHP=$PHP_EXECUTABLE
+    PHP="$PHP_EXECUTABLE"
 fi
 
 # If the command is the "share" command we will need to resolve out any
@@ -81,7 +81,7 @@ then
             fi
         done
 
-        TLD=$($PHP "$DIR/cli/valet.php" tld)
+        TLD=$("$PHP" "$DIR/cli/valet.php" tld)
 
         # Decide the correct PORT: uses 60 for secure, else 80
         if grep --quiet --no-messages 443 ~/.config/valet/Nginx/$HOST*
@@ -124,7 +124,7 @@ then
             fi
         done
 
-        TLD=$($PHP "$DIR/cli/valet.php" tld)
+        TLD=$("$PHP" "$DIR/cli/valet.php" tld)
 
         # Decide the correct PORT: uses 443 for secure, else 80
         if grep --quiet --no-messages 443 ~/.config/valet/Nginx/$HOST*
@@ -182,5 +182,5 @@ else
         exit
     fi
 
-    $PHP "$DIR/cli/valet.php" "$@"
+    "$PHP" "$DIR/cli/valet.php" "$@"
 fi
