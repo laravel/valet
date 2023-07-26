@@ -259,17 +259,17 @@ class CliTest extends BaseApplicationTestCase
     {
         [$app, $tester] = $this->appAndTester();
 
-        $cwd  = getcwd();
+        $cwd = getcwd();
         $name = 'tighten';
         $host = $name.'.test';
 
         $customPhpVersion = '82';
-        $phpRcVersion     = '8.2';
-        $fullPhpVersion   = 'php@8.2';
+        $phpRcVersion = '8.2';
+        $fullPhpVersion = 'php@8.2';
 
-        $brewMock  = Mockery::mock(Brew::class);
+        $brewMock = Mockery::mock(Brew::class);
         $nginxMock = Mockery::mock(Nginx::class);
-        $siteMock  = Mockery::mock(RealSite::class);
+        $siteMock = Mockery::mock(RealSite::class);
 
         $phpFpmMock = Mockery::mock(PhpFpm::class, [
             $brewMock,
