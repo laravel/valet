@@ -46,9 +46,9 @@ class DnsMasq
 
         // As Laravel Herd uses the same DnsMasq resolver, we should only
         // delete it if Herd is not installed.
-        if (!$this->files->exists('/Applications/Herd.app')) {
+        if (! $this->files->exists('/Applications/Herd.app')) {
             $tld = $this->configuration->read()['tld'];
-            $this->files->unlink($this->resolverPath . '/' . $tld);
+            $this->files->unlink($this->resolverPath.'/'.$tld);
         }
     }
 
