@@ -43,8 +43,13 @@ class DnsMasq
         $this->brew->stopService('dnsmasq');
         $this->brew->uninstallFormula('dnsmasq');
         $this->cli->run('rm -rf '.BREW_PREFIX.'/etc/dnsmasq.d/dnsmasq-valet.conf');
-        $tld = $this->configuration->read()['tld'];
-        $this->files->unlink($this->resolverPath.'/'.$tld);
+
+        // As Laravel Herd uses the same DnsMasq resolver, we should only
+        // delete it if Herd is not installed.
+        if (!$this->files->exists('/Applications/Herd.app')) {
+            $tld = $this->configuration->read()['tld'];
+            $this->files->unlink($this->resolverPath . '/' . $tld);
+        }
     }
 
     /**
