@@ -1,6 +1,14 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v4.1.3...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v4.1.4...master)
+
+## [v4.1.4](https://github.com/laravel/valet/compare/v4.1.3...v4.1.4) - 2023-08-14
+
+### What's Changed
+
+- Only delete DNSMasq resolver when Herd is not installed by [@mpociot](https://github.com/mpociot) in https://github.com/laravel/valet/pull/1434
+
+**Full Changelog**: https://github.com/laravel/valet/compare/v4.1.3...v4.1.4
 
 ## [v4.1.3](https://github.com/laravel/valet/compare/v4.1.2...v4.1.3) - 2023-07-21
 
