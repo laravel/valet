@@ -405,6 +405,49 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         ], $site->proxies()->all());
     }
 
+    public function test_add_multiple_proxies()
+    {
+        $config = Mockery::mock(Configuration::class);
+        $config->shouldReceive('read')
+            ->andReturn(['tld' => 'test', 'loopback' => VALET_LOOPBACK]);
+
+        swap(Configuration::class, $config);
+
+        swap(CommandLine::class, resolve(CommandLineFake::class));
+
+        /** @var FixturesSiteFake $site */
+        $site = resolve(FixturesSiteFake::class);
+
+        $site->useOutput();
+
+        $site->assertCertificateNotExists('my-new-proxy.com.test');
+        $site->assertCertificateNotExists('my-other-new-proxy.com.test');
+        $site->assertNginxNotExists('my-new-proxy.com.test');
+        $site->assertNginxNotExists('my-other-new-proxy.com.test');
+
+        $site->proxyCreate('my-new-proxy.com,my-other-new-proxy.com', 'https://127.0.0.1:9443', true);
+
+        $site->assertCertificateExistsWithCounterValue('my-new-proxy.com.test', 0);
+        $site->assertCertificateExistsWithCounterValue('my-other-new-proxy.com.test', 1);
+        $site->assertNginxExists('my-new-proxy.com.test');
+        $site->assertNginxExists('my-other-new-proxy.com.test');
+
+        $this->assertEquals([
+            'my-new-proxy.com' => [
+                'site' => 'my-new-proxy.com',
+                'secured' => ' X',
+                'url' => 'https://my-new-proxy.com.test',
+                'path' => 'https://127.0.0.1:9443',
+            ],
+            'my-other-new-proxy.com' => [
+                'site' => 'my-other-new-proxy.com',
+                'secured' => ' X',
+                'url' => 'https://my-other-new-proxy.com.test',
+                'path' => 'https://127.0.0.1:9443',
+            ],
+        ], $site->proxies()->all());
+    }
+
     public function test_add_non_secure_proxy()
     {
         $config = Mockery::mock(Configuration::class);
@@ -433,6 +476,49 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
                 'site' => 'my-new-proxy.com',
                 'secured' => '',
                 'url' => 'http://my-new-proxy.com.test',
+                'path' => 'http://127.0.0.1:9443',
+            ],
+        ], $site->proxies()->all());
+    }
+
+    public function test_add_multiple_non_secure_proxies()
+    {
+        $config = Mockery::mock(Configuration::class);
+        $config->shouldReceive('read')
+            ->andReturn(['tld' => 'test', 'loopback' => VALET_LOOPBACK]);
+
+        swap(Configuration::class, $config);
+
+        swap(CommandLine::class, resolve(CommandLineFake::class));
+
+        /** @var FixturesSiteFake $site */
+        $site = resolve(FixturesSiteFake::class);
+
+        $site->useOutput();
+
+        $site->assertCertificateNotExists('my-new-proxy.com.test');
+        $site->assertCertificateNotExists('my-other-new-proxy.com.test');
+        $site->assertNginxNotExists('my-new-proxy.com.test');
+        $site->assertNginxNotExists('my-other-new-proxy.com.test');
+
+        $site->proxyCreate('my-new-proxy.com,my-other-new-proxy.com', 'http://127.0.0.1:9443', false);
+
+        $site->assertCertificateNotExists('my-new-proxy.com.test');
+        $site->assertCertificateNotExists('my-other-new-proxy.com.test');
+        $site->assertNginxExists('my-new-proxy.com.test');
+        $site->assertNginxExists('my-other-new-proxy.com.test');
+
+        $this->assertEquals([
+            'my-new-proxy.com' => [
+                'site' => 'my-new-proxy.com',
+                'secured' => '',
+                'url' => 'http://my-new-proxy.com.test',
+                'path' => 'http://127.0.0.1:9443',
+            ],
+            'my-other-new-proxy.com' => [
+                'site' => 'my-other-new-proxy.com',
+                'secured' => '',
+                'url' => 'http://my-other-new-proxy.com.test',
                 'path' => 'http://127.0.0.1:9443',
             ],
         ], $site->proxies()->all());
@@ -562,6 +648,121 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $site->assertNginxNotExists('my-new-proxy.com.test');
 
         $this->assertEquals([], $site->proxies()->all());
+    }
+
+    public function test_remove_multiple_proxies()
+    {
+        $config = Mockery::mock(Configuration::class);
+        $config->shouldReceive('read')
+            ->andReturn(['tld' => 'test', 'loopback' => VALET_LOOPBACK]);
+
+        swap(Configuration::class, $config);
+
+        swap(CommandLine::class, resolve(CommandLineFake::class));
+
+        /** @var FixturesSiteFake $site */
+        $site = resolve(FixturesSiteFake::class);
+
+        $site->useOutput();
+
+        $site->assertCertificateNotExists('my-new-proxy.com.test');
+        $site->assertCertificateNotExists('my-other-new-proxy.com.test');
+        $site->assertNginxNotExists('my-new-proxy.com.test');
+        $site->assertNginxNotExists('my-other-new-proxy.com.test');
+
+        $this->assertEquals([], $site->proxies()->all());
+
+        $site->proxyCreate('my-new-proxy.com,my-other-new-proxy.com', 'https://127.0.0.1:9443', true);
+
+        $this->assertEquals([
+            'my-new-proxy.com' => [
+                'site' => 'my-new-proxy.com',
+                'secured' => ' X',
+                'url' => 'https://my-new-proxy.com.test',
+                'path' => 'https://127.0.0.1:9443',
+            ],
+            'my-other-new-proxy.com' => [
+                'site' => 'my-other-new-proxy.com',
+                'secured' => ' X',
+                'url' => 'https://my-other-new-proxy.com.test',
+                'path' => 'https://127.0.0.1:9443',
+            ],
+        ], $site->proxies()->all());
+
+        $site->assertCertificateExists('my-new-proxy.com.test');
+        $site->assertCertificateExists('my-other-new-proxy.com.test');
+        $site->assertNginxExists('my-new-proxy.com.test');
+        $site->assertNginxExists('my-other-new-proxy.com.test');
+
+        $site->proxyDelete('my-new-proxy.com,my-other-new-proxy.com');
+
+        $site->assertCertificateNotExists('my-new-proxy.com.test');
+        $site->assertCertificateNotExists('my-other-new-proxy.com.test');
+        $site->assertNginxNotExists('my-new-proxy.com.test');
+        $site->assertNginxNotExists('my-other-new-proxy.com.test');
+
+        $this->assertEquals([], $site->proxies()->all());
+    }
+
+    public function test_remove_single_proxy_from_multiple_proxies()
+    {
+        $config = Mockery::mock(Configuration::class);
+        $config->shouldReceive('read')
+            ->andReturn(['tld' => 'test', 'loopback' => VALET_LOOPBACK]);
+
+        swap(Configuration::class, $config);
+
+        swap(CommandLine::class, resolve(CommandLineFake::class));
+
+        /** @var FixturesSiteFake $site */
+        $site = resolve(FixturesSiteFake::class);
+
+        $site->useOutput();
+
+        $site->assertCertificateNotExists('my-new-proxy.com.test');
+        $site->assertCertificateNotExists('my-other-new-proxy.com.test');
+        $site->assertNginxNotExists('my-new-proxy.com.test');
+        $site->assertNginxNotExists('my-other-new-proxy.com.test');
+
+        $this->assertEquals([], $site->proxies()->all());
+
+        $site->proxyCreate('my-new-proxy.com,my-other-new-proxy.com', 'https://127.0.0.1:9443', true);
+
+        $this->assertEquals([
+            'my-new-proxy.com' => [
+                'site' => 'my-new-proxy.com',
+                'secured' => ' X',
+                'url' => 'https://my-new-proxy.com.test',
+                'path' => 'https://127.0.0.1:9443',
+            ],
+            'my-other-new-proxy.com' => [
+                'site' => 'my-other-new-proxy.com',
+                'secured' => ' X',
+                'url' => 'https://my-other-new-proxy.com.test',
+                'path' => 'https://127.0.0.1:9443',
+            ],
+        ], $site->proxies()->all());
+
+        $site->assertCertificateExists('my-new-proxy.com.test');
+        $site->assertCertificateExists('my-other-new-proxy.com.test');
+        $site->assertNginxExists('my-new-proxy.com.test');
+        $site->assertNginxExists('my-other-new-proxy.com.test');
+
+        $site->proxyDelete('my-new-proxy.com');
+
+        $site->assertCertificateNotExists('my-new-proxy.com.test');
+        $site->assertCertificateExists('my-other-new-proxy.com.test');
+        $site->assertNginxNotExists('my-new-proxy.com.test');
+        $site->assertNginxExists('my-other-new-proxy.com.test');
+
+        $this->assertEquals([
+            'my-other-new-proxy.com' => [
+                'site' => 'my-other-new-proxy.com',
+                'secured' => ' X',
+                'url' => 'https://my-other-new-proxy.com.test',
+                'path' => 'https://127.0.0.1:9443',
+            ],
+        ], $site->proxies()->all());
     }
 
     public function test_gets_site_url_from_directory()
