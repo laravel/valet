@@ -7,8 +7,9 @@ use Valet\Configuration;
 use Valet\Filesystem;
 use Valet\Nginx;
 use Valet\PhpFpm;
-use function Valet\resolve;
 use Valet\Site;
+
+use function Valet\resolve;
 use function Valet\swap;
 use function Valet\user;
 

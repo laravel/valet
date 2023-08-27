@@ -2,8 +2,9 @@
 
 use Illuminate\Container\Container;
 use Valet\CommandLine;
-use function Valet\resolve;
 use Valet\Status;
+
+use function Valet\resolve;
 use function Valet\swap;
 use function Valet\user;
 

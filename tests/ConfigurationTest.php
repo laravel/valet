@@ -4,10 +4,11 @@ use Illuminate\Container\Container;
 use Valet\Brew;
 use Valet\Configuration;
 use Valet\Filesystem;
+use Valet\Valet;
+
 use function Valet\resolve;
 use function Valet\swap;
 use function Valet\user;
-use Valet\Valet;
 
 class ConfigurationTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 {

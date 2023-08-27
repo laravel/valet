@@ -5,6 +5,7 @@ use Illuminate\Support\Collection;
 use Valet\Brew;
 use Valet\CommandLine;
 use Valet\Filesystem;
+
 use function Valet\resolve;
 use function Valet\swap;
 use function Valet\user;

@@ -6,6 +6,7 @@ use Valet\CommandLine;
 use Valet\Configuration;
 use Valet\DnsMasq;
 use Valet\Filesystem;
+
 use function Valet\resolve;
 use function Valet\swap;
 use function Valet\user;

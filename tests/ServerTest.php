@@ -2,6 +2,7 @@
 
 use Illuminate\Container\Container;
 use Valet\Server;
+
 use function Valet\user;
 
 class ServerTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
