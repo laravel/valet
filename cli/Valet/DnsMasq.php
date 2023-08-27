@@ -53,6 +53,14 @@ class DnsMasq
     }
 
     /**
+     * Stop the dnsmasq service.
+     */
+    public function stop(): void
+    {
+        $this->brew->stopService(['dnsmasq']);
+    }
+
+    /**
      * Tell Homebrew to restart dnsmasq.
      */
     public function restart(): void

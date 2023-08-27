@@ -506,7 +506,13 @@ if (is_dir(VALET_HOME_PATH)) {
                 PhpFpm::stopRunning();
                 Nginx::stop();
 
-                return info('Valet services have been stopped.');
+                return info('Valet core services have been stopped. To also stop dnsmasq, run: valet stop dnsmasq');
+            case 'all':
+                PhpFpm::stopRunning();
+                Nginx::stop();
+                Dnsmasq::stop();
+
+                return info('All Valet services have been stopped.');
             case 'nginx':
                 Nginx::stop();
 
@@ -515,10 +521,14 @@ if (is_dir(VALET_HOME_PATH)) {
                 PhpFpm::stopRunning();
 
                 return info('PHP has been stopped.');
+            case 'dnsmasq':
+                Dnsmasq::stop();
+
+                return info('dnsmasq has been stopped.');
         }
 
         return warning(sprintf('Invalid valet service name [%s]', $service));
-    })->descriptions('Stop the Valet services');
+    })->descriptions('Stop the core Valet services, or all services by specifying "all".');
 
     /**
      * Uninstall Valet entirely. Requires --force to actually remove; otherwise manual instructions are displayed.

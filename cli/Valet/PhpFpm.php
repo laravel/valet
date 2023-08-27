@@ -112,6 +112,7 @@ class PhpFpm
      */
     public function stop(): void
     {
+        info('Stopping phpfpm...');
         call_user_func_array(
             [$this->brew, 'stopService'],
             Brew::SUPPORTED_PHP_VERSIONS
@@ -138,6 +139,7 @@ class PhpFpm
      */
     public function stopRunning(): void
     {
+        info('Stopping phpfpm...');
         $this->brew->stopService(
             $this->brew->getAllRunningServices()
                 ->filter(function ($service) {
