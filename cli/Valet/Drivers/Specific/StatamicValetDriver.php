@@ -20,7 +20,9 @@ class StatamicValetDriver extends LaravelValetDriver
      */
     public function frontControllerPath(string $sitePath, string $siteName, string $uri): string
     {
-        if ($this->isActualFile($staticPath = $this->getStaticPath($sitePath))) {
+        $staticPath = $this->getStaticPath($sitePath);
+
+        if ($staticPath && $this->isActualFile($staticPath)) {
             return $staticPath;
         }
 
@@ -30,9 +32,13 @@ class StatamicValetDriver extends LaravelValetDriver
     /**
      * Get the path to the static file.
      */
-    protected function getStaticPath(string $sitePath): string
+    private function getStaticPath(string $sitePath)
     {
-        $parts = parse_url($_SERVER['REQUEST_URI']);
+        if (! $uri = $_SERVER['REQUEST_URI'] ?? null) {
+            return;
+        }
+
+        $parts = parse_url($uri);
         $query = $parts['query'] ?? '';
 
         return $sitePath.'/public/static'.$parts['path'].'_'.$query.'.html';
