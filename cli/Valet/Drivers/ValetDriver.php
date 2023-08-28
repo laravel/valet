@@ -45,7 +45,7 @@ abstract class ValetDriver
         $drivers = array_merge($drivers, static::customDrivers());
 
         // Queue Valet-shipped drivers
-        $drivers[] = 'Specific\StatamicV3ValetDriver';
+        $drivers[] = 'Specific\StatamicValetDriver';
         $drivers[] = 'LaravelValetDriver';
         $drivers = array_unique(array_merge($drivers, $specificDrivers));
         $drivers[] = 'BasicWithPublicValetDriver';
