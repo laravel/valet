@@ -33,7 +33,7 @@ if (file_exists(__DIR__.'/../vendor/autoload.php')) {
  */
 Container::setInstance(new Container);
 
-$version = '4.1.4';
+$version = '4.2.0';
 
 $app = new Application('Laravel Valet', $version);
 
