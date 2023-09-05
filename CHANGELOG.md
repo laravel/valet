@@ -1,6 +1,11 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v4.1.4...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v4.3.0...master)
+
+## [v4.3.0](https://github.com/laravel/valet/compare/v4.1.4...v4.3.0) - 2023-09-05
+
+- Add "valet stop dnsmasq" option by [@drbyte](https://github.com/drbyte) in https://github.com/laravel/valet/pull/1422
+- Drop Mailhog and Redis from default logs list, since Valet doesn't install them by [@mattstauffer](https://github.com/mattstauffer) in https://github.com/laravel/valet/pull/1438
 
 ## [v4.1.4](https://github.com/laravel/valet/compare/v4.1.3...v4.1.4) - 2023-08-14
 
