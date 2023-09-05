@@ -52,7 +52,7 @@ class Site
     public function host(string $path): ?string
     {
         foreach ($this->files->scandir($this->sitesPath()) as $link) {
-            if (realpath($this->sitesPath($link)) === $path) {
+            if ($path === realpath($this->sitesPath($link))) {
                 return $link;
             }
         }

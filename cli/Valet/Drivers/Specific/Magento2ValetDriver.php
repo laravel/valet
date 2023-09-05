@@ -34,7 +34,7 @@ class Magento2ValetDriver extends ValetDriver
         $route = parse_url(substr($uri, 1))['path'];
 
         $pub = '';
-        if ('developer' === $this->mageMode) {
+        if ($this->mageMode === 'developer') {
             $pub = 'pub/';
         }
 
@@ -43,7 +43,7 @@ class Magento2ValetDriver extends ValetDriver
         }
 
         $magentoPackagePubDir = $sitePath;
-        if ('developer' !== $this->mageMode) {
+        if ($this->mageMode !== 'developer') {
             $magentoPackagePubDir .= '/pub';
         }
 
@@ -82,7 +82,7 @@ class Magento2ValetDriver extends ValetDriver
      */
     private function checkMageMode($sitePath): void
     {
-        if (null !== $this->mageMode) {
+        if ($this->mageMode !== null) {
             // We have already figure out mode, no need to check it again
             return;
         }
@@ -131,7 +131,7 @@ class Magento2ValetDriver extends ValetDriver
     {
         $this->checkMageMode($sitePath);
 
-        if ('developer' === $this->mageMode) {
+        if ($this->mageMode === 'developer') {
             $_SERVER['DOCUMENT_ROOT'] = $sitePath;
 
             return $sitePath.'/index.php';
