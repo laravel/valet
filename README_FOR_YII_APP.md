@@ -1,12 +1,3 @@
-# yii2-valet-driver
-Yii2 Valet Driver
-
-> install
-
-```
-cd ~/.config/valet/Drivers/Specific/
-wget https://raw.githubusercontent.com/chinaphp/yii2-valet-driver/master/Yii2ValetDriver.php -O Yii2ValetDriver.php
-```
 
 ## yii2-app-basic
 
