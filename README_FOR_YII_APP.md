@@ -1,6 +1,13 @@
 # yii2-valet-driver
 Yii2 Valet Driver
 
+> install
+
+```
+cd ~/.config/valet/Drivers/Specific/
+wget https://raw.githubusercontent.com/chinaphp/yii2-valet-driver/master/Yii2ValetDriver.php -O Yii2ValetDriver.php
+```
+
 ## yii2-app-basic
 
 ```
@@ -12,20 +19,30 @@ http://app-name.test
 
 ```
 cd backend
-valet link admin.simple
-http://admin.simple.test
+valet link backend-app-name
+http://backend-app-name.test
 
 cd frontend
-valet link simple
-http://simple.test
+valet link frontend-app-name
+http://frontend-app-name.test
 ```
-
-and
-
-config assets URL if you use the link for the assets folder and set the link
+if you want to use aliases domains list
 
 ```
 cd assets
-valet link assets.simple
-http://assets.simple.test
+valet link assets.example
+http://assets.example.test/no_image.png
 ```
+
+require assets subdomain
+
+## yii2-app-advanced-with-single-domain
+
+
+
+```
+valet link app-name
+http://app-name.test/api/
+
+```
+
