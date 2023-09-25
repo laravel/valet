@@ -52,6 +52,11 @@ class LaravelValetDriver extends ValetDriver
      */
     public function frontControllerPath(string $sitePath, string $siteName, string $uri): ?string
     {
+        if (file_exists($staticFilePath = $sitePath.'/public'.$uri)
+           && $this->isActualFile($staticFilePath)) {
+            return $staticFilePath;
+        }
+
         return $sitePath.'/public/index.php';
     }
 }
