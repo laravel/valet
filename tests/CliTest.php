@@ -10,6 +10,7 @@ use Valet\Filesystem;
 use Valet\Nginx;
 use Valet\Ngrok;
 use Valet\PhpFpm;
+use function Valet\resolve;
 use Valet\Site as RealSite;
 use Valet\Valet;
 
@@ -252,6 +253,70 @@ class CliTest extends BaseApplicationTestCase
         $tester->assertCommandIsSuccessful();
 
         $this->assertStringContainsString('site has been secured', $tester->getDisplay());
+    }
+
+    public function test_link_command_with_isolate_flag_isolates()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $cwd = getcwd();
+        $name = 'tighten';
+        $host = $name.'.test';
+
+        $customPhpVersion = '82';
+        $phpRcVersion = '8.2';
+        $fullPhpVersion = 'php@8.2';
+
+        $brewMock = Mockery::mock(Brew::class);
+        $nginxMock = Mockery::mock(Nginx::class);
+        $siteMock = Mockery::mock(RealSite::class);
+
+        $phpFpmMock = Mockery::mock(PhpFpm::class, [
+            $brewMock,
+            resolve(CommandLine::class),
+            resolve(Filesystem::class),
+            resolve(RealConfiguration::class),
+            $siteMock,
+            $nginxMock,
+        ])->makePartial();
+
+        swap(Brew::class, $brewMock);
+        swap(Nginx::class, $nginxMock);
+        swap(PhpFpm::class, $phpFpmMock);
+        swap(RealSite::class, $siteMock);
+
+        $brewMock->shouldReceive('supportedPhpVersions')->andReturn(collect([
+            'php@8.2',
+            'php@8.1',
+        ]));
+
+        $brewMock->shouldReceive('ensureInstalled')->with($fullPhpVersion, [], $phpFpmMock->taps);
+        $brewMock->shouldReceive('installed')->with($fullPhpVersion);
+        $brewMock->shouldReceive('determineAliasedVersion')->with($fullPhpVersion)->andReturn($fullPhpVersion);
+
+        $siteMock->shouldReceive('link')->with($cwd, $name)->once();
+        $siteMock->shouldReceive('getSiteUrl')->with($name)->andReturn($host);
+        $siteMock->shouldReceive('phpRcVersion')->with($name, $cwd)->andReturn($phpRcVersion);
+        $siteMock->shouldReceive('customPhpVersion')->with($host)->andReturn($customPhpVersion);
+        $siteMock->shouldReceive('isolate')->with($host, $fullPhpVersion);
+
+        $phpFpmMock->shouldReceive('stopIfUnused')->with($customPhpVersion)->once();
+        $phpFpmMock->shouldReceive('createConfigurationFiles')->with($fullPhpVersion)->once();
+        $phpFpmMock->shouldReceive('restart')->with($fullPhpVersion)->once();
+
+        $nginxMock->shouldReceive('restart')->once();
+
+        // These should only run when doing global PHP switches
+        $brewMock->shouldNotReceive('stopService');
+        $brewMock->shouldNotReceive('link');
+        $brewMock->shouldNotReceive('unlink');
+        $phpFpmMock->shouldNotReceive('stopRunning');
+        $phpFpmMock->shouldNotReceive('install');
+
+        $tester->run(['command' => 'link', 'name' => 'tighten', '--isolate' => true]);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('is now using '.$fullPhpVersion, $tester->getDisplay());
     }
 
     public function test_links_command()

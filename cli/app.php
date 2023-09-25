@@ -197,12 +197,12 @@ if (is_dir(VALET_HOME_PATH)) {
         info('A ['.$name.'] symbolic link has been created in ['.$linkPath.'].');
 
         if ($secure) {
-            $this->runCommand('secure');
+            $this->runCommand('secure '.$name);
         }
 
         if ($isolate) {
-            if (Site::phpRcVersion($name)) {
-                $this->runCommand('isolate');
+            if (Site::phpRcVersion($name, getcwd())) {
+                $this->runCommand('isolate --site='.$name);
             } else {
                 warning('Valet could not determine which PHP version to use for this site.');
             }
