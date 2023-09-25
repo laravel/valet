@@ -10,10 +10,10 @@ use Valet\Filesystem;
 use Valet\Nginx;
 use Valet\Ngrok;
 use Valet\PhpFpm;
-use function Valet\resolve;
 use Valet\Site as RealSite;
 use Valet\Valet;
 
+use function Valet\resolve;
 use function Valet\swap;
 
 /**
