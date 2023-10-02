@@ -112,6 +112,7 @@ class PhpFpm
      */
     public function stop(): void
     {
+        info('Stopping phpfpm...');
         call_user_func_array(
             [$this->brew, 'stopService'],
             Brew::SUPPORTED_PHP_VERSIONS
@@ -138,6 +139,7 @@ class PhpFpm
      */
     public function stopRunning(): void
     {
+        info('Stopping phpfpm...');
         $this->brew->stopService(
             $this->brew->getAllRunningServices()
                 ->filter(function ($service) {
@@ -222,7 +224,7 @@ class PhpFpm
         $version = $this->validateRequestedVersion($version);
 
         try {
-            if ($this->brew->linkedPhp() === $version && ! $force) {
+            if ($version === $this->brew->linkedPhp() && ! $force) {
                 output(sprintf('<info>Valet is already using version: <comment>%s</comment>.</info> To re-link and re-configure use the --force parameter.'.PHP_EOL,
                     $version));
                 exit();

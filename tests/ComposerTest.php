@@ -3,6 +3,7 @@
 use Illuminate\Container\Container;
 use Valet\CommandLine;
 use Valet\Composer;
+
 use function Valet\resolve;
 use function Valet\swap;
 use function Valet\user;

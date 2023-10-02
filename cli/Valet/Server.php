@@ -168,7 +168,7 @@ class Server
 
             $dirs = [];
 
-            while (false !== ($file = readdir($handle))) {
+            while (($file = readdir($handle)) !== false) {
                 if (is_dir($path.'/'.$file) && ! in_array($file, ['.', '..'])) {
                     $dirs[] = $file;
                 }
@@ -178,12 +178,12 @@ class Server
 
             // Note: strtolower used below because Nginx only tells us lowercase names
             foreach ($dirs as $dir) {
-                if (strtolower($dir) === $siteName) {
+                if ($siteName === strtolower($dir)) {
                     // early return when exact match for linked subdomain
                     return $path.'/'.$dir;
                 }
 
-                if (strtolower($dir) === $domain) {
+                if ($domain === strtolower($dir)) {
                     // no early return here because the foreach may still have some subdomains to process with higher priority
                     $valetSitePath = $path.'/'.$dir;
                 }

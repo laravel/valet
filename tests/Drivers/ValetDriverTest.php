@@ -30,6 +30,15 @@ class ValetDriverTest extends BaseDriverTestCase
         $this->assertNotEquals('Valet\Drivers\BasicValetDriver', get_class($assignedDriver));
     }
 
+    public function test_it_prioritizes_statamic()
+    {
+        $assignedDriver = ValetDriver::assign($this->projectDir('statamic'), 'my-site', '/');
+        $this->assertEquals('Valet\Drivers\Specific\StatamicValetDriver', get_class($assignedDriver));
+
+        $assignedDriver = ValetDriver::assign($this->projectDir('laravel'), 'my-site', '/');
+        $this->assertEquals('Valet\Drivers\LaravelValetDriver', get_class($assignedDriver));
+    }
+
     public function test_it_checks_composer_dependencies()
     {
         $driver = new BasicValetDriver;

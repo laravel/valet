@@ -53,6 +53,14 @@ class DnsMasq
     }
 
     /**
+     * Stop the dnsmasq service.
+     */
+    public function stop(): void
+    {
+        $this->brew->stopService(['dnsmasq']);
+    }
+
+    /**
      * Tell Homebrew to restart dnsmasq.
      */
     public function restart(): void
@@ -70,7 +78,7 @@ class DnsMasq
         // set primary config to look for configs in /usr/local/etc/dnsmasq.d/*.conf
         $contents = $this->files->get($this->dnsmasqMasterConfigFile);
         // ensure the line we need to use is present, and uncomment it if needed
-        if (false === strpos($contents, 'conf-dir='.BREW_PREFIX.'/etc/dnsmasq.d/,*.conf')) {
+        if (strpos($contents, 'conf-dir='.BREW_PREFIX.'/etc/dnsmasq.d/,*.conf') === false) {
             $contents .= PHP_EOL.'conf-dir='.BREW_PREFIX.'/etc/dnsmasq.d/,*.conf'.PHP_EOL;
         }
         $contents = str_replace('#conf-dir='.BREW_PREFIX.'/etc/dnsmasq.d/,*.conf', 'conf-dir='.BREW_PREFIX.'/etc/dnsmasq.d/,*.conf', $contents);

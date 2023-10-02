@@ -35,7 +35,7 @@ class ContaoValetDriver extends ValetDriver
             return $sitePath.'/web/install.php';
         }
 
-        if (0 === strncmp($uri, '/app_dev.php', 12)) {
+        if (strncmp($uri, '/app_dev.php', 12) === 0) {
             $_SERVER['SCRIPT_NAME'] = '/app_dev.php';
             $_SERVER['SCRIPT_FILENAME'] = $sitePath.'/app_dev.php';
 
