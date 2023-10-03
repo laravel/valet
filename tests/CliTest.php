@@ -462,6 +462,23 @@ class CliTest extends BaseApplicationTestCase
         $tester->assertCommandIsSuccessful();
     }
 
+    public function test_proxy_command_with_multiple_domains()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $site = Mockery::mock(RealSite::class);
+        $site->shouldReceive('proxyCreate')->with('my-app,subdomain.my-app', 'http://127.0.0.1:8000', false)->once();
+
+        $nginx = Mockery::mock(Nginx::class);
+        $nginx->shouldReceive('restart')->once();
+
+        swap(Nginx::class, $nginx);
+        swap(RealSite::class, $site);
+
+        $tester->run(['command' => 'proxy', 'domain' => 'my-app,subdomain.my-app', 'host' => 'http://127.0.0.1:8000']);
+        $tester->assertCommandIsSuccessful();
+    }
+
     public function test_unproxy_command()
     {
         [$app, $tester] = $this->appAndTester();

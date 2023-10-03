@@ -768,31 +768,34 @@ class Site
         }
 
         $tld = $this->config->read()['tld'];
-        if (! ends_with($url, '.'.$tld)) {
-            $url .= '.'.$tld;
+
+        foreach (explode(',', $url) as $proxyUrl) {
+            if (! ends_with($proxyUrl, '.'.$tld)) {
+                $proxyUrl .= '.'.$tld;
+            }
+
+            $siteConf = $this->replaceOldLoopbackWithNew(
+                $this->files->getStub($secure ? 'secure.proxy.valet.conf' : 'proxy.valet.conf'),
+                'VALET_LOOPBACK',
+                $this->valetLoopback()
+            );
+
+            $siteConf = str_replace(
+                ['VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_STATIC_PREFIX', 'VALET_SITE', 'VALET_PROXY_HOST'],
+                [$this->valetHomePath(), VALET_SERVER_PATH, VALET_STATIC_PREFIX, $proxyUrl, $host],
+                $siteConf
+            );
+
+            if ($secure) {
+                $this->secure($proxyUrl, $siteConf);
+            } else {
+                $this->put($proxyUrl, $siteConf);
+            }
+
+            $protocol = $secure ? 'https' : 'http';
+
+            info('Valet will now proxy ['.$protocol.'://'.$proxyUrl.'] traffic to ['.$host.'].');
         }
-
-        $siteConf = $this->replaceOldLoopbackWithNew(
-            $this->files->getStub($secure ? 'secure.proxy.valet.conf' : 'proxy.valet.conf'),
-            'VALET_LOOPBACK',
-            $this->valetLoopback()
-        );
-
-        $siteConf = str_replace(
-            ['VALET_HOME_PATH', 'VALET_SERVER_PATH', 'VALET_STATIC_PREFIX', 'VALET_SITE', 'VALET_PROXY_HOST'],
-            [$this->valetHomePath(), VALET_SERVER_PATH, VALET_STATIC_PREFIX, $url, $host],
-            $siteConf
-        );
-
-        if ($secure) {
-            $this->secure($url, $siteConf);
-        } else {
-            $this->put($url, $siteConf);
-        }
-
-        $protocol = $secure ? 'https' : 'http';
-
-        info('Valet will now proxy ['.$protocol.'://'.$url.'] traffic to ['.$host.'].');
     }
 
     /**
@@ -801,14 +804,17 @@ class Site
     public function proxyDelete(string $url): void
     {
         $tld = $this->config->read()['tld'];
-        if (! ends_with($url, '.'.$tld)) {
-            $url .= '.'.$tld;
+
+        foreach (explode(',', $url) as $proxyUrl) {
+            if (! ends_with($proxyUrl, '.'.$tld)) {
+                $proxyUrl .= '.'.$tld;
+            }
+
+            $this->unsecure($proxyUrl);
+            $this->files->unlink($this->nginxPath($proxyUrl));
+
+            info('Valet will no longer proxy [https://'.$proxyUrl.'].');
         }
-
-        $this->unsecure($url);
-        $this->files->unlink($this->nginxPath($url));
-
-        info('Valet will no longer proxy [https://'.$url.'].');
     }
 
     /**
