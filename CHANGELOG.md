@@ -1,6 +1,10 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v4.4.0...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v4.4.1...master)
+
+## [v4.4.1](https://github.com/laravel/valet/compare/v4.4.0...v4.4.1) - 2023-10-03
+
+- Fix magento2 driver by [@mischabraam](https://github.com/mischabraam) in https://github.com/laravel/valet/pull/1420
 
 ## [v4.4.0](https://github.com/laravel/valet/compare/v4.3.0...v4.4.0) - 2023-09-26
 
