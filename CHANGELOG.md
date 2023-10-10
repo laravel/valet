@@ -1,6 +1,10 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v4.4.1...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v4.5.0...master)
+
+## [v4.5.0](https://github.com/laravel/valet/compare/v4.4.1...v4.5.0) - 2023-10-10
+
+- Add support for proxying multiple domains at once by [@RobertBoes](https://github.com/RobertBoes) in https://github.com/laravel/valet/pull/1437
 
 ## [v4.4.1](https://github.com/laravel/valet/compare/v4.4.0...v4.4.1) - 2023-10-03
 
