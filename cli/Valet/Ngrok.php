@@ -55,16 +55,28 @@ class Ngrok
      */
     public function findHttpTunnelUrl(array $tunnels, string $domain): ?string
     {
+        $httpTunnel = null;
+        $httpsTunnel = null;
+
         // If there are active tunnels on the Ngrok instance we will spin through them and
         // find the one responding on HTTP. Each tunnel has an HTTP and a HTTPS address
+        // if no HTTP tunnel is found we will return the HTTPS tunnel as a fallback.
+
+        // Iterate through tunnels to find both HTTP and HTTPS tunnels
         foreach ($tunnels as $tunnel) {
-            if (($tunnel->proto === 'http' || $tunnel->proto === 'https')  && stripos($tunnel->config->addr, $domain)) {
-                return $tunnel->public_url;
+            if (stripos($tunnel->config->addr, $domain)) {
+                if ($tunnel->proto === 'http') {
+                    $httpTunnel = $tunnel->public_url;
+                } elseif ($tunnel->proto === 'https') {
+                    $httpsTunnel = $tunnel->public_url;
+                }
             }
         }
 
-        return null;
+        // Return HTTP tunnel if available, otherwise return HTTPS tunnel
+        return $httpTunnel ?? $httpsTunnel;
     }
+
 
     /**
      * Set the Ngrok auth token.
