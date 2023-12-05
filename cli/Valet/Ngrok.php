@@ -58,7 +58,7 @@ class Ngrok
         // If there are active tunnels on the Ngrok instance we will spin through them and
         // find the one responding on HTTP. Each tunnel has an HTTP and a HTTPS address
         foreach ($tunnels as $tunnel) {
-            if (($tunnel->proto === 'http' || $tunnel->proto === 'https')  && strpos($tunnel->config->addr, strtolower($domain))) {
+            if (($tunnel->proto === 'http' || $tunnel->proto === 'https')  && stripos($tunnel->config->addr, $domain)) {
                 return $tunnel->public_url;
             }
         }

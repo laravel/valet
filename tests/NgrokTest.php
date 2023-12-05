@@ -31,26 +31,21 @@ class NgrokTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
                 'config' => (object) [
                     'addr' => 'http://mysite.test:80',
                 ],
-                'public_url' => 'http://bad-proto.ngrok.io/',
+                'public_url' => 'https://right-one.ngrok.io/',
             ],
             (object) [
                 'proto' => 'http',
                 'config' => (object) [
-                    'addr' => 'http://nottherightone.test:80',
+                    'addr' => 'http://mynewsite.test:80',
                 ],
-                'public_url' => 'http://bad-site.ngrok.io/',
-            ],
-            (object) [
-                'proto' => 'http',
-                'config' => (object) [
-                    'addr' => 'http://mysite.test:80',
-                ],
-                'public_url' => 'http://right-one.ngrok.io/',
+                'public_url' => 'http://new-right-one.ngrok.io/',
             ],
         ];
 
         $ngrok = resolve(Ngrok::class);
-        $this->assertEquals('http://right-one.ngrok.io/', $ngrok->findHttpTunnelUrl($tunnels, 'mysite'));
+        $this->assertEquals('https://right-one.ngrok.io/', $ngrok->findHttpTunnelUrl($tunnels, 'mysite'));
+        $this->assertEquals('http://new-right-one.ngrok.io/', $ngrok->findHttpTunnelUrl($tunnels, 'mynewsite'));
+
     }
 
     public function test_it_checks_against_lowercased_domain()
