@@ -2,6 +2,7 @@
 
 namespace Valet;
 
+use DateTime;
 use DomainException;
 use Illuminate\Support\Collection;
 use PhpFpm;
@@ -423,15 +424,25 @@ class Site
     }
 
     /**
-     * Get all of the URLs that are currently secured.
+     * Get all of the URLs with expiration dates that are currently secured.
      */
     public function secured(): array
     {
         return collect($this->files->scandir($this->certificatesPath()))
             ->filter(function ($file) {
-                return ends_with($file, ['.key', '.csr', '.crt', '.conf']);
+                return ends_with($file, ['.crt']);
             })->map(function ($file) {
-                return str_replace(['.key', '.csr', '.crt', '.conf'], '', $file);
+
+                $host = str_replace(['.crt'], '', $file);
+
+                $filePath = $this->certificatesPath() . '/' . $file;
+
+                $expiration = $this->cli->run("openssl x509 -enddate -noout -in $filePath");
+
+                return [
+                    'host' => $host,
+                    'exp' => new DateTime(str_replace('notAfter=', '', $expiration)),
+                ];
             })->unique()->values()->all();
     }
 
