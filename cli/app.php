@@ -297,14 +297,13 @@ if (is_dir(VALET_HOME_PATH)) {
     ]);
 
     /**
-     * Renews expired or expiring (within 60 days) domains with a trusted TLS certificate.
+     * Renews all domains with a trusted TLS certificate.
      */
-    $app->command('renew [--expireIn=] [--days=]', function (OutputInterface $output, $expireIn = 368, $days = 60) {
-        Site::renew($expireIn, $days);
+    $app->command('renew [--expireIn=]', function (OutputInterface $output, $expireIn = 368) {
+        Site::renew($expireIn);
         Nginx::restart();
-    })->descriptions('Renews expired or expiring (within 60 days) domains with a trusted TLS certificate.', [
+    })->descriptions('Renews all domains with a trusted TLS certificate.', [
         '--expireIn' => 'The amount of days the self signed certificate is valid for. Default is set to "368"',
-        '--days' => 'Renews sites expiring within the next X days. Default is set to 60.',
     ]);
 
     /**
