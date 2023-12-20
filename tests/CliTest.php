@@ -455,14 +455,7 @@ class CliTest extends BaseApplicationTestCase
         [$app, $tester] = $this->appAndTester();
 
         $site = Mockery::mock(RealSite::class);
-        $site->shouldReceive('securedWithDates')->andReturn([
-            [
-                'site' => 'tighten.test',
-                'exp' => new DateTime('Aug  2 13:16:40 2023 GMT')
-            ]
-        ]);
-        $site->shouldReceive('domain')->with('tighten.test')->andReturn('tighten.test');
-        $site->shouldReceive('secure')->with('tighten.test', null, 368)->once();
+        $site->shouldReceive('renew')->andReturn();
         swap(RealSite::class, $site);
 
         $nginx = Mockery::mock(Nginx::class);
@@ -471,8 +464,6 @@ class CliTest extends BaseApplicationTestCase
 
         $tester->run(['command' => 'renew']);
         $tester->assertCommandIsSuccessful();
-
-        $this->assertStringContainsString('tighten.test', $tester->getDisplay());
     }
 
     public function test_proxy_command()
