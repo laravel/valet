@@ -3,6 +3,7 @@
 namespace Valet;
 
 use DateTime;
+use DateInterval;
 use DomainException;
 use Illuminate\Support\Collection;
 use PhpFpm;
@@ -499,6 +500,29 @@ class Site
         }
 
         $this->files->putAsUser($this->nginxPath($url), $siteConf);
+    }
+
+    /**
+     * Renews expired or expiring (within 60 days) domains with a trusted TLS certificate.
+     */
+    public function renew($expireIn = 368, $days = 60): void
+    {
+        $now = (new DateTime())->add(new DateInterval('P' . $days . 'D'));
+        // Update anything expiring in the next 60 days
+        $sites = collect(Site::securedWithDates())
+            ->filter(fn ($row) => $row['exp'] < $now)
+            ->values();
+        if ($sites->isEmpty()) {
+            info('No sites need renewing.');
+            exit;
+        }
+        $sites->each(function ($row) use ($expireIn) {
+            $url = Site::domain($row['site']);
+
+            $this->secure($url, null, $expireIn);
+
+            info('The [' . $url . '] site has been secured with a fresh TLS certificate.');
+        });
     }
 
     /**

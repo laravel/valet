@@ -300,23 +300,7 @@ if (is_dir(VALET_HOME_PATH)) {
      * Renews expired or expiring (within 60 days) domains with a trusted TLS certificate.
      */
     $app->command('renew [--expireIn=] [--days=]', function (OutputInterface $output, $expireIn = 368, $days = 60) {
-        $now = (new DateTime())->add(new DateInterval('P' . $days . 'D'));
-        // Update anything expiring in the next 60 days
-        $sites = collect(Site::securedWithDates())
-            ->filter(fn ($row) => $row['exp'] < $now)
-            ->values();
-        if ($sites->isEmpty()) {
-            info('No sites need renewing.');
-            exit;
-        }
-        $sites->each(function ($row) use ($expireIn) {
-            $url = Site::domain($row['site']);
-
-            Site::secure($url, null, $expireIn);
-
-            info('The [' . $url . '] site has been secured with a fresh TLS certificate.');
-        });
-
+        Site::renew($expireIn, $days);
         Nginx::restart();
     })->descriptions('Renews expired or expiring (within 60 days) domains with a trusted TLS certificate.', [
         '--expireIn' => 'The amount of days the self signed certificate is valid for. Default is set to "368"',
