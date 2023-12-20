@@ -312,7 +312,6 @@ if (is_dir(VALET_HOME_PATH)) {
         $sites->each(function ($row) use ($expireIn) {
             $url = Site::domain($row['site']);
 
-            Site::unsecure($url);
             Site::secure($url, null, $expireIn);
 
             info('The [' . $url . '] site has been secured with a fresh TLS certificate.');
