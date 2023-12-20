@@ -284,7 +284,7 @@ if (is_dir(VALET_HOME_PATH)) {
             ->when($expiring, fn ($collection) => $collection->filter(fn ($row) => $row['exp'] < $now))
             ->map(function ($row) {
                 return [
-                    'Site' => $row['host'],
+                    'Site' => $row['site'],
                     'Valid Until' => $row['exp']->format('Y-m-d H:i:s T'),
                 ];
             })
@@ -310,7 +310,7 @@ if (is_dir(VALET_HOME_PATH)) {
             exit;
         }
         $sites->each(function ($row) use ($expireIn) {
-            $url = Site::domain($row['host']);
+            $url = Site::domain($row['site']);
 
             Site::unsecure($url);
             Site::secure($url, null, $expireIn);

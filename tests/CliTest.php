@@ -436,7 +436,12 @@ class CliTest extends BaseApplicationTestCase
         [$app, $tester] = $this->appAndTester();
 
         $site = Mockery::mock(RealSite::class);
-        $site->shouldReceive('secured')->andReturn(['tighten.test']);
+        $site->shouldReceive('securedWithDates')->andReturn([
+            [
+                'site' => 'tighten.test',
+                'exp' => new DateTime('Aug  2 13:16:40 2024 GMT')
+            ]
+        ]);
         swap(RealSite::class, $site);
 
         $tester->run(['command' => 'secured']);
