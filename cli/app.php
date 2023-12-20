@@ -280,7 +280,7 @@ if (is_dir(VALET_HOME_PATH)) {
      */
     $app->command('secured [--expiring] [--days=]', function (OutputInterface $output, $expiring = null, $days = 60) {
         $now = (new Datetime())->add(new DateInterval('P' . $days . 'D'));
-        $sites = collect(Site::secured())
+        $sites = collect(Site::securedWithDates())
             ->when($expiring, fn ($collection) => $collection->filter(fn ($row) => $row['exp'] < $now))
             ->map(function ($row) {
                 return [
@@ -302,7 +302,7 @@ if (is_dir(VALET_HOME_PATH)) {
     $app->command('renew [--expireIn=] [--days=]', function (OutputInterface $output, $expireIn = 368, $days = 60) {
         $now = (new DateTime())->add(new DateInterval('P' . $days . 'D'));
         // Update anything expiring in the next 60 days
-        $sites = collect(Site::secured())
+        $sites = collect(Site::securedWithDates())
             ->filter(fn ($row) => $row['exp'] < $now)
             ->values();
         if ($sites->isEmpty()) {

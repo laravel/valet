@@ -424,26 +424,36 @@ class Site
     }
 
     /**
-     * Get all of the URLs with expiration dates that are currently secured.
+     * Get all of the URLs that are currently secured.
      */
     public function secured(): array
     {
         return collect($this->files->scandir($this->certificatesPath()))
             ->filter(function ($file) {
-                return ends_with($file, ['.crt']);
+                return ends_with($file, ['.key', '.csr', '.crt', '.conf']);
             })->map(function ($file) {
-
-                $host = str_replace(['.crt'], '', $file);
-
-                $filePath = $this->certificatesPath() . '/' . $file;
-
-                $expiration = $this->cli->run("openssl x509 -enddate -noout -in $filePath");
-
-                return [
-                    'host' => $host,
-                    'exp' => new DateTime(str_replace('notAfter=', '', $expiration)),
-                ];
+                return str_replace(['.key', '.csr', '.crt', '.conf'], '', $file);
             })->unique()->values()->all();
+    }
+
+    /**
+     * Get all of the URLs with expiration dates that are currently secured.
+     */
+    public function securedWithDates(): array
+    {
+        return collect($this->secured())->map(function ($site) {
+
+            $filePath = $this->certificatesPath() . '/' . $site . '.crt';
+
+            $expiration = $this->cli->run("openssl x509 -enddate -noout -in $filePath");
+
+            $expiration = str_replace('notAfter=', '', $expiration);
+
+            return [
+                'site' => $site,
+                'exp' => new DateTime($expiration),
+            ];
+        })->unique()->values()->all();
     }
 
     public function isSecured(string $site): bool
