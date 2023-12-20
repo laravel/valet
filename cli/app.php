@@ -61,6 +61,7 @@ $app->command('install', function (OutputInterface $output) {
     output();
     DnsMasq::install(Configuration::read()['tld']);
     output();
+    Site::renew();
     Nginx::restart();
     output();
     Valet::symlinkToUsersBin();
