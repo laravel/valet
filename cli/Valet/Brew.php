@@ -292,7 +292,7 @@ class Brew
      *
      * @param  string|null  $phpVersion  For example, "php@8.1"
      */
-    public function getPhpExecutablePath(string $phpVersion = null): string
+    public function getPhpExecutablePath(?string $phpVersion = null): string
     {
         if (! $phpVersion) {
             return BREW_PREFIX.'/bin/php';

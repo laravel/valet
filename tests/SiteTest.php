@@ -1161,7 +1161,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
 class CommandLineFake extends CommandLine
 {
-    public function runCommand(string $command, callable $onError = null): string
+    public function runCommand(string $command, ?callable $onError = null): string
     {
         // noop
         //
@@ -1284,7 +1284,7 @@ class FixturesSiteFake extends Site
 
 class StubForRemovingLinks extends Site
 {
-    public function sitesPath(string $additionalPath = null): string
+    public function sitesPath(?string $additionalPath = null): string
     {
         return __DIR__.'/output'.($additionalPath ? '/'.$additionalPath : '');
     }

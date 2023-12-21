@@ -33,7 +33,7 @@ class CommandLine
     /**
      * Run the given command as the non-root user.
      */
-    public function run(string $command, callable $onError = null): string
+    public function run(string $command, ?callable $onError = null): string
     {
         return $this->runCommand($command, $onError);
     }
@@ -41,7 +41,7 @@ class CommandLine
     /**
      * Run the given command.
      */
-    public function runAsUser(string $command, callable $onError = null): string
+    public function runAsUser(string $command, ?callable $onError = null): string
     {
         return $this->runCommand('sudo -u "'.user().'" '.$command, $onError);
     }
@@ -49,7 +49,7 @@ class CommandLine
     /**
      * Run the given command.
      */
-    public function runCommand(string $command, callable $onError = null): string
+    public function runCommand(string $command, ?callable $onError = null): string
     {
         $onError = $onError ?: function () {
         };
