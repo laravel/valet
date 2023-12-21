@@ -631,8 +631,11 @@ class Site
     public function buildSecureNginxServer(string $url, ?string $siteConf = null): string
     {
         if ($siteConf === null) {
+            $nginxVersion = str_replace('nginx version: nginx/', '', exec('nginx -v 2>&1'));
+            $configFile = version_compare($nginxVersion, '1.25.1', ">=") ? 'secure.valet.conf' : 'secure.valet-legacy.conf';
+
             $siteConf = $this->replaceOldLoopbackWithNew(
-                $this->files->getStub('secure.valet.conf'),
+                $this->files->getStub($configFile),
                 'VALET_LOOPBACK',
                 $this->valetLoopback()
             );
@@ -774,8 +777,11 @@ class Site
                 $proxyUrl .= '.'.$tld;
             }
 
+            $nginxVersion = str_replace('nginx version: nginx/', '', exec('nginx -v 2>&1'));
+            $configFile = version_compare($nginxVersion, '1.25.1', ">=") ? 'secure.proxy.valet.conf' : 'secure.proxy.valet-legacy.conf';
+
             $siteConf = $this->replaceOldLoopbackWithNew(
-                $this->files->getStub($secure ? 'secure.proxy.valet.conf' : 'proxy.valet.conf'),
+                $this->files->getStub($secure ? $configFile : 'proxy.valet.conf'),
                 'VALET_LOOPBACK',
                 $this->valetLoopback()
             );
