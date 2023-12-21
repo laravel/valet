@@ -443,7 +443,7 @@ class Site
     {
         return collect($this->secured())->map(function ($site) {
 
-            $filePath = $this->certificatesPath() . '/' . $site . '.crt';
+            $filePath = $this->certificatesPath().'/'.$site.'.crt';
 
             $expiration = $this->cli->run("openssl x509 -enddate -noout -in $filePath");
 
@@ -511,7 +511,7 @@ class Site
 
             $this->secure($url, null, $expireIn);
 
-            info('The [' . $url . '] site has been secured with a fresh TLS certificate.');
+            info('The ['.$url.'] site has been secured with a fresh TLS certificate.');
         });
     }
 
