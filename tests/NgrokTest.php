@@ -47,10 +47,18 @@ class NgrokTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
                 ],
                 'public_url' => 'http://right-one.ngrok.io/',
             ],
+             (object) [
+                'proto' => 'https',
+                'config' => (object) [
+                    'addr' => 'http://mysecuresite.test:80',
+                ],
+                'public_url' => 'http://secure-right-one.ngrok.io/',
+            ],
         ];
 
         $ngrok = resolve(Ngrok::class);
         $this->assertEquals('http://right-one.ngrok.io/', $ngrok->findHttpTunnelUrl($tunnels, 'mysite'));
+        $this->assertEquals('http://secure-right-one.ngrok.io/', $ngrok->findHttpTunnelUrl($tunnels, 'mysecuresite'));
     }
 
     public function test_it_checks_against_lowercased_domain()
