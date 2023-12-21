@@ -47,7 +47,7 @@ class NgrokTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
                 ],
                 'public_url' => 'http://right-one.ngrok.io/',
             ],
-             (object) [
+            (object) [
                 'proto' => 'https',
                 'config' => (object) [
                     'addr' => 'http://mysecuresite.test:80',

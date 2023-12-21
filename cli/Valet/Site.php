@@ -2,6 +2,7 @@
 
 namespace Valet;
 
+use DateTime;
 use DomainException;
 use Illuminate\Support\Collection;
 use PhpFpm;
@@ -435,6 +436,26 @@ class Site
             })->unique()->values()->all();
     }
 
+    /**
+     * Get all of the URLs with expiration dates that are currently secured.
+     */
+    public function securedWithDates(): array
+    {
+        return collect($this->secured())->map(function ($site) {
+
+            $filePath = $this->certificatesPath().'/'.$site.'.crt';
+
+            $expiration = $this->cli->run("openssl x509 -enddate -noout -in $filePath");
+
+            $expiration = str_replace('notAfter=', '', $expiration);
+
+            return [
+                'site' => $site,
+                'exp' => new DateTime($expiration),
+            ];
+        })->unique()->values()->all();
+    }
+
     public function isSecured(string $site): bool
     {
         $tld = $this->config->read()['tld'];
@@ -478,6 +499,20 @@ class Site
         }
 
         $this->files->putAsUser($this->nginxPath($url), $siteConf);
+    }
+
+    /**
+     * Renews all domains with a trusted TLS certificate.
+     */
+    public function renew($expireIn): void
+    {
+        collect($this->securedWithDates())->each(function ($row) use ($expireIn) {
+            $url = $this->domain($row['site']);
+
+            $this->secure($url, null, $expireIn);
+
+            info('The ['.$url.'] site has been secured with a fresh TLS certificate.');
+        });
     }
 
     /**

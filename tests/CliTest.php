@@ -436,13 +436,34 @@ class CliTest extends BaseApplicationTestCase
         [$app, $tester] = $this->appAndTester();
 
         $site = Mockery::mock(RealSite::class);
-        $site->shouldReceive('secured')->andReturn(['tighten.test']);
+        $site->shouldReceive('securedWithDates')->andReturn([
+            [
+                'site' => 'tighten.test',
+                'exp' => new DateTime('Aug  2 13:16:40 2024 GMT'),
+            ],
+        ]);
         swap(RealSite::class, $site);
 
         $tester->run(['command' => 'secured']);
         $tester->assertCommandIsSuccessful();
 
         $this->assertStringContainsString('tighten.test', $tester->getDisplay());
+    }
+
+    public function test_renew_command()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $site = Mockery::mock(RealSite::class);
+        $site->shouldReceive('renew')->andReturn();
+        swap(RealSite::class, $site);
+
+        $nginx = Mockery::mock(Nginx::class);
+        $nginx->shouldReceive('restart')->once();
+        swap(Nginx::class, $nginx);
+
+        $tester->run(['command' => 'renew']);
+        $tester->assertCommandIsSuccessful();
     }
 
     public function test_proxy_command()
