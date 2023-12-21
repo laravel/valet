@@ -73,10 +73,9 @@ class Ngrok
             }
         }
 
-        // Return HTTP tunnel if available, otherwise return HTTPS tunnel
+        // Return HTTP tunnel if available; HTTPS tunnel if not; null if neither
         return $httpTunnel ?? $httpsTunnel;
     }
-
 
     /**
      * Set the Ngrok auth token.
