@@ -77,7 +77,6 @@ class Ngrok
         return $httpTunnel ?? $httpsTunnel;
     }
 
-
     /**
      * Set the Ngrok auth token.
      */
