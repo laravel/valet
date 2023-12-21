@@ -61,6 +61,7 @@ $app->command('install', function (OutputInterface $output) {
     output();
     DnsMasq::install(Configuration::read()['tld']);
     output();
+    Site::renew();
     Nginx::restart();
     output();
     Valet::symlinkToUsersBin();
@@ -278,13 +279,33 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Display all of the currently secured sites.
      */
-    $app->command('secured', function (OutputInterface $output) {
-        $sites = collect(Site::secured())->map(function ($url) {
-            return ['Site' => $url];
-        });
+    $app->command('secured [--expiring] [--days=]', function (OutputInterface $output, $expiring = null, $days = 60) {
+        $now = (new Datetime())->add(new DateInterval('P' . $days . 'D'));
+        $sites = collect(Site::securedWithDates())
+            ->when($expiring, fn ($collection) => $collection->filter(fn ($row) => $row['exp'] < $now))
+            ->map(function ($row) {
+                return [
+                    'Site' => $row['site'],
+                    'Valid Until' => $row['exp']->format('Y-m-d H:i:s T'),
+                ];
+            })
+            ->when($expiring, fn ($collection) => $collection->sortBy('Valid Until'));
 
-        table(['Site'], $sites->all());
-    })->descriptions('Display all of the currently secured sites');
+        return table(['Site', 'Valid Until'], $sites->all());
+    })->descriptions('Display all of the currently secured sites', [
+        '--expiring' => 'Limits the results to only sites expiring within the next 60 days.',
+        '--days' => 'To be used with --expiring. Limits the results to only sites expiring within the next X days. Default is set to 60.',
+    ]);
+
+    /**
+     * Renews all domains with a trusted TLS certificate.
+     */
+    $app->command('renew [--expireIn=]', function (OutputInterface $output, $expireIn = 368) {
+        Site::renew($expireIn);
+        Nginx::restart();
+    })->descriptions('Renews all domains with a trusted TLS certificate.', [
+        '--expireIn' => 'The amount of days the self signed certificate is valid for. Default is set to "368"',
+    ]);
 
     /**
      * Create an Nginx proxy config for the specified domain.
