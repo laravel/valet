@@ -442,7 +442,6 @@ class Site
     public function securedWithDates(): array
     {
         return collect($this->secured())->map(function ($site) {
-
             $filePath = $this->certificatesPath().'/'.$site.'.crt';
 
             $expiration = $this->cli->run("openssl x509 -enddate -noout -in $filePath");
