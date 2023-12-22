@@ -449,7 +449,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
 class StubForUpdatingFpmConfigFiles extends PhpFpm
 {
-    public function fpmConfigPath(string $phpVersion = null): string
+    public function fpmConfigPath(?string $phpVersion = null): string
     {
         return __DIR__.'/output/fpm.conf';
     }

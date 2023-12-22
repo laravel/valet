@@ -102,7 +102,7 @@ class PhpFpm
     /**
      * Restart the PHP FPM process (if one specified) or processes (if none specified).
      */
-    public function restart(string $phpVersion = null): void
+    public function restart(?string $phpVersion = null): void
     {
         $this->brew->restartService($phpVersion ?: $this->utilizedPhpVersions());
     }
@@ -122,7 +122,7 @@ class PhpFpm
     /**
      * Get the path to the FPM configuration file for the current PHP version.
      */
-    public function fpmConfigPath(string $phpVersion = null): string
+    public function fpmConfigPath(?string $phpVersion = null): string
     {
         if (! $phpVersion) {
             $phpVersion = $this->brew->linkedPhp();
@@ -152,7 +152,7 @@ class PhpFpm
     /**
      * Stop a given PHP version, if that specific version isn't being used globally or by any sites.
      */
-    public function stopIfUnused(string $phpVersion = null): void
+    public function stopIfUnused(?string $phpVersion = null): void
     {
         if (! $phpVersion) {
             return;
@@ -305,7 +305,7 @@ class PhpFpm
     /**
      * Get FPM sock file name for a given PHP version.
      */
-    public static function fpmSockName(string $phpVersion = null): string
+    public static function fpmSockName(?string $phpVersion = null): string
     {
         $versionInteger = preg_replace('~[^\d]~', '', $phpVersion);
 

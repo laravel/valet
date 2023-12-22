@@ -439,8 +439,8 @@ class CliTest extends BaseApplicationTestCase
         $site->shouldReceive('securedWithDates')->andReturn([
             [
                 'site' => 'tighten.test',
-                'exp' => new DateTime('Aug  2 13:16:40 2024 GMT')
-            ]
+                'exp' => new DateTime('Aug  2 13:16:40 2024 GMT'),
+            ],
         ]);
         swap(RealSite::class, $site);
 

@@ -32,7 +32,7 @@ define('ISOLATED_PHP_VERSION', 'ISOLATED_PHP_VERSION');
 /**
  * Set or get a global console writer.
  */
-function writer(OutputInterface $writer = null): OutputInterface|\NullWriter|null
+function writer(?OutputInterface $writer = null): OutputInterface|\NullWriter|null
 {
     $container = Container::getInstance();
 

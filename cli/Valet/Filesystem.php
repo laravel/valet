@@ -19,7 +19,7 @@ class Filesystem
     /**
      * Create a directory.
      */
-    public function mkdir(string $path, string $owner = null, int $mode = 0755): void
+    public function mkdir(string $path, ?string $owner = null, int $mode = 0755): void
     {
         mkdir($path, $mode, true);
 
@@ -31,7 +31,7 @@ class Filesystem
     /**
      * Ensure that the given directory exists.
      */
-    public function ensureDirExists(string $path, string $owner = null, int $mode = 0755): void
+    public function ensureDirExists(string $path, ?string $owner = null, int $mode = 0755): void
     {
         if (! $this->isDir($path)) {
             $this->mkdir($path, $owner, $mode);
@@ -49,7 +49,7 @@ class Filesystem
     /**
      * Touch the given path.
      */
-    public function touch(string $path, string $owner = null): string
+    public function touch(string $path, ?string $owner = null): string
     {
         touch($path);
 
@@ -87,7 +87,7 @@ class Filesystem
     /**
      * Write to the given file.
      */
-    public function put(string $path, string $contents, string $owner = null): void
+    public function put(string $path, string $contents, ?string $owner = null): void
     {
         file_put_contents($path, $contents);
 
@@ -107,7 +107,7 @@ class Filesystem
     /**
      * Append the contents to the given file.
      */
-    public function append(string $path, string $contents, string $owner = null): void
+    public function append(string $path, string $contents, ?string $owner = null): void
     {
         file_put_contents($path, $contents, FILE_APPEND);
 

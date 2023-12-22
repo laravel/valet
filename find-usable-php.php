@@ -52,7 +52,7 @@ echo getPhpExecutablePath(array_search($foundVersion, $phps));
  * @param  string|null  $phpFormulaName  For example, "php@8.1"
  * @return string
  */
-function getPhpExecutablePath(string $phpFormulaName = null)
+function getPhpExecutablePath(?string $phpFormulaName = null)
 {
     $brewPrefix = exec('printf $(brew --prefix)');
 
