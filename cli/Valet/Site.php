@@ -526,6 +526,14 @@ class Site
         $caKeyPath = $this->caPath('LaravelValetCASelfSigned.key');
 
         if ($this->files->exists($caKeyPath) && $this->files->exists($caPemPath)) {
+
+            $isTrusted = $this->cli->run(sprintf(
+                'security verify-cert -c "%s"', $caPemPath
+            ));
+
+            if (strpos($isTrusted, '...certificate verification successful.') === false) {
+                $this->trustCa($caPemPath);
+            }
             return;
         }
 
@@ -608,8 +616,6 @@ class Site
                 $caExpireInDays, $caPemPath, $caKeyPath, $caSrlParam, $csrPath, $crtPath, $confPath
             ));
         }
-
-        $this->trustCertificate($crtPath);
     }
 
     /**
