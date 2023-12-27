@@ -1,6 +1,13 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v4.5.0...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v4.6.0...master)
+
+## [v4.6.0](https://github.com/laravel/valet/compare/v4.5.0...v4.6.0) - 2023-12-27
+
+* Bandage for 502 errors using Gettext/PostgreSQL/MongoDB by [@drbyte](https://github.com/drbyte) in https://github.com/laravel/valet/pull/1452
+* handle deprecated http2_push_preload conf for nginx >= 1.25.1 by [@OpJePl44tsm4n](https://github.com/OpJePl44tsm4n) in https://github.com/laravel/valet/pull/1451
+* Update "fetch-share-url" to pull correct URL for HTTPS tunnels, not just HTTP by [@rana01645](https://github.com/rana01645) in https://github.com/laravel/valet/pull/1460
+* added the ability to renew certs and view their expiration dates by [@adrum](https://github.com/adrum) in https://github.com/laravel/valet/pull/1461
 
 ## [v4.5.0](https://github.com/laravel/valet/compare/v4.4.1...v4.5.0) - 2023-10-10
 
