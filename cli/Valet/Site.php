@@ -502,8 +502,10 @@ class Site
 
     /**
      * Renews all domains with a trusted TLS certificate.
+     * @param  int  $certificateExpireInDays  The number of days the self signed certificate is valid.
+     *                                         Certificates SHOULD NOT have a validity period greater than 397 days.
      */
-    public function renew($expireIn): void
+    public function renew($expireIn = 396): void
     {
         collect($this->securedWithDates())->each(function ($row) use ($expireIn) {
             $url = $this->domain($row['site']);
