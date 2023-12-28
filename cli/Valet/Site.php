@@ -502,7 +502,7 @@ class Site
 
     /**
      * Renews all domains with a trusted TLS certificate.
-     * @param  int  $certificateExpireInDays  The number of days the self signed certificate is valid.
+     * @param  int  $expireIn  The number of days the self signed certificate is valid.
      *                                         Certificates SHOULD NOT have a validity period greater than 397 days.
      */
     public function renew($expireIn = 396): void
