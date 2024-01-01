@@ -1,6 +1,10 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v4.6.0...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v4.6.1...master)
+
+## [v4.6.1](https://github.com/laravel/valet/compare/v4.6.0...v4.6.1) - 2024-01-01
+
+* Allow renew() to be called without parameters by [@drbyte](https://github.com/drbyte) in https://github.com/laravel/valet/pull/1465
 
 ## [v4.6.0](https://github.com/laravel/valet/compare/v4.5.0...v4.6.0) - 2023-12-27
 
