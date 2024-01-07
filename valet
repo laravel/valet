@@ -47,6 +47,34 @@ if [[ "$1" = "share" ]]
 then
     SHARETOOL="$($PHP "$DIR/cli/valet.php" share-tool)"
 
+    # Check for parameters to pass through to share tool (these will start with '-' or '--')
+    PARAMS=(${@:2})
+
+    for PARAM in ${PARAMS[@]}
+    do
+        if [[ ${PARAM:0:1} == '-' ]]; then
+            PARAMS=("${PARAMS[@]/$PARAM}") # Quotes when working with strings
+        fi
+    done
+
+    PARAMS=${PARAMS[@]}
+
+    HOST="${PWD##*/}"
+
+    # Find the first linked site for the current dir, if one exists
+    for linkname in ~/.config/valet/Sites/*; do
+        if [[ "$(readlink $linkname)" = "$PWD" ]]
+        then
+            HOST="${linkname##*/}"
+            break
+        fi
+    done
+
+    # Lowercase the host to match the rest of our domains are looked up
+    HOST=$(echo "$HOST" | tr '[:upper:]' '[:lower:]')
+    TLD=$("$PHP" "$DIR/cli/valet.php" tld)
+    SECURED=$(grep --quiet --no-messages 443 ~/.config/valet/Nginx/$HOST*)
+
     if [[ $SHARETOOL = "ngrok" ]]
     then
     # ngrok
@@ -59,40 +87,13 @@ then
             exit
         fi
 
-        # Check for parameters to pass through to ngrok (these will start with '-' or '--')
-        PARAMS=(${@:2})
-        for PARAM in ${PARAMS[@]}
-        do
-            if [[ ${PARAM:0:1} != '-' ]]; then
-                PARAMS=("${PARAMS[@]/$PARAM}") # Quotes when working with strings
-            fi
-        done
-
-        PARAMS=${PARAMS[@]}
-
-        HOST="${PWD##*/}"
-
-        # Find the first linked site for the current dir, if one exists
-        for linkname in ~/.config/valet/Sites/*; do
-            if [[ "$(readlink $linkname)" = "$PWD" ]]
-            then
-                HOST="${linkname##*/}"
-                break
-            fi
-        done
-
-        TLD=$("$PHP" "$DIR/cli/valet.php" tld)
-
         # Decide the correct PORT: uses 60 for secure, else 80
-        if grep --quiet --no-messages 443 ~/.config/valet/Nginx/$HOST*
+        if $SECURED
         then
             PORT=60
         else
             PORT=80
         fi
-
-        # Lowercase the host to match how the rest of our domains are looked up
-        HOST=$(echo "$HOST" | tr '[:upper:]' '[:lower:]')
 
         sudo -u "$USER" "$BREW_PREFIX/bin/ngrok" http "$HOST.$TLD:$PORT" --host-header=rewrite $PARAMS
 
@@ -102,48 +103,35 @@ then
     then
 
     # expose
-        # Check for parameters to pass through to Expose (these will start with '-' or '--')
-        PARAMS=(${@:2})
-        for PARAM in ${PARAMS[@]}
-        do
-            if [[ ${PARAM:0:1} != '-' ]]; then
-                PARAMS=("${PARAMS[@]/$PARAM}") #Quotes when working with strings
-            fi
-        done
-
-        PARAMS=${PARAMS[@]}
-
-        HOST="${PWD##*/}"
-
-        # Find the first linked site for the current dir, if one exists
-        for linkname in ~/.config/valet/Sites/*; do
-            if [[ "$(readlink $linkname)" = "$PWD" ]]
-            then
-                HOST="${linkname##*/}"
-                break
-            fi
-        done
-
-        TLD=$("$PHP" "$DIR/cli/valet.php" tld)
-
         # Decide the correct PORT: uses 443 for secure, else 80
-        if grep --quiet --no-messages 443 ~/.config/valet/Nginx/$HOST*
+        if $SECURED
         then
             PORT=443
         else
             PORT=80
         fi
 
-        # Lowercase the host to match how the rest of our domains are looked up
-        HOST=$(echo "$HOST" | tr '[:upper:]' '[:lower:]')
-
         sudo -u "$USER" expose share "$HOST.$TLD:$PORT" $PARAMS
+
+        exit
+
+    elif [[ $SHARETOOL = "cloudflared" ]]
+    then
+    # cloudflared
+        if $SECURED
+        then
+            SCHEME="https"
+        else
+            SCHEME="http"
+        fi
+        echo "Scheme: $SCHEME"
+        sudo -u "$USER" cloudflared tunnel --no-tls-verify --url "$SCHEME://localhost" --http-host-header "$HOST.$TLD" $PARAMS
 
         exit
 
     else
         echo ''
-        echo "Please use 'valet share-tool ngrok' or 'valet share-tool expose'"
+        echo "Please use 'valet share-tool cloudflared', 'valet share-tool expose' or 'valet share-tool ngrok'"
         echo "to set your preferred share tool."
         exit
     fi
