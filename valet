@@ -124,8 +124,9 @@ then
         else
             SCHEME="http"
         fi
-        echo "Scheme: $SCHEME"
-        sudo -u "$USER" cloudflared tunnel --no-tls-verify --url "$SCHEME://localhost" --http-host-header "$HOST.$TLD" $PARAMS
+
+        sudo -u "$USER" cloudflared tunnel --no-tls-verify --url "$SCHEME://localhost" \
+            --http-host-header "$HOST.$TLD" $PARAMS
 
         exit
 

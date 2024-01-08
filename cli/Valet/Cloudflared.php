@@ -17,15 +17,20 @@ class Cloudflared
         $urls = [];
         $processes = array_filter(explode("\n", $this->cli->run('pgrep -fl cloudflared')));
 
+        // Every cloudflare process will start a metrics web server
+        // where Quick Tunnel URL is mentioned under /metrics endpoint
         foreach ($processes as $process) {
-            preg_match('/(?<pid>\d+)\s.+(?<=--http-host-header\s)(?<domain>[^\s]+).*/', $process, $matches);
-            if (count($matches) > 2) {
+            preg_match('/(?<pid>\d+)\s.+--http-host-header\s(?<domain>[^\s]+).*/', $process, $matches);
+            if (array_key_exists('domain', $matches) && array_key_exists('pid', $matches)) {
                 $local_domain = $matches['domain'];
-                $lsof = $this->cli->run('lsof -iTCP -P -a -p '.$matches['pid']);
+                $lsof = $this->cli->run("lsof -iTCP -P -a -p {$matches['pid']}");
                 preg_match('/TCP\s(?<server>[^\s]+:\d+)\s\(LISTEN\)/', $lsof, $matches);
                 if (array_key_exists('server', $matches)) {
-                    $body = (new Client())->get("http://{$matches['server']}/metrics")->getBody();
-                    preg_match('/userHostname="(?<url>.+)"/', $body->getContents(), $matches);
+                    try {
+                        $body = (new Client())->get("http://{$matches['server']}/metrics")->getBody();
+                        preg_match('/userHostname="(?<url>.+)"/', $body->getContents(), $matches);
+                    } catch (\Exception $e) {}
+
                     $urls[$local_domain] = array_key_exists('url', $matches) ? $matches['url'] : false;
                 }
             }

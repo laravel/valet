@@ -403,26 +403,25 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Echo or set the name of the currently-selected share tool (either "ngrok" or "expose").
      */
-    $share_tools_list = preg_replace('/,\s([^,]+)$/', ' or $1',
-        join(', ', array_map(fn($t) => "`$t`", $share_tools)));
-
     $app->command('share-tool [tool]', function (InputInterface $input, OutputInterface $output, $tool = null)
-    use ($share_tools, $share_tools_list) {
+    use ($share_tools) {
         if ($tool === null) {
             return output(Configuration::read()['share-tool'] ?? '(not set)');
         }
 
-        if (! in_array($tool, $share_tools) || ! class_exists(ucfirst($tool))) {
-            warning($tool.' is not a valid share tool. Please use '.$share_tools_list .'.');
+        $share_tools_list = preg_replace('/,\s([^,]+)$/', ' or $1',
+            join(', ', array_map(fn($t) => "`$t`", $share_tools)));
+
+        if (! in_array($tool, $share_tools) || ! class_exists($tool)) {
+            warning("$tool is not a valid share tool. Please use $share_tools_list.");
 
             return Command::FAILURE;
         }
 
         Configuration::updateKey('share-tool', $tool);
-        info('Share tool set to '.$tool.'.');
-        $share_tool = ucfirst($tool);
+        info("Share tool set to $tool.");
 
-        if (! $share_tool::installed()) {
+        if (! $tool::installed()) {
             $helper = $this->getHelperSet()->get('question');
             $question = new ConfirmationQuestion(
                 'Would you like to install '.ucfirst($tool).' now? [y/N] ',
@@ -434,9 +433,11 @@ if (is_dir(VALET_HOME_PATH)) {
                 return;
             }
 
-            $share_tool::ensureInstalled();
+            $tool::ensureInstalled();
         }
-    })->descriptions('Get the name of the current share tool ('.$share_tools_list.').');
+
+        return Command::SUCCESS;
+    })->descriptions('Get the name of the current share tool.');
 
     /**
      * Set the ngrok auth token.
