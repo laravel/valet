@@ -6,8 +6,6 @@ use GuzzleHttp\Client;
 
 class Cloudflared
 {
-    public $brew_formula = 'cloudflare/cloudflare/cloudflared';
-
     public function __construct(public CommandLine $cli, public Brew $brew)
     {
     }
@@ -44,7 +42,7 @@ class Cloudflared
      */
     public function installed(): bool
     {
-        return $this->brew->installed($this->brew_formula);
+        return $this->brew->installed('cloudflared');
     }
 
     /**
@@ -52,6 +50,6 @@ class Cloudflared
      */
     public function ensureInstalled(): void
     {
-        $this->brew->ensureInstalled($this->brew_formula);
+        $this->brew->ensureInstalled('cloudflared');
     }
 }
