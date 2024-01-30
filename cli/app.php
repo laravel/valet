@@ -9,11 +9,14 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Valet\Context\Context;
 use Valet\Drivers\ValetDriver;
 
 use function Valet\info;
 use function Valet\output;
+use function Valet\resolve;
 use function Valet\table;
+use function Valet\testing;
 use function Valet\warning;
 use function Valet\writer;
 
@@ -31,11 +34,18 @@ if (file_exists(__DIR__.'/../vendor/autoload.php')) {
 /**
  * Create the application.
  */
-Container::setInstance(new Container);
+
+if (testing()) {
+    $container = Container::getInstance();
+    $context = resolve(Context::class);
+} else {
+    Container::setInstance($container = new Container);
+    $container->instance(Context::class, $context = Context::assign());
+}
 
 $version = '4.6.1';
 
-$app = new Application('Laravel Valet', $version);
+$app = new Application($context->name(), $version);
 
 $app->setDispatcher($dispatcher = new EventDispatcher());
 

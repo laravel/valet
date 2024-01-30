@@ -30,6 +30,7 @@
     "autoload-dev": {
         "files": [
             "tests/UsesNullWriter.php",
+            "tests/PrepsContainer.php",
             "tests/BaseApplicationTestCase.php",
             "tests/Drivers/BaseDriverTestCase.php"
         ]

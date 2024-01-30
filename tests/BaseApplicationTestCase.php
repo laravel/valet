@@ -6,6 +6,7 @@ use Symfony\Component\Console\Tester\ApplicationTester;
 
 class BaseApplicationTestCase extends TestCase
 {
+    use PrepsContainer;
     use UsesNullWriter;
 
     public function setUp(): void
@@ -25,7 +26,9 @@ class BaseApplicationTestCase extends TestCase
     public function prepTestConfig(): void
     {
         require_once __DIR__.'/../cli/includes/helpers.php';
-        Container::setInstance(new Container); // Reset app container from previous tests
+
+        // Reset app container from previous tests
+        $this->prepContainer();
 
         if (Filesystem::isDir(VALET_HOME_PATH)) {
             Filesystem::rmDirAndContents(VALET_HOME_PATH);
