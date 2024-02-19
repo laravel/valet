@@ -48,6 +48,17 @@ class KirbyValetDriver extends ValetDriver
             $indexPath = $sitePath.'/panel/index.php';
         }
 
+        // add this block
+        if (preg_match('/^\/(?!(kirby|site|content)\/).+\.php$/', $uri)) {
+            if (
+                $this->isActualFile($sitePath.$uri) || 
+                $isAboveWebroot && $this->isActualFile($sitePath."/public".$uri)
+            ) {
+                $scriptName = $uri;
+                $indexPath = $sitePath.$scriptName;
+            }
+        }
+
         $sitePathPrefix = ($isAboveWebroot) ? $sitePath.'/public' : $sitePath;
 
         $_SERVER['SERVER_NAME'] = $_SERVER['HTTP_HOST'];
