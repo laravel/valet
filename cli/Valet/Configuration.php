@@ -117,7 +117,7 @@ class Configuration
         $this->write(tap($this->read(), function (&$config) use ($path, $prepend) {
             $method = $prepend ? 'prepend' : 'push';
 
-            $config['paths'] = collect($config['paths'])->{$method}($path)->unique()->all();
+            $config['paths'] = collect($config['paths'])->{$method}($path)->unique()->values()->all();
         }));
     }
 
