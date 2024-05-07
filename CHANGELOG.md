@@ -1,6 +1,12 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v4.6.1...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v4.6.2...master)
+
+## [v4.6.2](https://github.com/laravel/valet/compare/v4.6.1...v4.6.2) - 2024-05-07
+
+* Add quotes around $PHP by [@drbyte](https://github.com/drbyte) in https://github.com/laravel/valet/pull/1473
+* Support Illuminate:11 and Symfony:7 by [@drbyte](https://github.com/drbyte) in https://github.com/laravel/valet/pull/1481
+* Ignore invalid paths by [@ahmedash95](https://github.com/ahmedash95) in https://github.com/laravel/valet/pull/1478
 
 ## [v4.6.1](https://github.com/laravel/valet/compare/v4.6.0...v4.6.1) - 2024-01-01
 
