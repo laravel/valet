@@ -160,6 +160,10 @@ class Server
         $domain = static::domainFromSiteName($siteName);
 
         foreach ($this->config['paths'] as $path) {
+            if (! is_dir($path)) {
+                continue;
+            }
+
             $handle = opendir($path);
 
             if ($handle === false) {
