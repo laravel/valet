@@ -9,8 +9,8 @@ use Valet\Server;
 /**
  * Define the user's "~/.config/valet" path.
  */
-define('VALET_HOME_PATH', posix_getpwuid(fileowner(__FILE__))['dir'].'/.config/valet');
-define('VALET_STATIC_PREFIX', '41c270e4-5535-4daa-b23e-c269744c2f45');
+defined('VALET_HOME_PATH') or define('VALET_HOME_PATH', posix_getpwuid(fileowner(__FILE__))['dir'].'/.config/valet');
+defined('VALET_STATIC_PREFIX') or define('VALET_STATIC_PREFIX', '41c270e4-5535-4daa-b23e-c269744c2f45');
 
 /**
  * Load the Valet configuration.
