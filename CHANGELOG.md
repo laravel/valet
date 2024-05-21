@@ -1,6 +1,10 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v4.6.2...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v4.6.3...master)
+
+## [v4.6.3](https://github.com/laravel/valet/compare/v4.6.2...v4.6.3) - 2024-05-21
+
+* add server name to valet.conf by [@Oleg339](https://github.com/Oleg339) in https://github.com/laravel/valet/pull/1458
 
 ## [v4.6.2](https://github.com/laravel/valet/compare/v4.6.1...v4.6.2) - 2024-05-07
 
