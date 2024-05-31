@@ -533,6 +533,7 @@ class Site
             if (strpos($isTrusted, '...certificate verification successful.') === false) {
                 $this->trustCa($caPemPath);
             }
+
             return;
         }
 
