@@ -776,6 +776,46 @@ class CliTest extends BaseApplicationTestCase
         $this->assertStringContainsString('PHP has been restarted.', $tester->getDisplay());
     }
 
+    public function test_restart_command_restarts_php_version()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $phpfpm = Mockery::mock(PhpFpm::class);
+        $phpfpm->shouldReceive('normalizePhpVersion')
+            ->withArgs(['php@8.1'])
+            ->passthru()
+            ->once();
+        $phpfpm->shouldReceive('restart')->withArgs(['php@8.1'])->once();
+
+        swap(PhpFpm::class, $phpfpm);
+
+        $tester->run(['command' => 'restart', 'service' => 'php@8.1']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('PHP has been restarted.', $tester->getDisplay());
+    }
+
+    public function test_restart_command_restarts_php_denormalized_version()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $phpfpm = Mockery::mock(PhpFpm::class);
+        $phpfpm->shouldReceive('normalizePhpVersion')
+            ->withArgs(['php81'])
+            ->passthru()
+            ->once();
+        $phpfpm->shouldReceive('restart')
+            ->withArgs(['php@8.1'])
+            ->once();
+
+        swap(PhpFpm::class, $phpfpm);
+
+        $tester->run(['command' => 'restart', 'service' => 'php81']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('PHP has been restarted.', $tester->getDisplay());
+    }
+
     public function test_start_command()
     {
         [$app, $tester] = $this->appAndTester();
