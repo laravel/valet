@@ -495,27 +495,32 @@ if (is_dir(VALET_HOME_PATH)) {
      * Restart the daemon services.
      */
     $app->command('restart [service]', function (OutputInterface $output, $service) {
-        $serviceContainsPhp = is_string($service) && false !== strpos($service, 'php');
+        switch ($service) {
+            case '':
+                DnsMasq::restart();
+                PhpFpm::restart();
+                Nginx::restart();
 
-        if ($service == '') {
-            DnsMasq::restart();
-            PhpFpm::restart();
-            Nginx::restart();
+                return info('Valet services have been restarted.');
+            case 'dnsmasq':
+                DnsMasq::restart();
 
-            return info('Valet services have been restarted.');
-        } elseif ($service == 'dnsmasq') {
-            DnsMasq::restart();
+                return info('dnsmasq has been restarted.');
+            case 'nginx':
+                Nginx::restart();
 
-            return info('dnsmasq has been restarted.');
-        } elseif ($service == 'nginx') {
-            Nginx::restart();
+                return info('Nginx has been restarted.');
+            case 'php':
+                PhpFpm::restart();
 
-            return info('Nginx has been restarted.');
-        } elseif ($serviceContainsPhp) {
-            $hasSpecifiedVersion = $service !== 'php';
-            PhpFpm::restart($hasSpecifiedVersion ? PhpFpm::normalizePhpVersion($service) : null);
+                return info('PHP has been restarted.');
+        }
 
-            return info('PHP has been restarted.');
+        // Handle restarting specific PHP version (e.g. `valet restart php@8.2`)
+        if (str_contains($service, 'php')) {
+            PhpFpm::restart($normalized = PhpFpm::normalizePhpVersion($service));
+
+            return info($normalized . ' has been restarted.');
         }
 
         return warning(sprintf('Invalid valet service name [%s]', $service));

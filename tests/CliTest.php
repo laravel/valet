@@ -792,7 +792,7 @@ class CliTest extends BaseApplicationTestCase
         $tester->run(['command' => 'restart', 'service' => 'php@8.1']);
         $tester->assertCommandIsSuccessful();
 
-        $this->assertStringContainsString('PHP has been restarted.', $tester->getDisplay());
+        $this->assertStringContainsString('php@8.1 has been restarted.', $tester->getDisplay());
     }
 
     public function test_restart_command_restarts_php_denormalized_version()
@@ -813,7 +813,7 @@ class CliTest extends BaseApplicationTestCase
         $tester->run(['command' => 'restart', 'service' => 'php81']);
         $tester->assertCommandIsSuccessful();
 
-        $this->assertStringContainsString('PHP has been restarted.', $tester->getDisplay());
+        $this->assertStringContainsString('php@8.1 has been restarted.', $tester->getDisplay());
     }
 
     public function test_start_command()
