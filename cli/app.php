@@ -520,7 +520,7 @@ if (is_dir(VALET_HOME_PATH)) {
         if (str_contains($service, 'php')) {
             PhpFpm::restart($normalized = PhpFpm::normalizePhpVersion($service));
 
-            return info($normalized . ' has been restarted.');
+            return info($normalized.' has been restarted.');
         }
 
         return warning(sprintf('Invalid valet service name [%s]', $service));
