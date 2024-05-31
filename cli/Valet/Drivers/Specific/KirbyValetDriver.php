@@ -51,8 +51,8 @@ class KirbyValetDriver extends ValetDriver
         // add this block
         if (preg_match('/^\/(?!(kirby|site|content)\/).+\.php$/', $uri)) {
             if (
-                $this->isActualFile($sitePath.$uri) || 
-                $isAboveWebroot && $this->isActualFile($sitePath."/public".$uri)
+                $this->isActualFile($sitePath.$uri) ||
+                $isAboveWebroot && $this->isActualFile($sitePath.'/public'.$uri)
             ) {
                 $scriptName = $uri;
                 $indexPath = $sitePath.$scriptName;
