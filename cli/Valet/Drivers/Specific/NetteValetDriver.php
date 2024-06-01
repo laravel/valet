@@ -11,7 +11,10 @@ class NetteValetDriver extends ValetDriver
      */
     public function serves(string $sitePath, string $siteName, string $uri): bool
     {
-        return file_exists($sitePath.'/www');
+        return file_exists($sitePath.'/www/index.php')
+            && file_exists($sitePath.'/www/.htaccess')
+            && file_exists($sitePath.'/config/common.neon')
+            && file_exists($sitePath.'/config/services.neon');
     }
 
     /**
