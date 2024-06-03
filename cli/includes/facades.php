@@ -68,3 +68,6 @@ class Upgrader extends Facade
 class Valet extends Facade
 {
 }
+class Cloudflared extends Facade
+{
+}
