@@ -38,9 +38,7 @@ class Brew
 
     const BREW_DISABLE_AUTO_CLEANUP = 'HOMEBREW_NO_INSTALL_CLEANUP=1';
 
-    public function __construct(public CommandLine $cli, public Filesystem $files)
-    {
-    }
+    public function __construct(public CommandLine $cli, public Filesystem $files) {}
 
     /**
      * Ensure the formula exists in the current Homebrew configuration.

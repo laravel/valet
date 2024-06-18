@@ -4,9 +4,7 @@ namespace Valet;
 
 class Configuration
 {
-    public function __construct(public Filesystem $files)
-    {
-    }
+    public function __construct(public Filesystem $files) {}
 
     /**
      * Install the Valet configuration file.

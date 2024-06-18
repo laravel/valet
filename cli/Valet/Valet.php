@@ -8,9 +8,7 @@ class Valet
 {
     public $valetBin = BREW_PREFIX.'/bin/valet';
 
-    public function __construct(public CommandLine $cli, public Filesystem $files)
-    {
-    }
+    public function __construct(public CommandLine $cli, public Filesystem $files) {}
 
     /**
      * Symlink the Valet Bash script into the user's local bin.

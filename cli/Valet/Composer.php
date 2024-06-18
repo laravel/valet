@@ -6,9 +6,7 @@ use DomainException;
 
 class Composer
 {
-    public function __construct(public CommandLine $cli)
-    {
-    }
+    public function __construct(public CommandLine $cli) {}
 
     public function installed(string $namespacedPackage): bool
     {

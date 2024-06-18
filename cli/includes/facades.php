@@ -23,48 +23,18 @@ class Facade
     }
 }
 
-class Brew extends Facade
-{
-}
-class Nginx extends Facade
-{
-}
-class CommandLine extends Facade
-{
-}
-class Composer extends Facade
-{
-}
-class Configuration extends Facade
-{
-}
-class Diagnose extends Facade
-{
-}
-class DnsMasq extends Facade
-{
-}
-class Expose extends Facade
-{
-}
-class Filesystem extends Facade
-{
-}
-class Ngrok extends Facade
-{
-}
-class PhpFpm extends Facade
-{
-}
-class Site extends Facade
-{
-}
-class Status extends Facade
-{
-}
-class Upgrader extends Facade
-{
-}
-class Valet extends Facade
-{
-}
+class Brew extends Facade {}
+class Nginx extends Facade {}
+class CommandLine extends Facade {}
+class Composer extends Facade {}
+class Configuration extends Facade {}
+class Diagnose extends Facade {}
+class DnsMasq extends Facade {}
+class Expose extends Facade {}
+class Filesystem extends Facade {}
+class Ngrok extends Facade {}
+class PhpFpm extends Facade {}
+class Site extends Facade {}
+class Status extends Facade {}
+class Upgrader extends Facade {}
+class Valet extends Facade {}

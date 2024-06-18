@@ -9,9 +9,7 @@ use PhpFpm;
 
 class Site
 {
-    public function __construct(public Brew $brew, public Configuration $config, public CommandLine $cli, public Filesystem $files)
-    {
-    }
+    public function __construct(public Brew $brew, public Configuration $config, public CommandLine $cli, public Filesystem $files) {}
 
     /**
      * Get the name of the site.
