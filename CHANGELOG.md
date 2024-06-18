@@ -1,6 +1,15 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v4.6.3...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v4.7.0...master)
+
+## [v4.7.0](https://github.com/laravel/valet/compare/v4.6.3...v4.7.0) - 2024-06-18
+
+* Trust CA Certificate only by [@adrum](https://github.com/adrum) in https://github.com/laravel/valet/pull/1463
+* Allow specifying php version to restart by [@N-Silbernagel](https://github.com/N-Silbernagel) in https://github.com/laravel/valet/pull/1469
+* Update KirbyValetDriver.php by [@Werbschaft](https://github.com/Werbschaft) in https://github.com/laravel/valet/pull/1471
+* fix: Warning: Constant VALET_* already defined in X by [@NickSdot](https://github.com/NickSdot) in https://github.com/laravel/valet/pull/1485
+* Add values() call to reset keys after modifying paths by [@adriaanzon](https://github.com/adriaanzon) in https://github.com/laravel/valet/pull/1477
+* Adding support for Nette Framework. by [@antonL95](https://github.com/antonL95) in https://github.com/laravel/valet/pull/1486
 
 ## [v4.6.3](https://github.com/laravel/valet/compare/v4.6.2...v4.6.3) - 2024-05-21
 
