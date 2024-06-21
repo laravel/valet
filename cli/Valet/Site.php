@@ -640,9 +640,14 @@ class Site
      */
     public function trustCa(string $caPemPath): void
     {
-        $this->cli->run(sprintf(
-            'sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain "%s"', $caPemPath
+        info('Trusting Laravel Valet Certificate Authority...');
+        $result = $this->cli->run(sprintf(
+            'sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain "%s"',
+            $caPemPath
         ));
+        if ($result) {
+            throw new DomainException('The Certificate Authority must be trusted. Please run the command again.');
+        }
     }
 
     /**
