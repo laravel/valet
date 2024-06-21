@@ -475,17 +475,18 @@ class Site
         // Extract in order to later preserve custom PHP version config when securing
         $phpVersion = $this->customPhpVersion($url);
 
-        $this->unsecure($url);
-
+        // Create the CA if it doesn't exist.
+        // If the user cancels the trust operation, the old certificate will be not removed.
         $this->files->ensureDirExists($this->caPath(), user());
+        $caExpireInDate = (new \DateTime())->diff(new \DateTime("+{$caExpireInYears} years"));
+        $this->createCa($caExpireInDate->format('%a'));
+
+        $this->unsecure($url);
 
         $this->files->ensureDirExists($this->certificatesPath(), user());
 
         $this->files->ensureDirExists($this->nginxPath(), user());
 
-        $caExpireInDate = (new \DateTime())->diff(new \DateTime("+{$caExpireInYears} years"));
-
-        $this->createCa($caExpireInDate->format('%a'));
         $this->createCertificate($url, $certificateExpireInDays);
 
         $siteConf = $this->buildSecureNginxServer($url, $siteConf);
