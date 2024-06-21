@@ -476,7 +476,7 @@ class Site
         $phpVersion = $this->customPhpVersion($url);
 
         // Create the CA if it doesn't exist.
-        // If the user cancels the trust operation, the old certificate will be not removed.
+        // If the user cancels the trust operation, the old certificate will not be removed.
         $this->files->ensureDirExists($this->caPath(), user());
         $caExpireInDate = (new \DateTime())->diff(new \DateTime("+{$caExpireInYears} years"));
         $this->createCa($caExpireInDate->format('%a'));
