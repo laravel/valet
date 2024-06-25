@@ -1,6 +1,10 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v4.7.0...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v4.7.1...master)
+
+## [v4.7.1](https://github.com/laravel/valet/compare/v4.7.0...v4.7.1) - 2024-06-25
+
+* Require Trusting CA when securing sites by [@adrum](https://github.com/adrum) in https://github.com/laravel/valet/pull/1488
 
 ## [v4.7.0](https://github.com/laravel/valet/compare/v4.6.3...v4.7.0) - 2024-06-18
 
