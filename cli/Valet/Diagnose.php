@@ -55,9 +55,7 @@ class Diagnose
 
     public $progressBar;
 
-    public function __construct(public CommandLine $cli, public Filesystem $files)
-    {
-    }
+    public function __construct(public CommandLine $cli, public Filesystem $files) {}
 
     /**
      * Run diagnostics.

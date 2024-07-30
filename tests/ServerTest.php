@@ -90,6 +90,13 @@ class ServerTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         $this->assertNull($server->defaultSitePath());
     }
 
+    public function test_it_ignores_invalid_paths()
+    {
+        $server = new Server(['paths' => ['fake' => __DIR__.'/invalid_path']]);
+
+        $this->assertNull($server->sitePath('tighten'));
+    }
+
     public function test_it_tests_whether_host_is_ip_address()
     {
         $this->assertTrue(Server::hostIsIpAddress('192.168.1.1'));

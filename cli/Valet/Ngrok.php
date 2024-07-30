@@ -13,9 +13,7 @@ class Ngrok
         'http://127.0.0.1:4041/api/tunnels',
     ];
 
-    public function __construct(public CommandLine $cli, public Brew $brew)
-    {
-    }
+    public function __construct(public CommandLine $cli, public Brew $brew) {}
 
     /**
      * Get the current tunnel URL from the Ngrok API.

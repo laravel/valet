@@ -9,9 +9,7 @@ use PhpFpm;
 
 class Site
 {
-    public function __construct(public Brew $brew, public Configuration $config, public CommandLine $cli, public Filesystem $files)
-    {
-    }
+    public function __construct(public Brew $brew, public Configuration $config, public CommandLine $cli, public Filesystem $files) {}
 
     /**
      * Get the name of the site.
@@ -477,17 +475,18 @@ class Site
         // Extract in order to later preserve custom PHP version config when securing
         $phpVersion = $this->customPhpVersion($url);
 
-        $this->unsecure($url);
-
+        // Create the CA if it doesn't exist.
+        // If the user cancels the trust operation, the old certificate will not be removed.
         $this->files->ensureDirExists($this->caPath(), user());
+        $caExpireInDate = (new \DateTime())->diff(new \DateTime("+{$caExpireInYears} years"));
+        $this->createCa($caExpireInDate->format('%a'));
+
+        $this->unsecure($url);
 
         $this->files->ensureDirExists($this->certificatesPath(), user());
 
         $this->files->ensureDirExists($this->nginxPath(), user());
 
-        $caExpireInDate = (new \DateTime())->diff(new \DateTime("+{$caExpireInYears} years"));
-
-        $this->createCa($caExpireInDate->format('%a'));
         $this->createCertificate($url, $certificateExpireInDays);
 
         $siteConf = $this->buildSecureNginxServer($url, $siteConf);
@@ -525,6 +524,15 @@ class Site
         $caKeyPath = $this->caPath('LaravelValetCASelfSigned.key');
 
         if ($this->files->exists($caKeyPath) && $this->files->exists($caPemPath)) {
+
+            $isTrusted = $this->cli->run(sprintf(
+                'security verify-cert -c "%s"', $caPemPath
+            ));
+
+            if (strpos($isTrusted, '...certificate verification successful.') === false) {
+                $this->trustCa($caPemPath);
+            }
+
             return;
         }
 
@@ -607,8 +615,6 @@ class Site
                 $caExpireInDays, $caPemPath, $caKeyPath, $caSrlParam, $csrPath, $crtPath, $confPath
             ));
         }
-
-        $this->trustCertificate($crtPath);
     }
 
     /**
@@ -635,9 +641,14 @@ class Site
      */
     public function trustCa(string $caPemPath): void
     {
-        $this->cli->run(sprintf(
-            'sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain "%s"', $caPemPath
+        info('Trusting Laravel Valet Certificate Authority...');
+        $result = $this->cli->run(sprintf(
+            'sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain "%s"',
+            $caPemPath
         ));
+        if ($result) {
+            throw new DomainException('The Certificate Authority must be trusted. Please run the command again.');
+        }
     }
 
     /**

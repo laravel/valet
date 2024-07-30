@@ -33,7 +33,7 @@ if (file_exists(__DIR__.'/../vendor/autoload.php')) {
  */
 Container::setInstance(new Container);
 
-$version = '4.6.1';
+$version = '4.7.1';
 
 $app = new Application('Laravel Valet', $version);
 
@@ -497,6 +497,13 @@ if (is_dir(VALET_HOME_PATH)) {
                 PhpFpm::restart();
 
                 return info('PHP has been restarted.');
+        }
+
+        // Handle restarting specific PHP version (e.g. `valet restart php@8.2`)
+        if (str_contains($service, 'php')) {
+            PhpFpm::restart($normalized = PhpFpm::normalizePhpVersion($service));
+
+            return info($normalized.' has been restarted.');
         }
 
         return warning(sprintf('Invalid valet service name [%s]', $service));

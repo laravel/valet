@@ -12,9 +12,7 @@ class PhpFpm
         'shivammathur/php',
     ];
 
-    public function __construct(public Brew $brew, public CommandLine $cli, public Filesystem $files, public Configuration $config, public Site $site, public Nginx $nginx)
-    {
-    }
+    public function __construct(public Brew $brew, public CommandLine $cli, public Filesystem $files, public Configuration $config, public Site $site, public Nginx $nginx) {}
 
     /**
      * Install and configure PhpFpm.

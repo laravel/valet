@@ -7,9 +7,7 @@ use GuzzleHttp\Exception\ConnectException;
 
 class Expose
 {
-    public function __construct(public Composer $composer, public CommandLine $cli)
-    {
-    }
+    public function __construct(public Composer $composer, public CommandLine $cli) {}
 
     public function currentTunnelUrl(?string $domain = null): ?string
     {

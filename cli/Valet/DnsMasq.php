@@ -10,9 +10,7 @@ class DnsMasq
 
     public $resolverPath = '/etc/resolver';
 
-    public function __construct(public Brew $brew, public CommandLine $cli, public Filesystem $files, public Configuration $configuration)
-    {
-    }
+    public function __construct(public Brew $brew, public CommandLine $cli, public Filesystem $files, public Configuration $configuration) {}
 
     /**
      * Install and configure DnsMasq.

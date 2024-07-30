@@ -10,9 +10,7 @@ class Status
 
     public $debugInstructions = [];
 
-    public function __construct(public Configuration $config, public Brew $brew, public CommandLine $cli, public Filesystem $files)
-    {
-    }
+    public function __construct(public Configuration $config, public Brew $brew, public CommandLine $cli, public Filesystem $files) {}
 
     /**
      * Check the status of the entire Valet ecosystem and return a status boolean

@@ -1,6 +1,29 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v4.6.1...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v4.7.1...master)
+
+## [v4.7.1](https://github.com/laravel/valet/compare/v4.7.0...v4.7.1) - 2024-06-25
+
+* Require Trusting CA when securing sites by [@adrum](https://github.com/adrum) in https://github.com/laravel/valet/pull/1488
+
+## [v4.7.0](https://github.com/laravel/valet/compare/v4.6.3...v4.7.0) - 2024-06-18
+
+* Trust CA Certificate only by [@adrum](https://github.com/adrum) in https://github.com/laravel/valet/pull/1463
+* Allow specifying php version to restart by [@N-Silbernagel](https://github.com/N-Silbernagel) in https://github.com/laravel/valet/pull/1469
+* Update KirbyValetDriver.php by [@Werbschaft](https://github.com/Werbschaft) in https://github.com/laravel/valet/pull/1471
+* fix: Warning: Constant VALET_* already defined in X by [@NickSdot](https://github.com/NickSdot) in https://github.com/laravel/valet/pull/1485
+* Add values() call to reset keys after modifying paths by [@adriaanzon](https://github.com/adriaanzon) in https://github.com/laravel/valet/pull/1477
+* Adding support for Nette Framework. by [@antonL95](https://github.com/antonL95) in https://github.com/laravel/valet/pull/1486
+
+## [v4.6.3](https://github.com/laravel/valet/compare/v4.6.2...v4.6.3) - 2024-05-21
+
+* add server name to valet.conf by [@Oleg339](https://github.com/Oleg339) in https://github.com/laravel/valet/pull/1458
+
+## [v4.6.2](https://github.com/laravel/valet/compare/v4.6.1...v4.6.2) - 2024-05-07
+
+* Add quotes around $PHP by [@drbyte](https://github.com/drbyte) in https://github.com/laravel/valet/pull/1473
+* Support Illuminate:11 and Symfony:7 by [@drbyte](https://github.com/drbyte) in https://github.com/laravel/valet/pull/1481
+* Ignore invalid paths by [@ahmedash95](https://github.com/ahmedash95) in https://github.com/laravel/valet/pull/1478
 
 ## [v4.6.1](https://github.com/laravel/valet/compare/v4.6.0...v4.6.1) - 2024-01-01
 

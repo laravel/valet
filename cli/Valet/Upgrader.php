@@ -7,9 +7,7 @@ use Site;
 
 class Upgrader
 {
-    public function __construct(public Filesystem $files)
-    {
-    }
+    public function __construct(public Filesystem $files) {}
 
     /**
      * Run all the upgrades that should be run every time Valet commands are run.

@@ -45,7 +45,7 @@ fi
 # process to retrieve the live Ngrok tunnel URL in the background.
 if [[ "$1" = "share" ]]
 then
-    SHARETOOL="$($PHP "$DIR/cli/valet.php" share-tool)"
+    SHARETOOL="$("$PHP" "$DIR/cli/valet.php" share-tool)"
 
     # Check for parameters to pass through to share tool (these will start with '-' or '--')
     PARAMS=(${@:2})
