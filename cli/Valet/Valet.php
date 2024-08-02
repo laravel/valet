@@ -36,7 +36,7 @@ class Valet
     public function onLatestVersion(string $currentVersion): bool
     {
         $url = 'https://api.github.com/repos/laravel/valet/releases/latest';
-        $response = json_decode((new Client())->get($url)->getBody());
+        $response = json_decode((new Client)->get($url)->getBody());
 
         return version_compare($currentVersion, trim($response->tag_name, 'v'), '>=');
     }

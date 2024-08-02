@@ -37,7 +37,7 @@ $version = '4.7.1';
 
 $app = new Application('Laravel Valet', $version);
 
-$app->setDispatcher($dispatcher = new EventDispatcher());
+$app->setDispatcher($dispatcher = new EventDispatcher);
 
 $dispatcher->addListener(
     ConsoleEvents::COMMAND,
@@ -280,7 +280,7 @@ if (is_dir(VALET_HOME_PATH)) {
      * Display all of the currently secured sites.
      */
     $app->command('secured [--expiring] [--days=]', function (OutputInterface $output, $expiring = null, $days = 60) {
-        $now = (new Datetime())->add(new DateInterval('P'.$days.'D'));
+        $now = (new Datetime)->add(new DateInterval('P'.$days.'D'));
         $sites = collect(Site::securedWithDates())
             ->when($expiring, fn ($collection) => $collection->filter(fn ($row) => $row['exp'] < $now))
             ->map(function ($row) {

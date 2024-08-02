@@ -6,7 +6,7 @@ class BasicValetDriverTest extends BaseDriverTestCase
 {
     public function test_it_serves_anything()
     {
-        $driver = new BasicValetDriver();
+        $driver = new BasicValetDriver;
 
         foreach ($this->projects() as $projectDir) {
             $this->assertTrue($driver->serves($projectDir, 'my-site', '/'));
@@ -16,7 +16,7 @@ class BasicValetDriverTest extends BaseDriverTestCase
     public function test_it_serves_php_files_from_root()
     {
         $projectPath = $this->projectDir('basic-no-public');
-        $driver = new BasicValetDriver();
+        $driver = new BasicValetDriver;
 
         $this->assertEquals(
             $projectPath.'/file-in-root.php',
@@ -27,7 +27,7 @@ class BasicValetDriverTest extends BaseDriverTestCase
     public function test_it_serves_directory_with_index_php()
     {
         $projectPath = $this->projectDir('basic-no-public');
-        $driver = new BasicValetDriver();
+        $driver = new BasicValetDriver;
 
         $this->assertEquals(
             $projectPath.'/about/index.php',
@@ -38,7 +38,7 @@ class BasicValetDriverTest extends BaseDriverTestCase
     public function test_it_routes_to_index_if_404()
     {
         $projectPath = $this->projectDir('basic-no-public');
-        $driver = new BasicValetDriver();
+        $driver = new BasicValetDriver;
 
         $this->assertEquals(
             $projectPath.'/index.php',
@@ -49,7 +49,7 @@ class BasicValetDriverTest extends BaseDriverTestCase
     public function test_it_serves_directory_with_index_html()
     {
         $projectPath = $this->projectDir('basic-no-public');
-        $driver = new BasicValetDriver();
+        $driver = new BasicValetDriver;
 
         $this->assertEquals(
             $projectPath.'/team/index.html',
@@ -60,7 +60,7 @@ class BasicValetDriverTest extends BaseDriverTestCase
     public function test_it_serves_static_files()
     {
         $projectPath = $this->projectDir('basic-no-public');
-        $driver = new BasicValetDriver();
+        $driver = new BasicValetDriver;
 
         $this->assertEquals(
             $projectPath.'/assets/document.txt',

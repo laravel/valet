@@ -25,7 +25,7 @@ if (! defined('VALET_STATIC_PREFIX')) {
 define('VALET_LOOPBACK', '127.0.0.1');
 define('VALET_SERVER_PATH', realpath(__DIR__.'/../../server.php'));
 
-define('BREW_PREFIX', (new CommandLine())->runAsUser('printf $(brew --prefix)'));
+define('BREW_PREFIX', (new CommandLine)->runAsUser('printf $(brew --prefix)'));
 
 define('ISOLATED_PHP_VERSION', 'ISOLATED_PHP_VERSION');
 
@@ -38,7 +38,7 @@ function writer(?OutputInterface $writer = null): OutputInterface|\NullWriter|nu
 
     if (! $writer) {
         if (! $container->bound('writer')) {
-            $container->instance('writer', new ConsoleOutput());
+            $container->instance('writer', new ConsoleOutput);
         }
 
         return $container->make('writer');

@@ -26,7 +26,7 @@ class Ngrok
         foreach ($this->tunnelsEndpoints as $endpoint) {
             try {
                 $response = retry(20, function () use ($endpoint, $domain) {
-                    $body = json_decode((new Client())->get($endpoint)->getBody());
+                    $body = json_decode((new Client)->get($endpoint)->getBody());
 
                     if (isset($body->tunnels) && count($body->tunnels) > 0) {
                         if ($tunnelUrl = $this->findHttpTunnelUrl($body->tunnels, $domain)) {
