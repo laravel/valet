@@ -12,40 +12,44 @@ class Cloudflared
 
     public function currentTunnelUrl(string $domain): ?string
     {
-        return $this->currentCloudflaredTunnels()[$domain] ?? false;
-    }
-
-    protected function currentCloudflaredTunnels(): array
-    {
-        $urls = [];
-
-        // Get all cloudflared processes
-        $processes = array_filter(explode("\n", $this->cli->run('pgrep -fl cloudflared')));
-
         // Every cloudflared process will start a "metrics" web server where the
-        // Quick Tunnel URL will be mentioned under the /metrics endpoint
-        foreach ($processes as $process) {
+        // Quick Tunnel URL will be mentioned under the /metrics endpoint; there
+        // can potentially be more than one process that matches, but the lsof
+        // command will show which one is actually functionally running
+        foreach (array_filter(explode(PHP_EOL, $this->cli->run('pgrep -fl cloudflared'))) as $process) {
             // Get the URL shared in this process
             preg_match('/(?<pid>\d+)\s.+--http-host-header\s(?<domain>[^\s]+).*/', $process, $pgrepMatches);
 
-            if (array_key_exists('domain', $pgrepMatches) && array_key_exists('pid', $pgrepMatches)) {
-                // Get the localhost URL (localhost:port) for the metrics server
-                $lsof = $this->cli->run("lsof -iTCP -P -a -p {$pgrepMatches['pid']}");
-                preg_match('/TCP\s(?<server>[^\s]+:\d+)\s\(LISTEN\)/', $lsof, $lsofMatches);
+            if (! array_key_exists('domain', $pgrepMatches) || ! array_key_exists('pid', $pgrepMatches)) {
+                continue;
+            }
 
-                if (array_key_exists('server', $lsofMatches)) {
-                    try {
-                        // Get the shared cloudflared URL from the metrics server output
-                        $body = (new Client())->get("http://{$lsofMatches['server']}/metrics")->getBody();
-                        preg_match('/userHostname="(?<url>.+)"/', $body->getContents(), $lsofMatches);
-                    } catch (\Exception $e) {}
+            if ($pgrepMatches['domain'] !== $domain) {
+                continue;
+            }
 
-                    $urls[$pgrepMatches['domain']] = $lsofMatches['url'] ?? false;
-                }
+            // Get the localhost URL for the metrics server
+            $lsof = $this->cli->run("lsof -iTCP -P -a -p {$pgrepMatches['pid']}");
+            preg_match('/TCP\s(?<server>[^\s]+:\d+)\s\(LISTEN\)/', $lsof, $lsofMatches);
+
+            if (! array_key_exists('server', $lsofMatches)) {
+                continue;
+            }
+
+            try {
+                // Get the cloudflared share URL from the metrics server output
+                $body = (new Client())->get("http://{$lsofMatches['server']}/metrics")->getBody();
+                preg_match('/userHostname="(?<url>.+)"/', $body->getContents(), $userHostnameMatches);
+            } catch (\Exception $e) {
+                return false;
+            }
+
+            if (array_key_exists('url', $userHostnameMatches)) {
+                return $userHostnameMatches['url'];
             }
         }
 
-        return $urls;
+        return false;
     }
 
     /**
