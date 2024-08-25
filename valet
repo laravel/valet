@@ -70,10 +70,11 @@ then
         fi
     done
 
-    # Lowercase the host to match the rest of our domains are looked up
+    # Lowercase the host to match how the rest of our domains are looked up
     HOST=$(echo "$HOST" | tr '[:upper:]' '[:lower:]')
     TLD=$("$PHP" "$DIR/cli/valet.php" tld)
-    SECURED=$(grep --quiet --no-messages 443 ~/.config/valet/Nginx/$HOST*)
+    $(grep --quiet --no-messages 443 ~/.config/valet/Nginx/$HOST*)
+    SECURED=$?
 
     if [[ $SHARETOOL = "ngrok" ]]
     then
@@ -88,8 +89,7 @@ then
         fi
 
         # Decide the correct PORT: uses 60 for secure, else 80
-        if $SECURED
-        then
+        if [[ $SECURED -eq 0 ]]; then
             PORT=60
         else
             PORT=80
@@ -104,8 +104,7 @@ then
 
     # expose
         # Decide the correct PORT: uses 443 for secure, else 80
-        if $SECURED
-        then
+        if [[ $SECURED -eq 0 ]]; then
             PORT=443
         else
             PORT=80
@@ -118,8 +117,7 @@ then
     elif [[ $SHARETOOL = "cloudflared" ]]
     then
     # cloudflared
-        if $SECURED
-        then
+        if [[ $SECURED -eq 0 ]]; then
             SCHEME="https"
         else
             SCHEME="http"
