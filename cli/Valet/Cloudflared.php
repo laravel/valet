@@ -10,7 +10,7 @@ class Cloudflared
     {
     }
 
-    public function currentTunnelUrl(?string $domain = null)
+    public function currentTunnelUrl(string $domain): ?string
     {
         return $this->currentCloudflaredTunnels()[$domain] ?? false;
     }

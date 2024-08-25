@@ -18,7 +18,7 @@ class Ngrok
     /**
      * Get the current tunnel URL from the Ngrok API.
      */
-    public function currentTunnelUrl(?string $domain = null): string
+    public function currentTunnelUrl(string $domain): string
     {
         // wait a second for ngrok to start before attempting to find available tunnels
         sleep(1);
