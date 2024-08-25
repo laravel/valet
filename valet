@@ -41,8 +41,8 @@ else
 fi
 
 # If the command is the "share" command we will need to resolve out any
-# symbolic links for the site. Before starting Ngrok, we will fire a
-# process to retrieve the live Ngrok tunnel URL in the background.
+# symbolic links for the site. Before starting the share tool, we will fire a
+# process to retrieve the live the share tool tunnel URL in the background.
 if [[ "$1" = "share" ]]
 then
     SHARETOOL="$("$PHP" "$DIR/cli/valet.php" share-tool)"
