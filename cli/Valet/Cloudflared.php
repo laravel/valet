@@ -6,9 +6,7 @@ use GuzzleHttp\Client;
 
 class Cloudflared
 {
-    public function __construct(public CommandLine $cli, public Brew $brew)
-    {
-    }
+    public function __construct(public CommandLine $cli, public Brew $brew) {}
 
     public function currentTunnelUrl(string $domain): ?string
     {
@@ -38,7 +36,7 @@ class Cloudflared
 
             try {
                 // Get the cloudflared share URL from the metrics server output
-                $body = (new Client())->get("http://{$lsofMatches['server']}/metrics")->getBody();
+                $body = (new Client)->get("http://{$lsofMatches['server']}/metrics")->getBody();
                 preg_match('/userHostname="(?<url>.+)"/', $body->getContents(), $userHostnameMatches);
             } catch (\Exception $e) {
                 return false;

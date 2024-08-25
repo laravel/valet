@@ -50,7 +50,7 @@ Upgrader::onEveryRun();
 $share_tools = [
     'cloudflared',
     'expose',
-    'ngrok'
+    'ngrok',
 ];
 
 /**
@@ -403,14 +403,13 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Echo or set the name of the currently-selected share tool (either "ngrok" or "expose").
      */
-    $app->command('share-tool [tool]', function (InputInterface $input, OutputInterface $output, $tool = null)
-    use ($share_tools) {
+    $app->command('share-tool [tool]', function (InputInterface $input, OutputInterface $output, $tool = null) use ($share_tools) {
         if ($tool === null) {
             return output(Configuration::read()['share-tool'] ?? '(not set)');
         }
 
         $share_tools_list = preg_replace('/,\s([^,]+)$/', ' or $1',
-            join(', ', array_map(fn($t) => "`$t`", $share_tools)));
+            implode(', ', array_map(fn ($t) => "`$t`", $share_tools)));
 
         if (! in_array($tool, $share_tools) || ! class_exists($tool)) {
             warning("$tool is not a valid share tool. Please use $share_tools_list.");
