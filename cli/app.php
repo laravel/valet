@@ -47,6 +47,12 @@ $dispatcher->addListener(
 
 Upgrader::onEveryRun();
 
+$share_tools = [
+    'cloudflared',
+    'expose',
+    'ngrok'
+];
+
 /**
  * Install Valet and any required services.
  */
@@ -378,83 +384,60 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Echo the currently tunneled URL.
      */
-    $app->command('fetch-share-url [domain]', function ($domain = null) {
+    $app->command('fetch-share-url [domain]', function ($domain = null) use ($share_tools) {
         $tool = Configuration::read()['share-tool'] ?? null;
 
-        switch ($tool) {
-            case 'expose':
-                if ($url = Expose::currentTunnelUrl($domain ?: Site::host(getcwd()))) {
-                    output($url);
-                }
-                break;
-            case 'ngrok':
-                try {
-                    output(Ngrok::currentTunnelUrl(Site::domain($domain)));
-                } catch (\Throwable $e) {
-                    warning($e->getMessage());
-                }
-                break;
-            default:
-                info('Please set your share tool with `valet share-tool expose` or `valet share-tool ngrok`.');
+        if ($tool && in_array($tool, $share_tools) && class_exists($tool)) {
+            try {
+                output($tool::currentTunnelUrl(Site::domain($domain)));
+            } catch (\Throwable $e) {
+                warning($e->getMessage());
+            }
+        } else {
+            info('Please set your share tool with `valet share-tool`.');
 
-                return Command::FAILURE;
+            return Command::FAILURE;
         }
-    })->descriptions('Get the URL to the current share tunnel (for Expose or ngrok)');
+    })->descriptions('Get the URL to the current share tunnel');
 
     /**
      * Echo or set the name of the currently-selected share tool (either "ngrok" or "expose").
      */
-    $app->command('share-tool [tool]', function (InputInterface $input, OutputInterface $output, $tool = null) {
+    $app->command('share-tool [tool]', function (InputInterface $input, OutputInterface $output, $tool = null)
+    use ($share_tools) {
         if ($tool === null) {
             return output(Configuration::read()['share-tool'] ?? '(not set)');
         }
 
-        if ($tool !== 'expose' && $tool !== 'ngrok') {
-            warning($tool.' is not a valid share tool. Please use `ngrok` or `expose`.');
+        $share_tools_list = preg_replace('/,\s([^,]+)$/', ' or $1',
+            join(', ', array_map(fn($t) => "`$t`", $share_tools)));
+
+        if (! in_array($tool, $share_tools) || ! class_exists($tool)) {
+            warning("$tool is not a valid share tool. Please use $share_tools_list.");
 
             return Command::FAILURE;
         }
 
         Configuration::updateKey('share-tool', $tool);
-        info('Share tool set to '.$tool.'.');
+        info("Share tool set to $tool.");
 
-        if ($tool === 'expose') {
-            if (Expose::installed()) {
-                // @todo: Check it's the right version (has /api/tunnels/)
-                // E.g. if (Expose::installedVersion)
-                // if (version_compare(Expose::installedVersion(), $minimumExposeVersion) < 0) {
-                // prompt them to upgrade
-                return;
-            }
-
+        if (! $tool::installed()) {
             $helper = $this->getHelperSet()->get('question');
-            $question = new ConfirmationQuestion('Would you like to install Expose now? [y/N] ', false);
+            $question = new ConfirmationQuestion(
+                'Would you like to install '.ucfirst($tool).' now? [y/N] ',
+                false);
 
             if ($helper->ask($input, $output, $question) === false) {
-                info('Proceeding without installing Expose.');
+                info('Proceeding without installing '.ucfirst($tool).'.');
 
                 return;
             }
 
-            Expose::ensureInstalled();
-
-            return;
+            $tool::ensureInstalled();
         }
 
-        if (! Ngrok::installed()) {
-            info("\nIn order to share with ngrok, you'll need a version\nof ngrok installed and managed by Homebrew.");
-            $helper = $this->getHelperSet()->get('question');
-            $question = new ConfirmationQuestion('Would you like to install ngrok via Homebrew now? [y/N] ', false);
-
-            if ($helper->ask($input, $output, $question) === false) {
-                info('Proceeding without installing ngrok.');
-
-                return;
-            }
-
-            Ngrok::ensureInstalled();
-        }
-    })->descriptions('Get the name of the current share tool (Expose or ngrok).');
+        return Command::SUCCESS;
+    })->descriptions('Get the name of the current share tool.');
 
     /**
      * Set the ngrok auth token.
