@@ -1,6 +1,10 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v4.7.1...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v4.8.0...master)
+
+## [v4.8.0](https://github.com/laravel/valet/compare/v4.7.1...v4.8.0) - 2024-09-03
+
+* Add a new share tool, cloudflared by [@rcknr](https://github.com/rcknr) in https://github.com/laravel/valet/pull/1467
 
 ## [v4.7.1](https://github.com/laravel/valet/compare/v4.7.0...v4.7.1) - 2024-06-25
 
