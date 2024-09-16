@@ -52,7 +52,7 @@ then
 
     for PARAM in ${PARAMS[@]}
     do
-        if [[ ${PARAM:0:1} == '-' ]]; then
+        if [[ ${PARAM:0:1} != '-' ]]; then
             PARAMS=("${PARAMS[@]/$PARAM}") # Quotes when working with strings
         fi
     done
