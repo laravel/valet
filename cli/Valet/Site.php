@@ -502,8 +502,11 @@ class Site
     /**
      * Renews all domains with a trusted TLS certificate.
      */
-    public function renew($expireIn = 368): void
+    public function renew($expireIn = 368, $ca = false): void
     {
+        if ($ca) {
+            $this->removeCa();
+        }
         collect($this->securedWithDates())->each(function ($row) use ($expireIn) {
             $url = $this->domain($row['site']);
 
