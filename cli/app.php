@@ -285,9 +285,9 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Display all of the currently secured sites.
      */
-    $app->command('secured [--expiring] [--days=]', function (OutputInterface $output, $expiring = null, $days = 60) {
+    $app->command('secured [--expiring] [--days=] [--ca]', function (OutputInterface $output, $expiring = null, $days = 60, $ca = null) {
         $now = (new Datetime)->add(new DateInterval('P'.$days.'D'));
-        $sites = collect(Site::securedWithDates())
+        $sites = collect(Site::securedWithDates($ca))
             ->when($expiring, fn ($collection) => $collection->filter(fn ($row) => $row['exp'] < $now))
             ->map(function ($row) {
                 return [
@@ -301,6 +301,7 @@ if (is_dir(VALET_HOME_PATH)) {
     })->descriptions('Display all of the currently secured sites', [
         '--expiring' => 'Limits the results to only sites expiring within the next 60 days.',
         '--days' => 'To be used with --expiring. Limits the results to only sites expiring within the next X days. Default is set to 60.',
+        '--ca' => 'Include the Certificate Authority certificate in the list of site certificates.',
     ]);
 
     /**
