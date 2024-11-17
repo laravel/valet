@@ -1,7 +1,7 @@
 <p align="center"><img src="/art/logo.svg"></p>
 
 <p align="center">
-<a href="https://github.com/laravel/valet/actions?query=workflow%3ATests"><img src="https://github.com/laravel/valet/workflows/Tests/badge.svg?branch=master" alt="Build Status"></a>
+<a href="https://github.com/laravel/valet/actions?query=workflow%3ATests"><img src="https://github.com/laravel/valet/actions/workflows/tests.yml/badge.svg?branch=master" alt="Build Status"></a>
 <a href="https://packagist.org/packages/laravel/valet"><img src="https://poser.pugx.org/laravel/valet/d/total.svg" alt="Total Downloads"></a>
 <a href="https://packagist.org/packages/laravel/valet"><img src="https://poser.pugx.org/laravel/valet/v/stable.svg" alt="Latest Stable Version"></a>
 <a href="https://packagist.org/packages/laravel/valet"><img src="https://poser.pugx.org/laravel/valet/license.svg" alt="License"></a>
