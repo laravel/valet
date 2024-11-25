@@ -8,13 +8,13 @@ class BaseApplicationTestCase extends TestCase
 {
     use UsesNullWriter;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->prepTestConfig();
         $this->setNullWriter();
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         Mockery::close();
     }

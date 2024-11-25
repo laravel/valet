@@ -240,7 +240,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         resolve(PhpFpm::class)->stopIfUnused('php@7.2');
     }
 
-    public function test_stopRunning_will_pass_filtered_result_of_getRunningServices_to_stopService()
+    public function test_stop_running_will_pass_filtered_result_of_get_running_services_to_stop_service()
     {
         $brewMock = Mockery::mock(Brew::class);
         $brewMock->shouldReceive('getAllRunningServices')->once()
