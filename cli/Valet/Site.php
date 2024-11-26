@@ -398,7 +398,7 @@ class Site
 
         $lookups = [];
         $lookups[] = '~#?listen .*:80; # valet loopback~';
-        $lookups[] = '~#?listen .*:443 ssl http2; # valet loopback~';
+        $lookups[] = '~#?listen .*:443 ssl; # valet loopback~';
         $lookups[] = '~#?listen .*:60; # valet loopback~';
 
         foreach ($lookups as $lookup) {
