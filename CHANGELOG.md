@@ -1,6 +1,12 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v4.8.0...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v4.8.1...master)
+
+## [v4.8.1](https://github.com/laravel/valet/compare/v4.8.0...v4.8.1) - 2024-11-25
+
+* Add support for PHP 8.4 by [@SupianIDz](https://github.com/SupianIDz) in https://github.com/laravel/valet/pull/1499
+* Fix extra parameters for share tool, fixes #1494 by [@rcknr](https://github.com/rcknr) in https://github.com/laravel/valet/pull/1495
+* Update logo to support dark/light theme by [@milewski](https://github.com/milewski) in https://github.com/laravel/valet/pull/1497
 
 ## [v4.8.0](https://github.com/laravel/valet/compare/v4.7.1...v4.8.0) - 2024-09-03
 
