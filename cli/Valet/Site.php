@@ -437,9 +437,9 @@ class Site
     /**
      * Get all of the URLs with expiration dates that are currently secured.
      */
-    public function securedWithDates(): array
+    public function securedWithDates($ca = false): array
     {
-        return collect($this->secured())->map(function ($site) {
+        $sites = collect($this->secured())->map(function ($site) {
             $filePath = $this->certificatesPath().'/'.$site.'.crt';
 
             $expiration = $this->cli->run("openssl x509 -enddate -noout -in $filePath");
@@ -450,7 +450,22 @@ class Site
                 'site' => $site,
                 'exp' => new DateTime($expiration),
             ];
-        })->unique()->values()->all();
+        })->unique()->values();
+
+        if ($ca) {
+            $filePath = $this->caPath('LaravelValetCASelfSigned.pem');
+
+            $expiration = $this->cli->run("openssl x509 -enddate -noout -in $filePath");
+
+            $expiration = str_replace('notAfter=', '', $expiration);
+
+            $sites->prepend([
+                'site' => 'Certificate Authority',
+                'exp' => new DateTime($expiration),
+            ]);
+        }
+
+        return $sites->all();
     }
 
     public function isSecured(string $site): bool
@@ -502,8 +517,11 @@ class Site
     /**
      * Renews all domains with a trusted TLS certificate.
      */
-    public function renew($expireIn = 368): void
+    public function renew($expireIn = 368, $ca = false): void
     {
+        if ($ca) {
+            $this->removeCa();
+        }
         collect($this->securedWithDates())->each(function ($row) use ($expireIn) {
             $url = $this->domain($row['site']);
 
