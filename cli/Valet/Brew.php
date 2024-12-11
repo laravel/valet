@@ -24,7 +24,7 @@ class Brew
 
     // Update this LATEST and the following LIMITED array when PHP versions are released or retired
     // We specify a numbered version here even though Homebrew links its generic 'php' alias to it
-    const LATEST_PHP_VERSION = 'php@8.2';
+    const LATEST_PHP_VERSION = 'php@8.4';
 
     // These are the PHP versions that should be installed via the shivammathur/php tap because
     // Homebrew officially no longer bottles them or they're marked disabled in their formula
