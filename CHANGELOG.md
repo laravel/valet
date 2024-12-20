@@ -1,6 +1,13 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v4.8.1...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v4.8.2...master)
+
+## [v4.8.2](https://github.com/laravel/valet/compare/v4.8.1...v4.8.2) - 2024-12-20
+
+* Add the ability to renew the Certificate Authority certificate by [@adrum](https://github.com/adrum) in https://github.com/laravel/valet/pull/1498
+* Fixes bad regex for loopback replacement for Issue #1503 by [@mitchkramez](https://github.com/mitchkramez) in https://github.com/laravel/valet/pull/1504
+* Change latest php version to 8.4 by [@mischabraam](https://github.com/mischabraam) in https://github.com/laravel/valet/pull/1507
+* fix(entry-script): use correct php binary for proxy commands by [@saibotk](https://github.com/saibotk) in https://github.com/laravel/valet/pull/1510
 
 ## [v4.8.1](https://github.com/laravel/valet/compare/v4.8.0...v4.8.1) - 2024-11-25
 
