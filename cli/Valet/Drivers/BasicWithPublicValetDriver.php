@@ -15,7 +15,7 @@ class BasicWithPublicValetDriver extends ValetDriver
     /**
      * Determine if the incoming request is for a static file.
      */
-    public function isStaticFile(string $sitePath, string $siteName, string $uri)/*: string|false */
+    public function isStaticFile(string $sitePath, string $siteName, string $uri)/* : string|false */
     {
         $publicPath = $sitePath.'/public/'.trim($uri, '/');
 

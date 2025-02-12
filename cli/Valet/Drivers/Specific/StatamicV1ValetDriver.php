@@ -17,7 +17,7 @@ class StatamicV1ValetDriver extends ValetDriver
     /**
      * Determine if the incoming request is for a static file.
      */
-    public function isStaticFile(string $sitePath, string $siteName, string $uri)/*: string|false */
+    public function isStaticFile(string $sitePath, string $siteName, string $uri)/* : string|false */
     {
         if (strpos($uri, '/_add-ons') === 0 || strpos($uri, '/_app') === 0 || strpos($uri, '/_content') === 0 ||
             strpos($uri, '/_cache') === 0 || strpos($uri, '/_config') === 0 || strpos($uri, '/_logs') === 0 ||

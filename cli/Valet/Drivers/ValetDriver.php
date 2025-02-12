@@ -19,7 +19,7 @@ abstract class ValetDriver
      */
     // While we support PHP 7.4 for individual site isolation...
     abstract public function isStaticFile(string $sitePath, string $siteName, string $uri);
-    //abstract public function isStaticFile(string $sitePath, string $siteName, string $uri): string|false;
+    // abstract public function isStaticFile(string $sitePath, string $siteName, string $uri): string|false;
 
     /**
      * Get the fully resolved path to the application's front controller.

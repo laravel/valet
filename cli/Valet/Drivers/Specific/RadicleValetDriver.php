@@ -21,7 +21,7 @@ class RadicleValetDriver extends BasicValetDriver
      *
      * @return string|false
      */
-    public function isStaticFile(string $sitePath, string $siteName, string $uri)/*: string|false */
+    public function isStaticFile(string $sitePath, string $siteName, string $uri)/* : string|false */
     {
         $staticFilePath = $sitePath.'/public'.$uri;
         if ($this->isActualFile($staticFilePath)) {

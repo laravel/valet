@@ -71,7 +71,7 @@ class Typo3ValetDriver extends ValetDriver
      * no PHP script file and the URI points to a valid file (no folder) on
      * the disk. Access to those static files will be authorized.
      */
-    public function isStaticFile(string $sitePath, string $siteName, string $uri)/*: string|false */
+    public function isStaticFile(string $sitePath, string $siteName, string $uri)/* : string|false */
     {
         // May the file contains a cache busting version string like filename.12345678.css
         // If that is the case, the file cannot be found on disk, so remove the version

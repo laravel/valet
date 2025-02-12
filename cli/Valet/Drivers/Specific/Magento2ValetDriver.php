@@ -17,7 +17,7 @@ class Magento2ValetDriver extends ValetDriver
     /**
      * {@inheritdoc}
      */
-    public function isStaticFile(string $sitePath, string $siteName, string $uri)/*: string|false */
+    public function isStaticFile(string $sitePath, string $siteName, string $uri)/* : string|false */
     {
         $uri = preg_replace('/^\/static(\/version[\d]+)/', '/static', $uri);
 
