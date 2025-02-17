@@ -1,7 +1,11 @@
 {
     "name": "laravel/valet",
     "description": "A more enjoyable local development experience for Mac.",
-    "keywords": ["laravel", "zonda", "wwdhhd"],
+    "keywords": [
+        "laravel",
+        "zonda",
+        "wwdhhd"
+    ],
     "license": "MIT",
     "authors": [
         {
@@ -40,7 +44,7 @@
     "require": {
         "php": "^7.1|^8.0",
         "illuminate/collections": "^8.0|^9.0|^10.0|^11.0",
-        "illuminate/container": "~5.1|^6.0|^7.0|^8.0|^9.0|^10.0|^11.0",
+        "illuminate/container": "~5.1|^6.0|^7.0|^8.0|^9.0|^10.0|^11.0|^12.0",
         "mnapoli/silly": "^1.5",
         "symfony/console": "^3.0|^4.0|^5.0|^6.0|^7.0",
         "symfony/process": "^3.0|^4.0|^5.0|^6.0|^7.0",
@@ -49,7 +53,7 @@
     },
     "require-dev": {
         "mockery/mockery": "^1.2.3",
-        "yoast/phpunit-polyfills": "^0.2.0",
+        "yoast/phpunit-polyfills": "^0.2.0|^4.0",
         "laravel/pint": "^1.4"
     },
     "bin": [
