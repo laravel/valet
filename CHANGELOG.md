@@ -1,6 +1,10 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v4.8.2...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v4.8.3...master)
+
+## [v4.8.3](https://github.com/laravel/valet/compare/v4.8.2...v4.8.3) - 2025-02-28
+
+* Supports Laravel 12 by [@crynobone](https://github.com/crynobone) in https://github.com/laravel/valet/pull/1511
 
 ## [v4.8.2](https://github.com/laravel/valet/compare/v4.8.1...v4.8.2) - 2024-12-20
 
