@@ -37,6 +37,6 @@ jobs:
         run: composer install --no-interaction --prefer-dist
 
       - name: Execute tests
-        run: vendor/bin/phpunit --verbose
+        run: vendor/bin/phpunit
         env:
           APP_ENV: testing
