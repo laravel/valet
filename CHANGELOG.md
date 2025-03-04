@@ -1,6 +1,10 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v4.8.3...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v4.8.4...master)
+
+## [v4.8.4](https://github.com/laravel/valet/compare/v4.8.3...v4.8.4) - 2025-03-04
+
+* Add PHPUnit 12 support, and upgrade phpunit-polyfills by [@drbyte](https://github.com/drbyte) in https://github.com/laravel/valet/pull/1513
 
 ## [v4.8.3](https://github.com/laravel/valet/compare/v4.8.2...v4.8.3) - 2025-02-28
 
