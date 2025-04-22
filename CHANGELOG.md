@@ -1,6 +1,10 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v4.8.4...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v4.8.5...master)
+
+## [v4.8.5](https://github.com/laravel/valet/compare/v4.8.4...v4.8.5) - 2025-04-22
+
+* fix(php-fpm): correctly reconfigure all versions by [@saibotk](https://github.com/saibotk) in https://github.com/laravel/valet/pull/1514
 
 ## [v4.8.4](https://github.com/laravel/valet/compare/v4.8.3...v4.8.4) - 2025-03-04
 
