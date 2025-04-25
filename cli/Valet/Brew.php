@@ -259,7 +259,7 @@ class Brew
     }
 
     /**
-     * Gets the currently linked formula by identifying the symlink in the hombrew bin directory.
+     * Gets the currently linked formula by identifying the symlink in the homebrew bin directory.
      * Different to ->linkedPhp() in that this will just get the linked directory name,
      * whether that is php, php74 or php@7.4.
      */
