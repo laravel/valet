@@ -122,7 +122,7 @@ class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
             'php@7.4',
         ]));
 
-        $brewMock->shouldReceive('getLinkedPhpFormula')->andReturn('php@7.3');
+        $brewMock->shouldReceive('linkedPhp')->andReturn('php@7.3');
 
         $nginxMock->shouldReceive('configuredSites')
             ->once()

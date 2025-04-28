@@ -37,7 +37,8 @@ class PhpFpm
 
         $this->restart();
 
-        $this->symlinkPrimaryValetSock($phpVersion);
+        $linkedPhpVersion = $this->brew->linkedPhp();
+        $this->symlinkPrimaryValetSock($linkedPhpVersion);
     }
 
     /**
@@ -331,6 +332,6 @@ class PhpFpm
                     return $this->normalizePhpVersion(str_replace(['valet', '.sock'], '', $sock));
                 }
             }
-        })->merge([$this->brew->getLinkedPhpFormula()])->filter()->unique()->values()->toArray();
+        })->merge([$this->brew->linkedPhp()])->filter()->unique()->values()->toArray();
     }
 }
