@@ -1,6 +1,11 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v4.8.5...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v4.8.6...master)
+
+## [v4.8.6](https://github.com/laravel/valet/compare/v4.8.5...v4.8.6) - 2025-05-06
+
+* fix(php-fpm): correct socket creation by [@saibotk](https://github.com/saibotk) in https://github.com/laravel/valet/pull/1515
+* Update CraftValetDriver for compatbility with craftcms/security-patches by [@adrum](https://github.com/adrum) in https://github.com/laravel/valet/pull/1516
 
 ## [v4.8.5](https://github.com/laravel/valet/compare/v4.8.4...v4.8.5) - 2025-04-22
 
