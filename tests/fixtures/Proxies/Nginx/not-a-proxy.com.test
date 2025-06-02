@@ -23,8 +23,7 @@ server {
     ssl_certificate "/home/nobody/.config/valet/Certificates/not-a-proxy.com.test.crt";
     ssl_certificate_key "/home/nobody/.config/valet/Certificates/not-a-proxy.com.test.key";
 
-    location = /favicon.ico { access_log off; log_not_found off; }
-    location = /robots.txt  { access_log off; log_not_found off; }
+    serve favicon.ico and robots.txt from /public directory
 
     access_log off;
     error_log "/home/nobody/.config/valet/Log/not-a-proxy.com.test-error.log";
@@ -63,8 +62,8 @@ server {
         try_files $uri $uri/;
     }
 
-    location = /favicon.ico { access_log off; log_not_found off; }
-    location = /robots.txt  { access_log off; log_not_found off; }
+    location = /public/favicon.ico { access_log off; log_not_found off; }
+    location = /public/robots.txt  { access_log off; log_not_found off; }
 
     access_log off;
     error_log "/home/nobody/.config/valet/Log/not-a-proxy.com.test-error.log";
