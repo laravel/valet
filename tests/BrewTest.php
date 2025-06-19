@@ -390,7 +390,7 @@ class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
      * @dataProvider supportedPhpLinkPathProvider
      */
     #[DataProvider('supportedPhpLinkPathProvider')]
-    public function test_get_parsed_linked_php_will_return_matches_for_linked_php($path, $matches)
+    public function test_get_parsed_linked_php_will_return_matches_for_linked_php($path, $matches, $unneeded)
     {
         $getBrewMock = function ($filesystem) {
             $brewMock = Mockery::mock(Brew::class, [new CommandLine, $filesystem])->makePartial();
