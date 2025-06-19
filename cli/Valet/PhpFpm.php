@@ -82,7 +82,7 @@ class PhpFpm
         $destDir = dirname(dirname($fpmConfigFile)).'/conf.d';
         $this->files->ensureDirExists($destDir, user());
 
-        if (!file_exists($destDir.'/php-memory-limits.ini')) {
+        if (! file_exists($destDir.'/php-memory-limits.ini')) {
             $this->files->putAsUser(
                 $destDir.'/php-memory-limits.ini',
                 $this->files->getStub('php-memory-limits.ini')
