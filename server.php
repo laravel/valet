@@ -1,5 +1,22 @@
 <?php
 
+
+// FIX PHP PATH_INFO
+
+$originalRequestUri = $_SERVER['REQUEST_URI'];
+$path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
+// Needs patch
+if (substr($path, -strlen($_SERVER['PATH_INFO'])) == $_SERVER['PATH_INFO']) {
+    // Cut away PHP PATH_INFO from REQUEST_URI to find the correct file later
+    $_SERVER['REQUEST_URI'] =
+        substr($path, 0, -strlen($_SERVER['PATH_INFO'])) // Remove PATH_INFO: page.php/remove/additional/path
+        . substr($_SERVER['REQUEST_URI'], strlen($path)); // Restore GET parameters '?param=what&ever=floats'
+}
+unset($path); // Don't leave global garbage around
+
+// END FIX PHP PATH_INFO
+
 require_once './cli/includes/require-drivers.php';
 require_once './cli/Valet/Server.php';
 
@@ -106,5 +123,9 @@ if (! $frontControllerPath) {
 }
 
 chdir(dirname($frontControllerPath));
+
+// After the file is found recover the original REQUEST_URI
+$_SERVER['REQUEST_URI'] = $originalRequestUri;
+unset($originalRequestUri); // Don't leave useless globals around
 
 require $frontControllerPath;
