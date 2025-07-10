@@ -11,7 +11,8 @@ class Brew
     // This is the array of PHP versions that Valet will attempt to install/configure when requested
     const SUPPORTED_PHP_VERSIONS = [
         'php',
-        'php@8.4',
+        'php@8.5',
+        'ea',
         'php@8.3',
         'php@8.2',
         'php@8.1',
