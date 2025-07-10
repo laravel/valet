@@ -12,7 +12,6 @@ class Brew
     const SUPPORTED_PHP_VERSIONS = [
         'php',
         'php@8.5',
-        'ea',
         'php@8.3',
         'php@8.2',
         'php@8.1',
