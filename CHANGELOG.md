@@ -1,6 +1,11 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v4.8.7...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v4.9.0...master)
+
+## [v4.9.0](https://github.com/laravel/valet/compare/v4.8.7...v4.9.0) - 2025-07-22
+
+* Create php-memory-limits.ini only one time by [@mrodespin](https://github.com/mrodespin) in https://github.com/laravel/valet/pull/1521
+* feat: add support for PHP 8.5 by [@datlechin](https://github.com/datlechin) in https://github.com/laravel/valet/pull/1526
 
 ## [v4.8.7](https://github.com/laravel/valet/compare/v4.8.6...v4.8.7) - 2025-05-14
 
