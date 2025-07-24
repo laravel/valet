@@ -7,7 +7,7 @@ SOURCE="${BASH_SOURCE[0]}"
 # do it in pure Bash. So, we'll call into PHP CLI here to resolve.
 if [[ -L "$SOURCE" ]]
 then
-    DIR=$(php -r "echo dirname(realpath('$SOURCE'));")
+    DIR=$(php -d error_reporting=1 -r "echo dirname(realpath('$SOURCE'));")
 else
     DIR="$( cd "$( dirname "$SOURCE" )" && pwd )"
 fi
@@ -17,7 +17,7 @@ fi
 # Valet CLI script which is written in PHP. Will use PHP to do it.
 if [ ! -f "$DIR/cli/valet.php" ]
 then
-    DIR=$(php -r "echo realpath('$DIR/../laravel/valet');")
+    DIR=$(php -d error_reporting=1 -r "echo realpath('$DIR/../laravel/valet');")
 fi
 
 # Get a command-line executable we can use for php that's 8+; if this
@@ -25,7 +25,7 @@ fi
 # checking and pulling again by reading the exported env var
 if [[ "$PHP_EXECUTABLE" = "" ]]
 then
-    PHP="$(php $DIR/find-usable-php.php)"
+    PHP="$(php -d error_reporting=1 $DIR/find-usable-php.php)"
 
     # Validate output before running it on the CLI
     if [[ ! -f "$PHP" ]]; then
@@ -45,7 +45,7 @@ fi
 # process to retrieve the live the share tool tunnel URL in the background.
 if [[ "$1" = "share" ]]
 then
-    SHARETOOL="$("$PHP" "$DIR/cli/valet.php" share-tool)"
+    SHARETOOL="$("$PHP" -d error_reporting=1 "$DIR/cli/valet.php" share-tool)"
 
     # Check for parameters to pass through to share tool (these will start with '-' or '--')
     PARAMS=(${@:2})
@@ -72,7 +72,7 @@ then
 
     # Lowercase the host to match how the rest of our domains are looked up
     HOST=$(echo "$HOST" | tr '[:upper:]' '[:lower:]')
-    TLD=$("$PHP" "$DIR/cli/valet.php" tld)
+    TLD=$("$PHP" -d error_reporting=1 "$DIR/cli/valet.php" tld)
     $(grep --quiet --no-messages 443 ~/.config/valet/Nginx/$HOST*)
     SECURED=$?
 
@@ -140,9 +140,9 @@ elif [[ "$1" = "php" ]]
 then
     if [[ $2 == *"--site="* ]]; then
         SITE=${2#*=}
-        $("$PHP" "$DIR/cli/valet.php" which-php $SITE) "${@:3}"
+        $("$PHP" -d error_reporting=1 "$DIR/cli/valet.php" which-php $SITE) "${@:3}"
     else
-        $("$PHP" "$DIR/cli/valet.php" which-php) "${@:2}"
+        $("$PHP" -d error_reporting=1 "$DIR/cli/valet.php" which-php) "${@:2}"
     fi
 
     exit
@@ -152,9 +152,9 @@ elif [[ "$1" = "composer" ]]
 then
     if [[ $2 == *"--site="* ]]; then
         SITE=${2#*=}
-        $("$PHP" "$DIR/cli/valet.php" which-php $SITE) $(which composer) "${@:3}"
+        $("$PHP" -d error_reporting=1 "$DIR/cli/valet.php" which-php $SITE) $(which composer) "${@:3}"
     else
-        $("$PHP" "$DIR/cli/valet.php" which-php) $(which composer) "${@:2}"
+        $("$PHP" -d error_reporting=1 "$DIR/cli/valet.php" which-php) $(which composer) "${@:2}"
     fi
 
     exit
@@ -169,5 +169,5 @@ else
         exit
     fi
 
-    "$PHP" "$DIR/cli/valet.php" "$@"
+    "$PHP" -d error_reporting=1 "$DIR/cli/valet.php" "$@"
 fi
