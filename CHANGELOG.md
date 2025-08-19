@@ -1,6 +1,10 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v4.9.0...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v4.9.1...master)
+
+## [v4.9.1](https://github.com/laravel/valet/compare/v4.9.0...v4.9.1) - 2025-08-19
+
+* fix(php): ignore warnings in CLI parsing by [@saibotk](https://github.com/saibotk) in https://github.com/laravel/valet/pull/1527
 
 ## [v4.9.0](https://github.com/laravel/valet/compare/v4.8.7...v4.9.0) - 2025-07-22
 
