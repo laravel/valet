@@ -57,6 +57,7 @@ class ContaoValetDriver extends ValetDriver
         if (strncmp($uri, '/contao-manager.phar.php', 24) === 0) {
             $_SERVER['SCRIPT_NAME'] = '/contao-manager.phar.php';
             $_SERVER['SCRIPT_FILENAME'] = $sitePath.'/contao-manager.phar.php';
+
             return $sitePath.'/'.$frontControllerDirectory.'/contao-manager.phar.php';
         }
 
