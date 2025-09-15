@@ -570,7 +570,7 @@ class Site
         ));
 
         $this->cli->runAsUser(sprintf(
-            'openssl req -new -newkey rsa:2048 -days %s -nodes -x509 -subj "/C=/ST=/O=%s/localityName=/commonName=%s/organizationalUnitName=Developers/emailAddress=%s/" -keyout "%s" -out "%s"',
+            'openssl req -new -newkey rsa:2048 -days %s -nodes -x509 -subj "/C=/ST=/O=%s/localityName=/commonName=%s/organizationalUnitName=Developers/emailAddress=%s/" -keyout "%s" -out "%s" -addext "basicConstraints=critical,CA:TRUE" -addext "keyUsage=critical,digitalSignature,keyCertSign" -addext "subjectKeyIdentifier=hash"',
             $caExpireInDays, $oName, $cName, 'rootcertificate@laravel.valet', $caKeyPath, $caPemPath
         ));
         $this->trustCa($caPemPath);
@@ -649,7 +649,7 @@ class Site
     public function createSigningRequest(string $url, string $keyPath, string $csrPath, string $confPath): void
     {
         $this->cli->runAsUser(sprintf(
-            'openssl req -new -key "%s" -out "%s" -subj "/C=/ST=/O=/localityName=/commonName=%s/organizationalUnitName=/emailAddress=%s%s/" -config "%s"',
+            'openssl req -new -key "%s" -out "%s" -subj "/C=/ST=/O=/localityName=/commonName=%s/organizationalUnitName=/emailAddress=%s%s/"',
             $keyPath, $csrPath, $url, $url, '@laravel.valet', $confPath
         ));
     }
