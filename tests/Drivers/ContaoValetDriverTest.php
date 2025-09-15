@@ -23,6 +23,6 @@ class ContaoValetDriverTest extends BaseDriverTestCase
         $driver = new ContaoValetDriver;
 
         $projectPath = $this->projectDir('contao');
-        $this->assertEquals($projectPath.'/web/app.php', $driver->frontControllerPath($projectPath, 'my-site', '/'));
+        $this->assertEquals($projectPath.'/public/index.php', $driver->frontControllerPath($projectPath, 'my-site', '/'));
     }
 }
