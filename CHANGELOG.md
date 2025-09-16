@@ -1,6 +1,10 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v4.9.1...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v4.10.0...master)
+
+## [v4.10.0](https://github.com/laravel/valet/compare/v4.9.1...v4.10.0) - 2025-09-16
+
+* Update `ContaoValetDriver` to support current Contao versions by [@lukasbableck](https://github.com/lukasbableck) in https://github.com/laravel/valet/pull/1532
 
 ## [v4.9.1](https://github.com/laravel/valet/compare/v4.9.0...v4.9.1) - 2025-08-19
 
