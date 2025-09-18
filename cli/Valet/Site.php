@@ -614,7 +614,7 @@ class Site
 
         $this->buildCertificateConf($confPath, $url);
         $this->createPrivateKey($keyPath);
-        $this->createSigningRequest($url, $keyPath, $csrPath, $confPath);
+        $this->createSigningRequest($url, $keyPath, $csrPath);
 
         $caSrlParam = '-CAserial "'.$caSrlPath.'"';
         if (! $this->files->exists($caSrlPath)) {
@@ -646,11 +646,11 @@ class Site
     /**
      * Create the signing request for the TLS certificate.
      */
-    public function createSigningRequest(string $url, string $keyPath, string $csrPath, string $confPath): void
+    public function createSigningRequest(string $url, string $keyPath, string $csrPath): void
     {
         $this->cli->runAsUser(sprintf(
             'openssl req -new -key "%s" -out "%s" -subj "/C=/ST=/O=/localityName=/commonName=%s/organizationalUnitName=/emailAddress=%s%s/"',
-            $keyPath, $csrPath, $url, $url, '@laravel.valet', $confPath
+            $keyPath, $csrPath, $url, $url, '@laravel.valet'
         ));
     }
 
