@@ -1,6 +1,10 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v4.10.0...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v4.11.0...master)
+
+## [v4.11.0](https://github.com/laravel/valet/compare/v4.10.0...v4.11.0) - 2025-10-07
+
+* fix(TLS): create OpenSSL strict-mode compliant certs by [@Tugzrida](https://github.com/Tugzrida) in https://github.com/laravel/valet/pull/1531
 
 ## [v4.10.0](https://github.com/laravel/valet/compare/v4.9.1...v4.10.0) - 2025-09-16
 
