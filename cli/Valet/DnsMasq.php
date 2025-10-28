@@ -4,13 +4,15 @@ namespace Valet;
 
 class DnsMasq
 {
-    public $dnsmasqMasterConfigFile = BREW_PREFIX.'/etc/dnsmasq.conf';
+    public $dnsmasqMasterConfigFile = BREW_PREFIX . '/etc/dnsmasq.conf';
 
-    public $dnsmasqSystemConfDir = BREW_PREFIX.'/etc/dnsmasq.d';
+    public $dnsmasqSystemConfDir = BREW_PREFIX . '/etc/dnsmasq.d';
 
     public $resolverPath = '/etc/resolver';
 
-    public function __construct(public Brew $brew, public CommandLine $cli, public Filesystem $files, public Configuration $configuration) {}
+    public function __construct(public Brew $brew, public CommandLine $cli, public Filesystem $files, public Configuration $configuration)
+    {
+    }
 
     /**
      * Install and configure DnsMasq.
@@ -24,13 +26,11 @@ class DnsMasq
         // This allows Valet to make changes to our own files without needing to modify the core dnsmasq configs
         $this->ensureUsingDnsmasqDForConfigs();
 
-        $this->createDnsmasqTldConfigFile($tld);
-
         $this->createTldResolver($tld);
 
         $this->brew->restartService('dnsmasq');
 
-        info('Valet is configured to serve for TLD [.'.$tld.']');
+        info('Valet is configured to serve for TLD [.' . $tld . ']');
     }
 
     /**
@@ -40,13 +40,13 @@ class DnsMasq
     {
         $this->brew->stopService('dnsmasq');
         $this->brew->uninstallFormula('dnsmasq');
-        $this->cli->run('rm -rf '.BREW_PREFIX.'/etc/dnsmasq.d/dnsmasq-valet.conf');
+        $this->cli->run('rm -rf ' . BREW_PREFIX . '/etc/dnsmasq.d/dnsmasq-valet.conf');
 
         // As Laravel Herd uses the same DnsMasq resolver, we should only
         // delete it if Herd is not installed.
-        if (! $this->files->exists('/Applications/Herd.app')) {
+        if (!$this->files->exists('/Applications/Herd.app')) {
             $tld = $this->configuration->read()['tld'];
-            $this->files->unlink($this->resolverPath.'/'.$tld);
+            $this->files->unlink($this->resolverPath . '/' . $tld);
         }
     }
 
@@ -76,10 +76,10 @@ class DnsMasq
         // set primary config to look for configs in /usr/local/etc/dnsmasq.d/*.conf
         $contents = $this->files->get($this->dnsmasqMasterConfigFile);
         // ensure the line we need to use is present, and uncomment it if needed
-        if (strpos($contents, 'conf-dir='.BREW_PREFIX.'/etc/dnsmasq.d/,*.conf') === false) {
-            $contents .= PHP_EOL.'conf-dir='.BREW_PREFIX.'/etc/dnsmasq.d/,*.conf'.PHP_EOL;
+        if (strpos($contents, 'conf-dir=' . BREW_PREFIX . '/etc/dnsmasq.d/,*.conf') === false) {
+            $contents .= PHP_EOL . 'conf-dir=' . BREW_PREFIX . '/etc/dnsmasq.d/,*.conf' . PHP_EOL;
         }
-        $contents = str_replace('#conf-dir='.BREW_PREFIX.'/etc/dnsmasq.d/,*.conf', 'conf-dir='.BREW_PREFIX.'/etc/dnsmasq.d/,*.conf', $contents);
+        $contents = str_replace('#conf-dir=' . BREW_PREFIX . '/etc/dnsmasq.d/,*.conf', 'conf-dir=' . BREW_PREFIX . '/etc/dnsmasq.d/,*.conf', $contents);
 
         // remove entries used by older Valet versions:
         $contents = preg_replace('/^conf-file.*valet.*$/m', '', $contents);
@@ -88,7 +88,7 @@ class DnsMasq
         $this->files->put($this->dnsmasqMasterConfigFile, $contents);
 
         // remove old ~/.config/valet/dnsmasq.conf file because things are moved to the ~/.config/valet/dnsmasq.d/ folder now
-        if (file_exists($file = dirname($this->dnsmasqUserConfigDir()).'/dnsmasq.conf')) {
+        if (file_exists($file = dirname($this->dnsmasqUserConfigDir()) . '/dnsmasq.conf')) {
             unlink($file);
         }
 
@@ -96,20 +96,88 @@ class DnsMasq
         $contents = $this->files->getStub('etc-dnsmasq-valet.conf');
         $contents = str_replace('VALET_HOME_PATH', VALET_HOME_PATH, $contents);
         $this->files->ensureDirExists($this->dnsmasqSystemConfDir, user());
-        $this->files->putAsUser($this->dnsmasqSystemConfDir.'/dnsmasq-valet.conf', $contents);
+        $this->files->putAsUser($this->dnsmasqSystemConfDir . '/dnsmasq-valet.conf', $contents);
 
-        $this->files->ensureDirExists(VALET_HOME_PATH.'/dnsmasq.d', user());
+        $this->files->ensureDirExists(VALET_HOME_PATH . '/dnsmasq.d', user());
     }
 
     /**
-     * Create the TLD-specific dnsmasq config file.
+     * Host-spezifische dnsmasq Config anlegen (address=/fqdn/loopback).
      */
-    public function createDnsmasqTldConfigFile(string $tld): void
+    public function createHostConfig(string $fqdn): void
     {
-        $tldConfigFile = $this->dnsmasqUserConfigDir().'tld-'.$tld.'.conf';
+        $dir = $this->dnsmasqUserConfigDir();
+        $this->files->ensureDirExists($dir, user());
         $loopback = $this->configuration->read()['loopback'];
+        $file = $dir . 'host-' . $fqdn . '.conf';
+        $contents = 'address=/' . $fqdn . '/' . $loopback . PHP_EOL . 'listen-address=' . $loopback . PHP_EOL;
+        $this->files->putAsUser($file, $contents);
+    }
 
-        $this->files->putAsUser($tldConfigFile, 'address=/.'.$tld.'/'.$loopback.PHP_EOL.'listen-address='.$loopback.PHP_EOL);
+    /**
+     * Host-spezifische dnsmasq Config entfernen.
+     */
+    public function deleteHostConfig(string $fqdn): void
+    {
+        $file = $this->dnsmasqUserConfigDir() . 'host-' . $fqdn . '.conf';
+        if ($this->files->exists($file)) {
+            $this->files->unlink($file);
+        }
+    }
+
+    /**
+     * Alle host-*.conf von alter auf neue TLD umbenennen + Inhalt anpassen.
+     */
+    public function remapHostConfigs(string $oldTld, string $newTld): void
+    {
+        if ($oldTld === $newTld) {
+            return;
+        }
+
+        $dir = $this->dnsmasqUserConfigDir();
+        if (!$this->files->exists($dir)) {
+            return;
+        }
+
+        foreach ($this->files->scandir($dir) as $file) {
+            if (!str_starts_with($file, 'host-') || !str_ends_with($file, '.conf')) {
+                continue;
+            }
+
+            $path = $dir . $file;
+            $contents = $this->files->get($path);
+
+            // FQDN aus Dateinamen ableiten: host-<fqdn>.conf
+            $fqdn = substr($file, 5, -5); // schneidet 'host-' und '.conf' ab
+
+            // Nur remappen, wenn die alte TLD wirklich drin steckt
+            if (!str_ends_with($fqdn, '.' . $oldTld)) {
+                // Sicherheitshalber auch Inhalte prüfen und ggf. ersetzen
+                if (str_contains($contents, '/.' . $oldTld . '/')) {
+                    $contents = str_replace('/.' . $oldTld . '/', '/.' . $newTld . '/', $contents);
+                    $this->files->putAsUser($path, $contents);
+                }
+                continue;
+            }
+
+            $newFqdn = substr($fqdn, 0, -strlen('.'.$oldTld)).'.'.$newTld;
+            $newContents = str_replace('/'.$fqdn.'/', '/'.$newFqdn.'/', $contents);
+            $newContents = str_replace('/.'.$oldTld.'/', '/.'.$newTld.'/', $newContents);
+
+            $newFile = 'host-'.$newFqdn.'.conf';
+            $newPath = $dir.$newFile;
+
+            $this->files->putAsUser($newPath, $newContents);
+            $this->files->unlink($path);
+        }
+    }
+
+    /**
+     * dnsmasq neustarten (nach Änderungen an *.conf).
+     */
+    public function reload(): void
+    {
+        $this->brew->restartService('dnsmasq');
     }
 
     /**
@@ -120,7 +188,7 @@ class DnsMasq
         $this->files->ensureDirExists($this->resolverPath);
         $loopback = $this->configuration->read()['loopback'];
 
-        $this->files->put($this->resolverPath.'/'.$tld, 'nameserver '.$loopback.PHP_EOL);
+        $this->files->put($this->resolverPath . '/' . $tld, 'nameserver ' . $loopback . PHP_EOL);
     }
 
     /**
@@ -128,10 +196,16 @@ class DnsMasq
      */
     public function updateTld(string $oldTld, string $newTld): void
     {
-        $this->files->unlink($this->resolverPath.'/'.$oldTld);
-        $this->files->unlink($this->dnsmasqUserConfigDir().'tld-'.$oldTld.'.conf');
+        $this->files->unlink($this->resolverPath . '/' . $oldTld);
 
-        $this->install($newTld);
+        $legacy = $this->dnsmasqUserConfigDir().'tld-'.$oldTld.'.conf';
+        if ($this->files->exists($legacy)) {
+            $this->files->unlink($legacy);
+        }
+
+        $this->remapHostConfigs($oldTld, $newTld);
+
+        $this->reload();
     }
 
     /**
@@ -149,6 +223,6 @@ class DnsMasq
      */
     public function dnsmasqUserConfigDir(): string
     {
-        return $_SERVER['HOME'].'/.config/valet/dnsmasq.d/';
+        return $_SERVER['HOME'] . '/.config/valet/dnsmasq.d/';
     }
 }

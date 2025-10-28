@@ -9,14 +9,25 @@ use PhpFpm;
 
 class Site
 {
-    public function __construct(public Brew $brew, public Configuration $config, public CommandLine $cli, public Filesystem $files) {}
+    protected DnsMasq $dnsmasq;
+
+    public function __construct(
+        public Brew          $brew,
+        public Configuration $config,
+        public CommandLine   $cli,
+        public Filesystem    $files
+    )
+    {
+        // Lazy-Init: eigene DnsMasq-Instanz, kompatibel mit bestehender Verkabelung
+        $this->dnsmasq = new DnsMasq($this->brew, $this->cli, $this->files, $this->config);
+    }
 
     /**
      * Get the name of the site.
      */
     private function getSiteLinkName(?string $name): string
     {
-        if (! is_null($name)) {
+        if (!is_null($name)) {
             return $name;
         }
 
@@ -24,7 +35,7 @@ class Site
             return $link;
         }
 
-        throw new DomainException(basename(getcwd()).' is not linked.');
+        throw new DomainException(basename(getcwd()) . ' is not linked.');
     }
 
     /**
@@ -70,9 +81,13 @@ class Site
 
         $this->config->prependPath($linkPath);
 
-        $this->files->symlinkAsUser($target, $linkPath.'/'.$link);
+        $this->files->symlinkAsUser($target, $linkPath . '/' . $link);
 
-        return $linkPath.'/'.$link;
+        $tld = $this->config->read()['tld'];
+        $this->dnsmasq->createHostConfig($link . '.' . $tld);
+        $this->dnsmasq->reload();
+
+        return $linkPath . '/' . $link;
     }
 
     /**
@@ -107,7 +122,7 @@ class Site
 
             // Only merge on the parked sites that don't interfere with the linked sites
             $sites = $this->getSites($path, $certs)->filter(function ($site, $key) use ($links) {
-                return ! $links->has($key);
+                return !$links->has($key);
             });
 
             $parkedLinks = $parkedLinks->merge($sites);
@@ -126,17 +141,17 @@ class Site
         $links = $this->links();
         $certs = $this->getCertificates();
 
-        if (! $this->files->exists($dir)) {
+        if (!$this->files->exists($dir)) {
             return collect();
         }
 
         $proxies = collect($this->files->scandir($dir))
             ->filter(function ($site, $key) use ($tld) {
                 // keep sites that match our TLD
-                return ends_with($site, '.'.$tld);
+                return ends_with($site, '.' . $tld);
             })->map(function ($site, $key) use ($tld) {
                 // remove the TLD suffix for consistency
-                return str_replace('.'.$tld, '', $site);
+                return str_replace('.' . $tld, '', $site);
             })->reject(function ($site, $key) use ($links) {
                 return $links->has($site);
             })->mapWithKeys(function ($site) {
@@ -148,7 +163,7 @@ class Site
                 return $host === '(other)';
             })->map(function ($host, $site) use ($certs, $tld) {
                 $secured = $certs->has($site);
-                $url = ($secured ? 'https' : 'http').'://'.$site.'.'.$tld;
+                $url = ($secured ? 'https' : 'http') . '://' . $site . '.' . $tld;
 
                 return [
                     'site' => $site,
@@ -173,15 +188,15 @@ class Site
         }
 
         // Remove .tld from the end of sitename if it was provided
-        if (ends_with($directory, '.'.$tld)) {
-            $directory = substr($directory, 0, -(strlen('.'.$tld)));
+        if (ends_with($directory, '.' . $tld)) {
+            $directory = substr($directory, 0, -(strlen('.' . $tld)));
         }
 
-        if (! $this->parked()->merge($this->links())->where('site', $directory)->count() > 0) {
+        if (!$this->parked()->merge($this->links())->where('site', $directory)->count() > 0) {
             throw new DomainException("The [{$directory}] site could not be found in Valet's site list.");
         }
 
-        return $directory.'.'.$tld;
+        return $directory . '.' . $tld;
     }
 
     /**
@@ -209,8 +224,8 @@ class Site
     public function getSiteConfigFileContents(string $site, ?string $suffix = null): ?string
     {
         $config = $this->config->read();
-        $suffix = $suffix ?: '.'.$config['tld'];
-        $file = str_replace($suffix, '', $site).$suffix;
+        $suffix = $suffix ?: '.' . $config['tld'];
+        $file = str_replace($suffix, '', $site) . $suffix;
 
         return $this->files->exists($this->nginxPath($file)) ? $this->files->get($this->nginxPath($file)) : null;
     }
@@ -253,7 +268,7 @@ class Site
         $this->files->ensureDirExists($path, user());
 
         return collect($this->files->scandir($path))->mapWithKeys(function ($site) use ($path) {
-            $sitePath = $path.'/'.$site;
+            $sitePath = $path . '/' . $site;
 
             if ($this->files->isLink($sitePath)) {
                 $realPath = $this->files->readLink($sitePath);
@@ -266,8 +281,8 @@ class Site
             return $this->files->isDir($path);
         })->map(function ($path, $site) use ($certs, $config) {
             $secured = $certs->has($site);
-            $url = ($secured ? 'https' : 'http').'://'.$site.'.'.$config['tld'];
-            $phpVersion = $this->getPhpVersion($site.'.'.$config['tld']);
+            $url = ($secured ? 'https' : 'http') . '://' . $site . '.' . $config['tld'];
+            $phpVersion = $this->getPhpVersion($site . '.' . $config['tld']);
 
             return [
                 'site' => $site,
@@ -290,6 +305,10 @@ class Site
             $this->files->unlink($path);
         }
 
+        $tld = $this->config->read()['tld'];
+        $this->dnsmasq->deleteHostConfig($name . '.' . $tld);
+        $this->dnsmasq->reload();
+
         return $name;
     }
 
@@ -298,7 +317,7 @@ class Site
      */
     public function pruneLinks(): void
     {
-        if (! $this->files->isDir(VALET_HOME_PATH)) {
+        if (!$this->files->isDir(VALET_HOME_PATH)) {
             return;
         }
 
@@ -330,25 +349,25 @@ class Site
      */
     public function resecureForNewConfiguration(array $old, array $new): void
     {
-        if (! $this->files->exists($this->certificatesPath())) {
+        if (!$this->files->exists($this->certificatesPath())) {
             return;
         }
 
         $secured = $this->secured();
 
         $defaultTld = $this->config->read()['tld'];
-        $oldTld = ! empty($old['tld']) ? $old['tld'] : $defaultTld;
-        $tld = ! empty($new['tld']) ? $new['tld'] : $defaultTld;
+        $oldTld = !empty($old['tld']) ? $old['tld'] : $defaultTld;
+        $tld = !empty($new['tld']) ? $new['tld'] : $defaultTld;
 
         $defaultLoopback = $this->config->read()['loopback'];
-        $oldLoopback = ! empty($old['loopback']) ? $old['loopback'] : $defaultLoopback;
-        $loopback = ! empty($new['loopback']) ? $new['loopback'] : $defaultLoopback;
+        $oldLoopback = !empty($old['loopback']) ? $old['loopback'] : $defaultLoopback;
+        $loopback = !empty($new['loopback']) ? $new['loopback'] : $defaultLoopback;
 
         foreach ($secured as $url) {
-            $newUrl = str_replace('.'.$oldTld, '.'.$tld, $url);
-            $siteConf = $this->getSiteConfigFileContents($url, '.'.$oldTld);
+            $newUrl = str_replace('.' . $oldTld, '.' . $tld, $url);
+            $siteConf = $this->getSiteConfigFileContents($url, '.' . $oldTld);
 
-            if (! empty($siteConf) && strpos($siteConf, '# valet stub: secure.proxy.valet.conf') === 0) {
+            if (!empty($siteConf) && strpos($siteConf, '# valet stub: secure.proxy.valet.conf') === 0) {
                 // proxy config
                 $this->unsecure($url);
                 $this->secure(
@@ -407,10 +426,10 @@ class Site
                 $replaced = str_replace($old, $new, $match);
 
                 if ($shouldComment && strpos($replaced, '#') !== 0) {
-                    $replaced = '#'.$replaced;
+                    $replaced = '#' . $replaced;
                 }
 
-                if (! $shouldComment) {
+                if (!$shouldComment) {
                     $replaced = ltrim($replaced, '#');
                 }
 
@@ -440,7 +459,7 @@ class Site
     public function securedWithDates($ca = false): array
     {
         $sites = collect($this->secured())->map(function ($site) {
-            $filePath = $this->certificatesPath().'/'.$site.'.crt';
+            $filePath = $this->certificatesPath() . '/' . $site . '.crt';
 
             $expiration = $this->cli->run("openssl x509 -enddate -noout -in $filePath");
 
@@ -472,16 +491,16 @@ class Site
     {
         $tld = $this->config->read()['tld'];
 
-        return in_array($site.'.'.$tld, $this->secured());
+        return in_array($site . '.' . $tld, $this->secured());
     }
 
     /**
      * Secure the given host with TLS.
      *
-     * @param  string|null  $siteConf  pregenerated Nginx config file contents
-     * @param  int  $certificateExpireInDays  The number of days the self signed certificate is valid.
+     * @param string|null $siteConf pregenerated Nginx config file contents
+     * @param int $certificateExpireInDays The number of days the self signed certificate is valid.
      *                                        Certificates SHOULD NOT have a validity period greater than 397 days.
-     * @param  int  $caExpireInYears  The number of years the self signed certificate authority is valid.
+     * @param int $caExpireInYears The number of years the self signed certificate authority is valid.
      *
      * @see https://github.com/cabforum/servercert/blob/main/docs/BR.md
      */
@@ -527,14 +546,14 @@ class Site
 
             $this->secure($url, null, $expireIn);
 
-            info('The ['.$url.'] site has been secured with a fresh TLS certificate.');
+            info('The [' . $url . '] site has been secured with a fresh TLS certificate.');
         });
     }
 
     /**
      * If CA and root certificates are nonexistent, create them and trust the root cert.
      *
-     * @param  int  $caExpireInDays  The number of days the self signed certificate authority is valid.
+     * @param int $caExpireInDays The number of days the self signed certificate authority is valid.
      */
     public function createCa(int $caExpireInDays): void
     {
@@ -582,7 +601,7 @@ class Site
     public function removeCa(): void
     {
         foreach (['pem', 'key', 'srl'] as $ending) {
-            $path = $this->caPath('LaravelValetCASelfSigned.'.$ending);
+            $path = $this->caPath('LaravelValetCASelfSigned.' . $ending);
 
             if ($this->files->exists($path)) {
                 $this->files->unlink($path);
@@ -600,7 +619,7 @@ class Site
     /**
      * Create and trust a certificate for the given URL.
      *
-     * @param  int  $caExpireInDays  The number of days the self signed certificate is valid.
+     * @param int $caExpireInDays The number of days the self signed certificate is valid.
      */
     public function createCertificate(string $url, int $caExpireInDays): void
     {
@@ -616,8 +635,8 @@ class Site
         $this->createPrivateKey($keyPath);
         $this->createSigningRequest($url, $keyPath, $csrPath);
 
-        $caSrlParam = '-CAserial "'.$caSrlPath.'"';
-        if (! $this->files->exists($caSrlPath)) {
+        $caSrlParam = '-CAserial "' . $caSrlPath . '"';
+        if (!$this->files->exists($caSrlPath)) {
             $caSrlParam .= ' -CAcreateserial';
         }
 
@@ -807,7 +826,7 @@ class Site
         table(['Site', 'SSL', 'URL', 'Path'], $secured->toArray());
 
         foreach ($secured->pluck('site') as $url) {
-            $this->unsecure($url.'.'.$tld);
+            $this->unsecure($url . '.' . $tld);
         }
 
         $remaining = $this->parked()
@@ -824,20 +843,20 @@ class Site
     /**
      * Build the Nginx proxy config for the specified domain.
      *
-     * @param  string  $url  The domain name to serve
-     * @param  string  $host  The URL to proxy to, eg: http://127.0.0.1:8080
+     * @param string $url The domain name to serve
+     * @param string $host The URL to proxy to, eg: http://127.0.0.1:8080
      */
     public function proxyCreate(string $url, string $host, bool $secure = false): void
     {
-        if (! preg_match('~^https?://.*$~', $host)) {
+        if (!preg_match('~^https?://.*$~', $host)) {
             throw new \InvalidArgumentException(sprintf('"%s" is not a valid URL', $host));
         }
 
         $tld = $this->config->read()['tld'];
 
         foreach (explode(',', $url) as $proxyUrl) {
-            if (! ends_with($proxyUrl, '.'.$tld)) {
-                $proxyUrl .= '.'.$tld;
+            if (!ends_with($proxyUrl, '.' . $tld)) {
+                $proxyUrl .= '.' . $tld;
             }
 
             $nginxVersion = str_replace('nginx version: nginx/', '', exec('nginx -v 2>&1'));
@@ -861,9 +880,12 @@ class Site
                 $this->put($proxyUrl, $siteConf);
             }
 
+            $this->dnsmasq->createHostConfig($proxyUrl);
+            $this->dnsmasq->reload();
+
             $protocol = $secure ? 'https' : 'http';
 
-            info('Valet will now proxy ['.$protocol.'://'.$proxyUrl.'] traffic to ['.$host.'].');
+            info('Valet will now proxy [' . $protocol . '://' . $proxyUrl . '] traffic to [' . $host . '].');
         }
     }
 
@@ -875,14 +897,17 @@ class Site
         $tld = $this->config->read()['tld'];
 
         foreach (explode(',', $url) as $proxyUrl) {
-            if (! ends_with($proxyUrl, '.'.$tld)) {
-                $proxyUrl .= '.'.$tld;
+            if (!ends_with($proxyUrl, '.' . $tld)) {
+                $proxyUrl .= '.' . $tld;
             }
 
             $this->unsecure($proxyUrl);
             $this->files->unlink($this->nginxPath($proxyUrl));
 
-            info('Valet will no longer proxy [https://'.$proxyUrl.'].');
+            $this->dnsmasq->deleteHostConfig($proxyUrl);
+            $this->dnsmasq->reload();
+
+            info('Valet will no longer proxy [https://' . $proxyUrl . '].');
         }
     }
 
@@ -925,7 +950,7 @@ class Site
             'sudo ifconfig lo0 -alias %s', $loopback
         ));
 
-        info('['.$loopback.'] loopback interface alias removed.');
+        info('[' . $loopback . '] loopback interface alias removed.');
     }
 
     /**
@@ -937,7 +962,7 @@ class Site
             'sudo ifconfig lo0 alias %s', $loopback
         ));
 
-        info('['.$loopback.'] loopback interface alias added.');
+        info('[' . $loopback . '] loopback interface alias added.');
     }
 
     /**
@@ -957,7 +982,7 @@ class Site
                 )
             );
 
-            info('['.$this->plistPath().'] persistent loopback interface alias launch daemon added.');
+            info('[' . $this->plistPath() . '] persistent loopback interface alias launch daemon added.');
         }
     }
 
@@ -969,7 +994,7 @@ class Site
         if ($this->files->exists($this->plistPath())) {
             $this->files->unlink($this->plistPath());
 
-            info('['.$this->plistPath().'] persistent loopback interface alias launch daemon removed.');
+            info('[' . $this->plistPath() . '] persistent loopback interface alias launch daemon removed.');
         }
     }
 
@@ -1014,7 +1039,7 @@ class Site
      */
     public function nginxPath(?string $additionalPath = null): string
     {
-        return $this->valetHomePath().'/Nginx'.($additionalPath ? '/'.$additionalPath : '');
+        return $this->valetHomePath() . '/Nginx' . ($additionalPath ? '/' . $additionalPath : '');
     }
 
     /**
@@ -1022,7 +1047,7 @@ class Site
      */
     public function sitesPath(?string $link = null): string
     {
-        return $this->valetHomePath().'/Sites'.($link ? '/'.$link : '');
+        return $this->valetHomePath() . '/Sites' . ($link ? '/' . $link : '');
     }
 
     /**
@@ -1030,7 +1055,7 @@ class Site
      */
     public function caPath(?string $caFile = null): string
     {
-        return $this->valetHomePath().'/CA'.($caFile ? '/'.$caFile : '');
+        return $this->valetHomePath() . '/CA' . ($caFile ? '/' . $caFile : '');
     }
 
     /**
@@ -1038,10 +1063,10 @@ class Site
      */
     public function certificatesPath(?string $url = null, ?string $extension = null): string
     {
-        $url = $url ? '/'.$url : '';
-        $extension = $extension ? '.'.$extension : '';
+        $url = $url ? '/' . $url : '';
+        $extension = $extension ? '.' . $extension : '';
 
-        return $this->valetHomePath().'/Certificates'.$url.$extension;
+        return $this->valetHomePath() . '/Certificates' . $url . $extension;
     }
 
     /**
@@ -1058,12 +1083,12 @@ class Site
         // }
 
         // Don't add .TLD if user already passed the string in with the TLD on the end
-        if ($domain && str_contains($domain, '.'.$this->config->read()['tld'])) {
+        if ($domain && str_contains($domain, '.' . $this->config->read()['tld'])) {
             return $domain;
         }
 
         // Return either the passed domain, or the current folder name, with .TLD appended
-        return ($domain ?: $this->host(getcwd())).'.'.$this->config->read()['tld'];
+        return ($domain ?: $this->host(getcwd())) . '.' . $this->config->read()['tld'];
     }
 
     /**
@@ -1094,7 +1119,7 @@ class Site
         if ($this->files->exists($this->nginxPath($url))) {
             $siteConf = $this->files->get($this->nginxPath($url));
 
-            if (starts_with($siteConf, '# '.ISOLATED_PHP_VERSION)) {
+            if (starts_with($siteConf, '# ' . ISOLATED_PHP_VERSION)) {
                 $firstLine = explode(PHP_EOL, $siteConf)[0];
 
                 return preg_replace("/[^\d]*/", '', $firstLine); // Example output: "74" or "81"
@@ -1112,9 +1137,9 @@ class Site
         $sockFile = PhpFpm::fpmSockName($phpVersion);
 
         $siteConf = preg_replace('/valet[0-9]*.sock/', $sockFile, $siteConf);
-        $siteConf = preg_replace('/# '.ISOLATED_PHP_VERSION.'.*\n/', '', $siteConf); // Remove ISOLATED_PHP_VERSION line from config
+        $siteConf = preg_replace('/# ' . ISOLATED_PHP_VERSION . '.*\n/', '', $siteConf); // Remove ISOLATED_PHP_VERSION line from config
 
-        return '# '.ISOLATED_PHP_VERSION.'='.$phpVersion.PHP_EOL.$siteConf;
+        return '# ' . ISOLATED_PHP_VERSION . '=' . $phpVersion . PHP_EOL . $siteConf;
     }
 
     /**
@@ -1123,9 +1148,9 @@ class Site
     public function valetRc(string $siteName, ?string $cwd = null): array
     {
         if ($cwd) {
-            $path = $cwd.'/.valetrc';
+            $path = $cwd . '/.valetrc';
         } elseif ($site = $this->parked()->merge($this->links())->where('site', $siteName)->first()) {
-            $path = data_get($site, 'path').'/.valetrc';
+            $path = data_get($site, 'path') . '/.valetrc';
         } else {
             return [];
         }
@@ -1149,9 +1174,9 @@ class Site
     public function phpRcVersion(string $siteName, ?string $cwd = null): ?string
     {
         if ($cwd) {
-            $oldPath = $cwd.'/.valetphprc';
+            $oldPath = $cwd . '/.valetphprc';
         } elseif ($site = $this->parked()->merge($this->links())->where('site', $siteName)->first()) {
-            $oldPath = data_get($site, 'path').'/.valetphprc';
+            $oldPath = data_get($site, 'path') . '/.valetphprc';
         } else {
             return null;
         }

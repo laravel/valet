@@ -1280,6 +1280,128 @@ class FixturesSiteFake extends Site
         SiteTest::assertEquals('crt:'.$urlWithTld.':'.$counter, file_get_contents($crtPath));
         SiteTest::assertEquals('key:'.$urlWithTld.':'.$counter, file_get_contents($keyPath));
     }
+
+    public function test_link_creates_dnsmasq_host_config()
+    {
+        // Arrange
+        swap(Configuration::class, $config = Mockery::mock(Configuration::class));
+        $config->shouldReceive('read')->andReturn([
+            'tld' => 'test',
+            'loopback' => VALET_LOOPBACK,
+        ]);
+        $files = resolve(Filesystem::class);
+
+        /** @var FixturesSiteFake $site */
+        $site = resolve(FixturesSiteFake::class);
+        $site->useOutput();
+
+        // Redirect Dnsmasq-Fake to ./tests/output/dnsmasq.d lenken:
+        $dnsmasqDir = __DIR__.'/output/dnsmasq.d';
+        @mkdir($dnsmasqDir, 0777, true);
+        $site->dnsmasq = new DnsMasqHostConfigFake($dnsmasqDir, VALET_LOOPBACK);
+
+        // Act: Create link
+        $files->ensureDirExists($site->sitesPath(), user());
+        $site->link(__DIR__.'/output', 'mylink'); // creates mylink.test as a site
+
+        // Assert: Dnsmasq host config exists & content is correct
+        $fqdn = 'mylink.test';
+        $expectedPath = $dnsmasqDir.'/host-'.$fqdn.'.conf';
+        $this->assertFileExists($expectedPath);
+        $this->assertSame(
+            'address=/mylink.test/'.VALET_LOOPBACK.PHP_EOL.'listen-address='.VALET_LOOPBACK.PHP_EOL,
+            file_get_contents($expectedPath)
+        );
+    }
+
+    public function test_unlink_removes_dnsmasq_host_config()
+    {
+        // Arrange
+        swap(Configuration::class, $config = Mockery::mock(Configuration::class));
+        $config->shouldReceive('read')->andReturn([
+            'tld' => 'test',
+            'loopback' => VALET_LOOPBACK,
+        ]);
+
+        /** @var FixturesSiteFake $site */
+        $site = resolve(FixturesSiteFake::class);
+        $site->useOutput();
+
+        $dnsmasqDir = __DIR__.'/output/dnsmasq.d';
+        @mkdir($dnsmasqDir, 0777, true);
+        $site->dnsmasq = new DnsMasqHostConfigFake($dnsmasqDir, VALET_LOOPBACK);
+
+        // Prerequisites: “linked” site + existing Dnsmasq host file
+        $site->link(__DIR__.'/output', 'mylink');
+        $fqdn = 'mylink.test';
+        $hostFile = $dnsmasqDir.'/host-'.$fqdn.'.conf';
+        $this->assertFileExists($hostFile);
+
+        // Act: unlink
+        $site->unlink('mylink');
+
+        // Assert: Host-Config entfernt
+        $this->assertFileDoesNotExist($hostFile);
+    }
+
+    public function test_proxy_creates_dnsmasq_host_config()
+    {
+        // Arrange
+        swap(Configuration::class, $config = Mockery::mock(Configuration::class));
+        $config->shouldReceive('read')->andReturn([
+            'tld' => 'test',
+            'loopback' => VALET_LOOPBACK,
+        ]);
+
+        /** @var FixturesSiteFake $site */
+        $site = resolve(FixturesSiteFake::class);
+        $site->useOutput();
+
+        $dnsmasqDir = __DIR__.'/output/dnsmasq.d';
+        @mkdir($dnsmasqDir, 0777, true);
+        $site->dnsmasq = new DnsMasqHostConfigFake($dnsmasqDir, VALET_LOOPBACK);
+
+        // Action: Create proxy (non-secure is sufficient)
+        $site->proxyCreate('api.example', 'http://127.0.0.1:8080', false);
+
+        // Assert: Host configuration for api.example.test exists and is correct
+        $fqdn = 'api.example.test';
+        $hostFile = $dnsmasqDir.'/host-'.$fqdn.'.conf';
+        $this->assertFileExists($hostFile);
+        $this->assertSame(
+            'address=/api.example.test/'.VALET_LOOPBACK.PHP_EOL.'listen-address='.VALET_LOOPBACK.PHP_EOL,
+            file_get_contents($hostFile)
+        );
+    }
+
+    public function test_unproxy_removes_dnsmasq_host_config()
+    {
+        swap(Configuration::class, $config = Mockery::mock(Configuration::class));
+        $config->shouldReceive('read')->andReturn([
+            'tld' => 'test',
+            'loopback' => VALET_LOOPBACK,
+        ]);
+
+        /** @var FixturesSiteFake $site */
+        $site = resolve(FixturesSiteFake::class);
+        $site->useOutput();
+
+        $dnsmasqDir = __DIR__.'/output/dnsmasq.d';
+        @mkdir($dnsmasqDir, 0777, true);
+        $site->dnsmasq = new DnsMasqHostConfigFake($dnsmasqDir, VALET_LOOPBACK);
+
+        // Prerequisite: Proxy exists (creates host configuration)
+        $site->proxyCreate('api.example', 'http://127.0.0.1:8080', false);
+        $fqdn = 'api.example.test';
+        $hostFile = $dnsmasqDir.'/host-'.$fqdn.'.conf';
+        $this->assertFileExists($hostFile);
+
+        // Act: Remove proxy
+        $site->proxyDelete('api.example');
+
+        // Assert: Host configuration deleted
+        $this->assertFileDoesNotExist($hostFile);
+    }
 }
 
 class StubForRemovingLinks extends Site
@@ -1287,5 +1409,45 @@ class StubForRemovingLinks extends Site
     public function sitesPath(?string $additionalPath = null): string
     {
         return __DIR__.'/output'.($additionalPath ? '/'.$additionalPath : '');
+    }
+}
+
+
+class DnsMasqHostConfigFake
+{
+    public function __construct(
+        private string $dir,
+        private string $loopback
+    ) {
+        @mkdir($this->dir, 0777, true);
+    }
+
+    public function createHostConfig(string $fqdn): void { $this->writeFile($fqdn); }
+    public function ensureHostConfig(string $fqdn): void { $this->writeFile($fqdn); }
+    public function addHostConfig(string $fqdn): void { $this->writeFile($fqdn); }
+
+    public function deleteHostConfig(string $fqdn): void { $this->removeFile($fqdn); }
+    public function removeHostConfig(string $fqdn): void { $this->removeFile($fqdn); }
+    public function unlinkHostConfig(string $fqdn): void { $this->removeFile($fqdn); }
+
+    private function filePath(string $fqdn): string
+    {
+        return rtrim($this->dir, '/').'/host-'.$fqdn.'.conf';
+    }
+
+    private function writeFile(string $fqdn): void
+    {
+        $content = 'address=/'.$fqdn.'/'.$this->loopback.PHP_EOL
+            . 'listen-address='.$this->loopback.PHP_EOL;
+
+        file_put_contents($this->filePath($fqdn), $content);
+    }
+
+    private function removeFile(string $fqdn): void
+    {
+        $path = $this->filePath($fqdn);
+        if (file_exists($path)) {
+            @unlink($path);
+        }
     }
 }
