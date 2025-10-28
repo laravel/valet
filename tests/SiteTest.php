@@ -264,21 +264,6 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         ], $sites->first());
     }
 
-    public function test_symlink_creates_symlink_to_given_path()
-    {
-        $files = Mockery::mock(Filesystem::class);
-        $files->shouldReceive('ensureDirExists')->once()->with(VALET_HOME_PATH.'/Sites', user());
-        $config = Mockery::mock(Configuration::class);
-        $config->shouldReceive('prependPath')->once()->with(VALET_HOME_PATH.'/Sites');
-        $files->shouldReceive('symlinkAsUser')->once()->with('target', VALET_HOME_PATH.'/Sites/link');
-
-        swap(Filesystem::class, $files);
-        swap(Configuration::class, $config);
-
-        $linkPath = resolve(Site::class)->link('target', 'link');
-        $this->assertSame(VALET_HOME_PATH.'/Sites/link', $linkPath);
-    }
-
     public function test_unlink_removes_existing_symlink()
     {
         file_put_contents(__DIR__.'/output/file.out', 'test');
@@ -1401,6 +1386,25 @@ class FixturesSiteFake extends Site
 
         // Assert: Host configuration deleted
         $this->assertFileDoesNotExist($hostFile);
+    }
+
+    public function test_symlink_creates_symlink_to_given_path()
+    {
+        $files = Mockery::mock(Filesystem::class);
+        $files->shouldReceive('ensureDirExists')->once()->with(VALET_HOME_PATH.'/Sites', user());
+        $config = Mockery::mock(Configuration::class);
+        $config->shouldReceive('prependPath')->once()->with(VALET_HOME_PATH.'/Sites');
+        $files->shouldReceive('symlinkAsUser')->once()->with('target', VALET_HOME_PATH.'/Sites/link');
+
+        swap(Filesystem::class, $files);
+        swap(Configuration::class, $config);
+        $config->shouldReceive('read')
+            ->once()
+            ->andReturn(['tld' => 'other']);
+
+
+        $linkPath = resolve(Site::class)->link('target', 'link');
+        $this->assertSame(VALET_HOME_PATH.'/Sites/link', $linkPath);
     }
 }
 
