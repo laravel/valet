@@ -102,7 +102,7 @@ class DnsMasq
     }
 
     /**
-     * Host-spezifische dnsmasq Config anlegen (address=/fqdn/loopback).
+     * Create host-specific dnsmasq config (address=/fqdn/loopback).
      */
     public function createHostConfig(string $fqdn): void
     {
@@ -115,7 +115,7 @@ class DnsMasq
     }
 
     /**
-     * Host-spezifische dnsmasq Config entfernen.
+     * Remove host-specific dnsmasq config.
      */
     public function deleteHostConfig(string $fqdn): void
     {
@@ -126,7 +126,7 @@ class DnsMasq
     }
 
     /**
-     * Alle host-*.conf von alter auf neue TLD umbenennen + Inhalt anpassen.
+     * Rename all host-*.conf files from old to new TLD + adjust content.
      */
     public function remapHostConfigs(string $oldTld, string $newTld): void
     {
@@ -147,12 +147,9 @@ class DnsMasq
             $path = $dir . $file;
             $contents = $this->files->get($path);
 
-            // FQDN aus Dateinamen ableiten: host-<fqdn>.conf
-            $fqdn = substr($file, 5, -5); // schneidet 'host-' und '.conf' ab
+            $fqdn = substr($file, 5, -5);
 
-            // Nur remappen, wenn die alte TLD wirklich drin steckt
             if (!str_ends_with($fqdn, '.' . $oldTld)) {
-                // Sicherheitshalber auch Inhalte prüfen und ggf. ersetzen
                 if (str_contains($contents, '/.' . $oldTld . '/')) {
                     $contents = str_replace('/.' . $oldTld . '/', '/.' . $newTld . '/', $contents);
                     $this->files->putAsUser($path, $contents);
@@ -173,7 +170,7 @@ class DnsMasq
     }
 
     /**
-     * dnsmasq neustarten (nach Änderungen an *.conf).
+     * Restart dnsmasq (after changes to *.conf).
      */
     public function reload(): void
     {

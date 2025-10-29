@@ -18,7 +18,7 @@ class Site
         public Filesystem    $files
     )
     {
-        // Lazy-Init: eigene DnsMasq-Instanz, kompatibel mit bestehender Verkabelung
+        // Lazy-Init: own DnsMasq instance, compatible with existing cabling
         $this->dnsmasq = new DnsMasq($this->brew, $this->cli, $this->files, $this->config);
     }
 

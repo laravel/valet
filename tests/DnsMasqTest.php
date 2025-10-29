@@ -52,13 +52,13 @@ class DnsMasqTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
             'read' => ['tld' => 'test', 'loopback' => VALET_LOOPBACK],
         ]));
 
-        // DnsMasq (mit Stub-Pfad)
+        // DnsMasq (with stub path)
         $dnsMasq = resolve(StubForCreatingCustomDnsMasqConfigFiles::class);
         $dnsMasq->dnsmasqMasterConfigFile = __DIR__.'/output/dnsmasq.conf';
         $dnsMasq->dnsmasqSystemConfDir   = __DIR__.'/output/dnsmasq.d';
         $dnsMasq->resolverPath           = __DIR__.'/output/resolver';
 
-        // Ausgangs-master-config (mit Platzhalter-Inhalt, wie im Originaltest)
+        // Output master config (with placeholder content, as in the original test)
         file_put_contents(
             $dnsMasq->dnsmasqMasterConfigFile,
             file_get_contents(__DIR__.'/files/dnsmasq.conf')
@@ -66,13 +66,12 @@ class DnsMasqTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $dnsMasq->install('test');
 
-        // 1) Resolver geschrieben
         $this->assertFileExists(__DIR__.'/output/resolver/test');
         $this->assertSame('nameserver '.VALET_LOOPBACK.PHP_EOL, file_get_contents(__DIR__.'/output/resolver/test'));
 
-        // 2) Alte Logik: tld-<tld>.conf angelegt | Neue Logik: nicht vorhanden
+        // 2) Old logic: tld-<tld>.conf created | New logic: not available
         $legacyTldFileA = __DIR__.'/output/tld-test.conf';
-        $legacyTldFileB = __DIR__.'/output/dnsmasq.d/tld-test.conf'; // falls jemand früher dorthin schrieb
+        $legacyTldFileB = __DIR__.'/output/dnsmasq.d/tld-test.conf'; // if anyone wrote there earlier
         $hasLegacyTld = file_exists($legacyTldFileA) || file_exists($legacyTldFileB);
 
         if ($hasLegacyTld) {
@@ -83,12 +82,12 @@ class DnsMasqTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
                 'Legacy tld-test.conf existiert, Inhalt sollte korrekt sein.'
             );
         } else {
-            // Neue Logik: explizit sicherstellen, dass die Datei nicht existiert
+            // New logic: explicitly ensure that the file does not exist
             $this->assertFileDoesNotExist($legacyTldFileA);
             $this->assertFileDoesNotExist($legacyTldFileB);
         }
 
-        // 3) Master-Config enthält conf-dir (nicht exakte Gleichheit, nur "contains")
+        // 3) Master config contains conf-dir (not exact equality, only “contains”)
         $this->assertFileExists(__DIR__.'/output/dnsmasq.conf');
         $actual = file_get_contents(__DIR__.'/output/dnsmasq.conf');
         $this->assertIsString($actual);
@@ -102,15 +101,15 @@ class DnsMasqTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
     public function test_update_tld_removes_old_resolver_and_reinstalls()
     {
-        // Arrange: Testordner & Ausgangszustand
+        // Arrange: Test folder & initial state
         @mkdir(__DIR__.'/output/dnsmasq.d', 0777, true);
         @mkdir(__DIR__.'/output/resolver', 0777, true);
         file_put_contents(__DIR__.'/output/resolver/old', 'nameserver '.VALET_LOOPBACK.PHP_EOL);
 
-        // (optional) Legacy-Wildcard (alte Logik)
+        // (optional) Legacy wildcard (old logic)
         file_put_contents(__DIR__.'/output/tld-old.conf', 'address=/.old/'.VALET_LOOPBACK.PHP_EOL.'listen-address='.VALET_LOOPBACK.PHP_EOL);
 
-        // (optional) Host-Config, die von neuer Logik remapped werden kann
+        // (optional) Host configuration that can be remapped by new logic
         file_put_contents(__DIR__.'/output/dnsmasq.d/host-foo.old.conf', 'address=/foo.old/'.VALET_LOOPBACK.PHP_EOL.'listen-address='.VALET_LOOPBACK.PHP_EOL);
 
         // Mocks/Swaps
@@ -118,21 +117,21 @@ class DnsMasqTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
             'read' => ['tld' => 'test', 'loopback' => VALET_LOOPBACK],
         ]));
 
-        // Brew mocken, aber keine strikten Erwartungen (kompatibel zu beiden Implementierungen)
+        // Brew mock, but no strict expectations (compatible with both implementations)
         $brew = Mockery::mock(Brew::class);
         $brew->shouldReceive('ensureInstalled')->zeroOrMoreTimes();
         $brew->shouldReceive('restartService')->zeroOrMoreTimes();
         swap(Brew::class, $brew);
 
-        // CLI kann ungenutzt bleiben
+        // CLI may remain unused
         $cli = Mockery::mock(CommandLine::class);
 
         $fs = new Filesystem;
 
-        // Keine Partial-Mocks mit install()-Expectation!
+        // No partial mocks with install() expectation!
         $dnsMasq = new DnsMasq($brew, $cli, $fs, $config);
 
-        // Pfade auf Test-Output umbiegen
+        // Redirect paths to test output
         $dnsMasq->dnsmasqMasterConfigFile = __DIR__.'/output/dnsmasq.conf';
         $dnsMasq->dnsmasqSystemConfDir   = __DIR__.'/output/dnsmasq.d';
         $dnsMasq->resolverPath           = __DIR__.'/output/resolver';
@@ -140,16 +139,16 @@ class DnsMasqTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
         // Act
         $dnsMasq->updateTld('old', 'new');
 
-        // Assert – 1) alter Resolver ist weg (beide Logiken)
+        // Assert – 1) old resolver is gone (both logics)
         $this->assertFileDoesNotExist(__DIR__.'/output/resolver/old');
 
-        // Assert – 2) neuer Resolver (falls deine Implementierung ihn anlegt)
+        // Assert – 2) new resolver (if your implementation creates it)
         $newResolver = __DIR__.'/output/resolver/new';
         if (file_exists($newResolver)) {
             $this->assertSame('nameserver '.VALET_LOOPBACK.PHP_EOL, file_get_contents($newResolver));
         }
 
-        // Assert – 3) Host-Remap (nur neue Logik). Falls vorhanden, Inhalt prüfen.
+        // Assert – 3) Host remap (new logic only). If present, check content.
         $maybeNewHost = __DIR__.'/output/dnsmasq.d/host-foo.new.conf';
         if (file_exists($maybeNewHost)) {
             $this->assertSame(
@@ -159,17 +158,17 @@ class DnsMasqTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
             );
         }
 
-        // Alte Dateien dürfen je nach Implementierung vorhanden oder entfernt sein:
-        // - Legacy tld-old.conf: alt evtl. noch da, neu evtl. entfernt -> kein harter Assert.
-        // - host-foo.old.conf: neu evtl. entfernt, alt evtl. noch da -> kein harter Assert.
+        // Old files may be present or removed depending on implementation:
+        // - Legacy tld-old.conf: old may still be there, new may be removed -> no hard assert.
+        // - host-foo.old.conf: new may be removed, old may still be there -> no hard assert.
     }
 
 }
 
 /**
- * Stub: leite user config dir in die Test-Ausgabe. Historisch war das root von output,
- * neu liegt alles eher unter dnsmasq.d/. Wir lassen hier das Root, weil die alte Logik
- * tld-<tld>.conf genau dorthin geschrieben hat.
+ * Stub: redirect user config dir to test output. Historically, this was the root of output,
+ * but now everything is located under dnsmasq.d/. We leave the root here because the old logic
+ * tld-<tld>.conf wrote exactly there.
  */
 class StubForCreatingCustomDnsMasqConfigFiles extends DnsMasq
 {
