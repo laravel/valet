@@ -26,6 +26,8 @@ class DnsMasq
         // This allows Valet to make changes to our own files without needing to modify the core dnsmasq configs
         $this->ensureUsingDnsmasqDForConfigs();
 
+        $this->createDnsmasqTldConfigFile($tld);
+
         $this->createTldResolver($tld);
 
         $this->brew->restartService('dnsmasq');
@@ -102,6 +104,17 @@ class DnsMasq
     }
 
     /**
+     * Create the TLD-specific dnsmasq config file.
+     */
+    public function createDnsmasqTldConfigFile(string $tld): void
+    {
+        $tldConfigFile = $this->dnsmasqUserConfigDir().'tld-'.$tld.'.conf';
+        $loopback = $this->configuration->read()['loopback'];
+
+        $this->files->putAsUser($tldConfigFile, 'address=/.'.$tld.'/'.$loopback.PHP_EOL.'listen-address='.$loopback.PHP_EOL);
+    }
+
+    /**
      * Create host-specific dnsmasq config (address=/fqdn/loopback).
      */
     public function createHostConfig(string $fqdn): void
@@ -122,50 +135,6 @@ class DnsMasq
         $file = $this->dnsmasqUserConfigDir() . 'host-' . $fqdn . '.conf';
         if ($this->files->exists($file)) {
             $this->files->unlink($file);
-        }
-    }
-
-    /**
-     * Rename all host-*.conf files from old to new TLD + adjust content.
-     */
-    public function remapHostConfigs(string $oldTld, string $newTld): void
-    {
-        if ($oldTld === $newTld) {
-            return;
-        }
-
-        $dir = $this->dnsmasqUserConfigDir();
-        if (!$this->files->exists($dir)) {
-            return;
-        }
-
-        foreach ($this->files->scandir($dir) as $file) {
-            if (!str_starts_with($file, 'host-') || !str_ends_with($file, '.conf')) {
-                continue;
-            }
-
-            $path = $dir . $file;
-            $contents = $this->files->get($path);
-
-            $fqdn = substr($file, 5, -5);
-
-            if (!str_ends_with($fqdn, '.' . $oldTld)) {
-                if (str_contains($contents, '/.' . $oldTld . '/')) {
-                    $contents = str_replace('/.' . $oldTld . '/', '/.' . $newTld . '/', $contents);
-                    $this->files->putAsUser($path, $contents);
-                }
-                continue;
-            }
-
-            $newFqdn = substr($fqdn, 0, -strlen('.'.$oldTld)).'.'.$newTld;
-            $newContents = str_replace('/'.$fqdn.'/', '/'.$newFqdn.'/', $contents);
-            $newContents = str_replace('/.'.$oldTld.'/', '/.'.$newTld.'/', $newContents);
-
-            $newFile = 'host-'.$newFqdn.'.conf';
-            $newPath = $dir.$newFile;
-
-            $this->files->putAsUser($newPath, $newContents);
-            $this->files->unlink($path);
         }
     }
 
@@ -193,14 +162,8 @@ class DnsMasq
      */
     public function updateTld(string $oldTld, string $newTld): void
     {
-        $this->files->unlink($this->resolverPath . '/' . $oldTld);
-
-        $legacy = $this->dnsmasqUserConfigDir().'tld-'.$oldTld.'.conf';
-        if ($this->files->exists($legacy)) {
-            $this->files->unlink($legacy);
-        }
-
-        $this->remapHostConfigs($oldTld, $newTld);
+        $this->files->unlink($this->resolverPath.'/'.$oldTld);
+        $this->files->unlink($this->dnsmasqUserConfigDir().'tld-'.$oldTld.'.conf');
 
         $this->reload();
     }
@@ -221,5 +184,44 @@ class DnsMasq
     public function dnsmasqUserConfigDir(): string
     {
         return $_SERVER['HOME'] . '/.config/valet/dnsmasq.d/';
+    }
+
+    /**
+     * Return all existing host entries for a given base name (without TLD),
+     * as "<name>.<tld>" strings, e.g. ["example.dev", "example.test"].
+     *
+     * It looks for files matching: host-<name>.*.conf in the dnsmasq user config dir.
+     *
+     * @param string $name Base host name without TLD (e.g. "example")
+     * @return array<string> List of "<name>.<tld>" strings (unique, naturally sorted)
+     */
+    public function listSitesWithTld(string $name): array
+    {
+        // Normalize to lowercase to match how Valet typically writes FQDNs
+        $base = strtolower($name);
+
+        // Ensure we have a trailing slash
+        $dir = rtrim($this->dnsmasqUserConfigDir(), '/').'/';
+
+        // Pattern for files like: host-example.dev.conf, host-example.test.conf, ...
+        $pattern = $dir . 'host-' . $base . '.*.conf';
+
+        // glob() returns an array of paths or an empty array if none
+        $matches = glob($pattern, GLOB_NOSORT) ?: [];
+
+        $out = [];
+        foreach ($matches as $path) {
+            $filename = basename($path); // e.g. "host-example.dev.conf"
+
+            // Extract between "host-" and ".conf" -> "example.dev"
+            if (preg_match('/^host-(.+)\.conf$/i', $filename, $m)) {
+                $out[] = $m[1];
+            }
+        }
+
+        // Ensure uniqueness and natural case-insensitive sort for stable output
+        $out = array_values(array_unique($out, SORT_STRING));
+        natcasesort($out);
+        return array_values($out);
     }
 }

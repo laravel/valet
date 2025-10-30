@@ -73,7 +73,7 @@ class Site
     /**
      * Link the current working directory with the given name.
      */
-    public function link(string $target, string $link): string
+    public function link(string $target, string $link, string|null $tld = null): string
     {
         $this->files->ensureDirExists(
             $linkPath = $this->sitesPath(), user()
@@ -83,10 +83,17 @@ class Site
 
         $this->files->symlinkAsUser($target, $linkPath . '/' . $link);
 
-        $tld = $this->config->read()['tld'];
-        $this->dnsmasq->createHostConfig($link . '.' . $tld);
-        $this->dnsmasq->reload();
+        if($tld && $tld !== $this->config->read()['tld']) {
 
+            $sites = $this->dnsmasq->listSitesWithTld($link);
+
+            foreach($sites as $site) {
+                $this->dnsmasq->deleteHostConfig($site);
+            }
+
+            $this->dnsmasq->createHostConfig($link . '.' . $tld);
+            $this->dnsmasq->reload();
+        }
         return $linkPath . '/' . $link;
     }
 
@@ -305,8 +312,10 @@ class Site
             $this->files->unlink($path);
         }
 
-        $tld = $this->config->read()['tld'];
-        $this->dnsmasq->deleteHostConfig($name . '.' . $tld);
+        $sites = $this->dnsmasq->listSitesWithTld($name);;
+        foreach($sites as $site) {
+            $this->dnsmasq->deleteHostConfig($site);
+        }
         $this->dnsmasq->reload();
 
         return $name;
@@ -846,13 +855,13 @@ class Site
      * @param string $url The domain name to serve
      * @param string $host The URL to proxy to, eg: http://127.0.0.1:8080
      */
-    public function proxyCreate(string $url, string $host, bool $secure = false): void
+    public function proxyCreate(string $url, string $host, bool $secure = false, string|null $tld = null): void
     {
         if (!preg_match('~^https?://.*$~', $host)) {
             throw new \InvalidArgumentException(sprintf('"%s" is not a valid URL', $host));
         }
 
-        $tld = $this->config->read()['tld'];
+        $tld = $tld ?? $this->config->read()['tld'];
 
         foreach (explode(',', $url) as $proxyUrl) {
             if (!ends_with($proxyUrl, '.' . $tld)) {
@@ -880,13 +889,21 @@ class Site
                 $this->put($proxyUrl, $siteConf);
             }
 
-            $this->dnsmasq->createHostConfig($proxyUrl);
-            $this->dnsmasq->reload();
+            if($tld && $tld !== $this->config->read()['tld']) {
+
+                $sites = $this->dnsmasq->listSitesWithTld(str_replace('.'.$tld, '', $proxyUrl));;
+                foreach($sites as $site) {
+                    $this->dnsmasq->deleteHostConfig($site);
+                }
+
+                $this->dnsmasq->createHostConfig($proxyUrl);
+            }
 
             $protocol = $secure ? 'https' : 'http';
 
             info('Valet will now proxy [' . $protocol . '://' . $proxyUrl . '] traffic to [' . $host . '].');
         }
+        $this->dnsmasq->reload();
     }
 
     /**
@@ -905,10 +922,10 @@ class Site
             $this->files->unlink($this->nginxPath($proxyUrl));
 
             $this->dnsmasq->deleteHostConfig($proxyUrl);
-            $this->dnsmasq->reload();
 
             info('Valet will no longer proxy [https://' . $proxyUrl . '].');
         }
+        $this->dnsmasq->reload();
     }
 
     /**

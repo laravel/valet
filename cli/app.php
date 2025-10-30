@@ -198,8 +198,8 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Register a symbolic link with Valet.
      */
-    $app->command('link [name] [--secure] [--isolate]', function ($name, $secure, $isolate) {
-        $linkPath = Site::link(getcwd(), $name = $name ?: basename(getcwd()));
+    $app->command('link [name] [--secure] [--isolate] [--tld=]', function ($name, $secure, $isolate, $tld) {
+        $linkPath = Site::link(getcwd(), $name = $name ?: basename(getcwd()), $tld);
 
         info('A ['.$name.'] symbolic link has been created in ['.$linkPath.'].');
 
@@ -318,8 +318,8 @@ if (is_dir(VALET_HOME_PATH)) {
     /**
      * Create an Nginx proxy config for the specified domain.
      */
-    $app->command('proxy domain host [--secure]', function (OutputInterface $output, $domain, $host, $secure) {
-        Site::proxyCreate($domain, $host, $secure);
+    $app->command('proxy domain host [--secure] [--tld=]', function (OutputInterface $output, $domain, $host, $secure, $tld) {
+        Site::proxyCreate($domain, $host, $secure, $tld);
         Nginx::restart();
     })->descriptions('Create an Nginx proxy site for the specified host. Useful for docker, mailhog etc.', [
         '--secure' => 'Create a proxy with a trusted TLS certificate',
