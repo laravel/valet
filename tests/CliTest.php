@@ -228,7 +228,7 @@ class CliTest extends BaseApplicationTestCase
         [$app, $tester] = $this->appAndTester();
 
         $site = Mockery::mock(RealSite::class);
-        $site->shouldReceive('link')->with(getcwd(), basename(getcwd()))->once();
+        $site->shouldReceive('link')->with(getcwd(), basename(getcwd()), null)->once();
         swap(RealSite::class, $site);
 
         $tester->run(['command' => 'link']);
@@ -294,7 +294,7 @@ class CliTest extends BaseApplicationTestCase
         $brewMock->shouldReceive('installed')->with($fullPhpVersion);
         $brewMock->shouldReceive('determineAliasedVersion')->with($fullPhpVersion)->andReturn($fullPhpVersion);
 
-        $siteMock->shouldReceive('link')->with($cwd, $name)->once();
+        $siteMock->shouldReceive('link')->with($cwd, $name, null)->once();
         $siteMock->shouldReceive('getSiteUrl')->with($name)->andReturn($host);
         $siteMock->shouldReceive('phpRcVersion')->with($name, $cwd)->andReturn($phpRcVersion);
         $siteMock->shouldReceive('customPhpVersion')->with($host)->andReturn($customPhpVersion);
@@ -471,7 +471,7 @@ class CliTest extends BaseApplicationTestCase
         [$app, $tester] = $this->appAndTester();
 
         $site = Mockery::mock(RealSite::class);
-        $site->shouldReceive('proxyCreate')->with('elasticsearch', 'http://127.0.0.1:9200', false)->once();
+        $site->shouldReceive('proxyCreate')->with('elasticsearch', 'http://127.0.0.1:9200', false, null)->once();
 
         $nginx = Mockery::mock(Nginx::class);
         $nginx->shouldReceive('restart')->once();
@@ -488,7 +488,7 @@ class CliTest extends BaseApplicationTestCase
         [$app, $tester] = $this->appAndTester();
 
         $site = Mockery::mock(RealSite::class);
-        $site->shouldReceive('proxyCreate')->with('my-app,subdomain.my-app', 'http://127.0.0.1:8000', false)->once();
+        $site->shouldReceive('proxyCreate')->with('my-app,subdomain.my-app', 'http://127.0.0.1:8000', false, null)->once();
 
         $nginx = Mockery::mock(Nginx::class);
         $nginx->shouldReceive('restart')->once();
