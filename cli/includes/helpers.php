@@ -25,7 +25,9 @@ if (! defined('VALET_STATIC_PREFIX')) {
 define('VALET_LOOPBACK', '127.0.0.1');
 define('VALET_SERVER_PATH', realpath(__DIR__.'/../../server.php'));
 
-define('BREW_PREFIX', (new CommandLine)->runAsUser('printf $(brew --prefix)'));
+if (! defined('BREW_PREFIX')) {
+    define('BREW_PREFIX', (new CommandLine)->runAsUser('printf $(brew --prefix)'));
+}
 
 define('ISOLATED_PHP_VERSION', 'ISOLATED_PHP_VERSION');
 
