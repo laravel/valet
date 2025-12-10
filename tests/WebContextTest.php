@@ -20,6 +20,6 @@ final class WebContextTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $found = $webContext->guessHomebrewPath('/not-exits/');
 
-        $this->assertContains('a', ['a', 'b', 'c']);
+        $this->assertSame('/not-exits', $found);
     }
 }

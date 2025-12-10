@@ -28,7 +28,7 @@ define('VALET_SERVER_PATH', realpath(__DIR__.'/../../server.php'));
 if (php_sapi_name() === 'cli') {
     define('BREW_PREFIX',  (new CommandLine)->runAsUser('printf $(brew --prefix)'));
 } else if (! defined('BREW_PREFIX')) {
-    define('BREW_PREFIX', WebContext::guessHomebrewPath(PHP_BINARY));
+    define('BREW_PREFIX', (new WebContext(resolve(Filesystem::class)))->guessHomebrewPath(PHP_BINARY));
 }
 
 define('ISOLATED_PHP_VERSION', 'ISOLATED_PHP_VERSION');

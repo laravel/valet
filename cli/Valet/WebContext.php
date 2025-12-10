@@ -8,7 +8,7 @@ class WebContext
     {
     }
 
-    public function guessHomebrewPath(string $phpBinary): bool
+    public function guessHomebrewPath(string $phpBinary): string
     {
         $parts = array_values(array_filter(explode(DIRECTORY_SEPARATOR, $phpBinary)));
 
