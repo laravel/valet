@@ -22,4 +22,17 @@ final class WebContextTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $this->assertSame('/not-exits', $found);
     }
+
+    public function test_if_cant_find_throw_an_exception()
+    {
+        $this->expectException(\LogicException::class);
+
+        $files = Mockery::mock(Filesystem::class);
+        $files->shouldReceive('exists')->once()->with('/not-exits/bin/brew')->andReturn(false);
+        // DUH!!!  $files->shouldReceive('isDir')->once()->with('/not-exits/Cellar')->andReturn(false);
+
+        $webContext = new WebContext($files);
+
+        $webContext->guessHomebrewPath('/not-exits/'); // ??
+    }
 }

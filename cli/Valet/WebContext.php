@@ -9,7 +9,6 @@ class WebContext
     public function guessHomebrewPath(string $phpBinary): string
     {
         $parts = array_values(array_filter(explode(DIRECTORY_SEPARATOR, $phpBinary)));
-
         $currentDirectory = '';
 
         while ($folder = array_shift($parts)) {
