@@ -4,9 +4,7 @@ namespace Valet;
 
 class WebContext
 {
-    public function __construct(public Filesystem $files)
-    {
-    }
+    public function __construct(public Filesystem $files) {}
 
     public function guessHomebrewPath(string $phpBinary): string
     {
@@ -14,10 +12,10 @@ class WebContext
 
         $currentDirectory = '';
 
-        while($folder = array_shift($parts)) {
-            $currentDirectory .= DIRECTORY_SEPARATOR . $folder;
-            $brewExists = $currentDirectory . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'brew';
-            $cellarExists = $currentDirectory . DIRECTORY_SEPARATOR . 'Cellar';
+        while ($folder = array_shift($parts)) {
+            $currentDirectory .= DIRECTORY_SEPARATOR.$folder;
+            $brewExists = $currentDirectory.DIRECTORY_SEPARATOR.'bin'.DIRECTORY_SEPARATOR.'brew';
+            $cellarExists = $currentDirectory.DIRECTORY_SEPARATOR.'Cellar';
 
             $found = $this->files->exists($brewExists) && $this->files->isDir($cellarExists);
 
@@ -31,4 +29,3 @@ class WebContext
         throw new \LogicException('Unable to guess homebrew path. Define a constant with BREW_PREFIX with your local homebrew path.');
     }
 }
-
