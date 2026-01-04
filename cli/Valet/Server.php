@@ -173,7 +173,7 @@ class Server
             $dirs = [];
 
             while (($file = readdir($handle)) !== false) {
-                if (is_dir($path.'/'.$file) && ! in_array($file, ['.', '..'])) {
+                if (! in_array($file, ['.', '..']) && is_dir($path.'/'.$file)) {
                     $dirs[] = $file;
                 }
             }
