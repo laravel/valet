@@ -15,9 +15,3 @@ if (version_compare(PHP_VERSION, '8.0', '<')) {
 
     exit(1);
 }
-
-if (exec('which brew') == '' ) {
-    echo 'Valet requires Homebrew to be installed on your Mac.';
-
-    exit(1);
-}
