@@ -25,7 +25,41 @@ if (! defined('VALET_STATIC_PREFIX')) {
 define('VALET_LOOPBACK', '127.0.0.1');
 define('VALET_SERVER_PATH', realpath(__DIR__.'/../../server.php'));
 
-define('BREW_PREFIX', (new CommandLine)->runAsUser('printf $(brew --prefix)'));
+// Detect the Homebrew prefix in a way that works on both macOS and Linux,
+// without relying on sudo or the current PATH inside sudo.
+if (! defined('BREW_PREFIX')) {
+    // First, try to locate the brew binary in PATH.
+    $brewPath = trim(shell_exec('command -v brew 2>/dev/null') ?? '');
+
+    // If not found in PATH, fall back to common Homebrew / Linuxbrew locations.
+    if ($brewPath === '') {
+        $commonBrewPaths = [
+            '/opt/homebrew/bin/brew',
+            '/usr/local/bin/brew',
+            '/home/linuxbrew/.linuxbrew/bin/brew',
+        ];
+
+        foreach ($commonBrewPaths as $path) {
+            if (file_exists($path)) {
+                $brewPath = $path;
+                break;
+            }
+        }
+    }
+
+    // Derive the brew "prefix" (installation root) from the brew executable.
+    $brewPrefix = '';
+    if ($brewPath !== '') {
+        $brewPrefix = trim(shell_exec($brewPath.' --prefix 2>/dev/null') ?? '');
+
+        if ($brewPrefix === '') {
+            // Fallback: assume the prefix is the parent directory of "bin".
+            $brewPrefix = dirname(dirname($brewPath));
+        }
+    }
+
+    define('BREW_PREFIX', $brewPrefix);
+}
 
 define('ISOLATED_PHP_VERSION', 'ISOLATED_PHP_VERSION');
 

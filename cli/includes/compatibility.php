@@ -10,8 +10,10 @@ if (php_sapi_name() !== 'cli') {
  */
 $inTestingEnvironment = strpos($_SERVER['SCRIPT_NAME'], 'phpunit') !== false;
 
-if (PHP_OS !== 'Darwin' && ! $inTestingEnvironment) {
-    echo 'Valet only supports the Mac operating system.'.PHP_EOL;
+$supportedOperatingSystems = ['Darwin', 'Linux'];
+
+if (! in_array(PHP_OS, $supportedOperatingSystems, true) && ! $inTestingEnvironment) {
+    echo 'This fork of Valet only supports macOS and Linux (detected: '.PHP_OS.').'.PHP_EOL;
 
     exit(1);
 }
@@ -22,8 +24,26 @@ if (version_compare(PHP_VERSION, '8.0', '<')) {
     exit(1);
 }
 
-if (exec('which brew') == '' ) {
-    echo 'Valet requires Homebrew to be installed on your Mac.';
+// Detect Homebrew (supports macOS Homebrew and Linuxbrew)
+$brewPath = trim(exec('command -v brew 2>/dev/null'));
+
+if ($brewPath === '') {
+    $commonBrewPaths = [
+        '/opt/homebrew/bin/brew',
+        '/usr/local/bin/brew',
+        '/home/linuxbrew/.linuxbrew/bin/brew',
+    ];
+
+    foreach ($commonBrewPaths as $path) {
+        if (file_exists($path)) {
+            $brewPath = $path;
+            break;
+        }
+    }
+}
+
+if ($brewPath === '') {
+    echo 'Valet requires Homebrew (brew) to be installed and available in your PATH.';
 
     exit(1);
 }
