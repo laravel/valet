@@ -1,6 +1,10 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v4.11.0...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v4.11.1...master)
+
+## [v4.11.1](https://github.com/laravel/valet/compare/v4.11.0...v4.11.1) - 2026-02-10
+
+* Fix directory check in sitePath method by [@andreasnij](https://github.com/andreasnij) in https://github.com/laravel/valet/pull/1540
 
 ## [v4.11.0](https://github.com/laravel/valet/compare/v4.10.0...v4.11.0) - 2025-10-07
 
