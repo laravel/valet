@@ -25,7 +25,11 @@ if (! defined('VALET_STATIC_PREFIX')) {
 define('VALET_LOOPBACK', '127.0.0.1');
 define('VALET_SERVER_PATH', realpath(__DIR__.'/../../server.php'));
 
-define('BREW_PREFIX', (new CommandLine)->runAsUser('printf $(brew --prefix)'));
+if (php_sapi_name() === 'cli') {
+    define('BREW_PREFIX', (new CommandLine)->runAsUser('printf $(brew --prefix)'));
+} elseif (! defined('BREW_PREFIX')) {
+    define('BREW_PREFIX', (new WebContext(resolve(Filesystem::class)))->guessHomebrewPath(PHP_BINARY));
+}
 
 define('ISOLATED_PHP_VERSION', 'ISOLATED_PHP_VERSION');
 
