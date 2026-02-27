@@ -109,7 +109,11 @@ class DnsMasq
         $tldConfigFile = $this->dnsmasqUserConfigDir().'tld-'.$tld.'.conf';
         $loopback = $this->configuration->read()['loopback'];
 
-        $this->files->putAsUser($tldConfigFile, 'address=/.'.$tld.'/'.$loopback.PHP_EOL.'listen-address='.$loopback.PHP_EOL);
+        $this->files->putAsUser($tldConfigFile,
+            'address=/.'.$tld.'/'.$loopback.PHP_EOL
+            .'address=/.'.$tld.'/::1'.PHP_EOL // IPV6 loopback prevents Safari "Happy Eyeballs" slow load
+            .'listen-address='.$loopback.PHP_EOL
+        );
     }
 
     /**
