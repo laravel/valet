@@ -1,6 +1,11 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v4.11.1...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v4.12.0...master)
+
+## [v4.12.0](https://github.com/laravel/valet/compare/v4.11.1...v4.12.0) - 2026-03-10
+
+* Laravel 13.x Compatibility by [@laravel-shift](https://github.com/laravel-shift) in https://github.com/laravel/valet/pull/1544
+* Add IPV6 lookup for Safari Happy Eyeballs by [@mattstauffer](https://github.com/mattstauffer) in https://github.com/laravel/valet/pull/1545
 
 ## [v4.11.1](https://github.com/laravel/valet/compare/v4.11.0...v4.11.1) - 2026-02-10
 
