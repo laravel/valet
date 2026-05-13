@@ -2,10 +2,11 @@
 
 use Illuminate\Container\Container;
 use Valet\Server;
+use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 use function Valet\user;
 
-class ServerTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
+class ServerTest extends TestCase
 {
     use UsesNullWriter;
 

@@ -1,17 +1,19 @@
 <?php
 
 use Illuminate\Container\Container;
+use Illuminate\Support\Collection;
 use Valet\Brew;
 use Valet\CommandLine;
 use Valet\Configuration;
 use Valet\Filesystem;
 use Valet\Site;
+use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 use function Valet\resolve;
 use function Valet\swap;
 use function Valet\user;
 
-class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
+class SiteTest extends TestCase
 {
     use UsesNullWriter;
 
@@ -92,7 +94,7 @@ class SiteTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
 
         $phpVersion = $site->brew->linkedPhp();
 
-        $certs = Mockery::mock(\Illuminate\Support\Collection::class);
+        $certs = Mockery::mock(Collection::class);
         $certs->shouldReceive('has')
             ->twice()
             ->with(Mockery::on(function ($arg) {
@@ -1184,7 +1186,7 @@ class FixturesSiteFake extends Site
     public function valetHomePath(): string
     {
         if (! isset($this->valetHomePath)) {
-            throw new \RuntimeException(static::class.' needs to be configured using useFixtures or useOutput');
+            throw new RuntimeException(static::class.' needs to be configured using useFixtures or useOutput');
         }
 
         return $this->valetHomePath;

@@ -3,12 +3,13 @@
 use Illuminate\Container\Container;
 use Valet\CommandLine;
 use Valet\Status;
+use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 use function Valet\resolve;
 use function Valet\swap;
 use function Valet\user;
 
-class StatusTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
+class StatusTest extends TestCase
 {
     use UsesNullWriter;
 

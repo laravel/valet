@@ -3,12 +3,13 @@
 use Illuminate\Container\Container;
 use Valet\CommandLine;
 use Valet\Composer;
+use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 use function Valet\resolve;
 use function Valet\swap;
 use function Valet\user;
 
-class ComposerTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
+class ComposerTest extends TestCase
 {
     use UsesNullWriter;
 

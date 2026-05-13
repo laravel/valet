@@ -3,6 +3,7 @@
 namespace Valet;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 
 class Valet
 {
@@ -31,7 +32,7 @@ class Valet
     /**
      * Determine if this is the latest version of Valet.
      *
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws GuzzleException
      */
     public function onLatestVersion(string $currentVersion): bool
     {

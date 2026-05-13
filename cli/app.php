@@ -392,7 +392,7 @@ if (is_dir(VALET_HOME_PATH)) {
         if ($tool && in_array($tool, $share_tools) && class_exists($tool)) {
             try {
                 output($tool::currentTunnelUrl(Site::domain($domain)));
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 warning($e->getMessage());
             }
         } else {

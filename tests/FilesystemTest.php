@@ -1,8 +1,9 @@
 <?php
 
 use Valet\Filesystem;
+use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
-class FilesystemTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
+class FilesystemTest extends TestCase
 {
     use UsesNullWriter;
 

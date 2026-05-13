@@ -6,12 +6,13 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use Valet\Brew;
 use Valet\CommandLine;
 use Valet\Filesystem;
+use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 use function Valet\resolve;
 use function Valet\swap;
 use function Valet\user;
 
-class BrewTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
+class BrewTest extends TestCase
 {
     use UsesNullWriter;
 

@@ -2,11 +2,12 @@
 
 use Illuminate\Container\Container;
 use Valet\Ngrok;
+use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 use function Valet\resolve;
 use function Valet\user;
 
-class NgrokTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
+class NgrokTest extends TestCase
 {
     use UsesNullWriter;
 

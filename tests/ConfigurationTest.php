@@ -5,12 +5,13 @@ use Valet\Brew;
 use Valet\Configuration;
 use Valet\Filesystem;
 use Valet\Valet;
+use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 use function Valet\resolve;
 use function Valet\swap;
 use function Valet\user;
 
-class ConfigurationTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
+class ConfigurationTest extends TestCase
 {
     use UsesNullWriter;
 

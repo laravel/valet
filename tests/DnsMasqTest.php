@@ -6,12 +6,13 @@ use Valet\CommandLine;
 use Valet\Configuration;
 use Valet\DnsMasq;
 use Valet\Filesystem;
+use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 use function Valet\resolve;
 use function Valet\swap;
 use function Valet\user;
 
-class DnsMasqTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
+class DnsMasqTest extends TestCase
 {
     use UsesNullWriter;
 

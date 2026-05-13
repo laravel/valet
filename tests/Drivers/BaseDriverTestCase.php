@@ -1,6 +1,8 @@
 <?php
 
-class BaseDriverTestCase extends Yoast\PHPUnitPolyfills\TestCases\TestCase
+use Yoast\PHPUnitPolyfills\TestCases\TestCase;
+
+class BaseDriverTestCase extends TestCase
 {
     public function set_up(): void
     {

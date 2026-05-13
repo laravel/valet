@@ -8,12 +8,13 @@ use Valet\Filesystem;
 use Valet\Nginx;
 use Valet\PhpFpm;
 use Valet\Site;
+use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
 use function Valet\resolve;
 use function Valet\swap;
 use function Valet\user;
 
-class PhpFpmTest extends Yoast\PHPUnitPolyfills\TestCases\TestCase
+class PhpFpmTest extends TestCase
 {
     use UsesNullWriter;
 
