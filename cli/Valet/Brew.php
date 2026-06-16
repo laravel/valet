@@ -40,6 +40,24 @@ class Brew
 
     const BREW_DISABLE_AUTO_CLEANUP = 'HOMEBREW_NO_INSTALL_CLEANUP=1';
 
+    /**
+     * Get the brew binary to use, depending on OS.
+     * - On macOS, use the plain "brew" in PATH (original behaviour).
+     * - On Linux, prefer BREW_PREFIX/bin/brew if BREW_PREFIX is defined.
+     */
+    protected function brewBinary(): string
+    {
+        if (PHP_OS === 'Darwin') {
+            return 'brew';
+        }
+
+        if (defined('BREW_PREFIX')) {
+            return BREW_PREFIX.'/bin/brew';
+        }
+
+        return 'brew';
+    }
+
     public function __construct(public CommandLine $cli, public Filesystem $files) {}
 
     /**
@@ -47,7 +65,7 @@ class Brew
      */
     public function installed(string $formula): bool
     {
-        $result = $this->cli->runAsUser("brew info $formula --json=v2");
+        $result = $this->cli->runAsUser($this->brewBinary()." info $formula --json=v2");
 
         // should be a json response, but if not installed then "Error: No available formula ..."
         if (starts_with($result, 'Error: No')) {
@@ -101,7 +119,7 @@ class Brew
     public function installedPhpFormulae(): Collection
     {
         return collect(
-            explode(PHP_EOL, $this->cli->runAsUser('brew list --formula | grep php'))
+            explode(PHP_EOL, $this->cli->runAsUser($this->brewBinary().' list --formula | grep php'))
         );
     }
 
@@ -110,7 +128,7 @@ class Brew
      */
     public function determineAliasedVersion($formula): string
     {
-        $details = json_decode($this->cli->runAsUser("brew info $formula --json"));
+        $details = json_decode($this->cli->runAsUser($this->brewBinary()." info $formula --json"));
 
         if (! empty($details[0]->aliases[0])) {
             return $details[0]->aliases[0];
@@ -164,7 +182,7 @@ class Brew
             warning('Note: older PHP versions may take 10+ minutes to compile from source. Please wait ...');
         }
 
-        $this->cli->runAsUser(trim(static::BREW_DISABLE_AUTO_CLEANUP.' brew install '.$formula.' '.implode(' ', $options)), function ($exitCode, $errorOutput) use ($formula) {
+        $this->cli->runAsUser(trim(static::BREW_DISABLE_AUTO_CLEANUP.' '.$this->brewBinary().' install '.$formula.' '.implode(' ', $options)), function ($exitCode, $errorOutput) use ($formula) {
             output($errorOutput);
 
             throw new DomainException('Brew was unable to install ['.$formula.'].');
@@ -179,7 +197,7 @@ class Brew
         $formulas = is_array($formulas) ? $formulas : func_get_args();
 
         foreach ($formulas as $formula) {
-            $this->cli->passthru(static::BREW_DISABLE_AUTO_CLEANUP.' sudo -u "'.user().'" brew tap '.$formula);
+            $this->cli->passthru(static::BREW_DISABLE_AUTO_CLEANUP.' sudo -u "'.user().'" '.$this->brewBinary().' tap '.$formula);
         }
     }
 
@@ -195,11 +213,11 @@ class Brew
                 info("Restarting {$service}...");
 
                 // first we ensure that the service is not incorrectly running as non-root
-                $this->cli->quietly('brew services stop '.$service);
+                $this->cli->quietly($this->brewBinary().' services stop '.$service);
                 // stop the actual/correct sudo version
-                $this->cli->quietly('sudo brew services stop '.$service);
+                $this->cli->quietly('sudo '.$this->brewBinary().' services stop '.$service);
                 // start correctly as root
-                $this->cli->quietly('sudo brew services start '.$service);
+                $this->cli->quietly('sudo '.$this->brewBinary().' services start '.$service);
             }
         }
     }
@@ -216,10 +234,10 @@ class Brew
                 info("Stopping {$service}...");
 
                 // first we ensure that the service is not incorrectly running as non-root
-                $this->cli->quietly('brew services stop '.$service);
+                $this->cli->quietly($this->brewBinary().' services stop '.$service);
 
                 // stop the sudo version
-                $this->cli->quietly('sudo brew services stop '.$service);
+                $this->cli->quietly('sudo '.$this->brewBinary().' services stop '.$service);
 
                 // restore folder permissions: for each brew formula, these directories are owned by root:admin
                 $directories = [
@@ -358,7 +376,7 @@ class Brew
     public function link(string $formula, bool $force = false): string
     {
         return $this->cli->runAsUser(
-            sprintf('brew link %s%s', $formula, $force ? ' --force' : ''),
+            sprintf('%s link %s%s', $this->brewBinary(), $formula, $force ? ' --force' : ''),
             function ($exitCode, $errorOutput) use ($formula) {
                 output($errorOutput);
 
@@ -373,7 +391,7 @@ class Brew
     public function unlink(string $formula): string
     {
         return $this->cli->runAsUser(
-            sprintf('brew unlink %s', $formula),
+            sprintf('%s unlink %s', $this->brewBinary(), $formula),
             function ($exitCode, $errorOutput) use ($formula) {
                 output($errorOutput);
 
@@ -415,7 +433,7 @@ class Brew
      */
     public function getRunningServices(bool $asUser = false): Collection
     {
-        $command = 'brew services list | grep started | awk \'{ print $1; }\'';
+        $command = $this->brewBinary().' services list | grep started | awk \'{ print $1; }\'';
         $onError = function ($exitCode, $errorOutput) {
             output($errorOutput);
 
@@ -445,7 +463,7 @@ class Brew
      */
     public function uninstallFormula(string $formula): void
     {
-        $this->cli->runAsUser(static::BREW_DISABLE_AUTO_CLEANUP.' brew uninstall --force '.$formula);
+        $this->cli->runAsUser(static::BREW_DISABLE_AUTO_CLEANUP.' '.$this->brewBinary().' uninstall --force '.$formula);
         $this->cli->run('rm -rf '.BREW_PREFIX.'/Cellar/'.$formula);
     }
 
@@ -455,7 +473,7 @@ class Brew
     public function cleanupBrew(): string
     {
         return $this->cli->runAsUser(
-            'brew cleanup && brew services cleanup',
+            $this->brewBinary().' cleanup && '.$this->brewBinary().' services cleanup',
             function ($exitCode, $errorOutput) {
                 output($errorOutput);
             }
