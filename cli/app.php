@@ -208,7 +208,7 @@ if (is_dir(VALET_HOME_PATH)) {
         }
 
         if ($isolate) {
-            if (Site::phpRcVersion($name, getcwd())) {
+            if (Site::phpRcVersion($name, getcwd()) || Site::phpComposerVersion($name, getcwd())) {
                 $this->runCommand('isolate --site='.$name);
             } else {
                 warning('Valet could not determine which PHP version to use for this site.');
@@ -628,6 +628,8 @@ if (is_dir(VALET_HOME_PATH)) {
             if ($phpVersion = Site::phpRcVersion($site, getcwd())) {
                 info("Found '{$site}/.valetrc' or '{$site}/.valetphprc' specifying version: {$phpVersion}");
                 info("Found '{$site}/.valetphprc' specifying version: {$phpVersion}");
+            } else if ($phpVersion = Site::phpComposerVersion($site, getcwd())) {
+                info("Found php version in '{$site}/composer.json' specifying version: {$phpVersion}");
             } else {
                 $domain = $site.'.'.data_get(Configuration::read(), 'tld');
                 if ($phpVersion = PhpFpm::normalizePhpVersion(Site::customPhpVersion($domain))) {
@@ -660,6 +662,8 @@ if (is_dir(VALET_HOME_PATH)) {
         if (is_null($phpVersion)) {
             if ($phpVersion = Site::phpRcVersion($site, getcwd())) {
                 info("Found '{$site}/.valetrc' or '{$site}/.valetphprc' specifying version: {$phpVersion}");
+            } else if ($phpVersion = Site::phpComposerVersion($site, getcwd())) {
+                info("Found php version in '{$site}/composer.json' specifying version: {$phpVersion}");
             } else {
                 info(PHP_EOL.'Please provide a version number. E.g.:');
                 info('valet isolate php@8.2');
@@ -705,7 +709,7 @@ if (is_dir(VALET_HOME_PATH)) {
         );
 
         if (! $phpVersion) {
-            $phpVersion = Site::phpRcVersion($site ?: basename(getcwd()));
+            $phpVersion = Site::phpRcVersion($site ?: basename(getcwd())) ?: Site::phpComposerVersion($site ?: basename(getcwd()));;
         }
 
         return output(Brew::getPhpExecutablePath($phpVersion));
