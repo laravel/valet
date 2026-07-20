@@ -1186,7 +1186,7 @@ class Site
         $composer = json_decode($this->files->get($path), true);
         $constraint = data_get($composer, 'require.php', data_get($composer, 'require.php-64bit', data_get($composer, 'config.platform.php')));
 
-        if (empty($constraint)  || Semver::satisfies(substr($this->brew->linkedPhp(), 4), $constraint)) {
+        if (empty($constraint) || Semver::satisfies(substr($this->brew->linkedPhp(), 4), $constraint)) {
             return null;
         }
 

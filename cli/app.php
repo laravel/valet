@@ -628,7 +628,7 @@ if (is_dir(VALET_HOME_PATH)) {
             if ($phpVersion = Site::phpRcVersion($site, getcwd())) {
                 info("Found '{$site}/.valetrc' or '{$site}/.valetphprc' specifying version: {$phpVersion}");
                 info("Found '{$site}/.valetphprc' specifying version: {$phpVersion}");
-            } else if ($phpVersion = Site::phpComposerVersion($site, getcwd())) {
+            } elseif ($phpVersion = Site::phpComposerVersion($site, getcwd())) {
                 info("Found php version in '{$site}/composer.json' specifying version: {$phpVersion}");
             } else {
                 $domain = $site.'.'.data_get(Configuration::read(), 'tld');
@@ -662,7 +662,7 @@ if (is_dir(VALET_HOME_PATH)) {
         if (is_null($phpVersion)) {
             if ($phpVersion = Site::phpRcVersion($site, getcwd())) {
                 info("Found '{$site}/.valetrc' or '{$site}/.valetphprc' specifying version: {$phpVersion}");
-            } else if ($phpVersion = Site::phpComposerVersion($site, getcwd())) {
+            } elseif ($phpVersion = Site::phpComposerVersion($site, getcwd())) {
                 info("Found php version in '{$site}/composer.json' specifying version: {$phpVersion}");
             } else {
                 info(PHP_EOL.'Please provide a version number. E.g.:');
