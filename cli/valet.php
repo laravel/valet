@@ -458,6 +458,23 @@ if (is_dir(VALET_HOME_PATH)) {
 
 
 /**
+ * Database commands.
+ */
+$app->command('db:setup', function () {
+    Database::setup();
+
+    info('MySQL is ready to use.');
+
+    return 0;
+})->descriptions('Configure MySQL for passwordless root access');
+
+$app->command('db:create name', function ($name) {
+    Database::create($name);
+
+    return 0;
+})->descriptions('Create a new MySQL database');
+
+/**
  * Load all of the Valet extensions.
  */
 foreach (Valet::extensions() as $extension) {
