@@ -709,7 +709,7 @@ if (is_dir(VALET_HOME_PATH)) {
         );
 
         if (! $phpVersion) {
-            $phpVersion = Site::phpRcVersion($site ?: basename(getcwd())) ?: Site::phpComposerVersion($site ?: basename(getcwd()));;
+            $phpVersion = Site::phpRcVersion($site ?: basename(getcwd())) ?: Site::phpComposerVersion($site ?: basename(getcwd()));
         }
 
         return output(Brew::getPhpExecutablePath($phpVersion));
