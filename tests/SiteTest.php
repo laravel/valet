@@ -1317,7 +1317,7 @@ class SiteTest extends TestCase
             ->andReturn(collect([
                 'php@8.4',
                 'php@8.3',
-                'php@8.2'
+                'php@8.2',
             ]));
 
         $site = new Site(
@@ -1384,6 +1384,37 @@ class SiteTest extends TestCase
         $brew = Mockery::mock(Brew::class);
         $brew->shouldNotReceive('linkedPhp');
         $brew->shouldNotReceive('supportedPhpVersions');
+
+        $site = new Site(
+            $brew,
+            Mockery::mock(Configuration::class),
+            Mockery::mock(CommandLine::class),
+            $files
+        );
+
+        $this->assertNull($site->phpComposerVersion('my-site', '/sites/my-site'));
+    }
+
+    public function test_it_handles_malformed_constraint_in_php_composer_version()
+    {
+        $files = Mockery::mock(Filesystem::class);
+        $files->shouldReceive('exists')
+            ->once()
+            ->with('/sites/my-site/composer.json')
+            ->andReturn(true);
+        $files->shouldReceive('get')
+            ->once()
+            ->with('/sites/my-site/composer.json')
+            ->andReturn(json_encode([
+                'require' => [
+                    'php' => 'abc7.4sss',
+                ],
+            ]));
+
+        $brew = Mockery::mock(Brew::class);
+        $brew->shouldReceive('linkedPhp')
+            ->once()
+            ->andReturn('php@8.2');
 
         $site = new Site(
             $brew,
