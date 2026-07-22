@@ -1186,12 +1186,16 @@ class Site
 
         $composer = json_decode($this->files->get($path), true);
         $constraint = data_get($composer, 'require.php', data_get($composer, 'require.php-64bit', data_get($composer, 'config.platform.php')));
+        if (empty($constraint)) {
+            return null;
+        }
 
         try {
-            if (empty($constraint) || Semver::satisfies(substr($this->brew->linkedPhp(), 4), $constraint)) {
-                return null;
+            $linkedVersion = $this->brew->linkedPhp();
+            if (Semver::satisfies(substr($linkedVersion, 4), $constraint)) {
+                return $linkedVersion;
             }
-        } catch (UnexpectedValueException $e) {
+        } catch (UnexpectedValueException|DomainException $e) {
             return null;
         }
 

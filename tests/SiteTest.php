@@ -1182,7 +1182,7 @@ class SiteTest extends TestCase
         $this->assertNull($site->phpComposerVersion('my-site', '/sites/my-site'));
     }
 
-    public function test_it_returns_null_when_linked_php_satisfies_composer_constraint()
+    public function test_it_returns_current_version_when_linked_php_satisfies_composer_constraint()
     {
         $files = Mockery::mock(Filesystem::class);
         $files->shouldReceive('exists')
@@ -1211,7 +1211,7 @@ class SiteTest extends TestCase
             $files
         );
 
-        $this->assertNull($site->phpComposerVersion('my-site', '/sites/my-site'));
+        $this->assertSame('php@8.4', $site->phpComposerVersion('my-site', '/sites/my-site'));
     }
 
     public function test_it_uses_semver_to_find_lowest_supported_composer_php_version()
