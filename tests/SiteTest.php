@@ -998,6 +998,23 @@ class SiteTest extends TestCase
         $siteMock->isolate('site2.test', 'php@8.0');
     }
 
+    public function test_custom_loopback_does_not_clobber_ipv6_listener()
+    {
+        /** @var Site $site */
+        $site = resolve(Site::class);
+
+        $rewritten = $site->replaceOldLoopbackWithNew(
+            file_get_contents(__DIR__.'/../cli/stubs/secure.valet.conf'),
+            'VALET_LOOPBACK',
+            '10.0.0.1'
+        );
+
+        // The custom IPv4 loopback listener is activated...
+        $this->assertStringContainsString('listen 10.0.0.1:443 ssl;', $rewritten);
+        // ...without disturbing the always-on IPv6 listener.
+        $this->assertStringContainsString('listen [::1]:443 ssl;', $rewritten);
+    }
+
     public function test_it_removes_isolation()
     {
         $files = Mockery::mock(Filesystem::class);
