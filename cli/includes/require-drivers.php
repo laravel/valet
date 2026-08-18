@@ -8,3 +8,5 @@ foreach (scandir('./cli/Valet/Drivers') as $file) {
         require_once $path;
     }
 }
+
+unset($path);
