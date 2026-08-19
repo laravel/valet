@@ -2,10 +2,12 @@
 
 namespace Valet;
 
+use Composer\Semver\Semver;
 use DateTime;
 use DomainException;
 use Illuminate\Support\Collection;
 use PhpFpm;
+use UnexpectedValueException;
 
 class Site
 {
@@ -1163,5 +1165,51 @@ class Site
         $valetRc = $this->valetRc($siteName, $cwd);
 
         return PhpFpm::normalizePhpVersion(data_get($valetRc, 'php'));
+    }
+
+    /**
+     * Get PHP version from composer.json for a site.
+     */
+    public function phpComposerVersion(string $siteName, ?string $cwd = null): ?string
+    {
+        if ($cwd) {
+            $path = $cwd.'/composer.json';
+        } elseif ($site = $this->parked()->merge($this->links())->where('site', $siteName)->first()) {
+            $path = data_get($site, 'path').'/composer.json';
+        } else {
+            return null;
+        }
+
+        if (! $this->files->exists($path)) {
+            return null;
+        }
+
+        $composer = json_decode($this->files->get($path), true);
+        $constraint = data_get($composer, 'require.php', data_get($composer, 'require.php-64bit', data_get($composer, 'config.platform.php')));
+        if (empty($constraint)) {
+            return null;
+        }
+
+        try {
+            $linkedVersion = $this->brew->linkedPhp();
+            if (Semver::satisfies(substr($linkedVersion, 4), $constraint)) {
+                return $linkedVersion;
+            }
+        } catch (UnexpectedValueException|DomainException $e) {
+            return null;
+        }
+
+        // Find the lowest supported PHP version that satisfies the constraint (We do not suddenly want to raise the php version if a new one comes out)
+        $phpVersion = $this->brew->supportedPhpVersions()->reverse()->first(function ($formula) use ($constraint) {
+            if ($formula === 'php') {
+                return false;
+            }
+
+            $version = substr($formula, 4);
+
+            return Semver::satisfies($version, $constraint);
+        });
+
+        return $phpVersion ? PhpFpm::normalizePhpVersion($phpVersion) : null;
     }
 }

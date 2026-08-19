@@ -1178,6 +1178,272 @@ class SiteTest extends TestCase
         $this->assertEquals('php@8.2', $site->phpRcVersion('site-w-valetrc-3'));
         $this->assertEquals('php@8.2', $site->phpRcVersion('blabla', __DIR__.'/fixtures/Parked/Sites/site-w-valetrc-3'));
     }
+
+    public function test_it_returns_null_when_composer_file_is_missing()
+    {
+        $files = Mockery::mock(Filesystem::class);
+        $files->shouldReceive('exists')
+            ->once()
+            ->with('/sites/my-site/composer.json')
+            ->andReturn(false);
+
+        $brew = Mockery::mock(Brew::class);
+        $brew->shouldNotReceive('linkedPhp');
+        $brew->shouldNotReceive('supportedPhpVersions');
+
+        $site = new Site(
+            $brew,
+            Mockery::mock(Configuration::class),
+            Mockery::mock(CommandLine::class),
+            $files
+        );
+
+        $this->assertNull($site->phpComposerVersion('my-site', '/sites/my-site'));
+    }
+
+    public function test_it_returns_current_version_when_linked_php_satisfies_composer_constraint()
+    {
+        $files = Mockery::mock(Filesystem::class);
+        $files->shouldReceive('exists')
+            ->once()
+            ->with('/sites/my-site/composer.json')
+            ->andReturn(true);
+        $files->shouldReceive('get')
+            ->once()
+            ->with('/sites/my-site/composer.json')
+            ->andReturn(json_encode([
+                'require' => [
+                    'php' => '^8.2',
+                ],
+            ]));
+
+        $brew = Mockery::mock(Brew::class);
+        $brew->shouldReceive('linkedPhp')
+            ->once()
+            ->andReturn('php@8.4');
+        $brew->shouldNotReceive('supportedPhpVersions');
+
+        $site = new Site(
+            $brew,
+            Mockery::mock(Configuration::class),
+            Mockery::mock(CommandLine::class),
+            $files
+        );
+
+        $this->assertSame('php@8.4', $site->phpComposerVersion('my-site', '/sites/my-site'));
+    }
+
+    public function test_it_uses_semver_to_find_lowest_supported_composer_php_version()
+    {
+        $files = Mockery::mock(Filesystem::class);
+        $files->shouldReceive('exists')
+            ->once()
+            ->with('/sites/my-site/composer.json')
+            ->andReturn(true);
+        $files->shouldReceive('get')
+            ->once()
+            ->with('/sites/my-site/composer.json')
+            ->andReturn(json_encode([
+                'require' => [
+                    'php' => '>=8.1',
+                ],
+            ]));
+
+        $brew = Mockery::mock(Brew::class);
+        $brew->shouldReceive('linkedPhp')
+            ->once()
+            ->andReturn('php@8.0');
+        $brew->shouldReceive('supportedPhpVersions')
+            ->once()
+            ->andReturn(collect([
+                'php@8.3',
+                'php@8.2',
+                'php@8.1',
+                'php@8.0',
+            ]));
+
+        $site = new Site(
+            $brew,
+            Mockery::mock(Configuration::class),
+            Mockery::mock(CommandLine::class),
+            $files
+        );
+
+        $this->assertSame('php@8.1', $site->phpComposerVersion('my-site', '/sites/my-site'));
+    }
+
+    public function test_it_resolves_compound_composer_semver_constraints()
+    {
+        $files = Mockery::mock(Filesystem::class);
+        $files->shouldReceive('exists')
+            ->once()
+            ->with('/sites/my-site/composer.json')
+            ->andReturn(true);
+        $files->shouldReceive('get')
+            ->once()
+            ->with('/sites/my-site/composer.json')
+            ->andReturn(json_encode([
+                'require' => [
+                    'php' => '^7.4 || ^8.0',
+                ],
+            ]));
+
+        $brew = Mockery::mock(Brew::class);
+        $brew->shouldReceive('linkedPhp')
+            ->once()
+            ->andReturn('php@7.3');
+        $brew->shouldReceive('supportedPhpVersions')
+            ->once()
+            ->andReturn(collect([
+                'php@8.2',
+                'php@8.1',
+                'php@7.4',
+                'php@7.3',
+            ]));
+
+        $site = new Site(
+            $brew,
+            Mockery::mock(Configuration::class),
+            Mockery::mock(CommandLine::class),
+            $files
+        );
+
+        $this->assertSame('php@7.4', $site->phpComposerVersion('my-site', '/sites/my-site'));
+    }
+
+    public function test_it_resolves_composer_semver_with_upper_bound_constraint()
+    {
+        $files = Mockery::mock(Filesystem::class);
+        $files->shouldReceive('exists')
+            ->once()
+            ->with('/sites/my-site/composer.json')
+            ->andReturn(true);
+        $files->shouldReceive('get')
+            ->once()
+            ->with('/sites/my-site/composer.json')
+            ->andReturn(json_encode([
+                'require' => [
+                    'php' => '^8.0 <=8.3',
+                ],
+            ]));
+
+        $brew = Mockery::mock(Brew::class);
+        $brew->shouldReceive('linkedPhp')
+            ->once()
+            ->andReturn('php@8.4');
+        $brew->shouldReceive('supportedPhpVersions')
+            ->once()
+            ->andReturn(collect([
+                'php@8.4',
+                'php@8.3',
+                'php@8.2',
+            ]));
+
+        $site = new Site(
+            $brew,
+            Mockery::mock(Configuration::class),
+            Mockery::mock(CommandLine::class),
+            $files
+        );
+
+        $this->assertSame('php@8.2', $site->phpComposerVersion('my-site', '/sites/my-site'));
+    }
+
+    public function test_it_returns_null_when_no_supported_php_versions_match_composer_constraint()
+    {
+        $files = Mockery::mock(Filesystem::class);
+        $files->shouldReceive('exists')
+            ->once()
+            ->with('/sites/my-site/composer.json')
+            ->andReturn(true);
+        $files->shouldReceive('get')
+            ->once()
+            ->with('/sites/my-site/composer.json')
+            ->andReturn(json_encode([
+                'require' => [
+                    'php' => '^7.4',
+                ],
+            ]));
+
+        $brew = Mockery::mock(Brew::class);
+        $brew->shouldReceive('linkedPhp')
+            ->once()
+            ->andReturn('php@8.2');
+        $brew->shouldReceive('supportedPhpVersions')
+            ->once()
+            ->andReturn(collect([
+                'php@8.3',
+                'php@8.2',
+                'php@8.1',
+                'php',
+            ]));
+
+        $site = new Site(
+            $brew,
+            Mockery::mock(Configuration::class),
+            Mockery::mock(CommandLine::class),
+            $files
+        );
+
+        $this->assertNull($site->phpComposerVersion('my-site', '/sites/my-site'));
+    }
+
+    public function test_it_handles_malformed_composer_json_in_php_composer_version()
+    {
+        $files = Mockery::mock(Filesystem::class);
+        $files->shouldReceive('exists')
+            ->once()
+            ->with('/sites/my-site/composer.json')
+            ->andReturn(true);
+        $files->shouldReceive('get')
+            ->once()
+            ->with('/sites/my-site/composer.json')
+            ->andReturn('{"require": {"php": "^8.1"');
+
+        $brew = Mockery::mock(Brew::class);
+        $brew->shouldNotReceive('linkedPhp');
+        $brew->shouldNotReceive('supportedPhpVersions');
+
+        $site = new Site(
+            $brew,
+            Mockery::mock(Configuration::class),
+            Mockery::mock(CommandLine::class),
+            $files
+        );
+
+        $this->assertNull($site->phpComposerVersion('my-site', '/sites/my-site'));
+    }
+
+    public function test_it_handles_malformed_constraint_in_php_composer_version()
+    {
+        $files = Mockery::mock(Filesystem::class);
+        $files->shouldReceive('exists')
+            ->once()
+            ->with('/sites/my-site/composer.json')
+            ->andReturn(true);
+        $files->shouldReceive('get')
+            ->once()
+            ->with('/sites/my-site/composer.json')
+            ->andReturn(json_encode([
+                'require' => [
+                    'php' => 'abc7.4sss',
+                ],
+            ]));
+
+        $brew = Mockery::mock(Brew::class);
+        $brew->shouldReceive('linkedPhp')
+            ->once()
+            ->andReturn('php@8.2');
+
+        $site = new Site(
+            $brew,
+            Mockery::mock(Configuration::class),
+            Mockery::mock(CommandLine::class),
+            $files
+        );
+
+        $this->assertNull($site->phpComposerVersion('my-site', '/sites/my-site'));
+    }
 }
 
 class CommandLineFake extends CommandLine

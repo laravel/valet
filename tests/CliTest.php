@@ -1151,6 +1151,7 @@ class CliTest extends BaseApplicationTestCase
 
         $site = Mockery::mock(RealSite::class);
         $site->shouldReceive('phpRcVersion')->andReturn(null);
+        $site->shouldReceive('phpComposerVersion')->andReturn(null);
         $site->shouldReceive('customPhpVersion')->andReturn('php@8.0');
 
         swap(RealSite::class, $site);
@@ -1172,6 +1173,7 @@ class CliTest extends BaseApplicationTestCase
 
         $site = Mockery::mock(RealSite::class);
         $site->shouldReceive('phpRcVersion')->andReturn(null);
+        $site->shouldReceive('phpComposerVersion')->andReturn(null);
         $site->shouldReceive('customPhpVersion')->andReturn(null);
 
         swap(RealSite::class, $site);
