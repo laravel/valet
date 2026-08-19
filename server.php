@@ -105,6 +105,22 @@ if (! $frontControllerPath) {
     Server::show404();
 }
 
+/**
+ * Unset our variables to avoid leakage into the user's application.
+ */
+unset(
+    $valetConfig,
+    $uriForIpAddressExtraction,
+    $host,
+    $server,
+    $uri,
+    $siteName,
+    $valetSitePath,
+    $valetDriver,
+    $isPhpFile,
+    $staticFilePath,
+);
+
 chdir(dirname($frontControllerPath));
 
 require $frontControllerPath;
