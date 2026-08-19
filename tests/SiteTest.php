@@ -1203,19 +1203,7 @@ class SiteTest extends TestCase
 
     public function test_it_returns_current_version_when_linked_php_satisfies_composer_constraint()
     {
-        $files = Mockery::mock(Filesystem::class);
-        $files->shouldReceive('exists')
-            ->once()
-            ->with('/sites/my-site/composer.json')
-            ->andReturn(true);
-        $files->shouldReceive('get')
-            ->once()
-            ->with('/sites/my-site/composer.json')
-            ->andReturn(json_encode([
-                'require' => [
-                    'php' => '^8.2',
-                ],
-            ]));
+        $files = $this->filesWithComposerPhp('^8.2');
 
         $brew = Mockery::mock(Brew::class);
         $brew->shouldReceive('linkedPhp')
@@ -1235,19 +1223,7 @@ class SiteTest extends TestCase
 
     public function test_it_uses_semver_to_find_lowest_supported_composer_php_version()
     {
-        $files = Mockery::mock(Filesystem::class);
-        $files->shouldReceive('exists')
-            ->once()
-            ->with('/sites/my-site/composer.json')
-            ->andReturn(true);
-        $files->shouldReceive('get')
-            ->once()
-            ->with('/sites/my-site/composer.json')
-            ->andReturn(json_encode([
-                'require' => [
-                    'php' => '>=8.1',
-                ],
-            ]));
+        $files = $this->filesWithComposerPhp('>=8.1');
 
         $brew = Mockery::mock(Brew::class);
         $brew->shouldReceive('linkedPhp')
@@ -1274,19 +1250,7 @@ class SiteTest extends TestCase
 
     public function test_it_resolves_compound_composer_semver_constraints()
     {
-        $files = Mockery::mock(Filesystem::class);
-        $files->shouldReceive('exists')
-            ->once()
-            ->with('/sites/my-site/composer.json')
-            ->andReturn(true);
-        $files->shouldReceive('get')
-            ->once()
-            ->with('/sites/my-site/composer.json')
-            ->andReturn(json_encode([
-                'require' => [
-                    'php' => '^7.4 || ^8.0',
-                ],
-            ]));
+        $files = $this->filesWithComposerPhp('^7.4 || ^8.0');
 
         $brew = Mockery::mock(Brew::class);
         $brew->shouldReceive('linkedPhp')
@@ -1313,19 +1277,7 @@ class SiteTest extends TestCase
 
     public function test_it_resolves_composer_semver_with_upper_bound_constraint()
     {
-        $files = Mockery::mock(Filesystem::class);
-        $files->shouldReceive('exists')
-            ->once()
-            ->with('/sites/my-site/composer.json')
-            ->andReturn(true);
-        $files->shouldReceive('get')
-            ->once()
-            ->with('/sites/my-site/composer.json')
-            ->andReturn(json_encode([
-                'require' => [
-                    'php' => '^8.0 <=8.3',
-                ],
-            ]));
+        $files = $this->filesWithComposerPhp('^8.0 <=8.3');
 
         $brew = Mockery::mock(Brew::class);
         $brew->shouldReceive('linkedPhp')
@@ -1351,19 +1303,7 @@ class SiteTest extends TestCase
 
     public function test_it_returns_null_when_no_supported_php_versions_match_composer_constraint()
     {
-        $files = Mockery::mock(Filesystem::class);
-        $files->shouldReceive('exists')
-            ->once()
-            ->with('/sites/my-site/composer.json')
-            ->andReturn(true);
-        $files->shouldReceive('get')
-            ->once()
-            ->with('/sites/my-site/composer.json')
-            ->andReturn(json_encode([
-                'require' => [
-                    'php' => '^7.4',
-                ],
-            ]));
+        $files = $this->filesWithComposerPhp('^7.4');
 
         $brew = Mockery::mock(Brew::class);
         $brew->shouldReceive('linkedPhp')
@@ -1416,19 +1356,7 @@ class SiteTest extends TestCase
 
     public function test_it_handles_malformed_constraint_in_php_composer_version()
     {
-        $files = Mockery::mock(Filesystem::class);
-        $files->shouldReceive('exists')
-            ->once()
-            ->with('/sites/my-site/composer.json')
-            ->andReturn(true);
-        $files->shouldReceive('get')
-            ->once()
-            ->with('/sites/my-site/composer.json')
-            ->andReturn(json_encode([
-                'require' => [
-                    'php' => 'abc7.4sss',
-                ],
-            ]));
+        $files = $this->filesWithComposerPhp('abc7.4sss');
 
         $brew = Mockery::mock(Brew::class);
         $brew->shouldReceive('linkedPhp')
@@ -1443,6 +1371,45 @@ class SiteTest extends TestCase
         );
 
         $this->assertNull($site->phpComposerVersion('my-site', '/sites/my-site'));
+    }
+
+    public function test_it_returns_null_when_linked_php_cannot_be_determined()
+    {
+        $files = $this->filesWithComposerPhp('^8.1');
+
+        $brew = Mockery::mock(Brew::class);
+        $brew->shouldReceive('linkedPhp')
+            ->once()
+            ->andThrow(new DomainException('Unable to determine linked PHP'));
+        $brew->shouldNotReceive('supportedPhpVersions');
+
+        $site = new Site(
+            $brew,
+            Mockery::mock(Configuration::class),
+            Mockery::mock(CommandLine::class),
+            $files
+        );
+
+        $this->assertNull($site->phpComposerVersion('my-site', '/sites/my-site'));
+    }
+
+    protected function filesWithComposerPhp($phpConstraint)
+    {
+        $files = Mockery::mock(Filesystem::class);
+        $files->shouldReceive('exists')
+            ->once()
+            ->with('/sites/my-site/composer.json')
+            ->andReturn(true);
+        $files->shouldReceive('get')
+            ->once()
+            ->with('/sites/my-site/composer.json')
+            ->andReturn(json_encode([
+                'require' => [
+                    'php' => $phpConstraint,
+                ],
+            ]));
+
+        return $files;
     }
 }
 
