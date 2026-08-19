@@ -8,3 +8,6 @@ foreach (scandir('./cli/Valet/Drivers') as $file) {
         require_once $path;
     }
 }
+
+// Unset our loop variables to keep them from leaking into the user's app.
+unset($file, $path);
