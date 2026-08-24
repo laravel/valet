@@ -350,7 +350,7 @@ class Site
             $newUrl = str_replace('.'.$oldTld, '.'.$tld, $url);
             $siteConf = $this->getSiteConfigFileContents($url, '.'.$oldTld);
 
-            if (! empty($siteConf) && strpos($siteConf, '# valet stub: secure.proxy.valet.conf') === 0) {
+            if (! empty($siteConf) && str_starts_with($siteConf, '# valet stub: secure.proxy.valet.conf')) {
                 // proxy config
                 $this->unsecure($url);
                 $this->secure(
@@ -408,7 +408,7 @@ class Site
             foreach ($matches as $match) {
                 $replaced = str_replace($old, $new, $match);
 
-                if ($shouldComment && strpos($replaced, '#') !== 0) {
+                if ($shouldComment && ! str_starts_with($replaced, '#')) {
                     $replaced = '#'.$replaced;
                 }
 
@@ -549,7 +549,7 @@ class Site
                 'security verify-cert -c "%s"', $caPemPath
             ));
 
-            if (strpos($isTrusted, '...certificate verification successful.') === false) {
+            if (! str_contains($isTrusted, '...certificate verification successful.')) {
                 $this->trustCa($caPemPath);
             }
 
@@ -629,7 +629,7 @@ class Site
         ));
 
         // If cert could not be created using runAsUser(), use run().
-        if (strpos($result, 'Permission denied') !== false) {
+        if (str_contains($result, 'Permission denied')) {
             $this->cli->run(sprintf(
                 'openssl x509 -req -sha256 -days %s -CA "%s" -CAkey "%s" %s -in "%s" -out "%s" -extensions v3_req -extfile "%s"',
                 $caExpireInDays, $caPemPath, $caKeyPath, $caSrlParam, $csrPath, $crtPath, $confPath

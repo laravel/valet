@@ -113,7 +113,7 @@ class Diagnose
 
     public function runCommand(string $command): string
     {
-        return strpos($command, 'sudo ') === 0
+        return str_starts_with($command, 'sudo ')
             ? $this->cli->run($command)
             : $this->cli->runAsUser($command);
     }
@@ -136,7 +136,7 @@ class Diagnose
 
     public function ignoreOutput(string $command): bool
     {
-        return strpos($command, '> /dev/null 2>&1') !== false;
+        return str_contains($command, '> /dev/null 2>&1');
     }
 
     public function format(Collection $results, bool $plainText): string
