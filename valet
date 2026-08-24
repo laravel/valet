@@ -163,6 +163,17 @@ then
 # and let it handle the request. These are commands which can be run
 # without sudo and don't require taking over terminals like Ngrok.
 else
+    # Read-only commands never need root, so run them directly. This keeps
+    # them from triggering a sudo password prompt, which matters for
+    # editors, language servers, and scripts calling things like
+    # "valet --version" or "valet links".
+    case "$1" in
+        ""|--version|-V|--help|-h|help|list|links|parked|paths|which|which-php|isolated|proxies|secured|on-latest-version|latest)
+            "$PHP" -d error_reporting=1 "$DIR/cli/valet.php" "$@"
+            exit
+            ;;
+    esac
+
     if [[ "$EUID" -ne 0 ]]
     then
         sudo USER="$USER" --preserve-env "$SOURCE" "$@"
