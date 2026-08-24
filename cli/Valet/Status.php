@@ -4,11 +4,11 @@ namespace Valet;
 
 class Status
 {
-    public $brewServicesUserOutput;
+    public ?array $brewServicesUserOutput = null;
 
-    public $brewServicesRootOutput;
+    public ?array $brewServicesRootOutput = null;
 
-    public $debugInstructions = [];
+    public array $debugInstructions = [];
 
     public function __construct(public Configuration $config, public Brew $brew, public CommandLine $cli, public Filesystem $files) {}
 

@@ -4,11 +4,11 @@ namespace Valet;
 
 class DnsMasq
 {
-    public $dnsmasqMasterConfigFile = BREW_PREFIX.'/etc/dnsmasq.conf';
+    public string $dnsmasqMasterConfigFile = BREW_PREFIX.'/etc/dnsmasq.conf';
 
-    public $dnsmasqSystemConfDir = BREW_PREFIX.'/etc/dnsmasq.d';
+    public string $dnsmasqSystemConfDir = BREW_PREFIX.'/etc/dnsmasq.d';
 
-    public $resolverPath = '/etc/resolver';
+    public string $resolverPath = '/etc/resolver';
 
     public function __construct(public Brew $brew, public CommandLine $cli, public Filesystem $files, public Configuration $configuration) {}
 
@@ -76,7 +76,7 @@ class DnsMasq
         // set primary config to look for configs in /usr/local/etc/dnsmasq.d/*.conf
         $contents = $this->files->get($this->dnsmasqMasterConfigFile);
         // ensure the line we need to use is present, and uncomment it if needed
-        if (strpos($contents, 'conf-dir='.BREW_PREFIX.'/etc/dnsmasq.d/,*.conf') === false) {
+        if (! str_contains($contents, 'conf-dir='.BREW_PREFIX.'/etc/dnsmasq.d/,*.conf')) {
             $contents .= PHP_EOL.'conf-dir='.BREW_PREFIX.'/etc/dnsmasq.d/,*.conf'.PHP_EOL;
         }
         $contents = str_replace('#conf-dir='.BREW_PREFIX.'/etc/dnsmasq.d/,*.conf', 'conf-dir='.BREW_PREFIX.'/etc/dnsmasq.d/,*.conf', $contents);

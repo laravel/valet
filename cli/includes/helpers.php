@@ -82,7 +82,7 @@ function table(array $headers = [], array $rows = []): void
  */
 function testing(): bool
 {
-    return strpos($_SERVER['SCRIPT_NAME'], 'phpunit') !== false;
+    return str_contains($_SERVER['SCRIPT_NAME'], 'phpunit');
 }
 
 /**

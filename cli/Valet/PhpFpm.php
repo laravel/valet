@@ -7,7 +7,7 @@ use Illuminate\Support\Collection;
 
 class PhpFpm
 {
-    public $taps = [
+    public array $taps = [
         'shivammathur/php',
     ];
 
@@ -211,7 +211,7 @@ class PhpFpm
     public function isolatedDirectories(): Collection
     {
         return $this->nginx->configuredSites()->filter(function ($item) {
-            return strpos($this->files->get(VALET_HOME_PATH.'/Nginx/'.$item), ISOLATED_PHP_VERSION) !== false;
+            return str_contains($this->files->get(VALET_HOME_PATH.'/Nginx/'.$item), ISOLATED_PHP_VERSION);
         })->map(function ($item) {
             return ['url' => $item, 'version' => $this->normalizePhpVersion($this->site->customPhpVersion($item))];
         });
@@ -328,7 +328,7 @@ class PhpFpm
 
             // Get the normalized PHP version for this config file, if it's defined
             foreach ($fpmSockFiles as $sock) {
-                if (strpos($content, $sock) !== false) {
+                if (str_contains($content, $sock)) {
                     // Extract the PHP version number from a custom .sock path and normalize it to, e.g., "php@7.4"
                     return $this->normalizePhpVersion(str_replace(['valet', '.sock'], '', $sock));
                 }

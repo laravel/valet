@@ -8,7 +8,7 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 class Diagnose
 {
-    public $commands = [
+    public array $commands = [
         'sw_vers',
         'valet --version',
         'cat ~/.config/valet/config.json',
@@ -51,9 +51,9 @@ class Diagnose
         'sh -c \'for file in ~/.config/valet/nginx/*; do echo "------\n~/.config/valet/nginx/$(basename $file)\n---\n"; cat $file | grep -n "# valet loopback"; echo "\n------\n"; done\'',
     ];
 
-    public $print;
+    public bool $print = false;
 
-    public $progressBar;
+    public ?ProgressBar $progressBar = null;
 
     public function __construct(public CommandLine $cli, public Filesystem $files) {}
 
@@ -113,7 +113,7 @@ class Diagnose
 
     public function runCommand(string $command): string
     {
-        return strpos($command, 'sudo ') === 0
+        return str_starts_with($command, 'sudo ')
             ? $this->cli->run($command)
             : $this->cli->runAsUser($command);
     }
@@ -136,7 +136,7 @@ class Diagnose
 
     public function ignoreOutput(string $command): bool
     {
-        return strpos($command, '> /dev/null 2>&1') !== false;
+        return str_contains($command, '> /dev/null 2>&1');
     }
 
     public function format(Collection $results, bool $plainText): string
