@@ -8,7 +8,7 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 class Diagnose
 {
-    public $commands = [
+    public array $commands = [
         'sw_vers',
         'valet --version',
         'cat ~/.config/valet/config.json',
@@ -51,9 +51,9 @@ class Diagnose
         'sh -c \'for file in ~/.config/valet/nginx/*; do echo "------\n~/.config/valet/nginx/$(basename $file)\n---\n"; cat $file | grep -n "# valet loopback"; echo "\n------\n"; done\'',
     ];
 
-    public $print;
+    public bool $print = false;
 
-    public $progressBar;
+    public ?ProgressBar $progressBar = null;
 
     public function __construct(public CommandLine $cli, public Filesystem $files) {}
 

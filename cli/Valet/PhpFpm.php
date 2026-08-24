@@ -7,7 +7,7 @@ use Illuminate\Support\Collection;
 
 class PhpFpm
 {
-    public $taps = [
+    public array $taps = [
         'shivammathur/php',
     ];
 

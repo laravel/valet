@@ -7,7 +7,7 @@ use GuzzleHttp\Exception\GuzzleException;
 
 class Valet
 {
-    public $valetBin = BREW_PREFIX.'/bin/valet';
+    public string $valetBin = BREW_PREFIX.'/bin/valet';
 
     public function __construct(public CommandLine $cli, public Filesystem $files) {}
 
