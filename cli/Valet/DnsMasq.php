@@ -110,8 +110,9 @@ class DnsMasq
         $loopback = $this->configuration->read()['loopback'];
 
         $this->files->putAsUser($tldConfigFile,
-            'address=/.'.$tld.'/'.$loopback.PHP_EOL
-            .'address=/.'.$tld.'/::1'.PHP_EOL // IPV6 loopback prevents Safari "Happy Eyeballs" slow load
+            'address=/'.$tld.'/'.$loopback.PHP_EOL
+            .'address=/'.$tld.'/::1'.PHP_EOL // IPV6 loopback prevents Safari "Happy Eyeballs" slow load
+            .'local=/'.$tld.'/'.PHP_EOL // answer authoritatively; never forward .tld queries upstream
             .'listen-address='.$loopback.PHP_EOL
         );
     }
