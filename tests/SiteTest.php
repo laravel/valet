@@ -1015,6 +1015,24 @@ class SiteTest extends TestCase
         $this->assertStringContainsString('listen [::1]:443 ssl;', $rewritten);
     }
 
+    public function test_secure_proxy_stubs_include_share_server_block()
+    {
+        /** @var Site $site */
+        $site = resolve(Site::class);
+
+        foreach (['secure.proxy.valet.conf', 'secure.proxy.valet-legacy.conf'] as $stub) {
+            $contents = file_get_contents(__DIR__.'/../cli/stubs/'.$stub);
+
+            // The port-60 server block is what `valet share` tunnels to.
+            $this->assertStringContainsString('listen 127.0.0.1:60;', $contents, $stub);
+            $this->assertStringContainsString('listen [::1]:60;', $contents, $stub);
+
+            // A custom loopback must activate the port-60 listener too.
+            $rewritten = $site->replaceOldLoopbackWithNew($contents, 'VALET_LOOPBACK', '10.0.0.1');
+            $this->assertStringContainsString('listen 10.0.0.1:60;', $rewritten, $stub);
+        }
+    }
+
     public function test_it_removes_isolation()
     {
         $files = Mockery::mock(Filesystem::class);
