@@ -60,6 +60,10 @@ class BrewTest extends TestCase
 
     public function test_installed_returns_false_when_given_formula_is_not_installed()
     {
+        $files = Mockery::mock(Filesystem::class);
+        $files->shouldReceive('isDir')->with(BREW_PREFIX.'/Cellar/php@8.2')->andReturn(false);
+        swap(Filesystem::class, $files);
+
         $cli = Mockery::mock(CommandLine::class);
         $cli->shouldReceive('runAsUser')->once()->with('brew info php@8.2 --json=v2')->andReturn('');
         swap(CommandLine::class, $cli);
@@ -69,6 +73,124 @@ class BrewTest extends TestCase
         $cli->shouldReceive('runAsUser')->once()->with('brew info php@8.2 --json=v2')->andReturn('Error: No formula found');
         swap(CommandLine::class, $cli);
         $this->assertFalse(resolve(Brew::class)->installed('php@8.2'));
+    }
+
+    public function test_installed_returns_true_when_formula_is_installed_from_another_tap()
+    {
+        // Homebrew resolves the unqualified name against homebrew/core, which reports
+        // no installed versions even though a keg from another tap occupies the rack.
+        $files = Mockery::mock(Filesystem::class);
+        $files->shouldReceive('isDir')->once()->with(BREW_PREFIX.'/Cellar/php@8.4')->andReturn(true);
+        $files->shouldReceive('scandir')->once()->with(BREW_PREFIX.'/Cellar/php@8.4')->andReturn(['8.4.13']);
+        swap(Filesystem::class, $files);
+
+        $cli = Mockery::mock(CommandLine::class);
+        $cli->shouldReceive('runAsUser')->once()->with('brew info php@8.4 --json=v2')
+            ->andReturn('{"formulae":[{"name":"php@8.4","full_name":"php@8.4","aliases":[],"versioned_formulae":[],"versions":{"stable":"8.4.13"},"installed":[]}]}');
+        swap(CommandLine::class, $cli);
+
+        $this->assertTrue(resolve(Brew::class)->installed('php@8.4'));
+    }
+
+    public function test_installed_returns_true_when_formula_is_unknown_to_brew_but_the_keg_exists()
+    {
+        $files = Mockery::mock(Filesystem::class);
+        $files->shouldReceive('isDir')->once()->with(BREW_PREFIX.'/Cellar/php@8.4')->andReturn(true);
+        $files->shouldReceive('scandir')->once()->with(BREW_PREFIX.'/Cellar/php@8.4')->andReturn(['8.4.13']);
+        swap(Filesystem::class, $files);
+
+        $cli = Mockery::mock(CommandLine::class);
+        $cli->shouldReceive('runAsUser')->once()->with('brew info php@8.4 --json=v2')
+            ->andReturn('Error: No available formula with the name "php@8.4".');
+        swap(CommandLine::class, $cli);
+
+        $this->assertTrue(resolve(Brew::class)->installed('php@8.4'));
+    }
+
+    public function test_installed_returns_false_when_the_cellar_rack_is_empty()
+    {
+        $files = Mockery::mock(Filesystem::class);
+        $files->shouldReceive('isDir')->once()->with(BREW_PREFIX.'/Cellar/php@8.4')->andReturn(true);
+        $files->shouldReceive('scandir')->once()->with(BREW_PREFIX.'/Cellar/php@8.4')->andReturn([]);
+        swap(Filesystem::class, $files);
+
+        $cli = Mockery::mock(CommandLine::class);
+        $cli->shouldReceive('runAsUser')->once()->with('brew info php@8.4 --json=v2')
+            ->andReturn('{"formulae":[{"name":"php@8.4","full_name":"php@8.4","aliases":[],"versioned_formulae":[],"versions":{"stable":"8.4.13"},"installed":[]}]}');
+        swap(CommandLine::class, $cli);
+
+        $this->assertFalse(resolve(Brew::class)->installed('php@8.4'));
+    }
+
+    public function test_installed_returns_false_for_a_cask_that_is_not_installed()
+    {
+        $files = Mockery::mock(Filesystem::class);
+        $files->shouldReceive('isDir')->with(BREW_PREFIX.'/Cellar/ngrok')->andReturn(false);
+        swap(Filesystem::class, $files);
+
+        $cli = Mockery::mock(CommandLine::class);
+        $cli->shouldReceive('runAsUser')->once()->with('brew info ngrok --json=v2')
+            ->andReturn('{"casks":[{"name":"ngrok","full_name":"ngrok","aliases":[],"versioned_formulae":[],"versions":{"stable":"3.1.0"},"installed":null}]}');
+        swap(CommandLine::class, $cli);
+
+        $this->assertFalse(resolve(Brew::class)->installed('ngrok'));
+    }
+
+    public function test_installed_skips_the_cellar_check_when_brew_already_reports_it_installed()
+    {
+        $files = Mockery::mock(Filesystem::class);
+        $files->shouldNotReceive('isDir');
+        swap(Filesystem::class, $files);
+
+        $cli = Mockery::mock(CommandLine::class);
+        $cli->shouldReceive('runAsUser')->once()->with('brew info php@8.2 --json=v2')
+            ->andReturn('{"formulae":[{"name":"php@8.2","full_name":"php@8.2","aliases":[],"versioned_formulae":[],"versions":{"stable":"8.2.5"},"installed":[{"version":"8.2.5"}]}]}');
+        swap(CommandLine::class, $cli);
+
+        $this->assertTrue(resolve(Brew::class)->installed('php@8.2'));
+    }
+
+    /**
+     * @dataProvider formulaNameProvider
+     */
+    #[DataProvider('formulaNameProvider')]
+    public function test_formula_name_strips_any_tap_prefix($input, $expected)
+    {
+        $this->assertSame($expected, resolve(Brew::class)->formulaName($input));
+    }
+
+    public static function formulaNameProvider()
+    {
+        return [
+            ['php@8.4', 'php@8.4'],
+            ['shivammathur/php/php@8.4', 'php@8.4'],
+            ['homebrew/core/php', 'php'],
+            ['  shivammathur/php/php@7.4  ', 'php@7.4'],
+            ['', ''],
+        ];
+    }
+
+    public function test_installed_php_formulae_strips_tap_prefixes()
+    {
+        $cli = Mockery::mock(CommandLine::class);
+        $cli->shouldReceive('runAsUser')->once()->with('brew list --formula | grep php')
+            ->andReturn('shivammathur/php/php@8.4'.PHP_EOL.'php@8.2'.PHP_EOL.'shivammathur/php/php@7.4');
+        swap(CommandLine::class, $cli);
+
+        $this->assertSame(
+            ['php@8.4', 'php@8.2', 'php@7.4'],
+            resolve(Brew::class)->installedPhpFormulae()->all()
+        );
+    }
+
+    public function test_has_installed_php_detects_php_installed_from_another_tap()
+    {
+        $cli = Mockery::mock(CommandLine::class);
+        $cli->shouldReceive('runAsUser')->once()->with('brew list --formula | grep php')
+            ->andReturn('shivammathur/php/php@8.4');
+        swap(CommandLine::class, $cli);
+
+        $this->assertTrue(resolve(Brew::class)->hasInstalledPhp());
     }
 
     public function test_has_installed_php_indicates_if_php_is_installed_via_brew()
