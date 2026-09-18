@@ -1179,6 +1179,20 @@ class SiteTest extends TestCase
         $this->assertEquals('php@8.2', $site->phpRcVersion('blabla', __DIR__.'/fixtures/Parked/Sites/site-w-valetrc-3'));
     }
 
+    public function test_it_can_get_site_path()
+    {
+        resolve(Configuration::class)->addPath(__DIR__.'/fixtures/Parked/Sites');
+        $site = resolve(Site::class);
+
+        $this->assertEquals(__DIR__.'/fixtures/Parked/Sites/my-best-site', $site->getSitePath('my-best-site'));
+        $this->assertEquals(__DIR__.'/fixtures/Parked/Sites/my-best-site', $site->getSitePath('my-best-site.test'));
+        $this->assertNull($site->getSitePath('non-existent-site'));
+
+        $site->link(__DIR__.'/fixtures/Parked/Sites/my-best-site', 'my-linked-site');
+        $this->assertEquals(__DIR__.'/fixtures/Parked/Sites/my-best-site', $site->getSitePath('my-linked-site'));
+        $this->assertEquals(__DIR__.'/fixtures/Parked/Sites/my-best-site', $site->getSitePath('my-linked-site.test'));
+    }
+
     public function test_it_returns_null_when_composer_file_is_missing()
     {
         $files = Mockery::mock(Filesystem::class);
