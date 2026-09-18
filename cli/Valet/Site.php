@@ -179,11 +179,31 @@ class Site
             $directory = substr($directory, 0, -(strlen('.'.$tld)));
         }
 
-        if (! $this->parked()->merge($this->links())->where('site', $directory)->count() > 0) {
+        if (! $this->getSitePath($directory)) {
             throw new DomainException("The [{$directory}] site could not be found in Valet's site list.");
         }
 
         return $directory.'.'.$tld;
+    }
+
+    /**
+     * Get the path for a given site name.
+     */
+    public function getSitePath(string $siteName): ?string
+    {
+        $tld = $this->config->read()['tld'];
+
+        if ($siteName === '.' || $siteName === './') {
+            $siteName = $this->host(getcwd());
+        }
+
+        if (ends_with($siteName, '.'.$tld)) {
+            $siteName = substr($siteName, 0, -(strlen('.'.$tld)));
+        }
+
+        $site = $this->parked()->merge($this->links())->where('site', $siteName)->first();
+
+        return data_get($site, 'path');
     }
 
     /**
@@ -1120,8 +1140,8 @@ class Site
     {
         if ($cwd) {
             $path = $cwd.'/.valetrc';
-        } elseif ($site = $this->parked()->merge($this->links())->where('site', $siteName)->first()) {
-            $path = data_get($site, 'path').'/.valetrc';
+        } elseif ($path = $this->getSitePath($siteName)) {
+            $path = $path.'/.valetrc';
         } else {
             return [];
         }
@@ -1146,8 +1166,8 @@ class Site
     {
         if ($cwd) {
             $oldPath = $cwd.'/.valetphprc';
-        } elseif ($site = $this->parked()->merge($this->links())->where('site', $siteName)->first()) {
-            $oldPath = data_get($site, 'path').'/.valetphprc';
+        } elseif ($path = $this->getSitePath($siteName)) {
+            $oldPath = $path.'/.valetphprc';
         } else {
             return null;
         }
@@ -1168,8 +1188,8 @@ class Site
     {
         if ($cwd) {
             $path = $cwd.'/composer.json';
-        } elseif ($site = $this->parked()->merge($this->links())->where('site', $siteName)->first()) {
-            $path = data_get($site, 'path').'/composer.json';
+        } elseif ($path = $this->getSitePath($siteName)) {
+            $path = $path.'/composer.json';
         } else {
             return null;
         }
