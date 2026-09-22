@@ -1,6 +1,6 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v4.12.0...master)
+## [Unreleased](https://github.com/laravel/valet/compare/v4.12.0...main)
 
 ## [v4.12.0](https://github.com/laravel/valet/compare/v4.11.1...v4.12.0) - 2026-03-10
 

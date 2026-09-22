@@ -3,7 +3,7 @@ name: fix code styling
 on:
   push:
     branches:
-      - master
+      - main
       - '*.x'
 
 permissions:
@@ -13,4 +13,4 @@ jobs:
   lint:
     uses: laravel/.github/.github/workflows/coding-standards.yml@9c15e86fffce728fb6c50ebeae24fd63e98f4d1d # main
     with:
-      fix: ${{ github.ref_name == 'master' }}
+      fix: ${{ github.ref_name == 'main' }}

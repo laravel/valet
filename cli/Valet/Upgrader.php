@@ -90,7 +90,7 @@ class Upgrader
             if (! str_contains($this->files->get($driversPath.'/'.$driver), 'namespace')) {
                 warning('Please make sure all custom drivers have been upgraded for Valet 4.');
                 warning('See the upgrade guide for more info:');
-                warning('https://github.com/laravel/valet/blob/master/UPGRADE.md');
+                warning('https://github.com/laravel/valet/blob/main/UPGRADE.md');
                 exit;
             }
         }
