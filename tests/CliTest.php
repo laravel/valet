@@ -556,6 +556,41 @@ class CliTest extends BaseApplicationTestCase
         $this->assertStringContainsString('The [my-best-site] site is served by [', $tester->getDisplay());
     }
 
+    public function test_which_command_with_site_name_and_tld()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        Configuration::addPath(__DIR__.'/fixtures/Parked/Sites');
+
+        $tester->run(['command' => 'which', 'site' => 'my-best-site.test']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('The [my-best-site] site is served by [', $tester->getDisplay());
+    }
+
+    public function test_which_command_prefers_registered_site_over_cwd_subdirectory()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        Configuration::addPath(__DIR__.'/fixtures/Parked/Sites');
+
+        $dummySubdir = getcwd().'/my-best-site';
+        if (! file_exists($dummySubdir)) {
+            mkdir($dummySubdir);
+        }
+
+        try {
+            $tester->run(['command' => 'which', 'site' => 'my-best-site']);
+            $tester->assertCommandIsSuccessful();
+
+            $this->assertStringContainsString('The [my-best-site] site is served by [', $tester->getDisplay());
+        } finally {
+            if (file_exists($dummySubdir)) {
+                rmdir($dummySubdir);
+            }
+        }
+    }
+
     public function test_which_command_with_path()
     {
         [$app, $tester] = $this->appAndTester();

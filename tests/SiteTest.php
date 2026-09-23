@@ -1183,14 +1183,22 @@ class SiteTest extends TestCase
     {
         resolve(Configuration::class)->addPath(__DIR__.'/fixtures/Parked/Sites');
         $site = resolve(Site::class);
+        $files = resolve(Filesystem::class);
 
         $this->assertEquals(__DIR__.'/fixtures/Parked/Sites/my-best-site', $site->getSitePath('my-best-site'));
         $this->assertEquals(__DIR__.'/fixtures/Parked/Sites/my-best-site', $site->getSitePath('my-best-site.test'));
         $this->assertNull($site->getSitePath('non-existent-site'));
 
-        $site->link(__DIR__.'/fixtures/Parked/Sites/my-best-site', 'my-linked-site');
-        $this->assertEquals(__DIR__.'/fixtures/Parked/Sites/my-best-site', $site->getSitePath('my-linked-site'));
-        $this->assertEquals(__DIR__.'/fixtures/Parked/Sites/my-best-site', $site->getSitePath('my-linked-site.test'));
+        $files->ensureDirExists($site->sitesPath(), user());
+        $linkPath = $site->sitesPath('my-linked-site');
+        $files->symlink(__DIR__.'/fixtures/Parked/Sites/my-best-site', $linkPath);
+
+        try {
+            $this->assertEquals(__DIR__.'/fixtures/Parked/Sites/my-best-site', $site->getSitePath('my-linked-site'));
+            $this->assertEquals(__DIR__.'/fixtures/Parked/Sites/my-best-site', $site->getSitePath('my-linked-site.test'));
+        } finally {
+            $files->unlink($linkPath);
+        }
     }
 
     public function test_it_returns_null_when_composer_file_is_missing()

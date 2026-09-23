@@ -347,12 +347,15 @@ if (is_dir(VALET_HOME_PATH)) {
      */
     $app->command('which [site]', function (OutputInterface $output, $site = null) {
         if ($site) {
-            if (Filesystem::isDir($site)) {
+            $isExplicitPath = str_contains($site, '/') || $site === '.' || $site === '..';
+
+            if (! $isExplicitPath && ($path = Site::getSitePath($site))) {
+                $siteName = Site::normalizeSiteName($site);
+            } elseif (Filesystem::isDir($site)) {
                 $path = Filesystem::realpath($site);
-                $siteName = basename($path);
+                $siteName = Site::host($path);
             } elseif ($path = Site::getSitePath($site)) {
-                $tld = Configuration::read()['tld'];
-                $siteName = str_ends_with($site, '.'.$tld) ? substr($site, 0, -strlen('.'.$tld)) : $site;
+                $siteName = Site::normalizeSiteName($site);
             } else {
                 warning("Valet could not find a site or directory for [{$site}].");
 
@@ -360,7 +363,7 @@ if (is_dir(VALET_HOME_PATH)) {
             }
         } else {
             $path = getcwd();
-            $siteName = basename($path);
+            $siteName = Site::host($path);
         }
 
         $driver = ValetDriver::assign($path, $siteName, '/');
