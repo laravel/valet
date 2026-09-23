@@ -343,17 +343,39 @@ if (is_dir(VALET_HOME_PATH)) {
     })->descriptions('Display all of the proxy sites');
 
     /**
-     * Display which Valet driver the current directory is using.
+     * Display which Valet driver serves the current working directory or specified site.
      */
-    $app->command('which', function (OutputInterface $output) {
-        $driver = ValetDriver::assign(getcwd(), basename(getcwd()), '/');
+    $app->command('which [site]', function (OutputInterface $output, $site = null) {
+        if ($site) {
+            $isExplicitPath = str_contains($site, '/') || $site === '.' || $site === '..';
+
+            if (! $isExplicitPath && ($path = Site::getSitePath($site))) {
+                $siteName = Site::normalizeSiteName($site);
+            } elseif (Filesystem::isDir($site)) {
+                $path = Filesystem::realpath($site);
+                $siteName = Site::host($path);
+            } elseif ($path = Site::getSitePath($site)) {
+                $siteName = Site::normalizeSiteName($site);
+            } else {
+                warning("Valet could not find a site or directory for [{$site}].");
+
+                return Command::FAILURE;
+            }
+        } else {
+            $path = getcwd();
+            $siteName = Site::host($path);
+        }
+
+        $driver = ValetDriver::assign($path, $siteName, '/');
 
         if ($driver) {
-            info('This site is served by ['.get_class($driver).'].');
+            info(($site ? "The [{$siteName}] site is" : 'This site is').' served by ['.get_class($driver).'].');
         } else {
-            warning('Valet could not determine which driver to use for this site.');
+            warning('Valet could not determine which driver to use for '.($site ? "[{$siteName}]" : 'this site').'.');
         }
-    })->descriptions('Display which Valet driver serves the current working directory');
+    })->descriptions('Display which Valet driver serves the current working directory or specified site', [
+        'site' => 'The site name or directory path to check',
+    ]);
 
     /**
      * Display all of the registered paths.
