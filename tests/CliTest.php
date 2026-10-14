@@ -544,6 +544,81 @@ class CliTest extends BaseApplicationTestCase
         $this->assertStringContainsString('served by [', $tester->getDisplay());
     }
 
+    public function test_which_command_with_site_name()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        Configuration::addPath(__DIR__.'/fixtures/Parked/Sites');
+
+        $tester->run(['command' => 'which', 'site' => 'my-best-site']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('The [my-best-site] site is served by [', $tester->getDisplay());
+    }
+
+    public function test_which_command_with_site_name_and_tld()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        Configuration::addPath(__DIR__.'/fixtures/Parked/Sites');
+
+        $tester->run(['command' => 'which', 'site' => 'my-best-site.test']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('The [my-best-site] site is served by [', $tester->getDisplay());
+    }
+
+    public function test_which_command_prefers_registered_site_over_cwd_subdirectory()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        Configuration::addPath(__DIR__.'/fixtures/Parked/Sites');
+
+        // A directory in the working directory that shadows the registered site's
+        // name, with contents that would select a different driver.
+        $shadowPath = __DIR__.'/output/shadow-'.uniqid();
+        mkdir($shadowPath.'/my-best-site/public', 0755, true);
+        touch($shadowPath.'/my-best-site/public/index.php');
+
+        $originalCwd = getcwd();
+        chdir($shadowPath);
+
+        try {
+            $tester->run(['command' => 'which', 'site' => 'my-best-site']);
+            $tester->assertCommandIsSuccessful();
+
+            // The registered site is a plain directory, so resolving it gives the
+            // basic driver; the shadowing directory would have given the public one.
+            $this->assertStringContainsString(
+                'The [my-best-site] site is served by [Valet\Drivers\BasicValetDriver]',
+                $tester->getDisplay()
+            );
+        } finally {
+            chdir($originalCwd);
+            exec('rm -rf '.escapeshellarg($shadowPath));
+        }
+    }
+
+    public function test_which_command_with_path()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $tester->run(['command' => 'which', 'site' => __DIR__.'/fixtures/Parked/Sites/my-best-site']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('The [my-best-site] site is served by [', $tester->getDisplay());
+    }
+
+    public function test_which_command_with_nonexistent_site()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        $tester->run(['command' => 'which', 'site' => 'non-existent-site']);
+        $this->assertEquals(1, $tester->getStatusCode());
+
+        $this->assertStringContainsString('Valet could not find a site or directory for [non-existent-site].', $tester->getDisplay());
+    }
+
     public function test_paths_command()
     {
         [$app, $tester] = $this->appAndTester();
