@@ -774,6 +774,10 @@ class SiteTest extends TestCase
 
         swap(Configuration::class, $config);
 
+        $files = Mockery::mock(Filesystem::class);
+
+        swap(Filesystem::class, $files);
+
         $siteMock = Mockery::mock(Site::class, [
             resolve(Brew::class),
             resolve(Configuration::class),
@@ -784,32 +788,29 @@ class SiteTest extends TestCase
         swap(Site::class, $siteMock);
 
         $config->shouldReceive('read')
-            ->andReturn(['tld' => 'test', 'loopback' => VALET_LOOPBACK, 'paths' => []]);
+            ->andReturn(['tld' => 'test', 'loopback' => VALET_LOOPBACK, 'paths' => ['/Users/name/code']]);
 
-        $siteMock->shouldReceive('parked')
-            ->andReturn(collect([
-                'site1' => [
-                    'site' => 'site1',
-                    'secured' => '',
-                    'url' => 'http://site1.test',
-                    'path' => '/Users/name/code/site1',
-                ],
-            ]));
+        // site1 and portal.test-site are parked; site2 is linked to a directory
+        // outside the parked paths, so only the link lookup can resolve it.
+        $files->shouldReceive('isLink')->andReturnUsing(function ($path) {
+            return $path === VALET_HOME_PATH.'/Sites/site2';
+        });
 
-        $siteMock->shouldReceive('links')->andReturn(collect([
-            'site2' => [
-                'site' => 'site2',
-                'secured' => 'X',
-                'url' => 'http://site2.test',
-                'path' => '/Users/name/code/site2',
-            ],
-            'portal.test-site' => [
-                'site' => 'portal.test-site',
-                'secured' => 'X',
-                'url' => 'http://portal.test-site.test',
-                'path' => '/Users/name/code/portal.test-site',
-            ],
-        ]));
+        $files->shouldReceive('readLink')
+            ->with(VALET_HOME_PATH.'/Sites/site2')
+            ->andReturn('/Users/name/elsewhere/site2');
+
+        $files->shouldReceive('isDir')->andReturnUsing(function ($path) {
+            return in_array($path, [
+                '/Users/name/code/site1',
+                '/Users/name/code/portal.test-site',
+                '/Users/name/elsewhere/site2',
+            ]);
+        });
+
+        $files->shouldReceive('realpath')->andReturnUsing(function ($path) {
+            return $path;
+        });
 
         $siteMock->shouldReceive('host')->andReturn('site1');
 
@@ -826,6 +827,145 @@ class SiteTest extends TestCase
 
         $this->assertEquals('portal.test-site.test', $site->getSiteUrl('portal.test-site'));
         $this->assertEquals('portal.test-site.test', $site->getSiteUrl('portal.test-site.test'));
+
+        $this->assertEquals('/Users/name/code/site1', $site->getSitePath('site1'));
+        $this->assertEquals('/Users/name/elsewhere/site2', $site->getSitePath('site2.test'));
+    }
+
+    public function test_it_rejects_site_names_that_are_not_valet_sites()
+    {
+        $config = Mockery::mock(Configuration::class);
+
+        swap(Configuration::class, $config);
+
+        $files = Mockery::mock(Filesystem::class);
+
+        swap(Filesystem::class, $files);
+
+        $siteMock = Mockery::mock(Site::class, [
+            resolve(Brew::class),
+            resolve(Configuration::class),
+            resolve(CommandLine::class),
+            resolve(Filesystem::class),
+        ])->makePartial();
+
+        swap(Site::class, $siteMock);
+
+        $config->shouldReceive('read')
+            ->andReturn(['tld' => 'test', 'loopback' => VALET_LOOPBACK, 'paths' => ['/Users/name/code']]);
+
+        $files->shouldReceive('isLink')->andReturn(false);
+        $files->shouldReceive('isDir')->andReturnUsing(function ($path) {
+            // Everything that exists on this fake disk: the parked site, and the
+            // directories a traversing name would reach.
+            return in_array($path, [
+                '/Users/name/code/site1',
+                '/Users/name/code',
+                VALET_HOME_PATH.'/Sites',
+                VALET_HOME_PATH,
+            ]);
+        });
+        $files->shouldReceive('realpath')->andReturnUsing(function ($path) {
+            return $path;
+        });
+
+        $site = resolve(Site::class);
+
+        // A doubled TLD must not resolve to the bare site, and a name that walks
+        // out of the site directories is not a site at all.
+        foreach (['site1.test.test', '..', '', 'code/site1', './site1'] as $notASite) {
+            $this->assertNull($site->getSitePath($notASite), "[{$notASite}] should not resolve to a path.");
+
+            try {
+                $site->getSiteUrl($notASite);
+
+                $this->fail("Expected [{$notASite}] to be rejected by getSiteUrl().");
+            } catch (DomainException $e) {
+                $this->assertStringContainsString('could not be found', $e->getMessage());
+            }
+        }
+    }
+
+    public function test_it_resolves_duplicate_site_names_in_parked_path_order()
+    {
+        $config = Mockery::mock(Configuration::class);
+
+        swap(Configuration::class, $config);
+
+        $files = Mockery::mock(Filesystem::class);
+
+        swap(Filesystem::class, $files);
+
+        $siteMock = Mockery::mock(Site::class, [
+            resolve(Brew::class),
+            resolve(Configuration::class),
+            resolve(CommandLine::class),
+            resolve(Filesystem::class),
+        ])->makePartial();
+
+        swap(Site::class, $siteMock);
+
+        $config->shouldReceive('read')->andReturn([
+            'tld' => 'test',
+            'loopback' => VALET_LOOPBACK,
+            'paths' => ['/Users/name/first', '/Users/name/second'],
+        ]);
+
+        $files->shouldReceive('isLink')->andReturn(false);
+        $files->shouldReceive('isDir')->andReturnUsing(function ($path) {
+            return in_array($path, ['/Users/name/first/dupe', '/Users/name/second/dupe']);
+        });
+        $files->shouldReceive('realpath')->andReturnUsing(function ($path) {
+            return $path;
+        });
+
+        $site = resolve(Site::class);
+
+        // The server resolves the first registered path first (see Server::sitePath),
+        // so a duplicated site name must resolve the same way here.
+        $this->assertEquals('/Users/name/first/dupe', $site->getSitePath('dupe'));
+    }
+
+    public function test_it_ignores_a_link_whose_target_is_missing()
+    {
+        $config = Mockery::mock(Configuration::class);
+
+        swap(Configuration::class, $config);
+
+        $files = Mockery::mock(Filesystem::class);
+
+        swap(Filesystem::class, $files);
+
+        $siteMock = Mockery::mock(Site::class, [
+            resolve(Brew::class),
+            resolve(Configuration::class),
+            resolve(CommandLine::class),
+            resolve(Filesystem::class),
+        ])->makePartial();
+
+        swap(Site::class, $siteMock);
+
+        $config->shouldReceive('read')->andReturn([
+            'tld' => 'test',
+            'loopback' => VALET_LOOPBACK,
+            'paths' => ['/Users/name/code'],
+        ]);
+
+        $files->shouldReceive('isLink')->andReturnUsing(function ($path) {
+            return $path === VALET_HOME_PATH.'/Sites/blog';
+        });
+        $files->shouldReceive('readLink')->andReturn('/Users/name/deleted/blog');
+        $files->shouldReceive('isDir')->andReturnUsing(function ($path) {
+            return $path === '/Users/name/code/blog';
+        });
+        $files->shouldReceive('realpath')->andReturnUsing(function ($path) {
+            return $path;
+        });
+
+        $site = resolve(Site::class);
+
+        // A stale link must not mask a parked site of the same name.
+        $this->assertEquals('/Users/name/code/blog', $site->getSitePath('blog'));
     }
 
     public function test_it_throws_getting_nonexistent_site()
@@ -1193,6 +1333,28 @@ class SiteTest extends TestCase
         $this->assertEquals('php@8.1', $site->phpRcVersion('site-w-valetrc-2'));
         $this->assertEquals('php@8.2', $site->phpRcVersion('site-w-valetrc-3'));
         $this->assertEquals('php@8.2', $site->phpRcVersion('blabla', __DIR__.'/fixtures/Parked/Sites/site-w-valetrc-3'));
+    }
+
+    public function test_it_can_get_site_path()
+    {
+        resolve(Configuration::class)->addPath(__DIR__.'/fixtures/Parked/Sites');
+        $site = resolve(Site::class);
+        $files = resolve(Filesystem::class);
+
+        $this->assertEquals(__DIR__.'/fixtures/Parked/Sites/my-best-site', $site->getSitePath('my-best-site'));
+        $this->assertEquals(__DIR__.'/fixtures/Parked/Sites/my-best-site', $site->getSitePath('my-best-site.test'));
+        $this->assertNull($site->getSitePath('non-existent-site'));
+
+        $files->ensureDirExists($site->sitesPath(), user());
+        $linkPath = $site->sitesPath('my-linked-site');
+        $files->symlink(__DIR__.'/fixtures/Parked/Sites/my-best-site', $linkPath);
+
+        try {
+            $this->assertEquals(__DIR__.'/fixtures/Parked/Sites/my-best-site', $site->getSitePath('my-linked-site'));
+            $this->assertEquals(__DIR__.'/fixtures/Parked/Sites/my-best-site', $site->getSitePath('my-linked-site.test'));
+        } finally {
+            $files->unlink($linkPath);
+        }
     }
 
     public function test_it_returns_null_when_composer_file_is_missing()

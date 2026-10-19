@@ -169,21 +169,77 @@ class Site
     public function getSiteUrl(string $directory): string
     {
         $tld = $this->config->read()['tld'];
+        $name = $this->normalizeSiteName($directory);
 
-        if ($directory == '.' || $directory == './') { // Allow user to use dot as current dir's site `--site=.`
-            $directory = $this->host(getcwd());
+        if (! $this->resolveSitePath($name)) {
+            throw new DomainException("The [{$name}] site could not be found in Valet's site list.");
         }
 
-        // Remove .tld from the end of sitename if it was provided
-        if (ends_with($directory, '.'.$tld)) {
-            $directory = substr($directory, 0, -(strlen('.'.$tld)));
+        return $name.'.'.$tld;
+    }
+
+    /**
+     * Normalize a given site name by resolving '.' / './' and stripping the TLD.
+     */
+    public function normalizeSiteName(string $siteName): string
+    {
+        $tld = $this->config->read()['tld'];
+
+        if ($siteName === '.' || $siteName === './') {
+            $siteName = $this->host(getcwd());
         }
 
-        if (! $this->parked()->merge($this->links())->where('site', $directory)->count() > 0) {
-            throw new DomainException("The [{$directory}] site could not be found in Valet's site list.");
+        if (ends_with($siteName, '.'.$tld)) {
+            $siteName = substr($siteName, 0, -(strlen('.'.$tld)));
         }
 
-        return $directory.'.'.$tld;
+        return $siteName;
+    }
+
+    /**
+     * Get the path for a given site name.
+     */
+    public function getSitePath(string $siteName): ?string
+    {
+        return $this->resolveSitePath($this->normalizeSiteName($siteName));
+    }
+
+    /**
+     * Resolve an already-normalized site name to its directory.
+     */
+    protected function resolveSitePath(string $siteName): ?string
+    {
+        if ($siteName === '' || $siteName === '.' || $siteName === '..' || str_contains($siteName, '/')) {
+            return null;
+        }
+
+        // 1. Check linked sites in ~/.config/valet/Sites
+        $linkPath = $this->sitesPath($siteName);
+
+        if ($this->files->isLink($linkPath)) {
+            $target = $this->files->readLink($linkPath);
+
+            if ($this->files->isDir($target)) {
+                return $this->files->realpath($target);
+            }
+        } elseif ($this->files->isDir($linkPath)) {
+            return $this->files->realpath($linkPath);
+        }
+
+        // 2. Check parked paths, in the same order the server resolves them
+        foreach ($this->config->read()['paths'] as $path) {
+            if ($path === $this->sitesPath()) {
+                continue;
+            }
+
+            $candidate = $path.'/'.$siteName;
+
+            if ($this->files->isDir($candidate)) {
+                return $this->files->realpath($candidate);
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -1120,8 +1176,8 @@ class Site
     {
         if ($cwd) {
             $path = $cwd.'/.valetrc';
-        } elseif ($site = $this->parked()->merge($this->links())->where('site', $siteName)->first()) {
-            $path = data_get($site, 'path').'/.valetrc';
+        } elseif ($path = $this->getSitePath($siteName)) {
+            $path = $path.'/.valetrc';
         } else {
             return [];
         }
@@ -1146,8 +1202,8 @@ class Site
     {
         if ($cwd) {
             $oldPath = $cwd.'/.valetphprc';
-        } elseif ($site = $this->parked()->merge($this->links())->where('site', $siteName)->first()) {
-            $oldPath = data_get($site, 'path').'/.valetphprc';
+        } elseif ($path = $this->getSitePath($siteName)) {
+            $oldPath = $path.'/.valetphprc';
         } else {
             return null;
         }
@@ -1168,8 +1224,8 @@ class Site
     {
         if ($cwd) {
             $path = $cwd.'/composer.json';
-        } elseif ($site = $this->parked()->merge($this->links())->where('site', $siteName)->first()) {
-            $path = data_get($site, 'path').'/composer.json';
+        } elseif ($path = $this->getSitePath($siteName)) {
+            $path = $path.'/composer.json';
         } else {
             return null;
         }
