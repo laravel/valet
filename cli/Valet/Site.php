@@ -168,10 +168,11 @@ class Site
      */
     public function getSiteUrl(string $directory): string
     {
-        $tld = $this->config->read()['tld'];
-        $name = $this->normalizeSiteName($directory);
+        $config = $this->config->read();
+        $tld = $config['tld'];
+        $name = $this->normalizeSiteName($directory, $tld);
 
-        if (! $this->resolveSitePath($name)) {
+        if (! $this->resolveSitePath($name, $config)) {
             throw new DomainException("The [{$name}] site could not be found in Valet's site list.");
         }
 
@@ -181,15 +182,15 @@ class Site
     /**
      * Normalize a given site name by resolving '.' / './' and stripping the TLD.
      */
-    public function normalizeSiteName(string $siteName): string
+    public function normalizeSiteName(string $siteName, ?string $tld = null): string
     {
-        $tld = $this->config->read()['tld'];
+        $tld = $tld ?? $this->config->read()['tld'];
 
         if ($siteName === '.' || $siteName === './') {
             $siteName = $this->host(getcwd());
         }
 
-        if (ends_with($siteName, '.'.$tld)) {
+        if (ends_with(strtolower($siteName), '.'.strtolower($tld))) {
             $siteName = substr($siteName, 0, -(strlen('.'.$tld)));
         }
 
@@ -201,42 +202,83 @@ class Site
      */
     public function getSitePath(string $siteName): ?string
     {
-        return $this->resolveSitePath($this->normalizeSiteName($siteName));
+        $config = $this->config->read();
+
+        return $this->resolveSitePath(
+            $this->normalizeSiteName($siteName, $config['tld']),
+            $config
+        );
     }
 
     /**
      * Resolve an already-normalized site name to its directory.
      */
-    protected function resolveSitePath(string $siteName): ?string
+    protected function resolveSitePath(string $siteName, ?array $config = null): ?string
     {
         if ($siteName === '' || $siteName === '.' || $siteName === '..' || str_contains($siteName, '/')) {
             return null;
         }
 
         // 1. Check linked sites in ~/.config/valet/Sites
-        $linkPath = $this->sitesPath($siteName);
-
-        if ($this->files->isLink($linkPath)) {
-            $target = $this->files->readLink($linkPath);
-
-            if ($this->files->isDir($target)) {
-                return $this->files->realpath($target);
-            }
-        } elseif ($this->files->isDir($linkPath)) {
-            return $this->files->realpath($linkPath);
+        if ($resolved = $this->resolveSiteInDirectory($this->sitesPath(), $siteName)) {
+            return $resolved;
         }
 
         // 2. Check parked paths, in the same order the server resolves them
-        foreach ($this->config->read()['paths'] as $path) {
+        $config = $config ?? $this->config->read();
+
+        foreach ($config['paths'] as $path) {
             if ($path === $this->sitesPath()) {
                 continue;
             }
 
-            $candidate = $path.'/'.$siteName;
-
-            if ($this->files->isDir($candidate)) {
-                return $this->files->realpath($candidate);
+            if ($resolved = $this->resolveSiteInDirectory($path, $siteName)) {
+                return $resolved;
             }
+        }
+
+        return null;
+    }
+
+    /**
+     * Resolve a site entry inside a linked or parked directory, matching case-insensitively like Server::sitePath().
+     */
+    protected function resolveSiteInDirectory(string $directory, string $siteName): ?string
+    {
+        if ($resolved = $this->resolveCandidatePath($directory.'/'.$siteName)) {
+            return $resolved;
+        }
+
+        if (! $this->files->isDir($directory)) {
+            return null;
+        }
+
+        $needle = strtolower($siteName);
+
+        foreach ($this->files->scandir($directory) as $entry) {
+            if ($entry !== $siteName && strtolower($entry) === $needle) {
+                if ($resolved = $this->resolveCandidatePath($directory.'/'.$entry)) {
+                    return $resolved;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Resolve a candidate site link or directory to its real path if valid.
+     */
+    protected function resolveCandidatePath(string $candidate): ?string
+    {
+        if ($this->files->isLink($candidate)) {
+            $target = $this->files->readLink($candidate);
+
+            return $this->files->isDir($target) ? $this->files->realpath($target) : null;
+        }
+
+        if ($this->files->isDir($candidate)) {
+            return $this->files->realpath($candidate);
         }
 
         return null;

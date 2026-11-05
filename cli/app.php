@@ -354,8 +354,6 @@ if (is_dir(VALET_HOME_PATH)) {
             } elseif (Filesystem::isDir($site)) {
                 $path = Filesystem::realpath($site);
                 $siteName = Site::host($path);
-            } elseif ($path = Site::getSitePath($site)) {
-                $siteName = Site::normalizeSiteName($site);
             } else {
                 warning("Valet could not find a site or directory for [{$site}].");
 

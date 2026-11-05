@@ -865,6 +865,9 @@ class SiteTest extends TestCase
                 VALET_HOME_PATH,
             ]);
         });
+        $files->shouldReceive('scandir')->andReturnUsing(function ($path) {
+            return $path === '/Users/name/code' ? ['site1'] : [];
+        });
         $files->shouldReceive('realpath')->andReturnUsing(function ($path) {
             return $path;
         });
@@ -966,6 +969,107 @@ class SiteTest extends TestCase
 
         // A stale link must not mask a parked site of the same name.
         $this->assertEquals('/Users/name/code/blog', $site->getSitePath('blog'));
+    }
+
+    public function test_it_resolves_site_names_case_insensitively()
+    {
+        $config = Mockery::mock(Configuration::class);
+
+        swap(Configuration::class, $config);
+
+        $files = Mockery::mock(Filesystem::class);
+
+        swap(Filesystem::class, $files);
+
+        $siteMock = Mockery::mock(Site::class, [
+            resolve(Brew::class),
+            resolve(Configuration::class),
+            resolve(CommandLine::class),
+            resolve(Filesystem::class),
+        ])->makePartial();
+
+        swap(Site::class, $siteMock);
+
+        $config->shouldReceive('read')->andReturn([
+            'tld' => 'test',
+            'loopback' => VALET_LOOPBACK,
+            'paths' => ['/Users/name/code'],
+        ]);
+
+        // Case-sensitive fake disk: only exact-case 'MySite' and 'MyLinkedSite' exist.
+        $files->shouldReceive('isLink')->andReturnUsing(function ($path) {
+            return $path === VALET_HOME_PATH.'/Sites/MyLinkedSite';
+        });
+        $files->shouldReceive('readLink')
+            ->with(VALET_HOME_PATH.'/Sites/MyLinkedSite')
+            ->andReturn('/Users/name/elsewhere/MyLinkedSite');
+        $files->shouldReceive('isDir')->andReturnUsing(function ($path) {
+            return in_array($path, [
+                VALET_HOME_PATH.'/Sites',
+                '/Users/name/code',
+                '/Users/name/code/MySite',
+                '/Users/name/elsewhere/MyLinkedSite',
+            ], true);
+        });
+        $files->shouldReceive('scandir')->andReturnUsing(function ($path) {
+            if ($path === VALET_HOME_PATH.'/Sites') {
+                return ['MyLinkedSite'];
+            }
+
+            if ($path === '/Users/name/code') {
+                return ['MySite'];
+            }
+
+            return [];
+        });
+        $files->shouldReceive('realpath')->andReturnUsing(function ($path) {
+            return $path;
+        });
+
+        $site = resolve(Site::class);
+
+        $this->assertEquals('/Users/name/code/MySite', $site->getSitePath('mysite'));
+        $this->assertEquals('/Users/name/code/MySite', $site->getSitePath('MySite'));
+        $this->assertEquals('/Users/name/code/MySite', $site->getSitePath('MYSITE.TEST'));
+        $this->assertEquals('mysite.test', $site->getSiteUrl('mysite'));
+        $this->assertEquals('/Users/name/elsewhere/MyLinkedSite', $site->getSitePath('mylinkedsite'));
+    }
+
+    public function test_get_site_url_and_get_site_path_read_config_once()
+    {
+        $config = Mockery::mock(Configuration::class);
+
+        swap(Configuration::class, $config);
+
+        $files = Mockery::mock(Filesystem::class);
+
+        swap(Filesystem::class, $files);
+
+        $siteMock = Mockery::mock(Site::class, [
+            resolve(Brew::class),
+            resolve(Configuration::class),
+            resolve(CommandLine::class),
+            resolve(Filesystem::class),
+        ])->makePartial();
+
+        swap(Site::class, $siteMock);
+
+        $config->shouldReceive('read')
+            ->times(2)
+            ->andReturn(['tld' => 'test', 'loopback' => VALET_LOOPBACK, 'paths' => ['/Users/name/code']]);
+
+        $files->shouldReceive('isLink')->andReturn(false);
+        $files->shouldReceive('isDir')->andReturnUsing(function ($path) {
+            return $path === '/Users/name/code/site1';
+        });
+        $files->shouldReceive('realpath')->andReturnUsing(function ($path) {
+            return $path;
+        });
+
+        $site = resolve(Site::class);
+
+        $this->assertEquals('site1.test', $site->getSiteUrl('site1.test'));
+        $this->assertEquals('/Users/name/code/site1', $site->getSitePath('site1.test'));
     }
 
     public function test_it_throws_getting_nonexistent_site()

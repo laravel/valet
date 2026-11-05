@@ -593,6 +593,14 @@ class CliTest extends BaseApplicationTestCase
                 'The [my-best-site] site is served by [Valet\Drivers\BasicValetDriver]',
                 $tester->getDisplay()
             );
+
+            // An explicit relative path bypasses site lookup and checks the cwd directory.
+            $tester->run(['command' => 'which', 'site' => './my-best-site']);
+            $tester->assertCommandIsSuccessful();
+            $this->assertStringContainsString(
+                'The [my-best-site] site is served by [Valet\Drivers\BasicWithPublicValetDriver]',
+                $tester->getDisplay()
+            );
         } finally {
             chdir($originalCwd);
             exec('rm -rf '.escapeshellarg($shadowPath));
