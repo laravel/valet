@@ -48,8 +48,8 @@
         "illuminate/container": "~5.1|^6.0|^7.0|^8.0|^9.0|^10.0|^11.0|^12.0|^13.0",
         "mnapoli/silly": "^1.5",
         "symfony/console": "^3.0|^4.0|^5.0|^6.0|^7.0|^8.0",
-        "symfony/process": "^3.0|^4.0|^5.0|^6.0|^7.0|^8.0",
-        "guzzlehttp/guzzle": "^6.0|^7.4|^8.0",
+        "symfony/process": "^5.4.51|^6.4.33|^7.4.5|^8.0.5",
+        "guzzlehttp/guzzle": "^7.15.2|^8.0.1",
         "symfony/event-dispatcher": "^3.0|^4.0|^5.0|^6.0|^7.0|^8.0"
     },
     "require-dev": {
