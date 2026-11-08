@@ -1031,8 +1031,139 @@ class SiteTest extends TestCase
         $this->assertEquals('/Users/name/code/MySite', $site->getSitePath('mysite'));
         $this->assertEquals('/Users/name/code/MySite', $site->getSitePath('MySite'));
         $this->assertEquals('/Users/name/code/MySite', $site->getSitePath('MYSITE.TEST'));
-        $this->assertEquals('mysite.test', $site->getSiteUrl('mysite'));
+        $this->assertEquals('MySite.test', $site->getSiteUrl('mysite'));
         $this->assertEquals('/Users/name/elsewhere/MyLinkedSite', $site->getSitePath('mylinkedsite'));
+    }
+
+    public function test_it_resolves_canonical_site_name_on_case_insensitive_filesystem()
+    {
+        $config = Mockery::mock(Configuration::class);
+
+        swap(Configuration::class, $config);
+
+        $files = Mockery::mock(Filesystem::class);
+
+        swap(Filesystem::class, $files);
+
+        $siteMock = Mockery::mock(Site::class, [
+            resolve(Brew::class),
+            resolve(Configuration::class),
+            resolve(CommandLine::class),
+            resolve(Filesystem::class),
+        ])->makePartial();
+
+        swap(Site::class, $siteMock);
+
+        $config->shouldReceive('read')->andReturn([
+            'tld' => 'test',
+            'loopback' => VALET_LOOPBACK,
+            'paths' => ['/Users/name/code'],
+        ]);
+
+        // Default APFS fake disk: isDir returns true for any casing, realpath echoes requested casing.
+        $files->shouldReceive('isLink')->andReturn(false);
+        $files->shouldReceive('isDir')->andReturnUsing(function ($path) {
+            $lower = strtolower($path);
+
+            return in_array($lower, [
+                strtolower(VALET_HOME_PATH.'/Sites'),
+                '/users/name/code',
+                '/users/name/code/mysite',
+            ], true);
+        });
+        $files->shouldReceive('scandir')->andReturnUsing(function ($path) {
+            if ($path === '/Users/name/code') {
+                return ['MySite'];
+            }
+
+            return [];
+        });
+        $files->shouldReceive('realpath')->andReturnUsing(function ($path) {
+            return $path;
+        });
+
+        $site = resolve(Site::class);
+
+        $this->assertEquals('/Users/name/code/MySite', $site->getSitePath('mysite'));
+        $this->assertEquals('/Users/name/code/MySite', $site->getSitePath('MYSITE'));
+        $this->assertEquals('MySite.test', $site->getSiteUrl('mysite'));
+        $this->assertEquals('MySite.test', $site->getSiteUrl('MYSITE'));
+        $this->assertEquals('MySite.test', $site->getSiteUrl('mysite.test'));
+    }
+
+    public function test_it_resolves_subdomains_to_parent_site()
+    {
+        $config = Mockery::mock(Configuration::class);
+
+        swap(Configuration::class, $config);
+
+        $files = Mockery::mock(Filesystem::class);
+
+        swap(Filesystem::class, $files);
+
+        $siteMock = Mockery::mock(Site::class, [
+            resolve(Brew::class),
+            resolve(Configuration::class),
+            resolve(CommandLine::class),
+            resolve(Filesystem::class),
+        ])->makePartial();
+
+        swap(Site::class, $siteMock);
+
+        $config->shouldReceive('read')->andReturn([
+            'tld' => 'test',
+            'loopback' => VALET_LOOPBACK,
+            'paths' => ['/Users/name/code'],
+        ]);
+
+        $files->shouldReceive('isLink')->andReturn(false);
+        $files->shouldReceive('isDir')->andReturnUsing(function ($path) {
+            return in_array($path, [
+                VALET_HOME_PATH.'/Sites',
+                '/Users/name/code',
+                '/Users/name/code/my-site',
+                '/Users/name/code/child.my-site',
+            ], true);
+        });
+        $files->shouldReceive('scandir')->andReturnUsing(function ($path) {
+            if ($path === '/Users/name/code') {
+                return ['my-site', 'child.my-site'];
+            }
+
+            return [];
+        });
+        $files->shouldReceive('realpath')->andReturnUsing(function ($path) {
+            return $path;
+        });
+        $files->shouldReceive('exists')->andReturnUsing(function ($path) {
+            return in_array($path, [
+                '/Users/name/code/my-site/.valetrc',
+                '/Users/name/code/child.my-site/.valetrc',
+            ], true);
+        });
+        $files->shouldReceive('get')->andReturnUsing(function ($path) {
+            if ($path === '/Users/name/code/my-site/.valetrc') {
+                return "php=php@8.2\n";
+            }
+
+            if ($path === '/Users/name/code/child.my-site/.valetrc') {
+                return "php=php@8.3\n";
+            }
+
+            return '';
+        });
+
+        $site = resolve(Site::class);
+
+        // Subdomain with no direct directory falls back to parent site
+        $this->assertEquals('/Users/name/code/my-site', $site->getSitePath('api.my-site'));
+        $this->assertEquals('/Users/name/code/my-site', $site->getSitePath('api.my-site.test'));
+        $this->assertEquals('api.my-site.test', $site->getSiteUrl('api.my-site'));
+        $this->assertEquals('php@8.2', $site->phpRcVersion('api.my-site'));
+
+        // Direct same-named child site resolves its own directory and php version
+        $this->assertEquals('/Users/name/code/child.my-site', $site->getSitePath('child.my-site'));
+        $this->assertEquals('php@8.3', $site->phpRcVersion('child.my-site'));
     }
 
     public function test_get_site_url_and_get_site_path_read_config_once()

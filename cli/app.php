@@ -349,8 +349,9 @@ if (is_dir(VALET_HOME_PATH)) {
         if ($site) {
             $isExplicitPath = str_contains($site, '/') || $site === '.' || $site === '..';
 
-            if (! $isExplicitPath && ($path = Site::getSitePath($site))) {
-                $siteName = Site::normalizeSiteName($site);
+            if (! $isExplicitPath && ($resolved = Site::resolveSite(Site::normalizeSiteName($site)))) {
+                $path = $resolved['path'];
+                $siteName = $resolved['name'];
             } elseif (Filesystem::isDir($site)) {
                 $path = Filesystem::realpath($site);
                 $siteName = Site::host($path);

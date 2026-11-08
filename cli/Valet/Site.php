@@ -172,11 +172,11 @@ class Site
         $tld = $config['tld'];
         $name = $this->normalizeSiteName($directory, $tld);
 
-        if (! $this->resolveSitePath($name, $config)) {
+        if (! $resolved = $this->resolveSite($name, $config)) {
             throw new DomainException("The [{$name}] site could not be found in Valet's site list.");
         }
 
-        return $name.'.'.$tld;
+        return $resolved['name'].'.'.$tld;
     }
 
     /**
@@ -204,29 +204,67 @@ class Site
     {
         $config = $this->config->read();
 
-        return $this->resolveSitePath(
+        return $this->resolveSite(
             $this->normalizeSiteName($siteName, $config['tld']),
             $config
-        );
+        )['path'] ?? null;
     }
 
     /**
-     * Resolve an already-normalized site name to its directory.
+     * Resolve an already-normalized site name to its directory path.
      */
     protected function resolveSitePath(string $siteName, ?array $config = null): ?string
+    {
+        return $this->resolveSite($siteName, $config)['path'] ?? null;
+    }
+
+    /**
+     * Resolve an already-normalized site name to its directory path and canonical matched name.
+     *
+     * @return array{path: string, name: string}|null
+     */
+    public function resolveSite(string $siteName, ?array $config = null): ?array
     {
         if ($siteName === '' || $siteName === '.' || $siteName === '..' || str_contains($siteName, '/')) {
             return null;
         }
 
+        $config = $config ?? $this->config->read();
+
+        // 1. Direct match (exact or case-insensitive)
+        if ($resolved = $this->resolveDirectSite($siteName, $config)) {
+            return $resolved;
+        }
+
+        // 2. Subdomain fallback matching parent site (e.g. api.my-site -> my-site)
+        if (str_contains($siteName, '.')) {
+            $parentName = Server::domainFromSiteName($siteName);
+            $prefix = substr($siteName, 0, -strlen($parentName));
+
+            if ($parent = $this->resolveDirectSite($parentName, $config)) {
+                return [
+                    'path' => $parent['path'],
+                    'name' => $prefix.$parent['name'],
+                ];
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Resolve a site name directly within linked and parked directories.
+     *
+     * @return array{path: string, name: string}|null
+     */
+    protected function resolveDirectSite(string $siteName, array $config): ?array
+    {
         // 1. Check linked sites in ~/.config/valet/Sites
         if ($resolved = $this->resolveSiteInDirectory($this->sitesPath(), $siteName)) {
             return $resolved;
         }
 
         // 2. Check parked paths, in the same order the server resolves them
-        $config = $config ?? $this->config->read();
-
         foreach ($config['paths'] as $path) {
             if ($path === $this->sitesPath()) {
                 continue;
@@ -242,23 +280,49 @@ class Site
 
     /**
      * Resolve a site entry inside a linked or parked directory, matching case-insensitively like Server::sitePath().
+     *
+     * @return array{path: string, name: string}|null
      */
-    protected function resolveSiteInDirectory(string $directory, string $siteName): ?string
+    protected function resolveSiteInDirectory(string $directory, string $siteName): ?array
     {
+        $needle = strtolower($siteName);
+
+        // 1. Direct candidate check (exact match or case-insensitive filesystem)
         if ($resolved = $this->resolveCandidatePath($directory.'/'.$siteName)) {
-            return $resolved;
+            $canonicalName = $siteName;
+            $canonicalPath = $resolved;
+
+            if ($this->files->isDir($directory)) {
+                $entries = $this->files->scandir($directory);
+                if (is_array($entries)) {
+                    foreach ($entries as $entry) {
+                        if (strtolower($entry) === $needle) {
+                            $canonicalName = $entry;
+                            $canonicalPath = $this->resolveCandidatePath($directory.'/'.$entry) ?? $resolved;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return ['path' => $canonicalPath, 'name' => $canonicalName];
         }
 
+        // 2. Scan directory entries for case-insensitive match on case-sensitive filesystems
         if (! $this->files->isDir($directory)) {
             return null;
         }
 
-        $needle = strtolower($siteName);
+        $entries = $this->files->scandir($directory);
 
-        foreach ($this->files->scandir($directory) as $entry) {
+        if (! is_array($entries)) {
+            return null;
+        }
+
+        foreach ($entries as $entry) {
             if ($entry !== $siteName && strtolower($entry) === $needle) {
                 if ($resolved = $this->resolveCandidatePath($directory.'/'.$entry)) {
-                    return $resolved;
+                    return ['path' => $resolved, 'name' => $entry];
                 }
             }
         }

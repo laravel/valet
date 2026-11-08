@@ -568,6 +568,30 @@ class CliTest extends BaseApplicationTestCase
         $this->assertStringContainsString('The [my-best-site] site is served by [', $tester->getDisplay());
     }
 
+    public function test_which_command_with_subdomain()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        Configuration::addPath(__DIR__.'/fixtures/Parked/Sites');
+
+        $tester->run(['command' => 'which', 'site' => 'api.my-best-site.test']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('The [api.my-best-site] site is served by [', $tester->getDisplay());
+    }
+
+    public function test_which_command_displays_canonical_site_name()
+    {
+        [$app, $tester] = $this->appAndTester();
+
+        Configuration::addPath(__DIR__.'/fixtures/Parked/Sites');
+
+        $tester->run(['command' => 'which', 'site' => 'MY-BEST-SITE']);
+        $tester->assertCommandIsSuccessful();
+
+        $this->assertStringContainsString('The [my-best-site] site is served by [', $tester->getDisplay());
+    }
+
     public function test_which_command_prefers_registered_site_over_cwd_subdirectory()
     {
         [$app, $tester] = $this->appAndTester();
