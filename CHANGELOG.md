@@ -1,6 +1,51 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v4.12.0...main)
+## [Unreleased](https://github.com/laravel/valet/compare/v4.13.0...main)
+
+## [v4.13.0](https://github.com/laravel/valet/compare/v4.12.0...v4.13.0) - 2026-11-10
+
+### What's Changed
+
+* Pin GitHub Actions to commit SHAs and add Dependabot config by [@joetannenbaum](https://github.com/joetannenbaum) in https://github.com/laravel/valet/pull/1547
+* Pin pull requests and issues workflows to latest laravel/.github by [@nunomaduro](https://github.com/nunomaduro) in https://github.com/laravel/valet/pull/1549
+* Add Dependabot cooldown of 5 days by [@nunomaduro](https://github.com/nunomaduro) in https://github.com/laravel/valet/pull/1550
+* Enable Dependabot auto-merge by [@nunomaduro](https://github.com/nunomaduro) in https://github.com/laravel/valet/pull/1551
+* Bump the github-actions group across 1 directory with 2 updates by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/laravel/valet/pull/1552
+* Bump shivammathur/setup-php from 2.37.1 to 2.37.2 in the github-actions group by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/laravel/valet/pull/1553
+* Bump actions/checkout from 6.0.3 to 7.0.0 in the github-actions group by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/laravel/valet/pull/1555
+* Bump actions/checkout from 7.0.0 to 7.0.1 in the github-actions group by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/laravel/valet/pull/1557
+* fix(nginx): listen on [::1] so the IPv6 .test DNS answer from #1545 serves by [@Martin-Welte](https://github.com/Martin-Welte) in https://github.com/laravel/valet/pull/1559
+* Add small test coverage and re-order Valet.conf stub by [@mattstauffer](https://github.com/mattstauffer) in https://github.com/laravel/valet/pull/1561
+* Added support to determine php versions using composer.json by [@indykoning](https://github.com/indykoning) in https://github.com/laravel/valet/pull/1554
+* Un-set variables to keep them out of user project scope by [@mattstauffer](https://github.com/mattstauffer) in https://github.com/laravel/valet/pull/1562
+* Allow guzzlehttp/guzzle ^8.0 by [@webpatser](https://github.com/webpatser) in https://github.com/laravel/valet/pull/1563
+* Allow Symfony 8 components by [@webpatser](https://github.com/webpatser) in https://github.com/laravel/valet/pull/1564
+* Require PHP 8.0 by [@webpatser](https://github.com/webpatser) in https://github.com/laravel/valet/pull/1567
+* Use PHP 8 features in CLI code by [@webpatser](https://github.com/webpatser) in https://github.com/laravel/valet/pull/1568
+* Run read-only commands without sudo by [@webpatser](https://github.com/webpatser) in https://github.com/laravel/valet/pull/1565
+* Remove deprecated PHPUnit configuration attributes by [@webpatser](https://github.com/webpatser) in https://github.com/laravel/valet/pull/1566
+* Match client_max_body_size to Valet's PHP upload limits by [@webpatser](https://github.com/webpatser) in https://github.com/laravel/valet/pull/1570
+* Detect PHP installed from non-core Homebrew taps by [@drbyte](https://github.com/drbyte) in https://github.com/laravel/valet/pull/1578
+* Drop legacy nginx stubs for pre-1.25.1 versions by [@webpatser](https://github.com/webpatser) in https://github.com/laravel/valet/pull/1571
+* Make dnsmasq authoritative for the Valet TLD by [@webpatser](https://github.com/webpatser) in https://github.com/laravel/valet/pull/1574
+* Raise fastcgi_read_timeout so debugger pauses do not 504 by [@webpatser](https://github.com/webpatser) in https://github.com/laravel/valet/pull/1575
+* Modernize gzip configuration by [@webpatser](https://github.com/webpatser) in https://github.com/laravel/valet/pull/1573
+* Add missing share server block to secure proxy stubs by [@webpatser](https://github.com/webpatser) in https://github.com/laravel/valet/pull/1569
+* Remove security policy in favor of the org-wide default by [@pushpak1300](https://github.com/pushpak1300) in https://github.com/laravel/valet/pull/1580
+* Bump shivammathur/setup-php from 2.37.2 to 2.40.0 in the github-actions group by [@dependabot](https://github.com/dependabot)[bot] in https://github.com/laravel/valet/pull/1581
+* Dependency floor bump by [@joetannenbaum](https://github.com/joetannenbaum) in https://github.com/laravel/valet/pull/1582
+
+### New Contributors
+
+* [@joetannenbaum](https://github.com/joetannenbaum) made their first contribution in https://github.com/laravel/valet/pull/1547
+* [@nunomaduro](https://github.com/nunomaduro) made their first contribution in https://github.com/laravel/valet/pull/1549
+* [@dependabot](https://github.com/dependabot)[bot] made their first contribution in https://github.com/laravel/valet/pull/1552
+* [@Martin-Welte](https://github.com/Martin-Welte) made their first contribution in https://github.com/laravel/valet/pull/1559
+* [@indykoning](https://github.com/indykoning) made their first contribution in https://github.com/laravel/valet/pull/1554
+* [@webpatser](https://github.com/webpatser) made their first contribution in https://github.com/laravel/valet/pull/1563
+* [@pushpak1300](https://github.com/pushpak1300) made their first contribution in https://github.com/laravel/valet/pull/1580
+
+**Full Changelog**: https://github.com/laravel/valet/compare/v4.12.0...v4.13.0
 
 ## [v4.12.0](https://github.com/laravel/valet/compare/v4.11.1...v4.12.0) - 2026-03-10
 
