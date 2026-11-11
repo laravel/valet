@@ -444,7 +444,7 @@ class Site
         $sites = collect($this->secured())->map(function ($site) {
             $filePath = $this->certificatesPath().'/'.$site.'.crt';
 
-            $expiration = $this->cli->run("openssl x509 -enddate -noout -in $filePath");
+            $expiration = $this->cli->run('openssl x509 -enddate -noout -in '.escapeshellarg($filePath));
 
             $expiration = str_replace('notAfter=', '', $expiration);
 
@@ -618,22 +618,22 @@ class Site
         $this->createPrivateKey($keyPath);
         $this->createSigningRequest($url, $keyPath, $csrPath);
 
-        $caSrlParam = '-CAserial "'.$caSrlPath.'"';
+        $caSrlParam = '-CAserial '.escapeshellarg($caSrlPath);
         if (! $this->files->exists($caSrlPath)) {
             $caSrlParam .= ' -CAcreateserial';
         }
 
-        $result = $this->cli->runAsUser(sprintf(
-            'openssl x509 -req -sha256 -days %s -CA "%s" -CAkey "%s" %s -in "%s" -out "%s" -extensions v3_req -extfile "%s"',
-            $caExpireInDays, $caPemPath, $caKeyPath, $caSrlParam, $csrPath, $crtPath, $confPath
-        ));
+        $command = sprintf(
+            'openssl x509 -req -sha256 -days %s -CA %s -CAkey %s %s -in %s -out %s -extensions v3_req -extfile %s',
+            $caExpireInDays, escapeshellarg($caPemPath), escapeshellarg($caKeyPath), $caSrlParam,
+            escapeshellarg($csrPath), escapeshellarg($crtPath), escapeshellarg($confPath)
+        );
+
+        $result = $this->cli->runAsUser($command);
 
         // If cert could not be created using runAsUser(), use run().
         if (str_contains($result, 'Permission denied')) {
-            $this->cli->run(sprintf(
-                'openssl x509 -req -sha256 -days %s -CA "%s" -CAkey "%s" %s -in "%s" -out "%s" -extensions v3_req -extfile "%s"',
-                $caExpireInDays, $caPemPath, $caKeyPath, $caSrlParam, $csrPath, $crtPath, $confPath
-            ));
+            $this->cli->run($command);
         }
     }
 
@@ -642,7 +642,7 @@ class Site
      */
     public function createPrivateKey(string $keyPath): void
     {
-        $this->cli->runAsUser(sprintf('openssl genrsa -out "%s" 2048', $keyPath));
+        $this->cli->runAsUser(sprintf('openssl genrsa -out %s 2048', escapeshellarg($keyPath)));
     }
 
     /**
@@ -651,8 +651,9 @@ class Site
     public function createSigningRequest(string $url, string $keyPath, string $csrPath): void
     {
         $this->cli->runAsUser(sprintf(
-            'openssl req -new -key "%s" -out "%s" -subj "/C=/ST=/O=/localityName=/commonName=%s/organizationalUnitName=/emailAddress=%s%s/"',
-            $keyPath, $csrPath, $url, $url, '@laravel.valet'
+            'openssl req -new -key %s -out %s -subj %s',
+            escapeshellarg($keyPath), escapeshellarg($csrPath),
+            escapeshellarg('/C=/ST=/O=/localityName=/commonName='.$url.'/organizationalUnitName=/emailAddress='.$url.'@laravel.valet/')
         ));
     }
 
@@ -677,7 +678,7 @@ class Site
     public function trustCertificate(string $crtPath): void
     {
         $this->cli->run(sprintf(
-            'sudo security add-trusted-cert -d -r trustAsRoot -k /Library/Keychains/System.keychain "%s"', $crtPath
+            'sudo security add-trusted-cert -d -r trustAsRoot -k /Library/Keychains/System.keychain %s', escapeshellarg($crtPath)
         ));
     }
 
@@ -771,11 +772,11 @@ class Site
             $this->files->unlink($this->certificatesPath($url, 'crt'));
         }
 
-        $this->cli->run(sprintf('sudo security delete-certificate -c "%s" /Library/Keychains/System.keychain', $url));
-        $this->cli->run(sprintf('sudo security delete-certificate -c "*.%s" /Library/Keychains/System.keychain', $url));
+        $this->cli->run(sprintf('sudo security delete-certificate -c %s /Library/Keychains/System.keychain', escapeshellarg($url)));
+        $this->cli->run(sprintf('sudo security delete-certificate -c %s /Library/Keychains/System.keychain', escapeshellarg('*.'.$url)));
         $this->cli->run(sprintf(
-            'sudo security find-certificate -e "%s%s" -a -Z | grep SHA-1 | sudo awk \'{system("security delete-certificate -Z \'$NF\' /Library/Keychains/System.keychain")}\'',
-            $url, '@laravel.valet'
+            'sudo security find-certificate -e %s -a -Z | grep SHA-1 | sudo awk \'{system("security delete-certificate -Z \'$NF\' /Library/Keychains/System.keychain")}\'',
+            escapeshellarg($url.'@laravel.valet')
         ));
 
         // If the user had isolated the PHP version for this site, swap out .sock file
