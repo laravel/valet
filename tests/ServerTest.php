@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Container\Container;
+use Symfony\Component\Process\Process;
+use Valet\Filesystem;
 use Valet\Server;
 use Yoast\PHPUnitPolyfills\TestCases\TestCase;
 
@@ -9,6 +11,8 @@ use function Valet\user;
 class ServerTest extends TestCase
 {
     use UsesNullWriter;
+
+    private ?string $sandbox = null;
 
     public function set_up()
     {
@@ -21,6 +25,10 @@ class ServerTest extends TestCase
     public function tear_down()
     {
         Mockery::close();
+
+        if ($this->sandbox) {
+            (new Filesystem)->rmDirAndContents($this->sandbox);
+        }
     }
 
     public function test_it_extracts_uri_from_server_request_uri()
@@ -110,5 +118,53 @@ class ServerTest extends TestCase
     {
         $this->assertEquals('onramp.test', Server::valetSiteFromIpAddressUri('onramp.test/auth/login', 'test'));
         $this->assertNull(Server::valetSiteFromIpAddressUri('onramp.dev/auth/login', 'test'));
+    }
+
+    public function test_ip_address_requests_only_strip_the_leading_site_name()
+    {
+        $this->assertStringContainsString('SITE INDEX', $this->serve('127.0.0.1', '/site.test/'));
+
+        $response = $this->serve('127.0.0.1', '/site.test/.site.test./.site.test./.site.test./outside/file.txt/');
+
+        $this->assertStringContainsString('SITE INDEX', $response);
+        $this->assertStringNotContainsString('OUTSIDE THE SITE', $response);
+    }
+
+    public function test_requests_for_parent_directories_return_404()
+    {
+        $response = $this->serve('site.test', '/%2e%2e/%2e%2e/%2e%2e/outside/file.txt/');
+
+        $this->assertStringContainsString('404 - Not Found', $response);
+        $this->assertStringNotContainsString('OUTSIDE THE SITE', $response);
+    }
+
+    private function serve(string $host, string $requestUri): string
+    {
+        $this->sandbox ??= $this->createSandbox();
+
+        file_put_contents($this->sandbox.'/prepend.php', '<?php '.implode(' ', [
+            'define("VALET_HOME_PATH", '.var_export($this->sandbox.'/home', true).');',
+            '$_SERVER["HTTP_HOST"] = '.var_export($host, true).';',
+            '$_SERVER["REQUEST_URI"] = '.var_export($requestUri, true).';',
+        ]));
+
+        return (new Process(
+            [PHP_BINARY, '-d', 'auto_prepend_file='.$this->sandbox.'/prepend.php', 'server.php'],
+            __DIR__.'/..'
+        ))->mustRun()->getOutput();
+    }
+
+    private function createSandbox(): string
+    {
+        $sandbox = sys_get_temp_dir().'/valet-server-test-'.bin2hex(random_bytes(4));
+
+        mkdir($sandbox.'/home/Sites/site', 0777, true);
+        mkdir($sandbox.'/outside');
+
+        file_put_contents($sandbox.'/home/config.json', json_encode(['tld' => 'test', 'paths' => [$sandbox.'/home/Sites']]));
+        file_put_contents($sandbox.'/home/Sites/site/index.php', '<?php echo "SITE INDEX";');
+        file_put_contents($sandbox.'/outside/file.txt', 'OUTSIDE THE SITE');
+
+        return $sandbox;
     }
 }

@@ -29,7 +29,7 @@ if (Server::hostIsIpAddress($_SERVER['HTTP_HOST'])) {
 
     if ($host = Server::valetSiteFromIpAddressUri($uriForIpAddressExtraction, $valetConfig['tld'])) {
         $_SERVER['HTTP_HOST'] = $host;
-        $_SERVER['REQUEST_URI'] = str_replace($host, '', $uriForIpAddressExtraction);
+        $_SERVER['REQUEST_URI'] = substr($uriForIpAddressExtraction, strlen($host));
     }
 }
 
@@ -39,6 +39,12 @@ $server = new Server($valetConfig);
  * Parse the URI and site / host for the incoming request.
  */
 $uri = Server::uriFromRequestUri($_SERVER['REQUEST_URI']);
+
+// Reject URIs with ".." segments so drivers can't build paths outside the site directory.
+if (in_array('..', explode('/', $uri), true)) {
+    Server::show404();
+}
+
 $siteName = $server->siteNameFromHttpHost($_SERVER['HTTP_HOST']);
 $valetSitePath = $server->sitePath($siteName);
 
