@@ -168,22 +168,184 @@ class Site
      */
     public function getSiteUrl(string $directory): string
     {
-        $tld = $this->config->read()['tld'];
+        $config = $this->config->read();
+        $tld = $config['tld'];
+        $name = $this->normalizeSiteName($directory, $tld);
 
-        if ($directory == '.' || $directory == './') { // Allow user to use dot as current dir's site `--site=.`
-            $directory = $this->host(getcwd());
+        if (! $resolved = $this->resolveSite($name, $config)) {
+            throw new DomainException("The [{$name}] site could not be found in Valet's site list.");
         }
 
-        // Remove .tld from the end of sitename if it was provided
-        if (ends_with($directory, '.'.$tld)) {
-            $directory = substr($directory, 0, -(strlen('.'.$tld)));
+        return $resolved['name'].'.'.$tld;
+    }
+
+    /**
+     * Normalize a given site name by resolving '.' / './' and stripping the TLD.
+     */
+    public function normalizeSiteName(string $siteName, ?string $tld = null): string
+    {
+        $tld = $tld ?? $this->config->read()['tld'];
+
+        if ($siteName === '.' || $siteName === './') {
+            $siteName = $this->host(getcwd());
         }
 
-        if (! $this->parked()->merge($this->links())->where('site', $directory)->count() > 0) {
-            throw new DomainException("The [{$directory}] site could not be found in Valet's site list.");
+        if (ends_with(strtolower($siteName), '.'.strtolower($tld))) {
+            $siteName = substr($siteName, 0, -(strlen('.'.$tld)));
         }
 
-        return $directory.'.'.$tld;
+        return $siteName;
+    }
+
+    /**
+     * Get the path for a given site name.
+     */
+    public function getSitePath(string $siteName): ?string
+    {
+        $config = $this->config->read();
+
+        return $this->resolveSite(
+            $this->normalizeSiteName($siteName, $config['tld']),
+            $config
+        )['path'] ?? null;
+    }
+
+    /**
+     * Resolve an already-normalized site name to its directory path.
+     */
+    protected function resolveSitePath(string $siteName, ?array $config = null): ?string
+    {
+        return $this->resolveSite($siteName, $config)['path'] ?? null;
+    }
+
+    /**
+     * Resolve an already-normalized site name to its directory path and canonical matched name.
+     *
+     * @return array{path: string, name: string}|null
+     */
+    public function resolveSite(string $siteName, ?array $config = null): ?array
+    {
+        if ($siteName === '' || $siteName === '.' || $siteName === '..' || str_contains($siteName, '/')) {
+            return null;
+        }
+
+        $config = $config ?? $this->config->read();
+
+        // 1. Direct match (exact or case-insensitive)
+        if ($resolved = $this->resolveDirectSite($siteName, $config)) {
+            return $resolved;
+        }
+
+        // 2. Subdomain fallback matching parent site (e.g. api.my-site -> my-site)
+        if (str_contains($siteName, '.')) {
+            $parentName = Server::domainFromSiteName($siteName);
+            $prefix = substr($siteName, 0, -strlen($parentName));
+
+            if ($parent = $this->resolveDirectSite($parentName, $config)) {
+                return [
+                    'path' => $parent['path'],
+                    'name' => $prefix.$parent['name'],
+                ];
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Resolve a site name directly within linked and parked directories.
+     *
+     * @return array{path: string, name: string}|null
+     */
+    protected function resolveDirectSite(string $siteName, array $config): ?array
+    {
+        // 1. Check linked sites in ~/.config/valet/Sites
+        if ($resolved = $this->resolveSiteInDirectory($this->sitesPath(), $siteName)) {
+            return $resolved;
+        }
+
+        // 2. Check parked paths, in the same order the server resolves them
+        foreach ($config['paths'] as $path) {
+            if ($path === $this->sitesPath()) {
+                continue;
+            }
+
+            if ($resolved = $this->resolveSiteInDirectory($path, $siteName)) {
+                return $resolved;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Resolve a site entry inside a linked or parked directory, matching case-insensitively like Server::sitePath().
+     *
+     * @return array{path: string, name: string}|null
+     */
+    protected function resolveSiteInDirectory(string $directory, string $siteName): ?array
+    {
+        $needle = strtolower($siteName);
+
+        // 1. Direct candidate check (exact match or case-insensitive filesystem)
+        if ($resolved = $this->resolveCandidatePath($directory.'/'.$siteName)) {
+            $canonicalName = $siteName;
+            $canonicalPath = $resolved;
+
+            if ($this->files->isDir($directory)) {
+                $entries = $this->files->scandir($directory);
+                if (is_array($entries)) {
+                    foreach ($entries as $entry) {
+                        if (strtolower($entry) === $needle) {
+                            $canonicalName = $entry;
+                            $canonicalPath = $this->resolveCandidatePath($directory.'/'.$entry) ?? $resolved;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return ['path' => $canonicalPath, 'name' => $canonicalName];
+        }
+
+        // 2. Scan directory entries for case-insensitive match on case-sensitive filesystems
+        if (! $this->files->isDir($directory)) {
+            return null;
+        }
+
+        $entries = $this->files->scandir($directory);
+
+        if (! is_array($entries)) {
+            return null;
+        }
+
+        foreach ($entries as $entry) {
+            if ($entry !== $siteName && strtolower($entry) === $needle) {
+                if ($resolved = $this->resolveCandidatePath($directory.'/'.$entry)) {
+                    return ['path' => $resolved, 'name' => $entry];
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Resolve a candidate site link or directory to its real path if valid.
+     */
+    protected function resolveCandidatePath(string $candidate): ?string
+    {
+        if ($this->files->isLink($candidate)) {
+            $target = $this->files->readLink($candidate);
+
+            return $this->files->isDir($target) ? $this->files->realpath($target) : null;
+        }
+
+        if ($this->files->isDir($candidate)) {
+            return $this->files->realpath($candidate);
+        }
+
+        return null;
     }
 
     /**
@@ -1121,8 +1283,8 @@ class Site
     {
         if ($cwd) {
             $path = $cwd.'/.valetrc';
-        } elseif ($site = $this->parked()->merge($this->links())->where('site', $siteName)->first()) {
-            $path = data_get($site, 'path').'/.valetrc';
+        } elseif ($path = $this->getSitePath($siteName)) {
+            $path = $path.'/.valetrc';
         } else {
             return [];
         }
@@ -1147,8 +1309,8 @@ class Site
     {
         if ($cwd) {
             $oldPath = $cwd.'/.valetphprc';
-        } elseif ($site = $this->parked()->merge($this->links())->where('site', $siteName)->first()) {
-            $oldPath = data_get($site, 'path').'/.valetphprc';
+        } elseif ($path = $this->getSitePath($siteName)) {
+            $oldPath = $path.'/.valetphprc';
         } else {
             return null;
         }
@@ -1169,8 +1331,8 @@ class Site
     {
         if ($cwd) {
             $path = $cwd.'/composer.json';
-        } elseif ($site = $this->parked()->merge($this->links())->where('site', $siteName)->first()) {
-            $path = data_get($site, 'path').'/composer.json';
+        } elseif ($path = $this->getSitePath($siteName)) {
+            $path = $path.'/composer.json';
         } else {
             return null;
         }
