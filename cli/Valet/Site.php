@@ -211,14 +211,6 @@ class Site
     }
 
     /**
-     * Resolve an already-normalized site name to its directory path.
-     */
-    protected function resolveSitePath(string $siteName, ?array $config = null): ?string
-    {
-        return $this->resolveSite($siteName, $config)['path'] ?? null;
-    }
-
-    /**
      * Resolve an already-normalized site name to its directory path and canonical matched name.
      *
      * @return array{path: string, name: string}|null
@@ -239,12 +231,19 @@ class Site
         // 2. Subdomain fallback matching parent site (e.g. api.my-site -> my-site)
         if (str_contains($siteName, '.')) {
             $parentName = Server::domainFromSiteName($siteName);
-            $prefix = substr($siteName, 0, -strlen($parentName));
+            if ($parentName === '') {
+                return null;
+            }
+
+            $subdomain = substr($siteName, 0, -strlen('.'.$parentName));
+            if ($subdomain === '' || in_array('', explode('.', $subdomain), true)) {
+                return null;
+            }
 
             if ($parent = $this->resolveDirectSite($parentName, $config)) {
                 return [
                     'path' => $parent['path'],
-                    'name' => $prefix.$parent['name'],
+                    'name' => strtolower($subdomain).'.'.$parent['name'],
                 ];
             }
         }
@@ -293,14 +292,11 @@ class Site
             $canonicalPath = $resolved;
 
             if ($this->files->isDir($directory)) {
-                $entries = $this->files->scandir($directory);
-                if (is_array($entries)) {
-                    foreach ($entries as $entry) {
-                        if (strtolower($entry) === $needle) {
-                            $canonicalName = $entry;
-                            $canonicalPath = $this->resolveCandidatePath($directory.'/'.$entry) ?? $resolved;
-                            break;
-                        }
+                foreach ($this->files->scandir($directory) as $entry) {
+                    if (strtolower($entry) === $needle) {
+                        $canonicalName = $entry;
+                        $canonicalPath = $this->resolveCandidatePath($directory.'/'.$entry) ?? $resolved;
+                        break;
                     }
                 }
             }
@@ -313,13 +309,7 @@ class Site
             return null;
         }
 
-        $entries = $this->files->scandir($directory);
-
-        if (! is_array($entries)) {
-            return null;
-        }
-
-        foreach ($entries as $entry) {
+        foreach ($this->files->scandir($directory) as $entry) {
             if ($entry !== $siteName && strtolower($entry) === $needle) {
                 if ($resolved = $this->resolveCandidatePath($directory.'/'.$entry)) {
                     return ['path' => $resolved, 'name' => $entry];

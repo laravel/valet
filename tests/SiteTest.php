@@ -854,29 +854,47 @@ class SiteTest extends TestCase
         $config->shouldReceive('read')
             ->andReturn(['tld' => 'test', 'loopback' => VALET_LOOPBACK, 'paths' => ['/Users/name/code']]);
 
+        $normalizePath = function (string $path): string {
+            $segments = [];
+            foreach (explode('/', $path) as $segment) {
+                if ($segment === '' || $segment === '.') {
+                    continue;
+                }
+                if ($segment === '..') {
+                    array_pop($segments);
+
+                    continue;
+                }
+                $segments[] = $segment;
+            }
+
+            return '/'.implode('/', $segments);
+        };
+
         $files->shouldReceive('isLink')->andReturn(false);
-        $files->shouldReceive('isDir')->andReturnUsing(function ($path) {
+        $files->shouldReceive('isDir')->andReturnUsing(function ($path) use ($normalizePath) {
             // Everything that exists on this fake disk: the parked site, and the
-            // directories a traversing name would reach.
-            return in_array($path, [
+            // directories a traversing or empty-name lookup would reach if the guard failed.
+            return in_array($normalizePath($path), [
                 '/Users/name/code/site1',
                 '/Users/name/code',
-                VALET_HOME_PATH.'/Sites',
-                VALET_HOME_PATH,
-            ]);
+                '/Users/name',
+                $normalizePath(VALET_HOME_PATH.'/Sites'),
+                $normalizePath(VALET_HOME_PATH),
+            ], true);
         });
-        $files->shouldReceive('scandir')->andReturnUsing(function ($path) {
-            return $path === '/Users/name/code' ? ['site1'] : [];
+        $files->shouldReceive('scandir')->andReturnUsing(function ($path) use ($normalizePath) {
+            return $normalizePath($path) === '/Users/name/code' ? ['site1'] : [];
         });
-        $files->shouldReceive('realpath')->andReturnUsing(function ($path) {
-            return $path;
+        $files->shouldReceive('realpath')->andReturnUsing(function ($path) use ($normalizePath) {
+            return $normalizePath($path);
         });
 
         $site = resolve(Site::class);
 
-        // A doubled TLD must not resolve to the bare site, and a name that walks
-        // out of the site directories is not a site at all.
-        foreach (['site1.test.test', '..', '', 'code/site1', './site1'] as $notASite) {
+        // A doubled TLD must not resolve to the bare site, and names with empty labels,
+        // leading/trailing dots, or traversal segments must all be rejected.
+        foreach (['site1.test.test', '..', '..test', '', 'code/site1', './site1', 'site1.', '.site1', 'foo..site1'] as $notASite) {
             $this->assertNull($site->getSitePath($notASite), "[{$notASite}] should not resolve to a path.");
 
             try {
@@ -1089,6 +1107,8 @@ class SiteTest extends TestCase
         $this->assertEquals('MySite.test', $site->getSiteUrl('mysite'));
         $this->assertEquals('MySite.test', $site->getSiteUrl('MYSITE'));
         $this->assertEquals('MySite.test', $site->getSiteUrl('mysite.test'));
+        $this->assertEquals('api.MySite.test', $site->getSiteUrl('API.MySite'));
+        $this->assertEquals('api.MySite.test', $site->getSiteUrl('API.mysite'));
     }
 
     public function test_it_resolves_subdomains_to_parent_site()
@@ -1159,6 +1179,8 @@ class SiteTest extends TestCase
         $this->assertEquals('/Users/name/code/my-site', $site->getSitePath('api.my-site'));
         $this->assertEquals('/Users/name/code/my-site', $site->getSitePath('api.my-site.test'));
         $this->assertEquals('api.my-site.test', $site->getSiteUrl('api.my-site'));
+        $this->assertEquals('api.my-site.test', $site->getSiteUrl('API.my-site'));
+        $this->assertEquals('api.my-site.test', $site->getSiteUrl('API.MY-SITE.TEST'));
         $this->assertEquals('php@8.2', $site->phpRcVersion('api.my-site'));
 
         // Direct same-named child site resolves its own directory and php version
