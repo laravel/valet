@@ -1,6 +1,15 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/valet/compare/v4.13.0...main)
+## [Unreleased](https://github.com/laravel/valet/compare/v4.14.0...main)
+
+## [v4.14.0](https://github.com/laravel/valet/compare/v4.13.0...v4.14.0) - 2026-11-12
+
+### What's Changed
+
+* Strip only the leading site name from IP address requests by [@pushpak1300](https://github.com/pushpak1300) in https://github.com/laravel/valet/pull/1584
+* Quote arguments in certificate shell commands by [@pushpak1300](https://github.com/pushpak1300) in https://github.com/laravel/valet/pull/1583
+
+**Full Changelog**: https://github.com/laravel/valet/compare/v4.13.0...v4.14.0
 
 ## [v4.13.0](https://github.com/laravel/valet/compare/v4.12.0...v4.13.0) - 2026-11-10
 
