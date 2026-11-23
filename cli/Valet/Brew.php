@@ -11,6 +11,7 @@ class Brew
     // This is the array of PHP versions that Valet will attempt to install/configure when requested
     const SUPPORTED_PHP_VERSIONS = [
         'php',
+        'php@8.6',
         'php@8.5',
         'php@8.4',
         'php@8.3',
@@ -25,7 +26,7 @@ class Brew
 
     // Update this LATEST and the following LIMITED array when PHP versions are released or retired
     // We specify a numbered version here even though Homebrew links its generic 'php' alias to it
-    const LATEST_PHP_VERSION = 'php@8.4';
+    const LATEST_PHP_VERSION = 'php@8.6';
 
     // These are the PHP versions that should be installed via the shivammathur/php tap because
     // Homebrew officially no longer bottles them or they're marked disabled in their formula
